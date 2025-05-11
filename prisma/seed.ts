@@ -78,7 +78,7 @@ async function seedQuotaPolicy() {
 
   // Generate formatted IDs and seed data
   for (let i = 0; i < quotaPolicyData.length; i++) {
-    const quotaPolicyID = await generateFormattedID('quota_Policy', 'QuotaPolicyID', 'QTA')
+    const quotaPolicyID = await generateFormattedID('QTA')
     await prisma.quota_Policy.create({
       data: {
         QuotaPolicyID: quotaPolicyID,
@@ -141,8 +141,8 @@ async function seedStops() {
     new Map([...stopData1, ...stopData2].map(stop => [stop.StopName, stop])).values()
   );
   
-  for (let stop of combinedUniqueStops) {
-    const stopID = await generateFormattedID('stop', 'StopID', 'STP');
+  for (const stop of combinedUniqueStops) {
+    const stopID = await generateFormattedID('STP');
     await prisma.stop.create({
       data: {
         StopID: stopID,
@@ -172,7 +172,7 @@ async function seedRoutes() {
   const divisoriaID = getStopIDByName('Divisoria');
 
   // Route: Sapang Palay to PITX
-  const routeID1 = await generateFormattedID('route', 'RouteID', 'RT');
+  const routeID1 = await generateFormattedID('RT');
   await prisma.route.create({
     data: {
       RouteID: routeID1,
@@ -183,7 +183,7 @@ async function seedRoutes() {
   });
 
   // Route: PITX to Sapang Palay
-  const routeID2 = await generateFormattedID('route', 'RouteID', 'RT');
+  const routeID2 = await generateFormattedID('RT');
   await prisma.route.create({
     data: {
       RouteID: routeID2,
@@ -194,7 +194,7 @@ async function seedRoutes() {
   });
 
   // Route: Sapang Palay to Divisoria
-  const routeID3 = await generateFormattedID('route', 'RouteID', 'RT');
+  const routeID3 = await generateFormattedID('RT');
   await prisma.route.create({
     data: {
       RouteID: routeID3,
@@ -205,7 +205,7 @@ async function seedRoutes() {
   });
 
   // Route: Divisoria to Sapang Palay
-  const routeID4 = await generateFormattedID('route', 'RouteID', 'RT');
+  const routeID4 = await generateFormattedID('RT');
   await prisma.route.create({
     data: {
       RouteID: routeID4,
@@ -250,7 +250,7 @@ async function seedRouteStops() {
         continue;
       }
 
-      const routeStopID = await generateFormattedID('routeStop', 'RouteStopID', 'RTS', 4);
+      const routeStopID = await generateFormattedID('RTS');
       await prisma.routeStop.create({
         data: {
           RouteStopID: routeStopID,
@@ -269,14 +269,22 @@ async function seedRouteStops() {
 
 async function seedBusAssignments() {
   // Generate bus assignment IDs
-  const busAssignmentID1 = await generateFormattedID('busAssignment', 'BusAssignmentID', 'BA');
+  const busAssignmentID1 = await generateFormattedID('BA');
   
+   // Retrieve all routes sorted by RouteID
+  const allRoutes = await prisma.route.findMany({
+    orderBy: { RouteID: "asc" },
+  });
+
+  const routeID1 = allRoutes[0]?.RouteID;
+  const routeID3 = allRoutes[2]?.RouteID;
+
   // Create each bus assignment one by one to avoid duplicate IDs
   await prisma.busAssignment.create({
     data: {
       BusAssignmentID: busAssignmentID1,
       BusID: "BUS-0001",
-      RouteID: "RT-0001",
+      RouteID: routeID1,
       AssignmentDate: new Date('2025-04-15'),
       Battery: true,
       Lights: true,
@@ -288,15 +296,16 @@ async function seedBusAssignments() {
       Engine: true,
       TireCondition: true,
       Self: true,
+      IsDeleted: false,
     },
   });
 
-  const busAssignmentID2 = await generateFormattedID('busAssignment', 'BusAssignmentID', 'BA');
+  const busAssignmentID2 = await generateFormattedID('BA');
   await prisma.busAssignment.create({
     data: {
       BusAssignmentID: busAssignmentID2,
       BusID: "BUS-0002",
-      RouteID: "RT-0003",
+      RouteID: routeID3,
       AssignmentDate: new Date('2025-04-16'),
       Battery: false,
       Lights: true,
@@ -308,6 +317,7 @@ async function seedBusAssignments() {
       Engine: true,
       TireCondition: false,
       Self: true,
+      IsDeleted: false,
     },
   });
 

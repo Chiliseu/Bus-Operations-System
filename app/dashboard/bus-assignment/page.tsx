@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
+ 
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -9,6 +10,8 @@ import AssignRouteModal from '@/components/modal/AssignRouteModal';
 // import Button from "@/components/ui/Button";
 import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
+import { fetchConductorById } from '../../../lib/fetchConductors';
+import { fetchDriverById } from '../../../lib/fetchDrivers';
 
 interface RegularBusAssignment {
   RegularBusAssignmentID: string;
@@ -120,6 +123,7 @@ const BusAssignmentPage: React.FC = () => {
     setSelectedDriver(null);
     setSelectedConductor(null);
     setSelectedRoute(null);
+    setQuotaValue('');
   };
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -180,15 +184,50 @@ const BusAssignmentPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (assignment: RegularBusAssignment) => {
+  const handleEdit = async  (assignment: RegularBusAssignment) => {
     setIsEditMode(true);
     setEditAssignment(assignment);
 
     // Populate the form with the selected assignment's values
     setSelectedBus({ busId: assignment.BusAssignment?.BusID ?? '', route: '', type: '', capacity: 0, image: null }); 
-    setSelectedDriver({ driver_id: assignment.DriverID ?? '', name: '', job: '', contactNo: '', address: '', image: null });
-    setSelectedConductor({ conductor_id: assignment.ConductorID ?? '', name: '', job: '', contactNo: '', address: '', image: null });
+
+    setSelectedRoute({ RouteName: assignment.BusAssignment?.Route?.RouteName ?? '', RouteID: '', StartStopID: '', EndStopID: '', });
+
+    if (assignment.quotaPolicy?.Fixed) {
+      setQuotaType('Fixed');
+      setQuotaValue(assignment.quotaPolicy.Fixed.Quota);
+    } else if (assignment.quotaPolicy?.Percentage) {
+      setQuotaType('Percentage');
+      setQuotaValue(assignment.quotaPolicy.Percentage.Percentage);
+    } else {
+      setQuotaType(''); // Reset if no quotaPolicy is present
+      setQuotaValue(''); // Reset the value
+    }
+
+    const driver = await fetchDriverById(assignment.DriverID ?? '');
+
+      setSelectedDriver({
+      driver_id: assignment.DriverID ?? '',
+      name: driver?.name ?? '', // Populate with driver name if found
+      job: driver?.job ?? '', // Populate with driver job if found
+      contactNo: driver?.contactNo ?? '', // Populate with driver contactNo if found
+      address: driver?.address ?? '', // Populate with driver address if found
+      image: driver?.image ?? null, // Populate with driver image if found
+    });
+
+    const conductor =  await fetchConductorById(assignment.ConductorID ?? '');
+
+    setSelectedConductor({
+      conductor_id: assignment.ConductorID ?? '',
+      name: conductor?.name ?? '', // Populate with conductor name if found
+      job: conductor?.job ?? '', // Populate with conductor job if found
+      contactNo: conductor?.contactNo ?? '', // Populate with conductor contactNo if found
+      address: conductor?.address ?? '', // Populate with conductor address if found
+      image: conductor?.image ?? null, // Populate with conductor image if found
+    });
+
     
+
   };
 
   return (

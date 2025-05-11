@@ -8144,6 +8144,7 @@ export namespace Prisma {
     Engine: boolean | null
     TireCondition: boolean | null
     Self: boolean | null
+    IsDeleted: boolean | null
   }
 
   export type BusAssignmentMaxAggregateOutputType = {
@@ -8161,6 +8162,7 @@ export namespace Prisma {
     Engine: boolean | null
     TireCondition: boolean | null
     Self: boolean | null
+    IsDeleted: boolean | null
   }
 
   export type BusAssignmentCountAggregateOutputType = {
@@ -8178,6 +8180,7 @@ export namespace Prisma {
     Engine: number
     TireCondition: number
     Self: number
+    IsDeleted: number
     _all: number
   }
 
@@ -8197,6 +8200,7 @@ export namespace Prisma {
     Engine?: true
     TireCondition?: true
     Self?: true
+    IsDeleted?: true
   }
 
   export type BusAssignmentMaxAggregateInputType = {
@@ -8214,6 +8218,7 @@ export namespace Prisma {
     Engine?: true
     TireCondition?: true
     Self?: true
+    IsDeleted?: true
   }
 
   export type BusAssignmentCountAggregateInputType = {
@@ -8231,6 +8236,7 @@ export namespace Prisma {
     Engine?: true
     TireCondition?: true
     Self?: true
+    IsDeleted?: true
     _all?: true
   }
 
@@ -8321,6 +8327,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     _count: BusAssignmentCountAggregateOutputType | null
     _min: BusAssignmentMinAggregateOutputType | null
     _max: BusAssignmentMaxAggregateOutputType | null
@@ -8355,6 +8362,7 @@ export namespace Prisma {
     Engine?: boolean
     TireCondition?: boolean
     Self?: boolean
+    IsDeleted?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
@@ -8374,6 +8382,7 @@ export namespace Prisma {
     Engine?: boolean
     TireCondition?: boolean
     Self?: boolean
+    IsDeleted?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
 
@@ -8392,6 +8401,7 @@ export namespace Prisma {
     Engine?: boolean
     TireCondition?: boolean
     Self?: boolean
+    IsDeleted?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
 
@@ -8410,9 +8420,10 @@ export namespace Prisma {
     Engine?: boolean
     TireCondition?: boolean
     Self?: boolean
+    IsDeleted?: boolean
   }
 
-  export type BusAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"BusAssignmentID" | "BusID" | "RouteID" | "AssignmentDate" | "Battery" | "Lights" | "Oil" | "Water" | "Break" | "Air" | "Gas" | "Engine" | "TireCondition" | "Self", ExtArgs["result"]["busAssignment"]>
+  export type BusAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"BusAssignmentID" | "BusID" | "RouteID" | "AssignmentDate" | "Battery" | "Lights" | "Oil" | "Water" | "Break" | "Air" | "Gas" | "Engine" | "TireCondition" | "Self" | "IsDeleted", ExtArgs["result"]["busAssignment"]>
   export type BusAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
@@ -8445,6 +8456,7 @@ export namespace Prisma {
       Engine: boolean
       TireCondition: boolean
       Self: boolean
+      IsDeleted: boolean
     }, ExtArgs["result"]["busAssignment"]>
     composites: {}
   }
@@ -8884,6 +8896,7 @@ export namespace Prisma {
     readonly Engine: FieldRef<"BusAssignment", 'Boolean'>
     readonly TireCondition: FieldRef<"BusAssignment", 'Boolean'>
     readonly Self: FieldRef<"BusAssignment", 'Boolean'>
+    readonly IsDeleted: FieldRef<"BusAssignment", 'Boolean'>
   }
     
 
@@ -10516,7 +10529,8 @@ export namespace Prisma {
     Gas: 'Gas',
     Engine: 'Engine',
     TireCondition: 'TireCondition',
-    Self: 'Self'
+    Self: 'Self',
+    IsDeleted: 'IsDeleted'
   };
 
   export type BusAssignmentScalarFieldEnum = (typeof BusAssignmentScalarFieldEnum)[keyof typeof BusAssignmentScalarFieldEnum]
@@ -10940,6 +10954,7 @@ export namespace Prisma {
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
     Self?: BoolFilter<"BusAssignment"> | boolean
+    IsDeleted?: BoolFilter<"BusAssignment"> | boolean
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
   }
@@ -10959,6 +10974,7 @@ export namespace Prisma {
     Engine?: SortOrder
     TireCondition?: SortOrder
     Self?: SortOrder
+    IsDeleted?: SortOrder
     Route?: RouteOrderByWithRelationInput
     RegularBusAssignment?: RegularBusAssignmentOrderByWithRelationInput
   }
@@ -10981,6 +10997,7 @@ export namespace Prisma {
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
     Self?: BoolFilter<"BusAssignment"> | boolean
+    IsDeleted?: BoolFilter<"BusAssignment"> | boolean
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
   }, "BusAssignmentID">
@@ -11000,6 +11017,7 @@ export namespace Prisma {
     Engine?: SortOrder
     TireCondition?: SortOrder
     Self?: SortOrder
+    IsDeleted?: SortOrder
     _count?: BusAssignmentCountOrderByAggregateInput
     _max?: BusAssignmentMaxOrderByAggregateInput
     _min?: BusAssignmentMinOrderByAggregateInput
@@ -11023,6 +11041,7 @@ export namespace Prisma {
     Engine?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
     TireCondition?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
     Self?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
+    IsDeleted?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
   }
 
   export type RegularBusAssignmentWhereInput = {
@@ -11382,6 +11401,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
   }
@@ -11401,6 +11421,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -11418,6 +11439,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
   }
@@ -11437,6 +11459,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -11455,6 +11478,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
   }
 
   export type BusAssignmentUpdateManyMutationInput = {
@@ -11471,6 +11495,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type BusAssignmentUncheckedUpdateManyInput = {
@@ -11488,6 +11513,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RegularBusAssignmentCreateInput = {
@@ -11890,6 +11916,7 @@ export namespace Prisma {
     Engine?: SortOrder
     TireCondition?: SortOrder
     Self?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type BusAssignmentMaxOrderByAggregateInput = {
@@ -11907,6 +11934,7 @@ export namespace Prisma {
     Engine?: SortOrder
     TireCondition?: SortOrder
     Self?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type BusAssignmentMinOrderByAggregateInput = {
@@ -11924,6 +11952,7 @@ export namespace Prisma {
     Engine?: SortOrder
     TireCondition?: SortOrder
     Self?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -13035,6 +13064,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -13052,6 +13082,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -13169,6 +13200,7 @@ export namespace Prisma {
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
     Self?: BoolFilter<"BusAssignment"> | boolean
+    IsDeleted?: BoolFilter<"BusAssignment"> | boolean
   }
 
   export type RouteCreateWithoutRouteStopsInput = {
@@ -13398,6 +13430,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
   }
 
@@ -13416,6 +13449,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
   }
 
   export type BusAssignmentCreateOrConnectWithoutRegularBusAssignmentInput = {
@@ -13475,6 +13509,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
   }
 
@@ -13493,6 +13528,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RegularBusAssignmentCreateManyQuotaPolicyInput = {
@@ -13627,6 +13663,7 @@ export namespace Prisma {
     Engine: boolean
     TireCondition: boolean
     Self: boolean
+    IsDeleted: boolean
   }
 
   export type RouteStopUpdateWithoutRouteInput = {
@@ -13661,6 +13698,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -13678,6 +13716,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -13695,6 +13734,7 @@ export namespace Prisma {
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
     Self?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
 

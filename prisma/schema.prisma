@@ -79,6 +79,7 @@ model BusAssignment {
   Engine          Boolean
   TireCondition   Boolean
   Self            Boolean
+  IsDeleted       Boolean
 
   Route                Route                 @relation(fields: [RouteID], references: [RouteID])
   RegularBusAssignment RegularBusAssignment?

@@ -68,6 +68,7 @@ CREATE TABLE "BusAssignment" (
     "Engine" BOOLEAN NOT NULL,
     "TireCondition" BOOLEAN NOT NULL,
     "Self" BOOLEAN NOT NULL,
+    "IsDeleted" BOOLEAN NOT NULL,
 
     CONSTRAINT "BusAssignment_pkey" PRIMARY KEY ("BusAssignmentID")
 );
