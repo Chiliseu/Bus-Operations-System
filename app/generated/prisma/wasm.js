@@ -167,7 +167,8 @@ exports.Prisma.BusAssignmentScalarFieldEnum = {
   Gas: 'Gas',
   Engine: 'Engine',
   TireCondition: 'TireCondition',
-  Self: 'Self'
+  Self: 'Self',
+  IsDeleted: 'IsDeleted'
 };
 
 exports.Prisma.RegularBusAssignmentScalarFieldEnum = {
