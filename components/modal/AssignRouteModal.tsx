@@ -4,22 +4,24 @@ import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
+import { Route } from '@/app/interface'; // Importing the Route interface
 
-interface Route {
-  RouteID: string;
-  RouteName: string;
-  StartStop: {
-    StopID: string;
-    StopName: string;
-  };
-  EndStop: {
-    StopID: string;
-    StopName: string;
-  };
-  roundTrip: boolean;
-  noOfBus: number;
-  image: string | null;
-}
+//OLD ROUTE INTERFACE
+// interface Route {
+//   RouteID: string;
+//   RouteName: string;
+//   StartStop: {
+//     StopID: string;
+//     StopName: string;
+//   };
+//   EndStop: {
+//     StopID: string;
+//     StopName: string;
+//   };
+//   roundTrip: boolean;
+//   noOfBus: number;
+//   image: string | null;
+// }
 
 const AssignRouteModal = ({ 
   onClose,
@@ -59,20 +61,20 @@ const AssignRouteModal = ({
         setFilteredRoutes(sorted);
       },
     },
-    {
-      name: 'Round Trip Only',
-      action: () => {
-        const filtered = routes.filter(route => route.roundTrip === true);
-        setFilteredRoutes(filtered);
-      },
-    },
-    {
-      name: 'One-Way Only',
-      action: () => {
-        const filtered = routes.filter(route => route.roundTrip === false);
-        setFilteredRoutes(filtered);
-      },
-    },
+    // {
+    //   name: 'Round Trip Only',
+    //   action: () => {
+    //     const filtered = routes.filter(route => route.roundTrip === true);
+    //     setFilteredRoutes(filtered);
+    //   },
+    // },
+    // {
+    //   name: 'One-Way Only',
+    //   action: () => {
+    //     const filtered = routes.filter(route => route.roundTrip === false);
+    //     setFilteredRoutes(filtered);
+    //   },
+    // },
     {
       name: 'Show All',
       action: () => {
@@ -96,8 +98,8 @@ const AssignRouteModal = ({
               // Filter routes based on search term
               const filtered = routes.filter((route) =>
                 route.RouteName.toLowerCase().includes(text.toLowerCase()) ||
-                route.StartStop.StopName.toLowerCase().includes(text.toLowerCase()) ||
-                route.EndStop.StopName.toLowerCase().includes(text.toLowerCase())
+                route.StartStop?.StopName.toLowerCase().includes(text.toLowerCase()) ||
+                route.EndStop?.StopName.toLowerCase().includes(text.toLowerCase())
               );
               setFilteredRoutes(filtered);
             }}
@@ -121,7 +123,7 @@ const AssignRouteModal = ({
               <div className="flex items-center gap-3">
                 <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
                   <Image
-                    src={route.image || '/assets/images/bus-fallback.png'}
+                    src={'/assets/images/bus-fallback.png'}
                     alt="Bus"
                     className="object-cover"
                     fill
@@ -131,8 +133,8 @@ const AssignRouteModal = ({
                   <div className="flex gap-2 items-center">
                     <div>{route.RouteName}</div>
                   </div>
-                  <div className="text-sm text-gray-400">{`Start: ${route.StartStop.StopName}`}</div>
-                  <div className="text-sm text-gray-400">{`End: ${route.EndStop.StopName}`}</div>
+                  <div className="text-sm text-gray-400">{`Start: ${route.StartStop?.StopName}`}</div>
+                  <div className="text-sm text-gray-400">{`End: ${route.EndStop?.StopName}`}</div>
                 </div>
               </div>
 

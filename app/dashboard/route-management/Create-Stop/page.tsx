@@ -1,39 +1,97 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
-
 import '../../../../styles/globals.css';
-
-interface Stop {
-  name: string;
-  longitude: string;
-  latitude: string;
-}
-
-const mockStops: Stop[] = Array.from({ length: 150 }, (_, i) => ({
-  name: `Stop ${i + 1}`,
-  longitude: (120 + Math.random()).toFixed(6),
-  latitude: (14 + Math.random()).toFixed(6),
-}));
+import { Stop } from '@/app/interface'; // Importing the Stop interface
 
 const ITEMS_PER_PAGE = 10;
 
 const RouteManagementPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(mockStops.length / ITEMS_PER_PAGE);
+  const ITEMS_PER_PAGE = 10; // Number of items per page
+  const [stops, setStops] = useState<Stop[]>([]); // All stops
+  const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
+  const [stopName, setStopName] = useState(''); // State for Stop Name
+  const [longitude, setLongitude] = useState(''); // State for Longitude
+  const [latitude, setLatitude] = useState(''); // State for Latitude
 
-  const currentStops = mockStops.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(stops.length / ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
+
+  // Update displayed stops whenever the current page changes
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setDisplayedStops(stops.slice(startIndex, endIndex));
+  }, [currentPage, stops]);
+
+  const fetchStops = async () => {
+    try {
+      const response = await fetch('/api/stops');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch assignments: ${response.statusText}`);
+      }
+      const data = await response.json();
+      setStops(data); // Update the full stops list
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchStops();
+  }, []);
+
+  const handleAddStop = async () => {
+    if (!stopName || !longitude || !latitude) {
+      alert('Please fill in all fields with valid values.');
+      return;
+    }
+
+    console.log(stopName, longitude, latitude); // Debugging
+    const newStop = {
+      StopName: stopName,
+      Location: `${longitude}, ${latitude}`, // Combine longitude and latitude into a single string
+    };
+
+    try {
+      const response = await fetch('/api/stops', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newStop),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend error:', errorText);
+        throw new Error('Failed to add stop');
+      }
+
+      alert('Stop added successfully!');
+      handleClear(); // Clear input fields after successful addition
+      fetchStops(); // Refresh the stops list
+    } catch (error) {
+      console.error('Error adding stop:', error);
+      alert('Failed to add stop. Please try again.');
+    } finally {
+    }
+  };
+
+  const handleClear = () => {
+    setStopName(''); // Clear input fields
+    setLongitude('');
+    setLatitude('');
+  }
 
   return (
     <div className={`card mx-auto ${styles.wideCard}`}>
@@ -44,13 +102,16 @@ const RouteManagementPage: React.FC = () => {
           <h2 className={styles.stopTitle}>CREATE STOP</h2>
           <div className="row g-3 mb-4">
             <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Stop Name" />
+              <input type="text"className="form-control" placeholder="Stop Name" value={stopName}
+                onChange={(e) => setStopName(e.target.value)}/>
             </div>
             <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Longitude" />
+              <input type="text" className="form-control" placeholder="Longitude" value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}/>
             </div>
             <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Latitude" />
+              <input type="text" className="form-control" placeholder="Latitude" value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}/>
             </div>
           </div>
 
@@ -66,11 +127,11 @@ const RouteManagementPage: React.FC = () => {
               </select>
             </div>
             <div className="col-md-5 text-end">
-              <button className="btn btn-primary me-2">
+              <button className="btn btn-primary me-2" onClick={handleClear}>
                 <img src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" />
                 Clear
               </button>
-              <button className="btn btn-success me-2">
+              <button className="btn btn-success me-2" onClick={handleAddStop}>
                 <img src="/assets/images/add-line.png" alt="Add" className="icon-small" />
                 Add
               </button>
@@ -95,11 +156,11 @@ const RouteManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {currentStops.map((stop, index) => (
-                <tr key={index}>
-                  <td>{stop.name}</td>
-                  <td>{stop.longitude}</td>
-                  <td>{stop.latitude}</td>
+            {displayedStops.map((stop) => (
+                <tr key={stop.StopID}>
+                  <td>{stop.StopName}</td>
+                  <td>{stop.Location}</td>
+                  <td>{stop.Location}</td>
                   <td className="text-center">
                     <div className="d-inline-flex align-items-center gap-1">
                       <button className="btn btn-sm btn-primary p-1">
@@ -121,7 +182,7 @@ const RouteManagementPage: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))}
             </tbody>
           </table>
 

@@ -8,6 +8,7 @@ import AssignConductorModal from '@/components/modal/AssignConductorModal';
 import AssignRouteModal from '@/components/modal/AssignRouteModal';
 // import Button from "@/components/ui/Button";
 import styles from './bus-assignment.module.css';
+import { Route } from '@/app/interface'; // Importing the Route interface
 
 interface RegularBusAssignment {
   RegularBusAssignmentID: string;
@@ -55,21 +56,21 @@ interface Conductor {
   image: string | null;
 }
 
-interface Route {
-  RouteID: string;
-  RouteName: string;
-  StartStop: {
-    StopID: string;
-    StopName: string;
-  };
-  EndStop: {
-    StopID: string;
-    StopName: string;
-  };
-  roundTrip: boolean;
-  noOfBus: number;
-  image: string | null;
-}
+// interface Route {
+//   RouteID: string;
+//   RouteName: string;
+//   StartStop: {
+//     StopID: string;
+//     StopName: string;
+//   };
+//   EndStop: {
+//     StopID: string;
+//     StopName: string;
+//   };
+//   roundTrip: boolean;
+//   noOfBus: number;
+//   image: string | null;
+// }
 
 const BusAssignmentPage: React.FC = () => {
 

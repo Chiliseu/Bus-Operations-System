@@ -4,13 +4,15 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
+import { Stop } from '@/app/interface'; // Importing the Stop interface
 
-interface Stop {
-  StopID: string;
-  StopName: string;
-  Location: string;
-  image: string | null;
-}
+// OLD STOP INTERFACE
+// interface Stop {
+//   StopID: string;
+//   StopName: string;
+//   Location: string;
+//   image: string | null;
+// }
 
 const ShowStopsModal = ({ 
   onClose,
@@ -100,7 +102,7 @@ const ShowStopsModal = ({
                 {/* Stop Icon */}
                 <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
                   <Image
-                    src={stop.image || '/assets/images/bus-fallback.png'}
+                    src={'/assets/images/bus-fallback.png'}
                     alt="Bus"
                     className="object-cover"
                     fill

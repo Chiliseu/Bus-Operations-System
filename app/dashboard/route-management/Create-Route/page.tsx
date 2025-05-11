@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import cuid from 'cuid'; // Install cuid if not already installed: npm install cuid
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import ShowStopsModal from '@/components/modal/ShowStopsModal';
 import AssignBusModal from '@/components/modal/AssignBusModal';
+import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 
 import '../../../../styles/globals.css';
 
@@ -17,36 +19,36 @@ import {
 } from '@hello-pangea/dnd';
 
 
-interface Route {
-  name: string;
-  startStop: string;
-  endStop: string;
-  stopsBetween: string[];
-}
+// interface Route {
+//   name: string;
+//   startStop: string;
+//   endStop: string;
+//   stopsBetween: string[];
+// }
 
-interface Stop {
-  StopID: string;
-  StopName: string;
-  Location: string;
-  image: string | null;
-}
+// interface Stop {
+//   StopID: string;
+//   StopName: string;
+//   Location: string;
+//   image: string | null;
+// }
 
-const mockRoutes: Route[] = Array.from({ length: 100 }, (_, i) => ({
-  name: `Route ${i + 1}`,
-  startStop: 'Cell',
-  endStop: 'Cell',
-  stopsBetween: ['Cell', 'Cell'],
-}));
+// const mockRoutes: Route[] = Array.from({ length: 100 }, (_, i) => ({
+//   name: `Route ${i + 1}`,
+//   startStop: 'Cell',
+//   endStop: 'Cell',
+//   stopsBetween: ['Cell', 'Cell'],
+// }));
 
 const ITEMS_PER_PAGE = 10;
 
 const CreateRoutePage: React.FC = () => {
+  const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
   const [routeName, setRouteName] = useState('');
   const [startStop, setStartStop] = useState('');
   const [endStop, setEndStop] = useState('');
-  const [stopsBetween, setStopsBetween] = useState<string[]>(['']);
+  const [stopsBetween, setStopsBetween] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(mockRoutes.length / ITEMS_PER_PAGE);
 
   // Use State for modal
   const [showStopsModal, setShowStopsModal] = useState(false);
@@ -59,7 +61,27 @@ const CreateRoutePage: React.FC = () => {
   const [stopType, setStopType] = useState<'start' | 'end' | 'between' | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(null); // for between stops
 
-  const currentRoutes = mockRoutes.slice(
+  // Fetch routes from the backend
+  const fetchRoutes = async () => {
+    try {
+      const response = await fetch('/api/route-management'); // Replace with your API endpoint
+      if (!response.ok) {
+        throw new Error('Failed to fetch routes');
+      }
+      const data: Route[] = await response.json();
+      setDisplayedRoutes(data);
+    } catch (error) {
+      console.error('Error fetching routes:', error);
+    }
+  };
+
+  // Fetch routes when the component mounts
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
+
+  const totalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
+  const currentRoutes = displayedroutes.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -94,18 +116,79 @@ const CreateRoutePage: React.FC = () => {
     setStopsBetween(updatedStops);
   };
 
+  const handleAddRoute = async () => {
+    if (!routeName || !selectedStartStop || !selectedEndStop) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+  
+    // Prepare the RouteStops array with StopID and StopOrder
+    const routeStops = stopsBetween.map((stopID, index) => ({
+      RouteStopID: cuid(), // Generate a unique ID for each RouteStop
+      StopID: stopID, // Assuming stopsBetween contains StopIDs
+      StopOrder: index + 1, // Assign the order of the stop
+    }));
+  
+    const newRoute = {
+      RouteName: routeName,
+      StartStopID: selectedStartStop.StopID,
+      EndStopID: selectedEndStop.StopID,
+      RouteStops: routeStops, // Include the RouteStops array
+    };
+  
+    console.log('Payload being sent to the backend:', newRoute); // Debugging
+  
+    try {
+      const response = await fetch('/api/route-management', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newRoute),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text(); // Get error details from the response
+        console.error('Backend error:', errorText); // Debugging
+        throw new Error('Failed to add route');
+      }
+  
+      alert('Route added successfully!');
+      setRouteName('');
+      setStartStop('');
+      setEndStop('');
+      setStopsBetween(['']);
+      fetchRoutes(); // Refresh the list of routes
+    } catch (error) {
+      console.error('Error adding route:', error); // Debugging
+      alert('Failed to add route. Please try again.');
+    }
+  };
+
+  const handleClear = () => {
+    setRouteName('');
+    setStartStop('');
+    setEndStop('');
+    setStopsBetween([]);
+    setSelectedStartStop(null);
+    setSelectedEndStop(null);
+    setSelectedStopBetween(null);
+    setStopType(null);
+    setSelectedStopIndex(null);
+  };
+
   return (
     <div className={`card mx-auto ${styles.wideCard}`}>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
           {/* Create Route Section */}
           <h2 className={styles.stopTitle}>CREATE ROUTE</h2>
-          <button className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
+          {/* <button className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
             + Assign Bus
           </button>
           <button className={styles.saveButton} onClick={() => setShowStopsModal(true)}>
             + Assign Stop
-          </button>
+          </button> */}
           <div className="row g-3 mb-3">
             <div className="col-md-4">
               <input
@@ -151,34 +234,38 @@ const CreateRoutePage: React.FC = () => {
               <Droppable droppableId="stops">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {stopsBetween.map((stop, index) => (
-                      <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
-                        {(provided) => (
-                          <div
-                            className="d-flex align-items-center mb-2"
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                          >
-                            <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
-                            <input
-                              type="text"
-                              className="form-control me-2"
-                              placeholder={`Stop ${index + 1}`}
-                              value={stop}
-                              onChange={(e) => handleStopChange(e.target.value, index)}
-                              onClick={() => {
-                                setStopType('between');
-                                setSelectedStopIndex(index);
-                                setShowStopsModal(true);
-                              }}
-                            />
-                          <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
-                              <img src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" />
-                          </button>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                    {stopsBetween.length === 0 ? (
+                      <p className="text-muted">Click + button to add stops.</p>
+                    ) : (
+                      stopsBetween.map((stop, index) => (
+                        <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
+                          {(provided) => (
+                            <div
+                              className="d-flex align-items-center mb-2"
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                            >
+                              <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
+                              <input
+                                type="text"
+                                className="form-control me-2"
+                                placeholder={`Stop ${index + 1}`}
+                                value={stop}
+                                onChange={(e) => handleStopChange(e.target.value, index)}
+                                onClick={() => {
+                                  setStopType('between');
+                                  setSelectedStopIndex(index);
+                                  setShowStopsModal(true);
+                                }}
+                              />
+                              <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
+                                <img src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" />
+                              </button>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))
+                    )}
                     {provided.placeholder}
                   </div>
                 )}
@@ -203,12 +290,12 @@ const CreateRoutePage: React.FC = () => {
               </select>
             </div>
             <div className="col-md-5 text-end">
-              <button className="btn btn-primary me-2">
+              <button className="btn btn-primary me-2" onClick={handleClear}>
                 <img src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" />
                 Clear
               </button>
-              <button className="btn btn-success me-2">
-                <img src="/assets/images/add-line.png" alt="Add" className="icon-small" />
+              <button className="btn btn-success me-2" onClick={handleAddRoute}>
+                <img src="/assets/images/add-line.png" alt="Add" className="icon-small"/>
                 Add
               </button>
               <button className="btn btn-danger me-2">
@@ -233,12 +320,12 @@ const CreateRoutePage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {currentRoutes.map((route, index) => (
-                <tr key={index}>
-                  <td>{route.name}</td>
-                  <td>{route.startStop}</td>
-                  <td>{route.endStop}</td>
-                  <td>{route.stopsBetween.length}</td>
+              {currentRoutes.map((route) => (
+                <tr key={route.RouteID}>
+                  <td>{route.RouteName}</td>
+                  <td>{route.StartStop?.StopName}</td>
+                  <td>{route.EndStop?.StopName}</td>
+                  <td>{route.RouteStops?.length ?? 0}</td> {/* Defaults to zero */}
                   <td className="text-center">
                     <div className="d-inline-flex align-items-center gap-1">
                       <button className="btn btn-sm btn-primary p-1">
@@ -284,7 +371,7 @@ const CreateRoutePage: React.FC = () => {
                   setSelectedEndStop(stop);
                 } else if (stopType === 'between' && selectedStopIndex !== null) {
                   const updatedStops = [...stopsBetween];
-                  updatedStops[selectedStopIndex] = stop.StopName;
+                  updatedStops[selectedStopIndex] = stop.StopID;
                   setStopsBetween(updatedStops);
                   // optionally setSelectedStopBetween(stop); if you want to track them
                 }
