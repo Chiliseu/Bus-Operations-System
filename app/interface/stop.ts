@@ -6,8 +6,11 @@ import { RouteStop } from './route-stop';
 export interface Stop {
     StopID: string;
     StopName: string;
-    Location: string; // You can change this to { lat: number; lng: number } if needed
-  
+
+    IsDeleted: boolean;
+    latitude:   string;
+    longitude:  string;
+
     routesAsStart?: Route[];   // Related routes where this is the start stop
     routesAsEnd?: Route[];     // Related routes where this is the end stop
     RouteStops?: RouteStop[];  // Join table relationship

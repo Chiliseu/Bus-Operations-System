@@ -34,7 +34,9 @@ model Percentage {
 model Stop {
   StopID     String @id
   StopName   String
-  Location   String        // You could split this into latitude & longitude if needed
+  latitude   String
+  longitude  String        
+  IsDeleted  Boolean
 
   routesAsStart  Route[]   @relation("StartStop")
   routesAsEnd    Route[]   @relation("EndStop")
@@ -46,6 +48,7 @@ model Route {
   StartStopID   String 
   EndStopID     String 
   RouteName     String
+  IsDeleted  Boolean
 
   StartStop     Stop               @relation("StartStop", fields: [StartStopID], references: [StopID])
   EndStop       Stop               @relation("EndStop", fields: [EndStopID], references: [StopID])

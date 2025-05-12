@@ -59,7 +59,8 @@ const RouteManagementPage: React.FC = () => {
     console.log(stopName, longitude, latitude); // Debugging
     const newStop = {
       StopName: stopName,
-      Location: `${longitude}, ${latitude}`, // Combine longitude and latitude into a single string
+      longitude: longitude,
+      latitude: latitude
     };
 
     try {
@@ -159,8 +160,8 @@ const RouteManagementPage: React.FC = () => {
             {displayedStops.map((stop) => (
                 <tr key={stop.StopID}>
                   <td>{stop.StopName}</td>
-                  <td>{stop.Location}</td>
-                  <td>{stop.Location}</td>
+                  <td>{stop.longitude}</td>
+                  <td>{stop.latitude}</td>
                   <td className="text-center">
                     <div className="d-inline-flex align-items-center gap-1">
                       <button className="btn btn-sm btn-primary p-1">

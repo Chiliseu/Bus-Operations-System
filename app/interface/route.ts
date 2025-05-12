@@ -9,6 +9,7 @@ export interface Route {
     StartStopID: string;
     EndStopID: string;
     RouteName: string;
+    IsDeleted: boolean;
   
     StartStop?: Stop;
     EndStop?: Stop;
