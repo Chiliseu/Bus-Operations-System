@@ -1,32 +1,32 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/client'; // Importing the Prisma client instance to interact with the database
 import { generateFormattedID } from '../../../lib/idGenerator';
 
 export async function GET() {
   try {
+    // Fetching bus assignments where IsDeleted is false
     const assignments = await prisma.regularBusAssignment.findMany({
-        where: {
-          BusAssignment: {
-            IsDeleted: false,  // Only fetch rows where IsDeleted is false
+      where: {
+        BusAssignment: {
+          IsDeleted: false,  // Only fetch rows where IsDeleted is false
+        },
+      },
+      include: {
+        BusAssignment: {
+          include: {
+            Route: true,  // Include related Route information
           },
         },
-        include: {
-            BusAssignment: {
-                include: {
-                  Route: true,
-                }
-            },
-            quotaPolicy: {
-              include: {
-                Fixed: true,
-                Percentage: true,
-              },
-            },
-        }
+        quotaPolicy: {
+          include: {
+            Fixed: true,  // Include Fixed quota
+            Percentage: true,  // Include Percentage quota
+          },
+        },
+      },
     });
-    // console.log('Assignments from database:', assignments); // Debugging
 
-    return NextResponse.json(assignments);
+    return NextResponse.json(assignments);  // Return fetched assignments
   } catch (error) {
     console.error('Error fetching bus route assignments:', error);
     return NextResponse.json({ error: 'Failed to fetch assignments' }, { status: 500 });
@@ -108,42 +108,52 @@ export async function POST(request: Request) {
       },
     });
 
-    // console.log('New BusAssignment created in database:', newAssignment); // Debugging
-    return NextResponse.json(newAssignment);
+    console.log('New BusAssignment created in database:', newAssignment); // Debugging
+    return NextResponse.json(newAssignment, { status: 201 }); // Respond with 201 Created
+
   } catch (error) {
     console.error('Error creating BusAssignment:', error); // Debugging
     return NextResponse.json({ error: 'Failed to create BusAssignment' }, { status: 500 });
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
+  const url = new URL(request.url);
+  const BusAssignmentID = url.searchParams.get('id');
   const data = await request.json();
-  const { BusAssignmentID } = data;
 
-  if (data.IsDeleted !== undefined) {
-    // Handle IsDeleted update
-    await prisma.busAssignment.update({
-      where: { BusAssignmentID },
-      data: { IsDeleted: data.IsDeleted },
-    });
-    return NextResponse.json({ message: 'IsDeleted status updated' });
+  if (!BusAssignmentID) {
+    return NextResponse.json({ error: 'Missing ID in query string' }, { status: 400 });
   }
 
-  // Handle other field updates
-  await prisma.busAssignment.update({
-    where: { BusAssignmentID },
-    data: {
-      BusID: data.BusID,
-      RouteID: data.RouteID,
-      RegularBusAssignment: {
-        update: {
-          DriverID: data.DriverID,
-          ConductorID: data.ConductorID,
-          QuotaPolicyID: data.QuotaPolicyID,
+  try {
+    if (data.IsDeleted !== undefined) {
+      await prisma.busAssignment.update({
+        where: { BusAssignmentID },
+        data: { IsDeleted: data.IsDeleted },
+      });
+      return NextResponse.json({ message: 'IsDeleted status updated' });
+    }
+
+    // Regular update
+    await prisma.busAssignment.update({
+      where: { BusAssignmentID },
+      data: {
+        BusID: data.BusID,
+        RouteID: data.RouteID,
+        RegularBusAssignment: {
+          update: {
+            DriverID: data.DriverID,
+            ConductorID: data.ConductorID,
+            QuotaPolicyID: data.QuotaPolicyID,
+          },
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json({ message: 'BusAssignment updated' });
+    return NextResponse.json({ message: 'BusAssignment updated' });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+  }
 }
