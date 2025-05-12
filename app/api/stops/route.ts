@@ -42,7 +42,9 @@ export async function POST(req: Request) {
       data: {
         StopID,
         StopName,
-        Location,
+        longitude,
+        latitude,
+        IsDeleted,
       },
     });
 

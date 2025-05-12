@@ -18,28 +18,6 @@ import {
   DropResult,
 } from '@hello-pangea/dnd';
 
-
-// interface Route {
-//   name: string;
-//   startStop: string;
-//   endStop: string;
-//   stopsBetween: string[];
-// }
-
-// interface Stop {
-//   StopID: string;
-//   StopName: string;
-//   Location: string;
-//   image: string | null;
-// }
-
-// const mockRoutes: Route[] = Array.from({ length: 100 }, (_, i) => ({
-//   name: `Route ${i + 1}`,
-//   startStop: 'Cell',
-//   endStop: 'Cell',
-//   stopsBetween: ['Cell', 'Cell'],
-// }));
-
 const ITEMS_PER_PAGE = 10;
 
 const CreateRoutePage: React.FC = () => {

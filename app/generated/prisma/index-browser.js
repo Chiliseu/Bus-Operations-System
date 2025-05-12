@@ -136,14 +136,17 @@ exports.Prisma.PercentageScalarFieldEnum = {
 exports.Prisma.StopScalarFieldEnum = {
   StopID: 'StopID',
   StopName: 'StopName',
-  Location: 'Location'
+  latitude: 'latitude',
+  longitude: 'longitude',
+  IsDeleted: 'IsDeleted'
 };
 
 exports.Prisma.RouteScalarFieldEnum = {
   RouteID: 'RouteID',
   StartStopID: 'StartStopID',
   EndStopID: 'EndStopID',
-  RouteName: 'RouteName'
+  RouteName: 'RouteName',
+  IsDeleted: 'IsDeleted'
 };
 
 exports.Prisma.RouteStopScalarFieldEnum = {

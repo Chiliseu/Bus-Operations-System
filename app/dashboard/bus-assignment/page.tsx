@@ -24,6 +24,7 @@ interface RegularBusAssignment {
     } | null;
   } | null;
   quotaPolicy?: {
+    QuotaPolicyID : string;
     Fixed?: {
       Quota: string;
     } | null;
@@ -58,22 +59,6 @@ interface Conductor {
   address: string;
   image: string | null;
 }
-
-// interface Route {
-//   RouteID: string;
-//   RouteName: string;
-//   StartStop: {
-//     StopID: string;
-//     StopName: string;
-//   };
-//   EndStop: {
-//     StopID: string;
-//     StopName: string;
-//   };
-//   roundTrip: boolean;
-//   noOfBus: number;
-//   image: string | null;
-// }
 
 const BusAssignmentPage: React.FC = () => {
 
@@ -191,7 +176,7 @@ const BusAssignmentPage: React.FC = () => {
     // Populate the form with the selected assignment's values
     setSelectedBus({ busId: assignment.BusAssignment?.BusID ?? '', route: '', type: '', capacity: 0, image: null }); 
 
-    setSelectedRoute({ RouteName: assignment.BusAssignment?.Route?.RouteName ?? '', RouteID: '', StartStopID: '', EndStopID: '', });
+    setSelectedRoute({ RouteName: assignment.BusAssignment?.Route?.RouteName ?? '', RouteID: '', StartStopID: '', EndStopID: '', IsDeleted: false});
 
     if (assignment.quotaPolicy?.Fixed) {
       setQuotaType('Fixed');

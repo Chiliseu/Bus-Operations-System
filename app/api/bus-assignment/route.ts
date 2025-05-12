@@ -18,7 +18,8 @@ export async function GET() {
           },
         },
         quotaPolicy: {
-          include: {
+          select: {
+            QuotaPolicyID : true,
             Fixed: true,  // Include Fixed quota
             Percentage: true,  // Include Percentage quota
           },
@@ -40,36 +41,38 @@ export async function POST(request: Request) {
     const data = await request.json();
     console.log('Data received in API:', data); // Debugging
 
-    // Step 1: Generate a formatted QuotaPolicyID using the generateFormattedID function
-    console.log('Generating new QuotaPolicyID...'); // Debugging
-    const newQuotaPolicyID = await generateFormattedID('QP');
-    console.log('Generated new QuotaPolicyID:', newQuotaPolicyID); // Debugging
-
-    // Step 2: Create the new QuotaPolicy
-    console.log('Creating new QuotaPolicy...'); // Debugging
-    const newQuotaPolicy = await prisma.quota_Policy.create({
-      data: {
-        QuotaPolicyID: newQuotaPolicyID, // Use the generated QuotaPolicyID
-        StartDate: new Date(),
-        EndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Example: 1 year validity
-        ...(data.QuotaPolicy.type === 'Fixed'
-          ? { Fixed: { create: { Quota: parseFloat(data.QuotaPolicy.value) } } }
-          : { Percentage: { create: { Percentage: parseFloat(data.QuotaPolicy.value) / 100 } } }),
+    const baseUrl = process.env.APPLICATION_URL;
+    
+    // Step 1: Call API to create QuotaPolicy
+    console.log('Calling QuotaPolicy API...'); // Debugging
+    const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        type: data.QuotaPolicy.type,
+        value: data.QuotaPolicy.value,
+      }),
     });
 
-    console.log('New QuotaPolicy created:', newQuotaPolicy); // Debugging
+    if (!quotaPolicyResponse.ok) {
+      throw new Error('Failed to create QuotaPolicy from API');
+    }
 
-    // Step 3: Generate a formatted BusAssignmentID using the generateFormattedID function
+    const newQuotaPolicy = await quotaPolicyResponse.json();
+    console.log('QuotaPolicy created via API:', newQuotaPolicy); // Debugging
+
+    // Step 2: Generate BusAssignmentID
     console.log('Generating new BusAssignmentID...'); // Debugging
     const newBusAssignmentID = await generateFormattedID('BA');
     console.log('Generated new BusAssignmentID:', newBusAssignmentID); // Debugging
 
-    // Step 4: Create the new BusAssignment record along with RegularBusAssignment
+    // Step 3: Create the BusAssignment with RegularBusAssignment
     console.log('Creating new BusAssignment record...'); // Debugging
     const newAssignment = await prisma.busAssignment.create({
       data: {
-        BusAssignmentID: newBusAssignmentID, // Use the generated BusAssignmentID
+        BusAssignmentID: newBusAssignmentID,
         BusID: data.BusID,
         RouteID: data.RouteID,
         AssignmentDate: new Date(data.AssignmentDate),
@@ -88,7 +91,7 @@ export async function POST(request: Request) {
           create: {
             DriverID: data.DriverID,
             ConductorID: data.ConductorID,
-            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID, // Link the newly created QuotaPolicy
+            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID, // Use the QuotaPolicyID from the API
             Change: data.Change,
             TripRevenue: data.TripRevenue,
           },
@@ -108,36 +111,92 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('New BusAssignment created in database:', newAssignment); // Debugging
-    return NextResponse.json(newAssignment, { status: 201 }); // Respond with 201 Created
+    console.log('New BusAssignment created in database:', newAssignment);
+    return NextResponse.json(newAssignment, { status: 201 });
 
   } catch (error) {
-    console.error('Error creating BusAssignment:', error); // Debugging
+    console.error('Error creating BusAssignment:', error);
     return NextResponse.json({ error: 'Failed to create BusAssignment' }, { status: 500 });
   }
 }
 
-export async function PUT(request: NextRequest) {
-  const url = new URL(request.url);
-  const BusAssignmentID = url.searchParams.get('id');
-  const data = await request.json();
+interface QuotaPolicyData {
+  QuotaPolicyID: string;
+  type: 'Fixed' | 'Percentage';
+  value: string;
+  StartDate?: string;
+  EndDate?: string;
+}
 
-  if (!BusAssignmentID) {
-    return NextResponse.json({ error: 'Missing ID in query string' }, { status: 400 });
-  }
-
+export async function PUT(request: Request) {
   try {
-    if (data.IsDeleted !== undefined) {
-      await prisma.busAssignment.update({
-        where: { BusAssignmentID },
-        data: { IsDeleted: data.IsDeleted },
+    const data = await request.json();
+
+    // Step 1: Soft delete if IsDeleted is true
+    if (data.IsDeleted === true) {
+      const updatedBusAssignment = await prisma.busAssignment.update({
+        where: { BusAssignmentID: data.BusAssignmentID },
+        data: { IsDeleted: true },
       });
-      return NextResponse.json({ message: 'IsDeleted status updated' });
+
+      return NextResponse.json(updatedBusAssignment, { status: 200 });
     }
 
-    // Regular update
-    await prisma.busAssignment.update({
-      where: { BusAssignmentID },
+    // Step 2: Fetch the existing BusAssignment with its related RegularBusAssignment
+    const existingBusAssignment = await prisma.busAssignment.findUnique({
+      where: { BusAssignmentID: data.BusAssignmentID },
+      include: {
+        RegularBusAssignment: {
+          include: {
+            quotaPolicy: true,
+          },
+        },
+      },
+    });
+
+    if (!existingBusAssignment || !existingBusAssignment.RegularBusAssignment) {
+      return NextResponse.json({ error: 'BusAssignment or RegularBusAssignment not found' }, { status: 404 });
+    }
+
+    const baseUrl = process.env.APPLICATION_URL;
+    if (!baseUrl) {
+      return NextResponse.json({ error: 'Base URL is not defined' }, { status: 500 });
+    }
+
+    // Step 3: Conditionally call QuotaPolicy API only if all required fields are present
+    const quotaPolicyId = existingBusAssignment.RegularBusAssignment.quotaPolicy?.QuotaPolicyID;
+    const shouldUpdateQuotaPolicy = data.type && data.value && quotaPolicyId;
+
+    if (shouldUpdateQuotaPolicy) {
+      const quotaPolicyData: QuotaPolicyData = {
+        QuotaPolicyID: quotaPolicyId,
+        type: data.type,
+        value: data.value,
+        StartDate: data.StartDate,
+        EndDate: data.EndDate,
+      };
+
+      const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quotaPolicyData),
+      });
+
+      const quotaPolicyResponseData = await quotaPolicyResponse.json();
+
+      if (!quotaPolicyResponse.ok) {
+        return NextResponse.json(
+          { error: quotaPolicyResponseData.error || 'Failed to update QuotaPolicy' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Step 4: Update the BusAssignment
+    const updatedBusAssignment = await prisma.busAssignment.update({
+      where: { BusAssignmentID: data.BusAssignmentID },
       data: {
         BusID: data.BusID,
         RouteID: data.RouteID,
@@ -145,15 +204,27 @@ export async function PUT(request: NextRequest) {
           update: {
             DriverID: data.DriverID,
             ConductorID: data.ConductorID,
-            QuotaPolicyID: data.QuotaPolicyID,
+          },
+        },
+      },
+      include: {
+        RegularBusAssignment: {
+          include: {
+            quotaPolicy: {
+              include: {
+                Fixed: true,
+                Percentage: true,
+              },
+            },
           },
         },
       },
     });
 
-    return NextResponse.json({ message: 'BusAssignment updated' });
+    return NextResponse.json(updatedBusAssignment, { status: 200 });
+
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+    console.error('Error updating bus assignment:', error);
+    return NextResponse.json({ error: 'Failed to update bus assignment' }, { status: 500 });
   }
 }

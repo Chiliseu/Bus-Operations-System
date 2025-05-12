@@ -4834,19 +4834,25 @@ export namespace Prisma {
   export type StopMinAggregateOutputType = {
     StopID: string | null
     StopName: string | null
-    Location: string | null
+    latitude: string | null
+    longitude: string | null
+    IsDeleted: boolean | null
   }
 
   export type StopMaxAggregateOutputType = {
     StopID: string | null
     StopName: string | null
-    Location: string | null
+    latitude: string | null
+    longitude: string | null
+    IsDeleted: boolean | null
   }
 
   export type StopCountAggregateOutputType = {
     StopID: number
     StopName: number
-    Location: number
+    latitude: number
+    longitude: number
+    IsDeleted: number
     _all: number
   }
 
@@ -4854,19 +4860,25 @@ export namespace Prisma {
   export type StopMinAggregateInputType = {
     StopID?: true
     StopName?: true
-    Location?: true
+    latitude?: true
+    longitude?: true
+    IsDeleted?: true
   }
 
   export type StopMaxAggregateInputType = {
     StopID?: true
     StopName?: true
-    Location?: true
+    latitude?: true
+    longitude?: true
+    IsDeleted?: true
   }
 
   export type StopCountAggregateInputType = {
     StopID?: true
     StopName?: true
-    Location?: true
+    latitude?: true
+    longitude?: true
+    IsDeleted?: true
     _all?: true
   }
 
@@ -4945,7 +4957,9 @@ export namespace Prisma {
   export type StopGroupByOutputType = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     _count: StopCountAggregateOutputType | null
     _min: StopMinAggregateOutputType | null
     _max: StopMaxAggregateOutputType | null
@@ -4968,7 +4982,9 @@ export namespace Prisma {
   export type StopSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     StopID?: boolean
     StopName?: boolean
-    Location?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    IsDeleted?: boolean
     routesAsStart?: boolean | Stop$routesAsStartArgs<ExtArgs>
     routesAsEnd?: boolean | Stop$routesAsEndArgs<ExtArgs>
     RouteStops?: boolean | Stop$RouteStopsArgs<ExtArgs>
@@ -4978,22 +4994,28 @@ export namespace Prisma {
   export type StopSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     StopID?: boolean
     StopName?: boolean
-    Location?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    IsDeleted?: boolean
   }, ExtArgs["result"]["stop"]>
 
   export type StopSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     StopID?: boolean
     StopName?: boolean
-    Location?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    IsDeleted?: boolean
   }, ExtArgs["result"]["stop"]>
 
   export type StopSelectScalar = {
     StopID?: boolean
     StopName?: boolean
-    Location?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    IsDeleted?: boolean
   }
 
-  export type StopOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"StopID" | "StopName" | "Location", ExtArgs["result"]["stop"]>
+  export type StopOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"StopID" | "StopName" | "latitude" | "longitude" | "IsDeleted", ExtArgs["result"]["stop"]>
   export type StopInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     routesAsStart?: boolean | Stop$routesAsStartArgs<ExtArgs>
     routesAsEnd?: boolean | Stop$routesAsEndArgs<ExtArgs>
@@ -5013,7 +5035,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       StopID: string
       StopName: string
-      Location: string
+      latitude: string
+      longitude: string
+      IsDeleted: boolean
     }, ExtArgs["result"]["stop"]>
     composites: {}
   }
@@ -5442,7 +5466,9 @@ export namespace Prisma {
   interface StopFieldRefs {
     readonly StopID: FieldRef<"Stop", 'String'>
     readonly StopName: FieldRef<"Stop", 'String'>
-    readonly Location: FieldRef<"Stop", 'String'>
+    readonly latitude: FieldRef<"Stop", 'String'>
+    readonly longitude: FieldRef<"Stop", 'String'>
+    readonly IsDeleted: FieldRef<"Stop", 'Boolean'>
   }
     
 
@@ -5936,6 +5962,7 @@ export namespace Prisma {
     StartStopID: string | null
     EndStopID: string | null
     RouteName: string | null
+    IsDeleted: boolean | null
   }
 
   export type RouteMaxAggregateOutputType = {
@@ -5943,6 +5970,7 @@ export namespace Prisma {
     StartStopID: string | null
     EndStopID: string | null
     RouteName: string | null
+    IsDeleted: boolean | null
   }
 
   export type RouteCountAggregateOutputType = {
@@ -5950,6 +5978,7 @@ export namespace Prisma {
     StartStopID: number
     EndStopID: number
     RouteName: number
+    IsDeleted: number
     _all: number
   }
 
@@ -5959,6 +5988,7 @@ export namespace Prisma {
     StartStopID?: true
     EndStopID?: true
     RouteName?: true
+    IsDeleted?: true
   }
 
   export type RouteMaxAggregateInputType = {
@@ -5966,6 +5996,7 @@ export namespace Prisma {
     StartStopID?: true
     EndStopID?: true
     RouteName?: true
+    IsDeleted?: true
   }
 
   export type RouteCountAggregateInputType = {
@@ -5973,6 +6004,7 @@ export namespace Prisma {
     StartStopID?: true
     EndStopID?: true
     RouteName?: true
+    IsDeleted?: true
     _all?: true
   }
 
@@ -6053,6 +6085,7 @@ export namespace Prisma {
     StartStopID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
     _count: RouteCountAggregateOutputType | null
     _min: RouteMinAggregateOutputType | null
     _max: RouteMaxAggregateOutputType | null
@@ -6077,6 +6110,7 @@ export namespace Prisma {
     StartStopID?: boolean
     EndStopID?: boolean
     RouteName?: boolean
+    IsDeleted?: boolean
     StartStop?: boolean | StopDefaultArgs<ExtArgs>
     EndStop?: boolean | StopDefaultArgs<ExtArgs>
     RouteStops?: boolean | Route$RouteStopsArgs<ExtArgs>
@@ -6089,6 +6123,7 @@ export namespace Prisma {
     StartStopID?: boolean
     EndStopID?: boolean
     RouteName?: boolean
+    IsDeleted?: boolean
     StartStop?: boolean | StopDefaultArgs<ExtArgs>
     EndStop?: boolean | StopDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["route"]>
@@ -6098,6 +6133,7 @@ export namespace Prisma {
     StartStopID?: boolean
     EndStopID?: boolean
     RouteName?: boolean
+    IsDeleted?: boolean
     StartStop?: boolean | StopDefaultArgs<ExtArgs>
     EndStop?: boolean | StopDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["route"]>
@@ -6107,9 +6143,10 @@ export namespace Prisma {
     StartStopID?: boolean
     EndStopID?: boolean
     RouteName?: boolean
+    IsDeleted?: boolean
   }
 
-  export type RouteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"RouteID" | "StartStopID" | "EndStopID" | "RouteName", ExtArgs["result"]["route"]>
+  export type RouteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"RouteID" | "StartStopID" | "EndStopID" | "RouteName" | "IsDeleted", ExtArgs["result"]["route"]>
   export type RouteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     StartStop?: boolean | StopDefaultArgs<ExtArgs>
     EndStop?: boolean | StopDefaultArgs<ExtArgs>
@@ -6139,6 +6176,7 @@ export namespace Prisma {
       StartStopID: string
       EndStopID: string
       RouteName: string
+      IsDeleted: boolean
     }, ExtArgs["result"]["route"]>
     composites: {}
   }
@@ -6570,6 +6608,7 @@ export namespace Prisma {
     readonly StartStopID: FieldRef<"Route", 'String'>
     readonly EndStopID: FieldRef<"Route", 'String'>
     readonly RouteName: FieldRef<"Route", 'String'>
+    readonly IsDeleted: FieldRef<"Route", 'Boolean'>
   }
     
 
@@ -10489,7 +10528,9 @@ export namespace Prisma {
   export const StopScalarFieldEnum: {
     StopID: 'StopID',
     StopName: 'StopName',
-    Location: 'Location'
+    latitude: 'latitude',
+    longitude: 'longitude',
+    IsDeleted: 'IsDeleted'
   };
 
   export type StopScalarFieldEnum = (typeof StopScalarFieldEnum)[keyof typeof StopScalarFieldEnum]
@@ -10499,7 +10540,8 @@ export namespace Prisma {
     RouteID: 'RouteID',
     StartStopID: 'StartStopID',
     EndStopID: 'EndStopID',
-    RouteName: 'RouteName'
+    RouteName: 'RouteName',
+    IsDeleted: 'IsDeleted'
   };
 
   export type RouteScalarFieldEnum = (typeof RouteScalarFieldEnum)[keyof typeof RouteScalarFieldEnum]
@@ -10612,6 +10654,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -10622,13 +10671,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
   /**
    * Deep Input Types
@@ -10776,7 +10818,9 @@ export namespace Prisma {
     NOT?: StopWhereInput | StopWhereInput[]
     StopID?: StringFilter<"Stop"> | string
     StopName?: StringFilter<"Stop"> | string
-    Location?: StringFilter<"Stop"> | string
+    latitude?: StringFilter<"Stop"> | string
+    longitude?: StringFilter<"Stop"> | string
+    IsDeleted?: BoolFilter<"Stop"> | boolean
     routesAsStart?: RouteListRelationFilter
     routesAsEnd?: RouteListRelationFilter
     RouteStops?: RouteStopListRelationFilter
@@ -10785,7 +10829,9 @@ export namespace Prisma {
   export type StopOrderByWithRelationInput = {
     StopID?: SortOrder
     StopName?: SortOrder
-    Location?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    IsDeleted?: SortOrder
     routesAsStart?: RouteOrderByRelationAggregateInput
     routesAsEnd?: RouteOrderByRelationAggregateInput
     RouteStops?: RouteStopOrderByRelationAggregateInput
@@ -10797,7 +10843,9 @@ export namespace Prisma {
     OR?: StopWhereInput[]
     NOT?: StopWhereInput | StopWhereInput[]
     StopName?: StringFilter<"Stop"> | string
-    Location?: StringFilter<"Stop"> | string
+    latitude?: StringFilter<"Stop"> | string
+    longitude?: StringFilter<"Stop"> | string
+    IsDeleted?: BoolFilter<"Stop"> | boolean
     routesAsStart?: RouteListRelationFilter
     routesAsEnd?: RouteListRelationFilter
     RouteStops?: RouteStopListRelationFilter
@@ -10806,7 +10854,9 @@ export namespace Prisma {
   export type StopOrderByWithAggregationInput = {
     StopID?: SortOrder
     StopName?: SortOrder
-    Location?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    IsDeleted?: SortOrder
     _count?: StopCountOrderByAggregateInput
     _max?: StopMaxOrderByAggregateInput
     _min?: StopMinOrderByAggregateInput
@@ -10818,7 +10868,9 @@ export namespace Prisma {
     NOT?: StopScalarWhereWithAggregatesInput | StopScalarWhereWithAggregatesInput[]
     StopID?: StringWithAggregatesFilter<"Stop"> | string
     StopName?: StringWithAggregatesFilter<"Stop"> | string
-    Location?: StringWithAggregatesFilter<"Stop"> | string
+    latitude?: StringWithAggregatesFilter<"Stop"> | string
+    longitude?: StringWithAggregatesFilter<"Stop"> | string
+    IsDeleted?: BoolWithAggregatesFilter<"Stop"> | boolean
   }
 
   export type RouteWhereInput = {
@@ -10829,6 +10881,7 @@ export namespace Prisma {
     StartStopID?: StringFilter<"Route"> | string
     EndStopID?: StringFilter<"Route"> | string
     RouteName?: StringFilter<"Route"> | string
+    IsDeleted?: BoolFilter<"Route"> | boolean
     StartStop?: XOR<StopScalarRelationFilter, StopWhereInput>
     EndStop?: XOR<StopScalarRelationFilter, StopWhereInput>
     RouteStops?: RouteStopListRelationFilter
@@ -10840,6 +10893,7 @@ export namespace Prisma {
     StartStopID?: SortOrder
     EndStopID?: SortOrder
     RouteName?: SortOrder
+    IsDeleted?: SortOrder
     StartStop?: StopOrderByWithRelationInput
     EndStop?: StopOrderByWithRelationInput
     RouteStops?: RouteStopOrderByRelationAggregateInput
@@ -10854,6 +10908,7 @@ export namespace Prisma {
     StartStopID?: StringFilter<"Route"> | string
     EndStopID?: StringFilter<"Route"> | string
     RouteName?: StringFilter<"Route"> | string
+    IsDeleted?: BoolFilter<"Route"> | boolean
     StartStop?: XOR<StopScalarRelationFilter, StopWhereInput>
     EndStop?: XOR<StopScalarRelationFilter, StopWhereInput>
     RouteStops?: RouteStopListRelationFilter
@@ -10865,6 +10920,7 @@ export namespace Prisma {
     StartStopID?: SortOrder
     EndStopID?: SortOrder
     RouteName?: SortOrder
+    IsDeleted?: SortOrder
     _count?: RouteCountOrderByAggregateInput
     _max?: RouteMaxOrderByAggregateInput
     _min?: RouteMinOrderByAggregateInput
@@ -10878,6 +10934,7 @@ export namespace Prisma {
     StartStopID?: StringWithAggregatesFilter<"Route"> | string
     EndStopID?: StringWithAggregatesFilter<"Route"> | string
     RouteName?: StringWithAggregatesFilter<"Route"> | string
+    IsDeleted?: BoolWithAggregatesFilter<"Route"> | boolean
   }
 
   export type RouteStopWhereInput = {
@@ -11234,7 +11291,9 @@ export namespace Prisma {
   export type StopCreateInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteCreateNestedManyWithoutStartStopInput
     routesAsEnd?: RouteCreateNestedManyWithoutEndStopInput
     RouteStops?: RouteStopCreateNestedManyWithoutStopInput
@@ -11243,7 +11302,9 @@ export namespace Prisma {
   export type StopUncheckedCreateInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteUncheckedCreateNestedManyWithoutStartStopInput
     routesAsEnd?: RouteUncheckedCreateNestedManyWithoutEndStopInput
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutStopInput
@@ -11252,7 +11313,9 @@ export namespace Prisma {
   export type StopUpdateInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUpdateManyWithoutStartStopNestedInput
     routesAsEnd?: RouteUpdateManyWithoutEndStopNestedInput
     RouteStops?: RouteStopUpdateManyWithoutStopNestedInput
@@ -11261,7 +11324,9 @@ export namespace Prisma {
   export type StopUncheckedUpdateInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUncheckedUpdateManyWithoutStartStopNestedInput
     routesAsEnd?: RouteUncheckedUpdateManyWithoutEndStopNestedInput
     RouteStops?: RouteStopUncheckedUpdateManyWithoutStopNestedInput
@@ -11270,24 +11335,31 @@ export namespace Prisma {
   export type StopCreateManyInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
   }
 
   export type StopUpdateManyMutationInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StopUncheckedUpdateManyInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RouteCreateInput = {
     RouteID: string
     RouteName: string
+    IsDeleted: boolean
     StartStop: StopCreateNestedOneWithoutRoutesAsStartInput
     EndStop: StopCreateNestedOneWithoutRoutesAsEndInput
     RouteStops?: RouteStopCreateNestedManyWithoutRouteInput
@@ -11299,6 +11371,7 @@ export namespace Prisma {
     StartStopID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutRouteInput
     BusAssignments?: BusAssignmentUncheckedCreateNestedManyWithoutRouteInput
   }
@@ -11306,6 +11379,7 @@ export namespace Prisma {
   export type RouteUpdateInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     StartStop?: StopUpdateOneRequiredWithoutRoutesAsStartNestedInput
     EndStop?: StopUpdateOneRequiredWithoutRoutesAsEndNestedInput
     RouteStops?: RouteStopUpdateManyWithoutRouteNestedInput
@@ -11317,6 +11391,7 @@ export namespace Prisma {
     StartStopID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RouteStops?: RouteStopUncheckedUpdateManyWithoutRouteNestedInput
     BusAssignments?: BusAssignmentUncheckedUpdateManyWithoutRouteNestedInput
   }
@@ -11326,11 +11401,13 @@ export namespace Prisma {
     StartStopID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
   }
 
   export type RouteUpdateManyMutationInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RouteUncheckedUpdateManyInput = {
@@ -11338,6 +11415,7 @@ export namespace Prisma {
     StartStopID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RouteStopCreateInput = {
@@ -11751,6 +11829,11 @@ export namespace Prisma {
     Percentage?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type RouteListRelationFilter = {
     every?: RouteWhereInput
     some?: RouteWhereInput
@@ -11774,19 +11857,33 @@ export namespace Prisma {
   export type StopCountOrderByAggregateInput = {
     StopID?: SortOrder
     StopName?: SortOrder
-    Location?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type StopMaxOrderByAggregateInput = {
     StopID?: SortOrder
     StopName?: SortOrder
-    Location?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type StopMinOrderByAggregateInput = {
     StopID?: SortOrder
     StopName?: SortOrder
-    Location?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    IsDeleted?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type StopScalarRelationFilter = {
@@ -11809,6 +11906,7 @@ export namespace Prisma {
     StartStopID?: SortOrder
     EndStopID?: SortOrder
     RouteName?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type RouteMaxOrderByAggregateInput = {
@@ -11816,6 +11914,7 @@ export namespace Prisma {
     StartStopID?: SortOrder
     EndStopID?: SortOrder
     RouteName?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type RouteMinOrderByAggregateInput = {
@@ -11823,6 +11922,7 @@ export namespace Prisma {
     StartStopID?: SortOrder
     EndStopID?: SortOrder
     RouteName?: SortOrder
+    IsDeleted?: SortOrder
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -11891,11 +11991,6 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type RegularBusAssignmentNullableScalarRelationFilter = {
     is?: RegularBusAssignmentWhereInput | null
     isNot?: RegularBusAssignmentWhereInput | null
@@ -11953,14 +12048,6 @@ export namespace Prisma {
     TireCondition?: SortOrder
     Self?: SortOrder
     IsDeleted?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type BusAssignmentScalarRelationFilter = {
@@ -12195,6 +12282,10 @@ export namespace Prisma {
     connectOrCreate?: RouteStopCreateOrConnectWithoutStopInput | RouteStopCreateOrConnectWithoutStopInput[]
     createMany?: RouteStopCreateManyStopInputEnvelope
     connect?: RouteStopWhereUniqueInput | RouteStopWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type RouteUpdateManyWithoutStartStopNestedInput = {
@@ -12447,10 +12538,6 @@ export namespace Prisma {
     connect?: RegularBusAssignmentWhereUniqueInput
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput = {
     create?: XOR<RouteCreateWithoutBusAssignmentsInput, RouteUncheckedCreateWithoutBusAssignmentsInput>
     connectOrCreate?: RouteCreateOrConnectWithoutBusAssignmentsInput
@@ -12601,6 +12688,19 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -12615,19 +12715,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type FixedCreateWithoutQuotaPolicyInput = {
@@ -12847,6 +12934,7 @@ export namespace Prisma {
   export type RouteCreateWithoutStartStopInput = {
     RouteID: string
     RouteName: string
+    IsDeleted: boolean
     EndStop: StopCreateNestedOneWithoutRoutesAsEndInput
     RouteStops?: RouteStopCreateNestedManyWithoutRouteInput
     BusAssignments?: BusAssignmentCreateNestedManyWithoutRouteInput
@@ -12856,6 +12944,7 @@ export namespace Prisma {
     RouteID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutRouteInput
     BusAssignments?: BusAssignmentUncheckedCreateNestedManyWithoutRouteInput
   }
@@ -12873,6 +12962,7 @@ export namespace Prisma {
   export type RouteCreateWithoutEndStopInput = {
     RouteID: string
     RouteName: string
+    IsDeleted: boolean
     StartStop: StopCreateNestedOneWithoutRoutesAsStartInput
     RouteStops?: RouteStopCreateNestedManyWithoutRouteInput
     BusAssignments?: BusAssignmentCreateNestedManyWithoutRouteInput
@@ -12882,6 +12972,7 @@ export namespace Prisma {
     RouteID: string
     StartStopID: string
     RouteName: string
+    IsDeleted: boolean
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutRouteInput
     BusAssignments?: BusAssignmentUncheckedCreateNestedManyWithoutRouteInput
   }
@@ -12942,6 +13033,7 @@ export namespace Prisma {
     StartStopID?: StringFilter<"Route"> | string
     EndStopID?: StringFilter<"Route"> | string
     RouteName?: StringFilter<"Route"> | string
+    IsDeleted?: BoolFilter<"Route"> | boolean
   }
 
   export type RouteUpsertWithWhereUniqueWithoutEndStopInput = {
@@ -12989,7 +13081,9 @@ export namespace Prisma {
   export type StopCreateWithoutRoutesAsStartInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsEnd?: RouteCreateNestedManyWithoutEndStopInput
     RouteStops?: RouteStopCreateNestedManyWithoutStopInput
   }
@@ -12997,7 +13091,9 @@ export namespace Prisma {
   export type StopUncheckedCreateWithoutRoutesAsStartInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsEnd?: RouteUncheckedCreateNestedManyWithoutEndStopInput
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutStopInput
   }
@@ -13010,7 +13106,9 @@ export namespace Prisma {
   export type StopCreateWithoutRoutesAsEndInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteCreateNestedManyWithoutStartStopInput
     RouteStops?: RouteStopCreateNestedManyWithoutStopInput
   }
@@ -13018,7 +13116,9 @@ export namespace Prisma {
   export type StopUncheckedCreateWithoutRoutesAsEndInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteUncheckedCreateNestedManyWithoutStartStopInput
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutStopInput
   }
@@ -13110,7 +13210,9 @@ export namespace Prisma {
   export type StopUpdateWithoutRoutesAsStartInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsEnd?: RouteUpdateManyWithoutEndStopNestedInput
     RouteStops?: RouteStopUpdateManyWithoutStopNestedInput
   }
@@ -13118,7 +13220,9 @@ export namespace Prisma {
   export type StopUncheckedUpdateWithoutRoutesAsStartInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsEnd?: RouteUncheckedUpdateManyWithoutEndStopNestedInput
     RouteStops?: RouteStopUncheckedUpdateManyWithoutStopNestedInput
   }
@@ -13137,7 +13241,9 @@ export namespace Prisma {
   export type StopUpdateWithoutRoutesAsEndInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUpdateManyWithoutStartStopNestedInput
     RouteStops?: RouteStopUpdateManyWithoutStopNestedInput
   }
@@ -13145,7 +13251,9 @@ export namespace Prisma {
   export type StopUncheckedUpdateWithoutRoutesAsEndInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUncheckedUpdateManyWithoutStartStopNestedInput
     RouteStops?: RouteStopUncheckedUpdateManyWithoutStopNestedInput
   }
@@ -13206,6 +13314,7 @@ export namespace Prisma {
   export type RouteCreateWithoutRouteStopsInput = {
     RouteID: string
     RouteName: string
+    IsDeleted: boolean
     StartStop: StopCreateNestedOneWithoutRoutesAsStartInput
     EndStop: StopCreateNestedOneWithoutRoutesAsEndInput
     BusAssignments?: BusAssignmentCreateNestedManyWithoutRouteInput
@@ -13216,6 +13325,7 @@ export namespace Prisma {
     StartStopID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
     BusAssignments?: BusAssignmentUncheckedCreateNestedManyWithoutRouteInput
   }
 
@@ -13227,7 +13337,9 @@ export namespace Prisma {
   export type StopCreateWithoutRouteStopsInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteCreateNestedManyWithoutStartStopInput
     routesAsEnd?: RouteCreateNestedManyWithoutEndStopInput
   }
@@ -13235,7 +13347,9 @@ export namespace Prisma {
   export type StopUncheckedCreateWithoutRouteStopsInput = {
     StopID: string
     StopName: string
-    Location: string
+    latitude: string
+    longitude: string
+    IsDeleted: boolean
     routesAsStart?: RouteUncheckedCreateNestedManyWithoutStartStopInput
     routesAsEnd?: RouteUncheckedCreateNestedManyWithoutEndStopInput
   }
@@ -13259,6 +13373,7 @@ export namespace Prisma {
   export type RouteUpdateWithoutRouteStopsInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     StartStop?: StopUpdateOneRequiredWithoutRoutesAsStartNestedInput
     EndStop?: StopUpdateOneRequiredWithoutRoutesAsEndNestedInput
     BusAssignments?: BusAssignmentUpdateManyWithoutRouteNestedInput
@@ -13269,6 +13384,7 @@ export namespace Prisma {
     StartStopID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     BusAssignments?: BusAssignmentUncheckedUpdateManyWithoutRouteNestedInput
   }
 
@@ -13286,7 +13402,9 @@ export namespace Prisma {
   export type StopUpdateWithoutRouteStopsInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUpdateManyWithoutStartStopNestedInput
     routesAsEnd?: RouteUpdateManyWithoutEndStopNestedInput
   }
@@ -13294,7 +13412,9 @@ export namespace Prisma {
   export type StopUncheckedUpdateWithoutRouteStopsInput = {
     StopID?: StringFieldUpdateOperationsInput | string
     StopName?: StringFieldUpdateOperationsInput | string
-    Location?: StringFieldUpdateOperationsInput | string
+    latitude?: StringFieldUpdateOperationsInput | string
+    longitude?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     routesAsStart?: RouteUncheckedUpdateManyWithoutStartStopNestedInput
     routesAsEnd?: RouteUncheckedUpdateManyWithoutEndStopNestedInput
   }
@@ -13302,6 +13422,7 @@ export namespace Prisma {
   export type RouteCreateWithoutBusAssignmentsInput = {
     RouteID: string
     RouteName: string
+    IsDeleted: boolean
     StartStop: StopCreateNestedOneWithoutRoutesAsStartInput
     EndStop: StopCreateNestedOneWithoutRoutesAsEndInput
     RouteStops?: RouteStopCreateNestedManyWithoutRouteInput
@@ -13312,6 +13433,7 @@ export namespace Prisma {
     StartStopID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
     RouteStops?: RouteStopUncheckedCreateNestedManyWithoutRouteInput
   }
 
@@ -13355,6 +13477,7 @@ export namespace Prisma {
   export type RouteUpdateWithoutBusAssignmentsInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     StartStop?: StopUpdateOneRequiredWithoutRoutesAsStartNestedInput
     EndStop?: StopUpdateOneRequiredWithoutRoutesAsEndNestedInput
     RouteStops?: RouteStopUpdateManyWithoutRouteNestedInput
@@ -13365,6 +13488,7 @@ export namespace Prisma {
     StartStopID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RouteStops?: RouteStopUncheckedUpdateManyWithoutRouteNestedInput
   }
 
@@ -13567,12 +13691,14 @@ export namespace Prisma {
     RouteID: string
     EndStopID: string
     RouteName: string
+    IsDeleted: boolean
   }
 
   export type RouteCreateManyEndStopInput = {
     RouteID: string
     StartStopID: string
     RouteName: string
+    IsDeleted: boolean
   }
 
   export type RouteStopCreateManyStopInput = {
@@ -13584,6 +13710,7 @@ export namespace Prisma {
   export type RouteUpdateWithoutStartStopInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     EndStop?: StopUpdateOneRequiredWithoutRoutesAsEndNestedInput
     RouteStops?: RouteStopUpdateManyWithoutRouteNestedInput
     BusAssignments?: BusAssignmentUpdateManyWithoutRouteNestedInput
@@ -13593,6 +13720,7 @@ export namespace Prisma {
     RouteID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RouteStops?: RouteStopUncheckedUpdateManyWithoutRouteNestedInput
     BusAssignments?: BusAssignmentUncheckedUpdateManyWithoutRouteNestedInput
   }
@@ -13601,11 +13729,13 @@ export namespace Prisma {
     RouteID?: StringFieldUpdateOperationsInput | string
     EndStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RouteUpdateWithoutEndStopInput = {
     RouteID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     StartStop?: StopUpdateOneRequiredWithoutRoutesAsStartNestedInput
     RouteStops?: RouteStopUpdateManyWithoutRouteNestedInput
     BusAssignments?: BusAssignmentUpdateManyWithoutRouteNestedInput
@@ -13615,6 +13745,7 @@ export namespace Prisma {
     RouteID?: StringFieldUpdateOperationsInput | string
     StartStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     RouteStops?: RouteStopUncheckedUpdateManyWithoutRouteNestedInput
     BusAssignments?: BusAssignmentUncheckedUpdateManyWithoutRouteNestedInput
   }
@@ -13623,6 +13754,7 @@ export namespace Prisma {
     RouteID?: StringFieldUpdateOperationsInput | string
     StartStopID?: StringFieldUpdateOperationsInput | string
     RouteName?: StringFieldUpdateOperationsInput | string
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type RouteStopUpdateWithoutStopInput = {

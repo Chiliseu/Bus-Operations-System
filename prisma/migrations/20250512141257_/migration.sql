@@ -27,7 +27,9 @@ CREATE TABLE "Percentage" (
 CREATE TABLE "Stop" (
     "StopID" TEXT NOT NULL,
     "StopName" TEXT NOT NULL,
-    "Location" TEXT NOT NULL,
+    "latitude" TEXT NOT NULL,
+    "longitude" TEXT NOT NULL,
+    "IsDeleted" BOOLEAN NOT NULL,
 
     CONSTRAINT "Stop_pkey" PRIMARY KEY ("StopID")
 );
@@ -38,6 +40,7 @@ CREATE TABLE "Route" (
     "StartStopID" TEXT NOT NULL,
     "EndStopID" TEXT NOT NULL,
     "RouteName" TEXT NOT NULL,
+    "IsDeleted" BOOLEAN NOT NULL,
 
     CONSTRAINT "Route_pkey" PRIMARY KEY ("RouteID")
 );

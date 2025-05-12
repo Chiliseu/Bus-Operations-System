@@ -19,5 +19,6 @@ export interface BusAssignment {
   TireCondition: boolean;
   Self: boolean;
   Route: Route;
+  IsDeleted: boolean;
   RegularBusAssignment?: RegularBusAssignment;
 }
