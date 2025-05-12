@@ -9,6 +9,7 @@ import ShowStopsModal from '@/components/modal/ShowStopsModal';
 import AssignBusModal from '@/components/modal/AssignBusModal';
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 
+import { generateFormattedID } from '../../../../lib/idGenerator';
 import '../../../../styles/globals.css';
 
 import {
@@ -102,16 +103,15 @@ const CreateRoutePage: React.FC = () => {
   
     // Prepare the RouteStops array with StopID and StopOrder
     const routeStops = stopsBetween.map((stopID, index) => ({
-      RouteStopID: cuid(), // Generate a unique ID for each RouteStop
-      StopID: stopID, // Assuming stopsBetween contains StopIDs
-      StopOrder: index + 1, // Assign the order of the stop
+      StopID: stopID, 
+      StopOrder: index + 1, 
     }));
   
     const newRoute = {
       RouteName: routeName,
       StartStopID: selectedStartStop.StopID,
       EndStopID: selectedEndStop.StopID,
-      RouteStops: routeStops, // Include the RouteStops array
+      RouteStops: routeStops, 
     };
   
     console.log('Payload being sent to the backend:', newRoute); // Debugging
