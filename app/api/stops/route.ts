@@ -106,3 +106,24 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Failed to update stop' }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const { stopID, isDeleted } = await req.json(); // Extract stopID and isDeleted from the request body
+
+    if (!stopID) {
+      return NextResponse.json({ error: 'stopID is required' }, { status: 400 });
+    }
+
+    // Update the isDeleted column for the specified stop
+    const updatedStop = await prisma.stop.update({
+      where: { StopID: stopID },
+      data: { IsDeleted: isDeleted },
+    });
+
+    return NextResponse.json(updatedStop, { status: 200 });
+  } catch (error) {
+    console.error('Error updating stop:', error);
+    return NextResponse.json({ error: 'Failed to update stop' }, { status: 500 });
+  }
+}
