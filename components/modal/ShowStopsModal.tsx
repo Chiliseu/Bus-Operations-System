@@ -75,7 +75,8 @@ const ShowStopsModal = ({
               const filtered = stops.filter((stop) =>
                 stop.StopID.toLowerCase().includes(text.toLowerCase()) ||
                 stop.StopName.toLowerCase().includes(text.toLowerCase()) ||
-                stop.Location.toLowerCase().includes(text.toLowerCase())
+                stop.longitude.toLowerCase().includes(text.toLowerCase()) ||
+                stop.latitude.toLowerCase().includes(text.toLowerCase())
               );
               setFilteredStops(filtered);
             }}
@@ -114,8 +115,8 @@ const ShowStopsModal = ({
                     <div>{stop.StopName}</div>
                     <div className="text-sm text-gray-400">Stop</div>
                   </div>
-                  <div className="text-sm text-gray-400">{`Id: ${stop.StopID}`}</div>
-                  <div className="text-sm text-gray-400">{`${stop.Location}`}</div>
+                  <div className="text-sm text-gray-400">{`ID: ${stop.StopID}`}</div>
+                  <div className="text-sm text-gray-400">{`${stop.latitude} , ${stop.longitude}`}</div>
                 </div>
               </div>
               {/* Assign Button */}

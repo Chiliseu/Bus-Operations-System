@@ -59,7 +59,8 @@ const RouteManagementPage: React.FC = () => {
     console.log(stopName, longitude, latitude); // Debugging
     const newStop = {
       StopName: stopName,
-      Location: `${longitude}, ${latitude}`, // Combine longitude and latitude into a single string
+      longitude: longitude,
+      latitude: latitude
     };
 
     try {
