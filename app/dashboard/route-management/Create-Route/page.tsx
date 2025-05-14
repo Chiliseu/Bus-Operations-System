@@ -8,6 +8,7 @@ import styles from './route-management.module.css';
 import ShowStopsModal from '@/components/modal/ShowStopsModal';
 import AssignBusModal from '@/components/modal/AssignBusModal';
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
+import Image from 'next/image';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
 import '../../../../styles/globals.css';
@@ -23,10 +24,14 @@ const ITEMS_PER_PAGE = 10;
 
 const CreateRoutePage: React.FC = () => {
   const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
+  const [editingRouteID, setEditingRouteID] = useState<string | null>(null); // Track the route being edited
   const [routeName, setRouteName] = useState('');
+  const [startStopID, setStartStopID] = useState<string | null>(null); // Track StartStopID
+  const [endStopID, setEndStopID] = useState<string | null>(null); // Track EndStopID
   const [startStop, setStartStop] = useState('');
   const [endStop, setEndStop] = useState('');
-  const [stopsBetween, setStopsBetween] = useState<string[]>([]);
+  const [stopsBetween, setStopsBetween] = useState<{ StopID: string; StopName: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Use State for modal
@@ -82,7 +87,7 @@ const CreateRoutePage: React.FC = () => {
   };
 
   const handleAddStop = () => {
-    setStopsBetween([...stopsBetween, '']);
+    setStopsBetween([...stopsBetween, { StopID: '', StopName: '' }]);
   };
 
   const handleRemoveStop = (index: number) => {
@@ -91,7 +96,7 @@ const CreateRoutePage: React.FC = () => {
 
   const handleStopChange = (value: string, index: number) => {
     const updatedStops = [...stopsBetween];
-    updatedStops[index] = value;
+    updatedStops[index] = { ...updatedStops[index], StopName: value }; // Update only the StopName
     setStopsBetween(updatedStops);
   };
 
@@ -135,11 +140,104 @@ const CreateRoutePage: React.FC = () => {
       setRouteName('');
       setStartStop('');
       setEndStop('');
-      setStopsBetween(['']);
+      setStopsBetween([]);
       fetchRoutes(); // Refresh the list of routes
     } catch (error) {
       console.error('Error adding route:', error); // Debugging
       alert('Failed to add route. Please try again.');
+    }
+  };
+
+  const handleDeleteRoute = async (routeID: string) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this route?');
+    if (!confirmDelete) {
+      return; // Exit if the user cancels
+    }
+
+    try {
+      const response = await fetch('/api/route-management', {
+        method: 'PATCH', // Use PATCH for soft delete
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ routeID, isDeleted: true }), // Send routeID and isDeleted in the request body
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete route: ${response.statusText}`);
+      }
+
+      alert('Route deleted successfully!');
+      fetchRoutes(); // Refresh the routes list after deletion
+    } catch (error) {
+      console.error('Error deleting route:', error);
+      alert('Failed to delete route. Please try again.');
+    }
+  };
+
+  const handleEditRoute = (route: Route) => {
+    setIsEditMode(true); // Enable edit mode
+    setEditingRouteID(route.RouteID); // Set the route being edited
+    setRouteName(route.RouteName); // Populate input fields
+    setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
+    setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
+    setStartStop(route.StartStop?.StopName || '');
+    setEndStop(route.EndStop?.StopName || '');
+
+    // Debugging: Log the RouteStops data
+    console.log('RouteStops:', route.RouteStops);
+
+    // Populate stopsBetween with StopIDs and StopNames from RouteStops
+    const routeStops = route.RouteStops?.map((routeStop) => ({
+      StopID: routeStop.StopID, // Use StopID from RouteStops
+      StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
+    })) || [];
+    setStopsBetween(routeStops);
+  };
+
+  const handleSaveRoute = async () => {
+    if (!routeName || !startStop || !endStop) {
+      alert('Please fill in all fields with valid values.');
+      return;
+    }
+
+    // Prepare the RouteStops array with StopID and StopOrder
+    const routeStops = stopsBetween.map((stop, index) => ({
+      StopID: stop.StopID, 
+      StopOrder: index + 1, 
+    }));
+    
+    const updatedRoute = {
+      RouteID: editingRouteID, // Ensure this matches the backend's expected field name
+      RouteName: routeName,
+      StartStopID: startStopID, // Send StartStopID
+      EndStopID: endStopID, // Send EndStopID
+      RouteStops: routeStops, // Send RouteStops
+    };
+
+    console.log('Request body:', updatedRoute); // Debugging
+
+    try {
+      const response = await fetch('/api/route-management', {
+        method: 'PUT', // Use PUT for updates
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedRoute), // Send updated route details
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update route: ${response.statusText}`);
+      }
+
+      alert('Route updated successfully!');
+      setIsEditMode(false); // Exit edit mode
+      setEditingRouteID(null);
+      handleClear(); // Clear input fields
+      fetchRoutes(); // Refresh the routes list
+    } catch (error) {
+      console.error('Error updating route:', error);
+      alert('Failed to update route. Please try again.');
     }
   };
 
@@ -160,7 +258,9 @@ const CreateRoutePage: React.FC = () => {
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
           {/* Create Route Section */}
-          <h2 className={styles.stopTitle}>CREATE ROUTE</h2>
+          <h2 className={styles.stopTitle}>
+            {isEditMode ? 'EDIT ROUTE' : 'CREATE ROUTE'}
+          </h2>
           {/* <button className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
             + Assign Bus
           </button>
@@ -228,7 +328,7 @@ const CreateRoutePage: React.FC = () => {
                                 type="text"
                                 className="form-control me-2"
                                 placeholder={`Stop ${index + 1}`}
-                                value={stop}
+                                value={stop.StopName}
                                 onChange={(e) => handleStopChange(e.target.value, index)}
                                 onClick={() => {
                                   setStopType('between');
@@ -237,7 +337,7 @@ const CreateRoutePage: React.FC = () => {
                                 }}
                               />
                               <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
-                                <img src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" />
+                                <Image src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" width={20} height={20} />
                               </button>
                             </div>
                           )}
@@ -252,9 +352,9 @@ const CreateRoutePage: React.FC = () => {
           </div>
           <div className="my-2">
             <button className="btn btn-success" onClick={handleAddStop}>
-                <img src="/assets/images/add-line.png" alt="Add Stop" className="icon-small" />
+              <Image src="/assets/images/add-line.png" alt="Add Stop" className="icon-small" width={20} height={20} />
             </button>
-            </div>
+          </div>
 
           {/* Routes Table Section */}
           <h2 className="card-title mb-3">Routes</h2>
@@ -269,19 +369,35 @@ const CreateRoutePage: React.FC = () => {
             </div>
             <div className="col-md-5 text-end">
               <button className="btn btn-primary me-2" onClick={handleClear}>
-                <img src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" />
+                <Image src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" width={20} height={20} />
                 Clear
               </button>
-              <button className="btn btn-success me-2" onClick={handleAddRoute}>
-                <img src="/assets/images/add-line.png" alt="Add" className="icon-small"/>
-                Add
-              </button>
+              {isEditMode ? (
+                <>
+                  <button className="btn btn-success me-2" onClick={handleSaveRoute}>
+                    <Image src="/assets/images/save-line.png" alt="Save" width={20} height={20} />
+                    Save
+                  </button>
+                  <button className="btn btn-secondary me-2" onClick={() => {
+                      setIsEditMode(false); // Exit edit mode
+                      setEditingRouteID(null); // Clear the editing stop ID
+                      handleClear(); // Clear input fields
+                    }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button className="btn btn-success me-2" onClick={handleAddRoute}>
+                  <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+                  Add
+                </button>
+              )}
               <button className="btn btn-danger me-2">
-                <img src="/assets/images/export.png" alt="Export" className="icon-small" />
+                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Export CSV
               </button>
               <button className="btn btn-danger text-white">
-                <img src="/assets/images/import.png" alt="Import" className="icon-small" />
+                <Image src="/assets/images/import.png" alt="Import" className="icon-small" width={20} height={20} />
                 Import CSV
               </button>
             </div>
@@ -306,11 +422,11 @@ const CreateRoutePage: React.FC = () => {
                   <td>{route.RouteStops?.length ?? 0}</td> {/* Defaults to zero */}
                   <td className="text-center">
                     <div className="d-inline-flex align-items-center gap-1">
-                      <button className="btn btn-sm btn-primary p-1">
-                        <img src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                      <button className="btn btn-sm btn-primary p-1" onClick={() => handleEditRoute(route)}>
+                        <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
                       </button>
-                      <button className="btn btn-sm btn-danger p-1">
-                        <img src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
+                      <button className="btn btn-sm btn-danger p-1" onClick={() => handleDeleteRoute(route.RouteID)}>
+                        <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25}  />
                       </button>
                     </div>
                   </td>
@@ -343,13 +459,17 @@ const CreateRoutePage: React.FC = () => {
               onAssign={(stop) => {
                 if (stopType === 'start') {
                   setStartStop(stop.StopName); // or however you want to use it
+                  setStartStopID(stop.StopID); // Update StartStop ID
                   setSelectedStartStop(stop);  // optionally store the whole object
                 } else if (stopType === 'end') {
                   setEndStop(stop.StopName);
+                  setEndStopID(stop.StopID); // Update EndStop ID
                   setSelectedEndStop(stop);
                 } else if (stopType === 'between' && selectedStopIndex !== null) {
                   const updatedStops = [...stopsBetween];
-                  updatedStops[selectedStopIndex] = stop.StopID;
+                  if (selectedStopIndex !== null) {
+                    updatedStops[selectedStopIndex] = { StopID: stop.StopID, StopName: stop.StopName }; // Update both StopID and StopName
+                  }
                   setStopsBetween(updatedStops);
                   // optionally setSelectedStopBetween(stop); if you want to track them
                 }

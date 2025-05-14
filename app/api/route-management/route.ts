@@ -12,7 +12,15 @@ export async function GET() {
       include: {
         StartStop: true,
         EndStop: true,
-        RouteStops: true,
+        RouteStops: {
+          include: {
+            Stop: {
+              select: {
+                StopName: true, // Only include StopName for RouteStops
+              },
+            },
+          },
+        },
       },
     });
 
@@ -157,6 +165,27 @@ export async function PUT(req: Request) {
     }
 
     // Return the updated route
+    return NextResponse.json(updatedRoute, { status: 200 });
+  } catch (error) {
+    console.error('Error updating route:', error);
+    return NextResponse.json({ error: 'Failed to update route' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const { routeID, isDeleted } = await req.json(); // Extract routeID and isDeleted from the request body
+
+    if (!routeID) {
+      return NextResponse.json({ error: 'routeID is required' }, { status: 400 });
+    }
+
+    // Update the isDeleted column for the specified route
+    const updatedRoute = await prisma.route.update({
+      where: { RouteID: routeID },
+      data: { IsDeleted: isDeleted },
+    });
+
     return NextResponse.json(updatedRoute, { status: 200 });
   } catch (error) {
     console.error('Error updating route:', error);

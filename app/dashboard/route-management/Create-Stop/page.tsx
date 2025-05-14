@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
+import Image from 'next/image';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,8 +17,13 @@ const RouteManagementPage: React.FC = () => {
   const [stopName, setStopName] = useState(''); // State for Stop Name
   const [longitude, setLongitude] = useState(''); // State for Longitude
   const [latitude, setLatitude] = useState(''); // State for Latitude
+  const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
+  const [sortOrder, setSortOrder] = useState(''); // State for sorting order
+  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
+  const [editingStopID, setEditingStopID] = useState<string | null>(null); // Track the stop being edited
+  const [loading, setLoading] = useState(false); // Track loading state
 
-  const totalPages = Math.ceil(stops.length / ITEMS_PER_PAGE);
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -26,13 +32,37 @@ const RouteManagementPage: React.FC = () => {
   };
 
   // Update displayed stops whenever the current page changes
+  // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
+    const sortedStops = [...stops];
+  
+    // Sort stops based on the selected sortOrder
+    if (sortOrder === 'A-Z') {
+      sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
+    } else if (sortOrder === 'Z-A') {
+      sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
+    }
+  
+    const filteredStops = sortedStops.filter((stop) =>
+      stop.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stop.longitude?.toString().includes(searchQuery) ||
+      stop.latitude?.toString().includes(searchQuery)
+    );
+  
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    setDisplayedStops(stops.slice(startIndex, endIndex));
-  }, [currentPage, stops]);
+  
+    setDisplayedStops(filteredStops.slice(startIndex, endIndex));
+    setTotalPages(Math.ceil(filteredStops.length / ITEMS_PER_PAGE)); // Update total pages based on filtered stops
+  
+    // Reset currentPage to 1 if the search query changes
+    if (currentPage > Math.ceil(filteredStops.length / ITEMS_PER_PAGE)) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, stops, searchQuery, sortOrder]);
 
   const fetchStops = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await fetch('/api/stops');
       if (!response.ok) {
@@ -42,6 +72,8 @@ const RouteManagementPage: React.FC = () => {
       setStops(data); // Update the full stops list
     } catch (error) {
       console.error('Error fetching assignments:', error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -88,6 +120,80 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
+  const handleEdit = (stop: Stop) => {
+    setIsEditMode(true); // Enable edit mode
+    setEditingStopID(stop.StopID); // Set the stop being edited
+    setStopName(stop.StopName); // Populate input fields
+    setLongitude(stop.longitude);
+    setLatitude(stop.latitude);
+  };
+
+  const handleSave = async () => {
+    if (!stopName || !longitude || !latitude) {
+      alert('Please fill in all fields with valid values.');
+      return;
+    }
+  
+    const updatedStop = {
+      StopID: editingStopID, // Ensure this matches the backend's expected field name
+      StopName: stopName,
+      latitude: latitude,
+      longitude: longitude,
+    };
+
+    console.log('Request body:', updatedStop); // Debuggings
+  
+    try {
+      const response = await fetch('/api/stops', {
+        method: 'PUT', // Use PUT for updates
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStop), // Send updated stop details
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to update stop: ${response.statusText}`);
+      }
+  
+      alert('Stop updated successfully!');
+      setIsEditMode(false); // Exit edit mode
+      setEditingStopID(null);
+      handleClear(); // Clear input fields
+      fetchStops(); // Refresh the stops list
+    } catch (error) {
+      console.error('Error updating stop:', error);
+      alert('Failed to update stop. Please try again.');
+    }
+  };
+
+  const handleDelete = async (stopID: string) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
+    if (!confirmDelete) {
+      return; // Exit if the user cancels
+    }
+  
+    try {
+      const response = await fetch('/api/stops', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stopID, isDeleted: true }), // Send stopID and isDeleted in the request body
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete stop: ${response.statusText}`);
+      }
+  
+      alert('Stop deleted successfully!');
+      fetchStops(); // Refresh the stops list after deletion
+    } catch (error) {
+      console.error('Error deleting stop:', error);
+      alert('Failed to delete stop. Please try again.');
+    }
+  };
+
   const handleClear = () => {
     setStopName(''); // Clear input fields
     setLongitude('');
@@ -100,7 +206,9 @@ const RouteManagementPage: React.FC = () => {
         <div className="card-body">
           
           {/* Create Stop Section */}
-          <h2 className={styles.stopTitle}>CREATE STOP</h2>
+          <h2 className={styles.stopTitle}>
+            {isEditMode ? 'EDIT STOP' : 'CREATE STOP'}
+          </h2>
           <div className="row g-3 mb-4">
             <div className="col-md-4">
               <input type="text"className="form-control" placeholder="Stop Name" value={stopName}
@@ -120,34 +228,71 @@ const RouteManagementPage: React.FC = () => {
           <h2 className="card-title mb-3">Stops</h2>
           <div className="row g-2 align-items-center mb-3">
             <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Search..." />
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search..."
+                value={searchQuery} // Bind to searchQuery state
+                onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
+              />
             </div>
             <div className="col-md-3">
-              <select className="form-select">
-                <option>Select item</option>
+              <select
+                className="form-select"
+                value={sortOrder} // Bind to sortOrder state
+                onChange={(e) => setSortOrder(e.target.value)} // Update sortOrder state
+              >
+                <option value="A-Z">Name: A-Z</option>
+                <option value="Z-A">Name: Z-A</option>
               </select>
             </div>
             <div className="col-md-5 text-end">
               <button className="btn btn-primary me-2" onClick={handleClear}>
-                <img src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" />
+                <Image src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" width={20} height={20} />
                 Clear
               </button>
-              <button className="btn btn-success me-2" onClick={handleAddStop}>
-                <img src="/assets/images/add-line.png" alt="Add" className="icon-small" />
-                Add
-              </button>
+
+              {/* Shows Add button as default, shows save button when edit mode */}
+              {isEditMode ? (
+                <>
+                  <button className="btn btn-success me-2" onClick={handleSave}>
+                    <Image src="/assets/images/save-line.png" alt="Save" className="icon-small" width={20} height={20} />
+                    Save
+                  </button>
+                  <button
+                    className="btn btn-secondary me-2"
+                    onClick={() => {
+                      setIsEditMode(false); // Exit edit mode
+                      setEditingStopID(null); // Clear the editing stop ID
+                      handleClear(); // Clear input fields
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button className="btn btn-success me-2" onClick={handleAddStop}>
+                  <Image src="/assets/images/add-line.png" alt="Add" className="icon-small" width={20} height={20} />
+                  Add
+                </button>
+              )}
+
               <button className="btn btn-danger me-2">
-                <img src="/assets/images/export.png" alt="Export" className="icon-small" />
-                Export CSV
-              </button>
-              <button className="btn btn-danger text-white">
-                <img src="/assets/images/import.png" alt="Import" className="icon-small" />
-                Import CSV
+                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
+                Print
               </button>
             </div>
           </div>
-
-          <table className="table table-striped table-bordered custom-table">
+          
+          {loading ? (
+            // Render this when loading is true
+            <div className="text-center my-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ):(
+            <table className="table table-striped table-bordered custom-table">
             <thead>
               <tr>
                 <th>Stop Name</th>
@@ -157,61 +302,76 @@ const RouteManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-            {displayedStops.map((stop) => (
-                <tr key={stop.StopID}>
-                  <td>{stop.StopName}</td>
-                  <td>{stop.longitude}</td>
-                  <td>{stop.latitude}</td>
-                  <td className="text-center">
-                    <div className="d-inline-flex align-items-center gap-1">
-                      <button className="btn btn-sm btn-primary p-1">
-                        <img
-                          src="/assets/images/edit-white.png"
-                          alt="Edit"
-                          width={25}
-                          height={25}
-                        />
-                      </button>
-                      <button className="btn btn-sm btn-danger p-1">
-                        <img
-                          src="/assets/images/delete-white.png"
-                          alt="Delete"
-                          width={25}
-                          height={25}
-                        />
-                      </button>
-                    </div>
+              {displayedStops.length > 0 ? (
+                displayedStops.map((stop) => (
+                  <tr key={stop.StopID}>
+                    <td>{stop.StopName}</td>
+                    <td>{stop.longitude}</td>
+                    <td>{stop.latitude}</td>
+                    <td className="text-center">
+                      <div className="d-inline-flex align-items-center gap-1">
+                        <button className="btn btn-sm btn-primary p-1" onClick={() => handleEdit(stop)} // Enable edit mode
+                        >
+                          <Image
+                            src="/assets/images/edit-white.png"
+                            alt="Edit"
+                            width={25}
+                            height={25}
+                          />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger p-1"
+                          onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
+                        >
+                          <Image
+                            src="/assets/images/delete-white.png"
+                            alt="Delete"
+                            width={25}
+                            height={25}
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center">
+                    No records found.
                   </td>
                 </tr>
-                ))}
+              )}
             </tbody>
           </table>
+          )}
 
           {/* Pagination */}
-          <nav>
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                  Previous
-                </button>
-              </li>
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <li
-                  key={i + 1}
-                  className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                >
-                  <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                    {i + 1}
-                  </button>
-                </li>
-              ))}
-              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                  Next
-                </button>
-              </li>
-            </ul>
-          </nav>
+            {displayedStops.length > 0 && (
+              <nav>
+                <ul className="pagination justify-content-center">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                      Previous
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <li
+                      key={i + 1}
+                      className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
+                    >
+                      <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
         </div>
       </div>
     </div>

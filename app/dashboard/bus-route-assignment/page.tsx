@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import styles from './bus-route-assignment.module.css';
 import SearchBar from '@/components/ui/SearchBar';
+import Image from 'next/image';
+import { BusAssignment } from '@/app/interface';
 
 interface BusRouteAssignment {
   BusRouteAssignmentID: string;
@@ -24,7 +26,7 @@ interface BusRouteAssignment {
 }
 
 const BusRouteAssignmentPage: React.FC = () => {
-  const [busRouteAssignments, setAssignments] = useState<BusRouteAssignment[]>([]);
+  const [busRouteAssignments, setAssignments] = useState<BusAssignment[]>([]);
   const [selectedBusAssignmentID, setSelectedBusAssignmentID] = useState<number | null>(null);
   const [selectedRouteID, setSelectedRouteID] = useState<string | null>(null);
   // const [searchQuery, setSearchQuery] = useState<string>(''); 
@@ -55,16 +57,16 @@ const BusRouteAssignmentPage: React.FC = () => {
           <div className={styles.tabRow}>
             <div className={styles.tabs}>
               <button className={styles.tab}>
-                <img src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.tabIcon} />
+                <Image src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.tabIcon} width={20} />
                 Assign Bus Driver/Conductor
               </button>
               <button className={`${styles.tab} ${styles.tabActive}`}>
-                <img src="/assets/images/assignedroute.png" alt="Route Icon" className={styles.tabIcon} />
+                <Image src="/assets/images/assignedroute.png" alt="Route Icon" className={styles.tabIcon} width={20} />
                 Assign Bus to Route
               </button>
             </div>
             <button className={styles.tab}>
-              <img src="/assets/images/philippine-peso.png" alt="Peso Icon" className={styles.tabIcon} />
+              <Image src="/assets/images/philippine-peso.png" alt="Peso Icon" className={styles.tabIcon} width={20} />
               Quota Count
             </button>
           </div>
@@ -82,7 +84,7 @@ const BusRouteAssignmentPage: React.FC = () => {
             {/* Form section */}
             <div className={styles.formSection}>
               <div className={styles.formGroup}>
-                <img src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.icon} />
+                <Image src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.icon} width={20} />
                 <p><strong>Selected Bus Assignment ID:</strong> {selectedBusAssignmentID ?? "None"}</p>
                 <select
                   className={styles.selectBlack}
@@ -99,7 +101,7 @@ const BusRouteAssignmentPage: React.FC = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <img src="/assets/images/assignedroute.png" alt="Route Icon" className={styles.icon} />
+                <Image src="/assets/images/assignedroute.png" alt="Route Icon" className={styles.icon} width={20} />
                 <p><strong>Selected Route ID:</strong> {selectedRouteID ?? "None"}</p>
                 <select
                   className={styles.selectBlack}
@@ -138,17 +140,17 @@ const BusRouteAssignmentPage: React.FC = () => {
               </thead>
               <tbody>
                 {busRouteAssignments.map((busRouteAssignments) => (
-                  <tr key={busRouteAssignments.BusRouteAssignmentID} className={styles.tableRow}>
+                  <tr key={busRouteAssignments.BusAssignmentID} className={styles.tableRow}>
                     <td>{busRouteAssignments.RegularBusAssignment?.BusAssignment?.BusID}</td>
                     <td>{busRouteAssignments.Route?.RouteName}</td>
                     <td>{busRouteAssignments.Route?.StartStop?.StopName}</td>
                     <td>{busRouteAssignments.Route?.EndStop?.StopName}</td>
                     <td className={styles.actions}>
                       <button className={styles.editBtn}>
-                        <img src="/assets/images/edit.png" alt="Edit" />
+                        <Image src="/assets/images/edit.png" alt="Edit" width={20} />
                       </button>
                       <button className={styles.deleteBtn}>
-                        <img src="/assets/images/delete.png" alt="Delete" />
+                        <Image src="/assets/images/delete.png" alt="Delete" width={20} />
                       </button>
                     </td>
                   </tr>
