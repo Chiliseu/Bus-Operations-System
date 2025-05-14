@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
+import Image from 'next/image';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,6 +21,7 @@ const RouteManagementPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [editingStopID, setEditingStopID] = useState<string | null>(null); // Track the stop being edited
+  const [loading, setLoading] = useState(false); // Track loading state
 
   const [totalPages, setTotalPages] = useState(1); // State for total pages
 
@@ -32,7 +34,7 @@ const RouteManagementPage: React.FC = () => {
   // Update displayed stops whenever the current page changes
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
-    let sortedStops = [...stops];
+    const sortedStops = [...stops];
   
     // Sort stops based on the selected sortOrder
     if (sortOrder === 'A-Z') {
@@ -60,6 +62,7 @@ const RouteManagementPage: React.FC = () => {
   }, [currentPage, stops, searchQuery, sortOrder]);
 
   const fetchStops = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await fetch('/api/stops');
       if (!response.ok) {
@@ -69,6 +72,8 @@ const RouteManagementPage: React.FC = () => {
       setStops(data); // Update the full stops list
     } catch (error) {
       console.error('Error fetching assignments:', error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -243,7 +248,7 @@ const RouteManagementPage: React.FC = () => {
             </div>
             <div className="col-md-5 text-end">
               <button className="btn btn-primary me-2" onClick={handleClear}>
-                <img src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" />
+                <Image src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" width={20} height={20} />
                 Clear
               </button>
 
@@ -251,7 +256,7 @@ const RouteManagementPage: React.FC = () => {
               {isEditMode ? (
                 <>
                   <button className="btn btn-success me-2" onClick={handleSave}>
-                    <img src="/assets/images/save-line.png" alt="Save" className="icon-small" />
+                    <Image src="/assets/images/save-line.png" alt="Save" className="icon-small" width={20} height={20} />
                     Save
                   </button>
                   <button
@@ -267,19 +272,27 @@ const RouteManagementPage: React.FC = () => {
                 </>
               ) : (
                 <button className="btn btn-success me-2" onClick={handleAddStop}>
-                  <img src="/assets/images/add-line.png" alt="Add" className="icon-small" />
+                  <Image src="/assets/images/add-line.png" alt="Add" className="icon-small" width={20} height={20} />
                   Add
                 </button>
               )}
 
               <button className="btn btn-danger me-2">
-                <img src="/assets/images/export.png" alt="Export" className="icon-small" />
+                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
               </button>
             </div>
           </div>
-
-          <table className="table table-striped table-bordered custom-table">
+          
+          {loading ? (
+            // Render this when loading is true
+            <div className="text-center my-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ):(
+            <table className="table table-striped table-bordered custom-table">
             <thead>
               <tr>
                 <th>Stop Name</th>
@@ -299,7 +312,7 @@ const RouteManagementPage: React.FC = () => {
                       <div className="d-inline-flex align-items-center gap-1">
                         <button className="btn btn-sm btn-primary p-1" onClick={() => handleEdit(stop)} // Enable edit mode
                         >
-                          <img
+                          <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"
                             width={25}
@@ -310,7 +323,7 @@ const RouteManagementPage: React.FC = () => {
                           className="btn btn-sm btn-danger p-1"
                           onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
                         >
-                          <img
+                          <Image
                             src="/assets/images/delete-white.png"
                             alt="Delete"
                             width={25}
@@ -330,6 +343,7 @@ const RouteManagementPage: React.FC = () => {
               )}
             </tbody>
           </table>
+          )}
 
           {/* Pagination */}
             {displayedStops.length > 0 && (
