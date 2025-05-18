@@ -428,7 +428,6 @@ const BusAssignmentPage: React.FC = () => {
             <AssignBusModal 
               onClose={() => setShowAssignBusModal(false) } 
               onAssign={(bus) => {
-                alert(`Assigned Bus: ${bus.busId}`);
                 setSelectedBus(bus); // store or use it as needed
                 setShowAssignBusModal(false); // close modal
               }}
@@ -438,7 +437,6 @@ const BusAssignmentPage: React.FC = () => {
             <AssignDriverModal 
               onClose={() => setShowAssignDriverModal(false)} 
               onAssign={(driver) => {
-                alert(`Assigned Driver: ${driver.name}`);
                 setSelectedDriver(driver); // store or use it as needed
                 setShowAssignDriverModal(false); // close modal
               }}
@@ -448,7 +446,6 @@ const BusAssignmentPage: React.FC = () => {
             <AssignConductorModal 
               onClose={() => setShowAssignConductorModal(false)}
               onAssign={(conductor) => {
-                alert(`Assigned Conductor: ${conductor.name}`);
                 setSelectedConductor(conductor); // store or use it as needed
                 setShowAssignConductorModal(false); // close modal
               }} 
@@ -458,7 +455,6 @@ const BusAssignmentPage: React.FC = () => {
             <AssignRouteModal 
               onClose={() => setShowAssignRouteModal(false)}
               onAssign={(route) => {
-                alert(`Assigned Route: ${route.RouteName}`);
                 setSelectedRoute(route); // store or use it as needed
                 setShowAssignRouteModal(false); // close modal
               }} 
