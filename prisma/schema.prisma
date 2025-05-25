@@ -73,6 +73,27 @@ enum BusOperationStatus {
   Completed
 }
 
+model TicketType {
+  TicketTypeID           String                @id
+  Value                  Float
+  TicketBusAssignments   TicketBusAssignment[]
+
+  @@map("Ticket_Type")
+}
+
+model TicketBusAssignment {
+  TicketBusAssignmentID  String                @id
+  BusAssignmentID        String
+  TicketTypeID           String
+  StartingIDNumber       Int
+  EndingIDNumber         Int
+
+  BusAssignment          BusAssignment         @relation(fields: [BusAssignmentID], references: [BusAssignmentID])
+  TicketType             TicketType            @relation(fields: [TicketTypeID], references: [TicketTypeID])
+
+  @@map("TicketBusAssignment")
+}
+
 model BusAssignment {
   BusAssignmentID String @id
   BusID           String
@@ -90,10 +111,11 @@ model BusAssignment {
   Self_Driver     Boolean @default(false)
   Self_Conductor  Boolean @default(false)
   IsDeleted       Boolean @default(false)
-
   Status          BusOperationStatus @default(NotStarted)
+
   Route                Route                 @relation(fields: [RouteID], references: [RouteID])
   RegularBusAssignment RegularBusAssignment?
+  TicketBusAssignments   TicketBusAssignment[]
 
   @@index([BusID])
 }

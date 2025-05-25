@@ -156,6 +156,19 @@ exports.Prisma.RouteStopScalarFieldEnum = {
   StopOrder: 'StopOrder'
 };
 
+exports.Prisma.TicketTypeScalarFieldEnum = {
+  TicketTypeID: 'TicketTypeID',
+  Value: 'Value'
+};
+
+exports.Prisma.TicketBusAssignmentScalarFieldEnum = {
+  TicketBusAssignmentID: 'TicketBusAssignmentID',
+  BusAssignmentID: 'BusAssignmentID',
+  TicketTypeID: 'TicketTypeID',
+  StartingIDNumber: 'StartingIDNumber',
+  EndingIDNumber: 'EndingIDNumber'
+};
+
 exports.Prisma.BusAssignmentScalarFieldEnum = {
   BusAssignmentID: 'BusAssignmentID',
   BusID: 'BusID',
@@ -207,6 +220,8 @@ exports.Prisma.ModelName = {
   Stop: 'Stop',
   Route: 'Route',
   RouteStop: 'RouteStop',
+  TicketType: 'TicketType',
+  TicketBusAssignment: 'TicketBusAssignment',
   BusAssignment: 'BusAssignment',
   RegularBusAssignment: 'RegularBusAssignment'
 };

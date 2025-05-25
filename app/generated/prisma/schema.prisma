@@ -73,27 +73,49 @@ enum BusOperationStatus {
   Completed
 }
 
+model TicketType {
+  TicketTypeID         String                @id
+  Value                Float
+  TicketBusAssignments TicketBusAssignment[]
+
+  @@map("Ticket_Type")
+}
+
+model TicketBusAssignment {
+  TicketBusAssignmentID String @id
+  BusAssignmentID       String
+  TicketTypeID          String
+  StartingIDNumber      Int
+  EndingIDNumber        Int
+
+  BusAssignment BusAssignment @relation(fields: [BusAssignmentID], references: [BusAssignmentID])
+  TicketType    TicketType    @relation(fields: [TicketTypeID], references: [TicketTypeID])
+
+  @@map("TicketBusAssignment")
+}
+
 model BusAssignment {
-  BusAssignmentID String   @id
+  BusAssignmentID String             @id
   BusID           String
   RouteID         String
   AssignmentDate  DateTime
-  Battery         Boolean  @default(false)
-  Lights          Boolean  @default(false)
-  Oil             Boolean  @default(false)
-  Water           Boolean  @default(false)
-  Break           Boolean  @default(false)
-  Air             Boolean  @default(false)
-  Gas             Boolean  @default(false)
-  Engine          Boolean  @default(false)
-  TireCondition   Boolean  @default(false)
-  Self_Driver     Boolean  @default(false)
-  Self_Conductor  Boolean  @default(false)
-  IsDeleted       Boolean  @default(false)
+  Battery         Boolean            @default(false)
+  Lights          Boolean            @default(false)
+  Oil             Boolean            @default(false)
+  Water           Boolean            @default(false)
+  Break           Boolean            @default(false)
+  Air             Boolean            @default(false)
+  Gas             Boolean            @default(false)
+  Engine          Boolean            @default(false)
+  TireCondition   Boolean            @default(false)
+  Self_Driver     Boolean            @default(false)
+  Self_Conductor  Boolean            @default(false)
+  IsDeleted       Boolean            @default(false)
+  Status          BusOperationStatus @default(NotStarted)
 
-  Status               BusOperationStatus    @default(NotStarted)
   Route                Route                 @relation(fields: [RouteID], references: [RouteID])
   RegularBusAssignment RegularBusAssignment?
+  TicketBusAssignments TicketBusAssignment[]
 
   @@index([BusID])
 }

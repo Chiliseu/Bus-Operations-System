@@ -242,23 +242,37 @@ async function seedRouteStops() {
   console.log('RouteStops seeded successfully');
 }
 
+async function seedTicketTypes() {
+  const ticketTypes = [
+    { Value: 10.0 },
+    { Value: 15.0 },
+  ];
+
+  for (const type of ticketTypes) {
+    const ticketTypeID = await generateFormattedID('TT');
+    await prisma.ticketType.create({
+      data: {
+        TicketTypeID: ticketTypeID,
+        Value: type.Value,
+      },
+    });
+  }
+
+  console.log('Ticket types seeded');
+}
+
 async function seedBusAssignments() {
-  // Generate bus assignment IDs
   const busAssignmentID1 = await generateFormattedID('BA');
-  
-   // Retrieve all routes sorted by RouteID
-  const allRoutes = await prisma.route.findMany({
-    orderBy: { RouteID: "asc" },
-  });
+  const busAssignmentID2 = await generateFormattedID('BA');
 
+  const allRoutes = await prisma.route.findMany({ orderBy: { RouteID: 'asc' } });
   const routeID1 = allRoutes[0]?.RouteID;
-  const routeID3 = allRoutes[1]?.RouteID;
+  const routeID2 = allRoutes[1]?.RouteID;
 
-  // Create each bus assignment one by one to avoid duplicate IDs
   await prisma.busAssignment.create({
     data: {
       BusAssignmentID: busAssignmentID1,
-      BusID: "BUS-0001",
+      BusID: 'BUS-0001',
       RouteID: routeID1,
       AssignmentDate: new Date('2025-04-15'),
       Battery: true,
@@ -272,22 +286,71 @@ async function seedBusAssignments() {
       TireCondition: true,
       Self_Driver: true,
       Self_Conductor: true,
-      Status:"InOperation",
+      Status: 'InOperation',
       IsDeleted: false,
     },
   });
 
-  const busAssignmentID2 = await generateFormattedID('BA');
   await prisma.busAssignment.create({
     data: {
       BusAssignmentID: busAssignmentID2,
-      BusID: "BUS-0002",
-      RouteID: routeID3,
+      BusID: 'BUS-0002',
+      RouteID: routeID2,
       AssignmentDate: new Date('2025-04-16'),
     },
   });
 
   console.log('Bus assignments seeded');
+}
+
+async function seedTicketBusAssignments() {
+  // Fetch existing bus assignments and ticket types
+  const busAssignments = await prisma.busAssignment.findMany({
+    orderBy: { AssignmentDate: 'asc' },
+  });
+  const ticketTypes = await prisma.ticketType.findMany({
+    orderBy: { TicketTypeID: 'asc' },
+  });
+
+  if (busAssignments.length === 0 || ticketTypes.length === 0) {
+    throw new Error('Missing bus assignments or ticket types');
+  }
+
+  // Use first 2 ticket types for examples
+  const [ticketType1, ticketType2] = ticketTypes;
+
+  const assignments = [
+    {
+      BusAssignmentID: busAssignments[0].BusAssignmentID,
+      TicketTypeID: ticketType1.TicketTypeID,
+      StartingIDNumber: 1000,
+      EndingIDNumber: 1099,
+    },
+    {
+      BusAssignmentID: busAssignments[0].BusAssignmentID,
+      TicketTypeID: ticketType2.TicketTypeID,
+      StartingIDNumber: 1100,
+      EndingIDNumber: 1199,
+    },
+    {
+      BusAssignmentID: busAssignments[1].BusAssignmentID,
+      TicketTypeID: ticketType1.TicketTypeID,
+      StartingIDNumber: 2000,
+      EndingIDNumber: 2099,
+    },
+  ];
+
+  for (const a of assignments) {
+    const ticketBusAssignmentID = await generateFormattedID('TBA');
+    await prisma.ticketBusAssignment.create({
+      data: {
+        TicketBusAssignmentID: ticketBusAssignmentID,
+        ...a,
+      },
+    });
+  }
+
+  console.log('TicketBusAssignment seeded');
 }
 
 async function seedRegularBusAssignments() {
@@ -338,7 +401,9 @@ async function main() {
   await seedStops();
   await seedRoutes();
   await seedRouteStops();
+  await seedTicketTypes();
   await seedBusAssignments();
+  await seedTicketBusAssignments();
   await seedRegularBusAssignments();
 }
 

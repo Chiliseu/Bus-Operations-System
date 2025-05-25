@@ -44,6 +44,16 @@ export type Route = $Result.DefaultSelection<Prisma.$RoutePayload>
  */
 export type RouteStop = $Result.DefaultSelection<Prisma.$RouteStopPayload>
 /**
+ * Model TicketType
+ * 
+ */
+export type TicketType = $Result.DefaultSelection<Prisma.$TicketTypePayload>
+/**
+ * Model TicketBusAssignment
+ * 
+ */
+export type TicketBusAssignment = $Result.DefaultSelection<Prisma.$TicketBusAssignmentPayload>
+/**
  * Model BusAssignment
  * 
  */
@@ -256,6 +266,26 @@ export class PrismaClient<
     * ```
     */
   get routeStop(): Prisma.RouteStopDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketType`: Exposes CRUD operations for the **TicketType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketTypes
+    * const ticketTypes = await prisma.ticketType.findMany()
+    * ```
+    */
+  get ticketType(): Prisma.TicketTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ticketBusAssignment`: Exposes CRUD operations for the **TicketBusAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TicketBusAssignments
+    * const ticketBusAssignments = await prisma.ticketBusAssignment.findMany()
+    * ```
+    */
+  get ticketBusAssignment(): Prisma.TicketBusAssignmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.busAssignment`: Exposes CRUD operations for the **BusAssignment** model.
@@ -722,6 +752,8 @@ export namespace Prisma {
     Stop: 'Stop',
     Route: 'Route',
     RouteStop: 'RouteStop',
+    TicketType: 'TicketType',
+    TicketBusAssignment: 'TicketBusAssignment',
     BusAssignment: 'BusAssignment',
     RegularBusAssignment: 'RegularBusAssignment'
   };
@@ -742,7 +774,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "quota_Policy" | "fixed" | "percentage" | "stop" | "route" | "routeStop" | "busAssignment" | "regularBusAssignment"
+      modelProps: "quota_Policy" | "fixed" | "percentage" | "stop" | "route" | "routeStop" | "ticketType" | "ticketBusAssignment" | "busAssignment" | "regularBusAssignment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1190,6 +1222,154 @@ export namespace Prisma {
           }
         }
       }
+      TicketType: {
+        payload: Prisma.$TicketTypePayload<ExtArgs>
+        fields: Prisma.TicketTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          findFirst: {
+            args: Prisma.TicketTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          findMany: {
+            args: Prisma.TicketTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>[]
+          }
+          create: {
+            args: Prisma.TicketTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          createMany: {
+            args: Prisma.TicketTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketTypeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>[]
+          }
+          delete: {
+            args: Prisma.TicketTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          update: {
+            args: Prisma.TicketTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketTypeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketTypePayload>
+          }
+          aggregate: {
+            args: Prisma.TicketTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketType>
+          }
+          groupBy: {
+            args: Prisma.TicketTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      TicketBusAssignment: {
+        payload: Prisma.$TicketBusAssignmentPayload<ExtArgs>
+        fields: Prisma.TicketBusAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TicketBusAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TicketBusAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.TicketBusAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TicketBusAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.TicketBusAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.TicketBusAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.TicketBusAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TicketBusAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.TicketBusAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          update: {
+            args: Prisma.TicketBusAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.TicketBusAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TicketBusAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TicketBusAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.TicketBusAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TicketBusAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.TicketBusAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTicketBusAssignment>
+          }
+          groupBy: {
+            args: Prisma.TicketBusAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TicketBusAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TicketBusAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<TicketBusAssignmentCountAggregateOutputType> | number
+          }
+        }
+      }
       BusAssignment: {
         payload: Prisma.$BusAssignmentPayload<ExtArgs>
         fields: Prisma.BusAssignmentFieldRefs
@@ -1428,6 +1608,8 @@ export namespace Prisma {
     stop?: StopOmit
     route?: RouteOmit
     routeStop?: RouteStopOmit
+    ticketType?: TicketTypeOmit
+    ticketBusAssignment?: TicketBusAssignmentOmit
     busAssignment?: BusAssignmentOmit
     regularBusAssignment?: RegularBusAssignmentOmit
   }
@@ -1636,6 +1818,68 @@ export namespace Prisma {
    */
   export type RouteCountOutputTypeCountBusAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BusAssignmentWhereInput
+  }
+
+
+  /**
+   * Count Type TicketTypeCountOutputType
+   */
+
+  export type TicketTypeCountOutputType = {
+    TicketBusAssignments: number
+  }
+
+  export type TicketTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    TicketBusAssignments?: boolean | TicketTypeCountOutputTypeCountTicketBusAssignmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TicketTypeCountOutputType without action
+   */
+  export type TicketTypeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketTypeCountOutputType
+     */
+    select?: TicketTypeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TicketTypeCountOutputType without action
+   */
+  export type TicketTypeCountOutputTypeCountTicketBusAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketBusAssignmentWhereInput
+  }
+
+
+  /**
+   * Count Type BusAssignmentCountOutputType
+   */
+
+  export type BusAssignmentCountOutputType = {
+    TicketBusAssignments: number
+  }
+
+  export type BusAssignmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    TicketBusAssignments?: boolean | BusAssignmentCountOutputTypeCountTicketBusAssignmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BusAssignmentCountOutputType without action
+   */
+  export type BusAssignmentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BusAssignmentCountOutputType
+     */
+    select?: BusAssignmentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BusAssignmentCountOutputType without action
+   */
+  export type BusAssignmentCountOutputTypeCountTicketBusAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketBusAssignmentWhereInput
   }
 
 
@@ -8177,6 +8421,2175 @@ export namespace Prisma {
 
 
   /**
+   * Model TicketType
+   */
+
+  export type AggregateTicketType = {
+    _count: TicketTypeCountAggregateOutputType | null
+    _avg: TicketTypeAvgAggregateOutputType | null
+    _sum: TicketTypeSumAggregateOutputType | null
+    _min: TicketTypeMinAggregateOutputType | null
+    _max: TicketTypeMaxAggregateOutputType | null
+  }
+
+  export type TicketTypeAvgAggregateOutputType = {
+    Value: number | null
+  }
+
+  export type TicketTypeSumAggregateOutputType = {
+    Value: number | null
+  }
+
+  export type TicketTypeMinAggregateOutputType = {
+    TicketTypeID: string | null
+    Value: number | null
+  }
+
+  export type TicketTypeMaxAggregateOutputType = {
+    TicketTypeID: string | null
+    Value: number | null
+  }
+
+  export type TicketTypeCountAggregateOutputType = {
+    TicketTypeID: number
+    Value: number
+    _all: number
+  }
+
+
+  export type TicketTypeAvgAggregateInputType = {
+    Value?: true
+  }
+
+  export type TicketTypeSumAggregateInputType = {
+    Value?: true
+  }
+
+  export type TicketTypeMinAggregateInputType = {
+    TicketTypeID?: true
+    Value?: true
+  }
+
+  export type TicketTypeMaxAggregateInputType = {
+    TicketTypeID?: true
+    Value?: true
+  }
+
+  export type TicketTypeCountAggregateInputType = {
+    TicketTypeID?: true
+    Value?: true
+    _all?: true
+  }
+
+  export type TicketTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketType to aggregate.
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketTypes to fetch.
+     */
+    orderBy?: TicketTypeOrderByWithRelationInput | TicketTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketTypes
+    **/
+    _count?: true | TicketTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TicketTypeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TicketTypeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketTypeMaxAggregateInputType
+  }
+
+  export type GetTicketTypeAggregateType<T extends TicketTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketType[P]>
+      : GetScalarType<T[P], AggregateTicketType[P]>
+  }
+
+
+
+
+  export type TicketTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketTypeWhereInput
+    orderBy?: TicketTypeOrderByWithAggregationInput | TicketTypeOrderByWithAggregationInput[]
+    by: TicketTypeScalarFieldEnum[] | TicketTypeScalarFieldEnum
+    having?: TicketTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketTypeCountAggregateInputType | true
+    _avg?: TicketTypeAvgAggregateInputType
+    _sum?: TicketTypeSumAggregateInputType
+    _min?: TicketTypeMinAggregateInputType
+    _max?: TicketTypeMaxAggregateInputType
+  }
+
+  export type TicketTypeGroupByOutputType = {
+    TicketTypeID: string
+    Value: number
+    _count: TicketTypeCountAggregateOutputType | null
+    _avg: TicketTypeAvgAggregateOutputType | null
+    _sum: TicketTypeSumAggregateOutputType | null
+    _min: TicketTypeMinAggregateOutputType | null
+    _max: TicketTypeMaxAggregateOutputType | null
+  }
+
+  type GetTicketTypeGroupByPayload<T extends TicketTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketTypeID?: boolean
+    Value?: boolean
+    TicketBusAssignments?: boolean | TicketType$TicketBusAssignmentsArgs<ExtArgs>
+    _count?: boolean | TicketTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketType"]>
+
+  export type TicketTypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketTypeID?: boolean
+    Value?: boolean
+  }, ExtArgs["result"]["ticketType"]>
+
+  export type TicketTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketTypeID?: boolean
+    Value?: boolean
+  }, ExtArgs["result"]["ticketType"]>
+
+  export type TicketTypeSelectScalar = {
+    TicketTypeID?: boolean
+    Value?: boolean
+  }
+
+  export type TicketTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"TicketTypeID" | "Value", ExtArgs["result"]["ticketType"]>
+  export type TicketTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    TicketBusAssignments?: boolean | TicketType$TicketBusAssignmentsArgs<ExtArgs>
+    _count?: boolean | TicketTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TicketTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type TicketTypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $TicketTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketType"
+    objects: {
+      TicketBusAssignments: Prisma.$TicketBusAssignmentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      TicketTypeID: string
+      Value: number
+    }, ExtArgs["result"]["ticketType"]>
+    composites: {}
+  }
+
+  type TicketTypeGetPayload<S extends boolean | null | undefined | TicketTypeDefaultArgs> = $Result.GetResult<Prisma.$TicketTypePayload, S>
+
+  type TicketTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketTypeCountAggregateInputType | true
+    }
+
+  export interface TicketTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketType'], meta: { name: 'TicketType' } }
+    /**
+     * Find zero or one TicketType that matches the filter.
+     * @param {TicketTypeFindUniqueArgs} args - Arguments to find a TicketType
+     * @example
+     * // Get one TicketType
+     * const ticketType = await prisma.ticketType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketTypeFindUniqueArgs>(args: SelectSubset<T, TicketTypeFindUniqueArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketTypeFindUniqueOrThrowArgs} args - Arguments to find a TicketType
+     * @example
+     * // Get one TicketType
+     * const ticketType = await prisma.ticketType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeFindFirstArgs} args - Arguments to find a TicketType
+     * @example
+     * // Get one TicketType
+     * const ticketType = await prisma.ticketType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketTypeFindFirstArgs>(args?: SelectSubset<T, TicketTypeFindFirstArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeFindFirstOrThrowArgs} args - Arguments to find a TicketType
+     * @example
+     * // Get one TicketType
+     * const ticketType = await prisma.ticketType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketTypes
+     * const ticketTypes = await prisma.ticketType.findMany()
+     * 
+     * // Get first 10 TicketTypes
+     * const ticketTypes = await prisma.ticketType.findMany({ take: 10 })
+     * 
+     * // Only select the `TicketTypeID`
+     * const ticketTypeWithTicketTypeIDOnly = await prisma.ticketType.findMany({ select: { TicketTypeID: true } })
+     * 
+     */
+    findMany<T extends TicketTypeFindManyArgs>(args?: SelectSubset<T, TicketTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketType.
+     * @param {TicketTypeCreateArgs} args - Arguments to create a TicketType.
+     * @example
+     * // Create one TicketType
+     * const TicketType = await prisma.ticketType.create({
+     *   data: {
+     *     // ... data to create a TicketType
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketTypeCreateArgs>(args: SelectSubset<T, TicketTypeCreateArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketTypes.
+     * @param {TicketTypeCreateManyArgs} args - Arguments to create many TicketTypes.
+     * @example
+     * // Create many TicketTypes
+     * const ticketType = await prisma.ticketType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketTypeCreateManyArgs>(args?: SelectSubset<T, TicketTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketTypes and returns the data saved in the database.
+     * @param {TicketTypeCreateManyAndReturnArgs} args - Arguments to create many TicketTypes.
+     * @example
+     * // Create many TicketTypes
+     * const ticketType = await prisma.ticketType.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketTypes and only return the `TicketTypeID`
+     * const ticketTypeWithTicketTypeIDOnly = await prisma.ticketType.createManyAndReturn({
+     *   select: { TicketTypeID: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketType.
+     * @param {TicketTypeDeleteArgs} args - Arguments to delete one TicketType.
+     * @example
+     * // Delete one TicketType
+     * const TicketType = await prisma.ticketType.delete({
+     *   where: {
+     *     // ... filter to delete one TicketType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketTypeDeleteArgs>(args: SelectSubset<T, TicketTypeDeleteArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketType.
+     * @param {TicketTypeUpdateArgs} args - Arguments to update one TicketType.
+     * @example
+     * // Update one TicketType
+     * const ticketType = await prisma.ticketType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketTypeUpdateArgs>(args: SelectSubset<T, TicketTypeUpdateArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketTypes.
+     * @param {TicketTypeDeleteManyArgs} args - Arguments to filter TicketTypes to delete.
+     * @example
+     * // Delete a few TicketTypes
+     * const { count } = await prisma.ticketType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketTypeDeleteManyArgs>(args?: SelectSubset<T, TicketTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketTypes
+     * const ticketType = await prisma.ticketType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketTypeUpdateManyArgs>(args: SelectSubset<T, TicketTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketTypes and returns the data updated in the database.
+     * @param {TicketTypeUpdateManyAndReturnArgs} args - Arguments to update many TicketTypes.
+     * @example
+     * // Update many TicketTypes
+     * const ticketType = await prisma.ticketType.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketTypes and only return the `TicketTypeID`
+     * const ticketTypeWithTicketTypeIDOnly = await prisma.ticketType.updateManyAndReturn({
+     *   select: { TicketTypeID: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketTypeUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketTypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketType.
+     * @param {TicketTypeUpsertArgs} args - Arguments to update or create a TicketType.
+     * @example
+     * // Update or create a TicketType
+     * const ticketType = await prisma.ticketType.upsert({
+     *   create: {
+     *     // ... data to create a TicketType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketTypeUpsertArgs>(args: SelectSubset<T, TicketTypeUpsertArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeCountArgs} args - Arguments to filter TicketTypes to count.
+     * @example
+     * // Count the number of TicketTypes
+     * const count = await prisma.ticketType.count({
+     *   where: {
+     *     // ... the filter for the TicketTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketTypeCountArgs>(
+      args?: Subset<T, TicketTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketTypeAggregateArgs>(args: Subset<T, TicketTypeAggregateArgs>): Prisma.PrismaPromise<GetTicketTypeAggregateType<T>>
+
+    /**
+     * Group by TicketType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketTypeGroupByArgs['orderBy'] }
+        : { orderBy?: TicketTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketType model
+   */
+  readonly fields: TicketTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    TicketBusAssignments<T extends TicketType$TicketBusAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, TicketType$TicketBusAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketType model
+   */
+  interface TicketTypeFieldRefs {
+    readonly TicketTypeID: FieldRef<"TicketType", 'String'>
+    readonly Value: FieldRef<"TicketType", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketType findUnique
+   */
+  export type TicketTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketType to fetch.
+     */
+    where: TicketTypeWhereUniqueInput
+  }
+
+  /**
+   * TicketType findUniqueOrThrow
+   */
+  export type TicketTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketType to fetch.
+     */
+    where: TicketTypeWhereUniqueInput
+  }
+
+  /**
+   * TicketType findFirst
+   */
+  export type TicketTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketType to fetch.
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketTypes to fetch.
+     */
+    orderBy?: TicketTypeOrderByWithRelationInput | TicketTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketTypes.
+     */
+    cursor?: TicketTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketTypes.
+     */
+    distinct?: TicketTypeScalarFieldEnum | TicketTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TicketType findFirstOrThrow
+   */
+  export type TicketTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketType to fetch.
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketTypes to fetch.
+     */
+    orderBy?: TicketTypeOrderByWithRelationInput | TicketTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketTypes.
+     */
+    cursor?: TicketTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketTypes.
+     */
+    distinct?: TicketTypeScalarFieldEnum | TicketTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TicketType findMany
+   */
+  export type TicketTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketTypes to fetch.
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketTypes to fetch.
+     */
+    orderBy?: TicketTypeOrderByWithRelationInput | TicketTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketTypes.
+     */
+    cursor?: TicketTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketTypes.
+     */
+    skip?: number
+    distinct?: TicketTypeScalarFieldEnum | TicketTypeScalarFieldEnum[]
+  }
+
+  /**
+   * TicketType create
+   */
+  export type TicketTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TicketType.
+     */
+    data: XOR<TicketTypeCreateInput, TicketTypeUncheckedCreateInput>
+  }
+
+  /**
+   * TicketType createMany
+   */
+  export type TicketTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketTypes.
+     */
+    data: TicketTypeCreateManyInput | TicketTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketType createManyAndReturn
+   */
+  export type TicketTypeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketTypes.
+     */
+    data: TicketTypeCreateManyInput | TicketTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketType update
+   */
+  export type TicketTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TicketType.
+     */
+    data: XOR<TicketTypeUpdateInput, TicketTypeUncheckedUpdateInput>
+    /**
+     * Choose, which TicketType to update.
+     */
+    where: TicketTypeWhereUniqueInput
+  }
+
+  /**
+   * TicketType updateMany
+   */
+  export type TicketTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketTypes.
+     */
+    data: XOR<TicketTypeUpdateManyMutationInput, TicketTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketTypes to update
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * Limit how many TicketTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketType updateManyAndReturn
+   */
+  export type TicketTypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketTypes.
+     */
+    data: XOR<TicketTypeUpdateManyMutationInput, TicketTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketTypes to update
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * Limit how many TicketTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketType upsert
+   */
+  export type TicketTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TicketType to update in case it exists.
+     */
+    where: TicketTypeWhereUniqueInput
+    /**
+     * In case the TicketType found by the `where` argument doesn't exist, create a new TicketType with this data.
+     */
+    create: XOR<TicketTypeCreateInput, TicketTypeUncheckedCreateInput>
+    /**
+     * In case the TicketType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketTypeUpdateInput, TicketTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketType delete
+   */
+  export type TicketTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+    /**
+     * Filter which TicketType to delete.
+     */
+    where: TicketTypeWhereUniqueInput
+  }
+
+  /**
+   * TicketType deleteMany
+   */
+  export type TicketTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketTypes to delete
+     */
+    where?: TicketTypeWhereInput
+    /**
+     * Limit how many TicketTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketType.TicketBusAssignments
+   */
+  export type TicketType$TicketBusAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    where?: TicketBusAssignmentWhereInput
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketBusAssignmentScalarFieldEnum | TicketBusAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketType without action
+   */
+  export type TicketTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketType
+     */
+    select?: TicketTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketType
+     */
+    omit?: TicketTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketTypeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TicketBusAssignment
+   */
+
+  export type AggregateTicketBusAssignment = {
+    _count: TicketBusAssignmentCountAggregateOutputType | null
+    _avg: TicketBusAssignmentAvgAggregateOutputType | null
+    _sum: TicketBusAssignmentSumAggregateOutputType | null
+    _min: TicketBusAssignmentMinAggregateOutputType | null
+    _max: TicketBusAssignmentMaxAggregateOutputType | null
+  }
+
+  export type TicketBusAssignmentAvgAggregateOutputType = {
+    StartingIDNumber: number | null
+    EndingIDNumber: number | null
+  }
+
+  export type TicketBusAssignmentSumAggregateOutputType = {
+    StartingIDNumber: number | null
+    EndingIDNumber: number | null
+  }
+
+  export type TicketBusAssignmentMinAggregateOutputType = {
+    TicketBusAssignmentID: string | null
+    BusAssignmentID: string | null
+    TicketTypeID: string | null
+    StartingIDNumber: number | null
+    EndingIDNumber: number | null
+  }
+
+  export type TicketBusAssignmentMaxAggregateOutputType = {
+    TicketBusAssignmentID: string | null
+    BusAssignmentID: string | null
+    TicketTypeID: string | null
+    StartingIDNumber: number | null
+    EndingIDNumber: number | null
+  }
+
+  export type TicketBusAssignmentCountAggregateOutputType = {
+    TicketBusAssignmentID: number
+    BusAssignmentID: number
+    TicketTypeID: number
+    StartingIDNumber: number
+    EndingIDNumber: number
+    _all: number
+  }
+
+
+  export type TicketBusAssignmentAvgAggregateInputType = {
+    StartingIDNumber?: true
+    EndingIDNumber?: true
+  }
+
+  export type TicketBusAssignmentSumAggregateInputType = {
+    StartingIDNumber?: true
+    EndingIDNumber?: true
+  }
+
+  export type TicketBusAssignmentMinAggregateInputType = {
+    TicketBusAssignmentID?: true
+    BusAssignmentID?: true
+    TicketTypeID?: true
+    StartingIDNumber?: true
+    EndingIDNumber?: true
+  }
+
+  export type TicketBusAssignmentMaxAggregateInputType = {
+    TicketBusAssignmentID?: true
+    BusAssignmentID?: true
+    TicketTypeID?: true
+    StartingIDNumber?: true
+    EndingIDNumber?: true
+  }
+
+  export type TicketBusAssignmentCountAggregateInputType = {
+    TicketBusAssignmentID?: true
+    BusAssignmentID?: true
+    TicketTypeID?: true
+    StartingIDNumber?: true
+    EndingIDNumber?: true
+    _all?: true
+  }
+
+  export type TicketBusAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketBusAssignment to aggregate.
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketBusAssignments to fetch.
+     */
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketBusAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketBusAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TicketBusAssignments
+    **/
+    _count?: true | TicketBusAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TicketBusAssignmentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TicketBusAssignmentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TicketBusAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TicketBusAssignmentMaxAggregateInputType
+  }
+
+  export type GetTicketBusAssignmentAggregateType<T extends TicketBusAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateTicketBusAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTicketBusAssignment[P]>
+      : GetScalarType<T[P], AggregateTicketBusAssignment[P]>
+  }
+
+
+
+
+  export type TicketBusAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TicketBusAssignmentWhereInput
+    orderBy?: TicketBusAssignmentOrderByWithAggregationInput | TicketBusAssignmentOrderByWithAggregationInput[]
+    by: TicketBusAssignmentScalarFieldEnum[] | TicketBusAssignmentScalarFieldEnum
+    having?: TicketBusAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TicketBusAssignmentCountAggregateInputType | true
+    _avg?: TicketBusAssignmentAvgAggregateInputType
+    _sum?: TicketBusAssignmentSumAggregateInputType
+    _min?: TicketBusAssignmentMinAggregateInputType
+    _max?: TicketBusAssignmentMaxAggregateInputType
+  }
+
+  export type TicketBusAssignmentGroupByOutputType = {
+    TicketBusAssignmentID: string
+    BusAssignmentID: string
+    TicketTypeID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+    _count: TicketBusAssignmentCountAggregateOutputType | null
+    _avg: TicketBusAssignmentAvgAggregateOutputType | null
+    _sum: TicketBusAssignmentSumAggregateOutputType | null
+    _min: TicketBusAssignmentMinAggregateOutputType | null
+    _max: TicketBusAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetTicketBusAssignmentGroupByPayload<T extends TicketBusAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TicketBusAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TicketBusAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TicketBusAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], TicketBusAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TicketBusAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketBusAssignmentID?: boolean
+    BusAssignmentID?: boolean
+    TicketTypeID?: boolean
+    StartingIDNumber?: boolean
+    EndingIDNumber?: boolean
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketBusAssignment"]>
+
+  export type TicketBusAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketBusAssignmentID?: boolean
+    BusAssignmentID?: boolean
+    TicketTypeID?: boolean
+    StartingIDNumber?: boolean
+    EndingIDNumber?: boolean
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketBusAssignment"]>
+
+  export type TicketBusAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    TicketBusAssignmentID?: boolean
+    BusAssignmentID?: boolean
+    TicketTypeID?: boolean
+    StartingIDNumber?: boolean
+    EndingIDNumber?: boolean
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ticketBusAssignment"]>
+
+  export type TicketBusAssignmentSelectScalar = {
+    TicketBusAssignmentID?: boolean
+    BusAssignmentID?: boolean
+    TicketTypeID?: boolean
+    StartingIDNumber?: boolean
+    EndingIDNumber?: boolean
+  }
+
+  export type TicketBusAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"TicketBusAssignmentID" | "BusAssignmentID" | "TicketTypeID" | "StartingIDNumber" | "EndingIDNumber", ExtArgs["result"]["ticketBusAssignment"]>
+  export type TicketBusAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }
+  export type TicketBusAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }
+  export type TicketBusAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    BusAssignment?: boolean | BusAssignmentDefaultArgs<ExtArgs>
+    TicketType?: boolean | TicketTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $TicketBusAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TicketBusAssignment"
+    objects: {
+      BusAssignment: Prisma.$BusAssignmentPayload<ExtArgs>
+      TicketType: Prisma.$TicketTypePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      TicketBusAssignmentID: string
+      BusAssignmentID: string
+      TicketTypeID: string
+      StartingIDNumber: number
+      EndingIDNumber: number
+    }, ExtArgs["result"]["ticketBusAssignment"]>
+    composites: {}
+  }
+
+  type TicketBusAssignmentGetPayload<S extends boolean | null | undefined | TicketBusAssignmentDefaultArgs> = $Result.GetResult<Prisma.$TicketBusAssignmentPayload, S>
+
+  type TicketBusAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TicketBusAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TicketBusAssignmentCountAggregateInputType | true
+    }
+
+  export interface TicketBusAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TicketBusAssignment'], meta: { name: 'TicketBusAssignment' } }
+    /**
+     * Find zero or one TicketBusAssignment that matches the filter.
+     * @param {TicketBusAssignmentFindUniqueArgs} args - Arguments to find a TicketBusAssignment
+     * @example
+     * // Get one TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TicketBusAssignmentFindUniqueArgs>(args: SelectSubset<T, TicketBusAssignmentFindUniqueArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TicketBusAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TicketBusAssignmentFindUniqueOrThrowArgs} args - Arguments to find a TicketBusAssignment
+     * @example
+     * // Get one TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TicketBusAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, TicketBusAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketBusAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentFindFirstArgs} args - Arguments to find a TicketBusAssignment
+     * @example
+     * // Get one TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TicketBusAssignmentFindFirstArgs>(args?: SelectSubset<T, TicketBusAssignmentFindFirstArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TicketBusAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentFindFirstOrThrowArgs} args - Arguments to find a TicketBusAssignment
+     * @example
+     * // Get one TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TicketBusAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, TicketBusAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TicketBusAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TicketBusAssignments
+     * const ticketBusAssignments = await prisma.ticketBusAssignment.findMany()
+     * 
+     * // Get first 10 TicketBusAssignments
+     * const ticketBusAssignments = await prisma.ticketBusAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `TicketBusAssignmentID`
+     * const ticketBusAssignmentWithTicketBusAssignmentIDOnly = await prisma.ticketBusAssignment.findMany({ select: { TicketBusAssignmentID: true } })
+     * 
+     */
+    findMany<T extends TicketBusAssignmentFindManyArgs>(args?: SelectSubset<T, TicketBusAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TicketBusAssignment.
+     * @param {TicketBusAssignmentCreateArgs} args - Arguments to create a TicketBusAssignment.
+     * @example
+     * // Create one TicketBusAssignment
+     * const TicketBusAssignment = await prisma.ticketBusAssignment.create({
+     *   data: {
+     *     // ... data to create a TicketBusAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends TicketBusAssignmentCreateArgs>(args: SelectSubset<T, TicketBusAssignmentCreateArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TicketBusAssignments.
+     * @param {TicketBusAssignmentCreateManyArgs} args - Arguments to create many TicketBusAssignments.
+     * @example
+     * // Create many TicketBusAssignments
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TicketBusAssignmentCreateManyArgs>(args?: SelectSubset<T, TicketBusAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TicketBusAssignments and returns the data saved in the database.
+     * @param {TicketBusAssignmentCreateManyAndReturnArgs} args - Arguments to create many TicketBusAssignments.
+     * @example
+     * // Create many TicketBusAssignments
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TicketBusAssignments and only return the `TicketBusAssignmentID`
+     * const ticketBusAssignmentWithTicketBusAssignmentIDOnly = await prisma.ticketBusAssignment.createManyAndReturn({
+     *   select: { TicketBusAssignmentID: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TicketBusAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, TicketBusAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TicketBusAssignment.
+     * @param {TicketBusAssignmentDeleteArgs} args - Arguments to delete one TicketBusAssignment.
+     * @example
+     * // Delete one TicketBusAssignment
+     * const TicketBusAssignment = await prisma.ticketBusAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one TicketBusAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TicketBusAssignmentDeleteArgs>(args: SelectSubset<T, TicketBusAssignmentDeleteArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TicketBusAssignment.
+     * @param {TicketBusAssignmentUpdateArgs} args - Arguments to update one TicketBusAssignment.
+     * @example
+     * // Update one TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TicketBusAssignmentUpdateArgs>(args: SelectSubset<T, TicketBusAssignmentUpdateArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TicketBusAssignments.
+     * @param {TicketBusAssignmentDeleteManyArgs} args - Arguments to filter TicketBusAssignments to delete.
+     * @example
+     * // Delete a few TicketBusAssignments
+     * const { count } = await prisma.ticketBusAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TicketBusAssignmentDeleteManyArgs>(args?: SelectSubset<T, TicketBusAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketBusAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TicketBusAssignments
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TicketBusAssignmentUpdateManyArgs>(args: SelectSubset<T, TicketBusAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TicketBusAssignments and returns the data updated in the database.
+     * @param {TicketBusAssignmentUpdateManyAndReturnArgs} args - Arguments to update many TicketBusAssignments.
+     * @example
+     * // Update many TicketBusAssignments
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TicketBusAssignments and only return the `TicketBusAssignmentID`
+     * const ticketBusAssignmentWithTicketBusAssignmentIDOnly = await prisma.ticketBusAssignment.updateManyAndReturn({
+     *   select: { TicketBusAssignmentID: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TicketBusAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, TicketBusAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TicketBusAssignment.
+     * @param {TicketBusAssignmentUpsertArgs} args - Arguments to update or create a TicketBusAssignment.
+     * @example
+     * // Update or create a TicketBusAssignment
+     * const ticketBusAssignment = await prisma.ticketBusAssignment.upsert({
+     *   create: {
+     *     // ... data to create a TicketBusAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TicketBusAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TicketBusAssignmentUpsertArgs>(args: SelectSubset<T, TicketBusAssignmentUpsertArgs<ExtArgs>>): Prisma__TicketBusAssignmentClient<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TicketBusAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentCountArgs} args - Arguments to filter TicketBusAssignments to count.
+     * @example
+     * // Count the number of TicketBusAssignments
+     * const count = await prisma.ticketBusAssignment.count({
+     *   where: {
+     *     // ... the filter for the TicketBusAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends TicketBusAssignmentCountArgs>(
+      args?: Subset<T, TicketBusAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TicketBusAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TicketBusAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TicketBusAssignmentAggregateArgs>(args: Subset<T, TicketBusAssignmentAggregateArgs>): Prisma.PrismaPromise<GetTicketBusAssignmentAggregateType<T>>
+
+    /**
+     * Group by TicketBusAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TicketBusAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TicketBusAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TicketBusAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: TicketBusAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TicketBusAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTicketBusAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TicketBusAssignment model
+   */
+  readonly fields: TicketBusAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TicketBusAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TicketBusAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    BusAssignment<T extends BusAssignmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BusAssignmentDefaultArgs<ExtArgs>>): Prisma__BusAssignmentClient<$Result.GetResult<Prisma.$BusAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    TicketType<T extends TicketTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TicketTypeDefaultArgs<ExtArgs>>): Prisma__TicketTypeClient<$Result.GetResult<Prisma.$TicketTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TicketBusAssignment model
+   */
+  interface TicketBusAssignmentFieldRefs {
+    readonly TicketBusAssignmentID: FieldRef<"TicketBusAssignment", 'String'>
+    readonly BusAssignmentID: FieldRef<"TicketBusAssignment", 'String'>
+    readonly TicketTypeID: FieldRef<"TicketBusAssignment", 'String'>
+    readonly StartingIDNumber: FieldRef<"TicketBusAssignment", 'Int'>
+    readonly EndingIDNumber: FieldRef<"TicketBusAssignment", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TicketBusAssignment findUnique
+   */
+  export type TicketBusAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketBusAssignment to fetch.
+     */
+    where: TicketBusAssignmentWhereUniqueInput
+  }
+
+  /**
+   * TicketBusAssignment findUniqueOrThrow
+   */
+  export type TicketBusAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketBusAssignment to fetch.
+     */
+    where: TicketBusAssignmentWhereUniqueInput
+  }
+
+  /**
+   * TicketBusAssignment findFirst
+   */
+  export type TicketBusAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketBusAssignment to fetch.
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketBusAssignments to fetch.
+     */
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketBusAssignments.
+     */
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketBusAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketBusAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketBusAssignments.
+     */
+    distinct?: TicketBusAssignmentScalarFieldEnum | TicketBusAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketBusAssignment findFirstOrThrow
+   */
+  export type TicketBusAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketBusAssignment to fetch.
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketBusAssignments to fetch.
+     */
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TicketBusAssignments.
+     */
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketBusAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketBusAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TicketBusAssignments.
+     */
+    distinct?: TicketBusAssignmentScalarFieldEnum | TicketBusAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketBusAssignment findMany
+   */
+  export type TicketBusAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which TicketBusAssignments to fetch.
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TicketBusAssignments to fetch.
+     */
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TicketBusAssignments.
+     */
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TicketBusAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TicketBusAssignments.
+     */
+    skip?: number
+    distinct?: TicketBusAssignmentScalarFieldEnum | TicketBusAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * TicketBusAssignment create
+   */
+  export type TicketBusAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TicketBusAssignment.
+     */
+    data: XOR<TicketBusAssignmentCreateInput, TicketBusAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * TicketBusAssignment createMany
+   */
+  export type TicketBusAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TicketBusAssignments.
+     */
+    data: TicketBusAssignmentCreateManyInput | TicketBusAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TicketBusAssignment createManyAndReturn
+   */
+  export type TicketBusAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many TicketBusAssignments.
+     */
+    data: TicketBusAssignmentCreateManyInput | TicketBusAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketBusAssignment update
+   */
+  export type TicketBusAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TicketBusAssignment.
+     */
+    data: XOR<TicketBusAssignmentUpdateInput, TicketBusAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which TicketBusAssignment to update.
+     */
+    where: TicketBusAssignmentWhereUniqueInput
+  }
+
+  /**
+   * TicketBusAssignment updateMany
+   */
+  export type TicketBusAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TicketBusAssignments.
+     */
+    data: XOR<TicketBusAssignmentUpdateManyMutationInput, TicketBusAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketBusAssignments to update
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * Limit how many TicketBusAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketBusAssignment updateManyAndReturn
+   */
+  export type TicketBusAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update TicketBusAssignments.
+     */
+    data: XOR<TicketBusAssignmentUpdateManyMutationInput, TicketBusAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which TicketBusAssignments to update
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * Limit how many TicketBusAssignments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TicketBusAssignment upsert
+   */
+  export type TicketBusAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TicketBusAssignment to update in case it exists.
+     */
+    where: TicketBusAssignmentWhereUniqueInput
+    /**
+     * In case the TicketBusAssignment found by the `where` argument doesn't exist, create a new TicketBusAssignment with this data.
+     */
+    create: XOR<TicketBusAssignmentCreateInput, TicketBusAssignmentUncheckedCreateInput>
+    /**
+     * In case the TicketBusAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TicketBusAssignmentUpdateInput, TicketBusAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * TicketBusAssignment delete
+   */
+  export type TicketBusAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter which TicketBusAssignment to delete.
+     */
+    where: TicketBusAssignmentWhereUniqueInput
+  }
+
+  /**
+   * TicketBusAssignment deleteMany
+   */
+  export type TicketBusAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TicketBusAssignments to delete
+     */
+    where?: TicketBusAssignmentWhereInput
+    /**
+     * Limit how many TicketBusAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TicketBusAssignment without action
+   */
+  export type TicketBusAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model BusAssignment
    */
 
@@ -8438,6 +10851,8 @@ export namespace Prisma {
     Status?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
+    TicketBusAssignments?: boolean | BusAssignment$TicketBusAssignmentsArgs<ExtArgs>
+    _count?: boolean | BusAssignmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
 
   export type BusAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8506,6 +10921,8 @@ export namespace Prisma {
   export type BusAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
+    TicketBusAssignments?: boolean | BusAssignment$TicketBusAssignmentsArgs<ExtArgs>
+    _count?: boolean | BusAssignmentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BusAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Route?: boolean | RouteDefaultArgs<ExtArgs>
@@ -8519,6 +10936,7 @@ export namespace Prisma {
     objects: {
       Route: Prisma.$RoutePayload<ExtArgs>
       RegularBusAssignment: Prisma.$RegularBusAssignmentPayload<ExtArgs> | null
+      TicketBusAssignments: Prisma.$TicketBusAssignmentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       BusAssignmentID: string
@@ -8934,6 +11352,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     Route<T extends RouteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RouteDefaultArgs<ExtArgs>>): Prisma__RouteClient<$Result.GetResult<Prisma.$RoutePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     RegularBusAssignment<T extends BusAssignment$RegularBusAssignmentArgs<ExtArgs> = {}>(args?: Subset<T, BusAssignment$RegularBusAssignmentArgs<ExtArgs>>): Prisma__RegularBusAssignmentClient<$Result.GetResult<Prisma.$RegularBusAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    TicketBusAssignments<T extends BusAssignment$TicketBusAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, BusAssignment$TicketBusAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TicketBusAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9392,6 +11811,30 @@ export namespace Prisma {
      */
     include?: RegularBusAssignmentInclude<ExtArgs> | null
     where?: RegularBusAssignmentWhereInput
+  }
+
+  /**
+   * BusAssignment.TicketBusAssignments
+   */
+  export type BusAssignment$TicketBusAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TicketBusAssignment
+     */
+    select?: TicketBusAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TicketBusAssignment
+     */
+    omit?: TicketBusAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TicketBusAssignmentInclude<ExtArgs> | null
+    where?: TicketBusAssignmentWhereInput
+    orderBy?: TicketBusAssignmentOrderByWithRelationInput | TicketBusAssignmentOrderByWithRelationInput[]
+    cursor?: TicketBusAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TicketBusAssignmentScalarFieldEnum | TicketBusAssignmentScalarFieldEnum[]
   }
 
   /**
@@ -10601,6 +13044,25 @@ export namespace Prisma {
   export type RouteStopScalarFieldEnum = (typeof RouteStopScalarFieldEnum)[keyof typeof RouteStopScalarFieldEnum]
 
 
+  export const TicketTypeScalarFieldEnum: {
+    TicketTypeID: 'TicketTypeID',
+    Value: 'Value'
+  };
+
+  export type TicketTypeScalarFieldEnum = (typeof TicketTypeScalarFieldEnum)[keyof typeof TicketTypeScalarFieldEnum]
+
+
+  export const TicketBusAssignmentScalarFieldEnum: {
+    TicketBusAssignmentID: 'TicketBusAssignmentID',
+    BusAssignmentID: 'BusAssignmentID',
+    TicketTypeID: 'TicketTypeID',
+    StartingIDNumber: 'StartingIDNumber',
+    EndingIDNumber: 'EndingIDNumber'
+  };
+
+  export type TicketBusAssignmentScalarFieldEnum = (typeof TicketBusAssignmentScalarFieldEnum)[keyof typeof TicketBusAssignmentScalarFieldEnum]
+
+
   export const BusAssignmentScalarFieldEnum: {
     BusAssignmentID: 'BusAssignmentID',
     BusID: 'BusID',
@@ -11053,6 +13515,108 @@ export namespace Prisma {
     StopOrder?: IntWithAggregatesFilter<"RouteStop"> | number
   }
 
+  export type TicketTypeWhereInput = {
+    AND?: TicketTypeWhereInput | TicketTypeWhereInput[]
+    OR?: TicketTypeWhereInput[]
+    NOT?: TicketTypeWhereInput | TicketTypeWhereInput[]
+    TicketTypeID?: StringFilter<"TicketType"> | string
+    Value?: FloatFilter<"TicketType"> | number
+    TicketBusAssignments?: TicketBusAssignmentListRelationFilter
+  }
+
+  export type TicketTypeOrderByWithRelationInput = {
+    TicketTypeID?: SortOrder
+    Value?: SortOrder
+    TicketBusAssignments?: TicketBusAssignmentOrderByRelationAggregateInput
+  }
+
+  export type TicketTypeWhereUniqueInput = Prisma.AtLeast<{
+    TicketTypeID?: string
+    AND?: TicketTypeWhereInput | TicketTypeWhereInput[]
+    OR?: TicketTypeWhereInput[]
+    NOT?: TicketTypeWhereInput | TicketTypeWhereInput[]
+    Value?: FloatFilter<"TicketType"> | number
+    TicketBusAssignments?: TicketBusAssignmentListRelationFilter
+  }, "TicketTypeID">
+
+  export type TicketTypeOrderByWithAggregationInput = {
+    TicketTypeID?: SortOrder
+    Value?: SortOrder
+    _count?: TicketTypeCountOrderByAggregateInput
+    _avg?: TicketTypeAvgOrderByAggregateInput
+    _max?: TicketTypeMaxOrderByAggregateInput
+    _min?: TicketTypeMinOrderByAggregateInput
+    _sum?: TicketTypeSumOrderByAggregateInput
+  }
+
+  export type TicketTypeScalarWhereWithAggregatesInput = {
+    AND?: TicketTypeScalarWhereWithAggregatesInput | TicketTypeScalarWhereWithAggregatesInput[]
+    OR?: TicketTypeScalarWhereWithAggregatesInput[]
+    NOT?: TicketTypeScalarWhereWithAggregatesInput | TicketTypeScalarWhereWithAggregatesInput[]
+    TicketTypeID?: StringWithAggregatesFilter<"TicketType"> | string
+    Value?: FloatWithAggregatesFilter<"TicketType"> | number
+  }
+
+  export type TicketBusAssignmentWhereInput = {
+    AND?: TicketBusAssignmentWhereInput | TicketBusAssignmentWhereInput[]
+    OR?: TicketBusAssignmentWhereInput[]
+    NOT?: TicketBusAssignmentWhereInput | TicketBusAssignmentWhereInput[]
+    TicketBusAssignmentID?: StringFilter<"TicketBusAssignment"> | string
+    BusAssignmentID?: StringFilter<"TicketBusAssignment"> | string
+    TicketTypeID?: StringFilter<"TicketBusAssignment"> | string
+    StartingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+    EndingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+    BusAssignment?: XOR<BusAssignmentScalarRelationFilter, BusAssignmentWhereInput>
+    TicketType?: XOR<TicketTypeScalarRelationFilter, TicketTypeWhereInput>
+  }
+
+  export type TicketBusAssignmentOrderByWithRelationInput = {
+    TicketBusAssignmentID?: SortOrder
+    BusAssignmentID?: SortOrder
+    TicketTypeID?: SortOrder
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+    BusAssignment?: BusAssignmentOrderByWithRelationInput
+    TicketType?: TicketTypeOrderByWithRelationInput
+  }
+
+  export type TicketBusAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    TicketBusAssignmentID?: string
+    AND?: TicketBusAssignmentWhereInput | TicketBusAssignmentWhereInput[]
+    OR?: TicketBusAssignmentWhereInput[]
+    NOT?: TicketBusAssignmentWhereInput | TicketBusAssignmentWhereInput[]
+    BusAssignmentID?: StringFilter<"TicketBusAssignment"> | string
+    TicketTypeID?: StringFilter<"TicketBusAssignment"> | string
+    StartingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+    EndingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+    BusAssignment?: XOR<BusAssignmentScalarRelationFilter, BusAssignmentWhereInput>
+    TicketType?: XOR<TicketTypeScalarRelationFilter, TicketTypeWhereInput>
+  }, "TicketBusAssignmentID">
+
+  export type TicketBusAssignmentOrderByWithAggregationInput = {
+    TicketBusAssignmentID?: SortOrder
+    BusAssignmentID?: SortOrder
+    TicketTypeID?: SortOrder
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+    _count?: TicketBusAssignmentCountOrderByAggregateInput
+    _avg?: TicketBusAssignmentAvgOrderByAggregateInput
+    _max?: TicketBusAssignmentMaxOrderByAggregateInput
+    _min?: TicketBusAssignmentMinOrderByAggregateInput
+    _sum?: TicketBusAssignmentSumOrderByAggregateInput
+  }
+
+  export type TicketBusAssignmentScalarWhereWithAggregatesInput = {
+    AND?: TicketBusAssignmentScalarWhereWithAggregatesInput | TicketBusAssignmentScalarWhereWithAggregatesInput[]
+    OR?: TicketBusAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: TicketBusAssignmentScalarWhereWithAggregatesInput | TicketBusAssignmentScalarWhereWithAggregatesInput[]
+    TicketBusAssignmentID?: StringWithAggregatesFilter<"TicketBusAssignment"> | string
+    BusAssignmentID?: StringWithAggregatesFilter<"TicketBusAssignment"> | string
+    TicketTypeID?: StringWithAggregatesFilter<"TicketBusAssignment"> | string
+    StartingIDNumber?: IntWithAggregatesFilter<"TicketBusAssignment"> | number
+    EndingIDNumber?: IntWithAggregatesFilter<"TicketBusAssignment"> | number
+  }
+
   export type BusAssignmentWhereInput = {
     AND?: BusAssignmentWhereInput | BusAssignmentWhereInput[]
     OR?: BusAssignmentWhereInput[]
@@ -11076,6 +13640,7 @@ export namespace Prisma {
     Status?: EnumBusOperationStatusFilter<"BusAssignment"> | $Enums.BusOperationStatus
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
+    TicketBusAssignments?: TicketBusAssignmentListRelationFilter
   }
 
   export type BusAssignmentOrderByWithRelationInput = {
@@ -11098,6 +13663,7 @@ export namespace Prisma {
     Status?: SortOrder
     Route?: RouteOrderByWithRelationInput
     RegularBusAssignment?: RegularBusAssignmentOrderByWithRelationInput
+    TicketBusAssignments?: TicketBusAssignmentOrderByRelationAggregateInput
   }
 
   export type BusAssignmentWhereUniqueInput = Prisma.AtLeast<{
@@ -11123,6 +13689,7 @@ export namespace Prisma {
     Status?: EnumBusOperationStatusFilter<"BusAssignment"> | $Enums.BusOperationStatus
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
+    TicketBusAssignments?: TicketBusAssignmentListRelationFilter
   }, "BusAssignmentID">
 
   export type BusAssignmentOrderByWithAggregationInput = {
@@ -11535,6 +14102,99 @@ export namespace Prisma {
     StopOrder?: IntFieldUpdateOperationsInput | number
   }
 
+  export type TicketTypeCreateInput = {
+    TicketTypeID: string
+    Value: number
+    TicketBusAssignments?: TicketBusAssignmentCreateNestedManyWithoutTicketTypeInput
+  }
+
+  export type TicketTypeUncheckedCreateInput = {
+    TicketTypeID: string
+    Value: number
+    TicketBusAssignments?: TicketBusAssignmentUncheckedCreateNestedManyWithoutTicketTypeInput
+  }
+
+  export type TicketTypeUpdateInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+    TicketBusAssignments?: TicketBusAssignmentUpdateManyWithoutTicketTypeNestedInput
+  }
+
+  export type TicketTypeUncheckedUpdateInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+    TicketBusAssignments?: TicketBusAssignmentUncheckedUpdateManyWithoutTicketTypeNestedInput
+  }
+
+  export type TicketTypeCreateManyInput = {
+    TicketTypeID: string
+    Value: number
+  }
+
+  export type TicketTypeUpdateManyMutationInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TicketTypeUncheckedUpdateManyInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentCreateInput = {
+    TicketBusAssignmentID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+    BusAssignment: BusAssignmentCreateNestedOneWithoutTicketBusAssignmentsInput
+    TicketType: TicketTypeCreateNestedOneWithoutTicketBusAssignmentsInput
+  }
+
+  export type TicketBusAssignmentUncheckedCreateInput = {
+    TicketBusAssignmentID: string
+    BusAssignmentID: string
+    TicketTypeID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentUpdateInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+    BusAssignment?: BusAssignmentUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput
+    TicketType?: TicketTypeUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentCreateManyInput = {
+    TicketBusAssignmentID: string
+    BusAssignmentID: string
+    TicketTypeID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentUpdateManyMutationInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateManyInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
   export type BusAssignmentCreateInput = {
     BusAssignmentID: string
     BusID: string
@@ -11554,6 +14214,7 @@ export namespace Prisma {
     Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
+    TicketBusAssignments?: TicketBusAssignmentCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentUncheckedCreateInput = {
@@ -11575,6 +14236,7 @@ export namespace Prisma {
     IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
+    TicketBusAssignments?: TicketBusAssignmentUncheckedCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentUpdateInput = {
@@ -11596,6 +14258,7 @@ export namespace Prisma {
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
+    TicketBusAssignments?: TicketBusAssignmentUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type BusAssignmentUncheckedUpdateInput = {
@@ -11617,6 +14280,7 @@ export namespace Prisma {
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
+    TicketBusAssignments?: TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type BusAssignmentCreateManyInput = {
@@ -12075,6 +14739,83 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type TicketBusAssignmentListRelationFilter = {
+    every?: TicketBusAssignmentWhereInput
+    some?: TicketBusAssignmentWhereInput
+    none?: TicketBusAssignmentWhereInput
+  }
+
+  export type TicketBusAssignmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TicketTypeCountOrderByAggregateInput = {
+    TicketTypeID?: SortOrder
+    Value?: SortOrder
+  }
+
+  export type TicketTypeAvgOrderByAggregateInput = {
+    Value?: SortOrder
+  }
+
+  export type TicketTypeMaxOrderByAggregateInput = {
+    TicketTypeID?: SortOrder
+    Value?: SortOrder
+  }
+
+  export type TicketTypeMinOrderByAggregateInput = {
+    TicketTypeID?: SortOrder
+    Value?: SortOrder
+  }
+
+  export type TicketTypeSumOrderByAggregateInput = {
+    Value?: SortOrder
+  }
+
+  export type BusAssignmentScalarRelationFilter = {
+    is?: BusAssignmentWhereInput
+    isNot?: BusAssignmentWhereInput
+  }
+
+  export type TicketTypeScalarRelationFilter = {
+    is?: TicketTypeWhereInput
+    isNot?: TicketTypeWhereInput
+  }
+
+  export type TicketBusAssignmentCountOrderByAggregateInput = {
+    TicketBusAssignmentID?: SortOrder
+    BusAssignmentID?: SortOrder
+    TicketTypeID?: SortOrder
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+  }
+
+  export type TicketBusAssignmentAvgOrderByAggregateInput = {
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+  }
+
+  export type TicketBusAssignmentMaxOrderByAggregateInput = {
+    TicketBusAssignmentID?: SortOrder
+    BusAssignmentID?: SortOrder
+    TicketTypeID?: SortOrder
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+  }
+
+  export type TicketBusAssignmentMinOrderByAggregateInput = {
+    TicketBusAssignmentID?: SortOrder
+    BusAssignmentID?: SortOrder
+    TicketTypeID?: SortOrder
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+  }
+
+  export type TicketBusAssignmentSumOrderByAggregateInput = {
+    StartingIDNumber?: SortOrder
+    EndingIDNumber?: SortOrder
+  }
+
   export type EnumBusOperationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.BusOperationStatus | EnumBusOperationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
@@ -12155,11 +14896,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumBusOperationStatusFilter<$PrismaModel>
     _max?: NestedEnumBusOperationStatusFilter<$PrismaModel>
-  }
-
-  export type BusAssignmentScalarRelationFilter = {
-    is?: BusAssignmentWhereInput
-    isNot?: BusAssignmentWhereInput
   }
 
   export type RegularBusAssignmentCountOrderByAggregateInput = {
@@ -12627,6 +15363,76 @@ export namespace Prisma {
     update?: XOR<XOR<StopUpdateToOneWithWhereWithoutRouteStopsInput, StopUpdateWithoutRouteStopsInput>, StopUncheckedUpdateWithoutRouteStopsInput>
   }
 
+  export type TicketBusAssignmentCreateNestedManyWithoutTicketTypeInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput> | TicketBusAssignmentCreateWithoutTicketTypeInput[] | TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput | TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput[]
+    createMany?: TicketBusAssignmentCreateManyTicketTypeInputEnvelope
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+  }
+
+  export type TicketBusAssignmentUncheckedCreateNestedManyWithoutTicketTypeInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput> | TicketBusAssignmentCreateWithoutTicketTypeInput[] | TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput | TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput[]
+    createMany?: TicketBusAssignmentCreateManyTicketTypeInputEnvelope
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+  }
+
+  export type TicketBusAssignmentUpdateManyWithoutTicketTypeNestedInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput> | TicketBusAssignmentCreateWithoutTicketTypeInput[] | TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput | TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput[]
+    upsert?: TicketBusAssignmentUpsertWithWhereUniqueWithoutTicketTypeInput | TicketBusAssignmentUpsertWithWhereUniqueWithoutTicketTypeInput[]
+    createMany?: TicketBusAssignmentCreateManyTicketTypeInputEnvelope
+    set?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    disconnect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    delete?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    update?: TicketBusAssignmentUpdateWithWhereUniqueWithoutTicketTypeInput | TicketBusAssignmentUpdateWithWhereUniqueWithoutTicketTypeInput[]
+    updateMany?: TicketBusAssignmentUpdateManyWithWhereWithoutTicketTypeInput | TicketBusAssignmentUpdateManyWithWhereWithoutTicketTypeInput[]
+    deleteMany?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateManyWithoutTicketTypeNestedInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput> | TicketBusAssignmentCreateWithoutTicketTypeInput[] | TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput | TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput[]
+    upsert?: TicketBusAssignmentUpsertWithWhereUniqueWithoutTicketTypeInput | TicketBusAssignmentUpsertWithWhereUniqueWithoutTicketTypeInput[]
+    createMany?: TicketBusAssignmentCreateManyTicketTypeInputEnvelope
+    set?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    disconnect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    delete?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    update?: TicketBusAssignmentUpdateWithWhereUniqueWithoutTicketTypeInput | TicketBusAssignmentUpdateWithWhereUniqueWithoutTicketTypeInput[]
+    updateMany?: TicketBusAssignmentUpdateManyWithWhereWithoutTicketTypeInput | TicketBusAssignmentUpdateManyWithWhereWithoutTicketTypeInput[]
+    deleteMany?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
+  }
+
+  export type BusAssignmentCreateNestedOneWithoutTicketBusAssignmentsInput = {
+    create?: XOR<BusAssignmentCreateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedCreateWithoutTicketBusAssignmentsInput>
+    connectOrCreate?: BusAssignmentCreateOrConnectWithoutTicketBusAssignmentsInput
+    connect?: BusAssignmentWhereUniqueInput
+  }
+
+  export type TicketTypeCreateNestedOneWithoutTicketBusAssignmentsInput = {
+    create?: XOR<TicketTypeCreateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedCreateWithoutTicketBusAssignmentsInput>
+    connectOrCreate?: TicketTypeCreateOrConnectWithoutTicketBusAssignmentsInput
+    connect?: TicketTypeWhereUniqueInput
+  }
+
+  export type BusAssignmentUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput = {
+    create?: XOR<BusAssignmentCreateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedCreateWithoutTicketBusAssignmentsInput>
+    connectOrCreate?: BusAssignmentCreateOrConnectWithoutTicketBusAssignmentsInput
+    upsert?: BusAssignmentUpsertWithoutTicketBusAssignmentsInput
+    connect?: BusAssignmentWhereUniqueInput
+    update?: XOR<XOR<BusAssignmentUpdateToOneWithWhereWithoutTicketBusAssignmentsInput, BusAssignmentUpdateWithoutTicketBusAssignmentsInput>, BusAssignmentUncheckedUpdateWithoutTicketBusAssignmentsInput>
+  }
+
+  export type TicketTypeUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput = {
+    create?: XOR<TicketTypeCreateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedCreateWithoutTicketBusAssignmentsInput>
+    connectOrCreate?: TicketTypeCreateOrConnectWithoutTicketBusAssignmentsInput
+    upsert?: TicketTypeUpsertWithoutTicketBusAssignmentsInput
+    connect?: TicketTypeWhereUniqueInput
+    update?: XOR<XOR<TicketTypeUpdateToOneWithWhereWithoutTicketBusAssignmentsInput, TicketTypeUpdateWithoutTicketBusAssignmentsInput>, TicketTypeUncheckedUpdateWithoutTicketBusAssignmentsInput>
+  }
+
   export type RouteCreateNestedOneWithoutBusAssignmentsInput = {
     create?: XOR<RouteCreateWithoutBusAssignmentsInput, RouteUncheckedCreateWithoutBusAssignmentsInput>
     connectOrCreate?: RouteCreateOrConnectWithoutBusAssignmentsInput
@@ -12639,10 +15445,24 @@ export namespace Prisma {
     connect?: RegularBusAssignmentWhereUniqueInput
   }
 
+  export type TicketBusAssignmentCreateNestedManyWithoutBusAssignmentInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput> | TicketBusAssignmentCreateWithoutBusAssignmentInput[] | TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput | TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput[]
+    createMany?: TicketBusAssignmentCreateManyBusAssignmentInputEnvelope
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+  }
+
   export type RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput = {
     create?: XOR<RegularBusAssignmentCreateWithoutBusAssignmentInput, RegularBusAssignmentUncheckedCreateWithoutBusAssignmentInput>
     connectOrCreate?: RegularBusAssignmentCreateOrConnectWithoutBusAssignmentInput
     connect?: RegularBusAssignmentWhereUniqueInput
+  }
+
+  export type TicketBusAssignmentUncheckedCreateNestedManyWithoutBusAssignmentInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput> | TicketBusAssignmentCreateWithoutBusAssignmentInput[] | TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput | TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput[]
+    createMany?: TicketBusAssignmentCreateManyBusAssignmentInputEnvelope
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
   }
 
   export type EnumBusOperationStatusFieldUpdateOperationsInput = {
@@ -12667,6 +15487,20 @@ export namespace Prisma {
     update?: XOR<XOR<RegularBusAssignmentUpdateToOneWithWhereWithoutBusAssignmentInput, RegularBusAssignmentUpdateWithoutBusAssignmentInput>, RegularBusAssignmentUncheckedUpdateWithoutBusAssignmentInput>
   }
 
+  export type TicketBusAssignmentUpdateManyWithoutBusAssignmentNestedInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput> | TicketBusAssignmentCreateWithoutBusAssignmentInput[] | TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput | TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput[]
+    upsert?: TicketBusAssignmentUpsertWithWhereUniqueWithoutBusAssignmentInput | TicketBusAssignmentUpsertWithWhereUniqueWithoutBusAssignmentInput[]
+    createMany?: TicketBusAssignmentCreateManyBusAssignmentInputEnvelope
+    set?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    disconnect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    delete?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    update?: TicketBusAssignmentUpdateWithWhereUniqueWithoutBusAssignmentInput | TicketBusAssignmentUpdateWithWhereUniqueWithoutBusAssignmentInput[]
+    updateMany?: TicketBusAssignmentUpdateManyWithWhereWithoutBusAssignmentInput | TicketBusAssignmentUpdateManyWithWhereWithoutBusAssignmentInput[]
+    deleteMany?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
+  }
+
   export type RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput = {
     create?: XOR<RegularBusAssignmentCreateWithoutBusAssignmentInput, RegularBusAssignmentUncheckedCreateWithoutBusAssignmentInput>
     connectOrCreate?: RegularBusAssignmentCreateOrConnectWithoutBusAssignmentInput
@@ -12675,6 +15509,20 @@ export namespace Prisma {
     delete?: RegularBusAssignmentWhereInput | boolean
     connect?: RegularBusAssignmentWhereUniqueInput
     update?: XOR<XOR<RegularBusAssignmentUpdateToOneWithWhereWithoutBusAssignmentInput, RegularBusAssignmentUpdateWithoutBusAssignmentInput>, RegularBusAssignmentUncheckedUpdateWithoutBusAssignmentInput>
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentNestedInput = {
+    create?: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput> | TicketBusAssignmentCreateWithoutBusAssignmentInput[] | TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput[]
+    connectOrCreate?: TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput | TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput[]
+    upsert?: TicketBusAssignmentUpsertWithWhereUniqueWithoutBusAssignmentInput | TicketBusAssignmentUpsertWithWhereUniqueWithoutBusAssignmentInput[]
+    createMany?: TicketBusAssignmentCreateManyBusAssignmentInputEnvelope
+    set?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    disconnect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    delete?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    connect?: TicketBusAssignmentWhereUniqueInput | TicketBusAssignmentWhereUniqueInput[]
+    update?: TicketBusAssignmentUpdateWithWhereUniqueWithoutBusAssignmentInput | TicketBusAssignmentUpdateWithWhereUniqueWithoutBusAssignmentInput[]
+    updateMany?: TicketBusAssignmentUpdateManyWithWhereWithoutBusAssignmentInput | TicketBusAssignmentUpdateManyWithWhereWithoutBusAssignmentInput[]
+    deleteMany?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
   }
 
   export type Quota_PolicyCreateNestedOneWithoutRegularBusAssignmentsInput = {
@@ -13296,6 +16144,7 @@ export namespace Prisma {
     IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
+    TicketBusAssignments?: TicketBusAssignmentCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentUncheckedCreateWithoutRouteInput = {
@@ -13316,6 +16165,7 @@ export namespace Prisma {
     IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
+    TicketBusAssignments?: TicketBusAssignmentUncheckedCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentCreateOrConnectWithoutRouteInput = {
@@ -13553,6 +16403,193 @@ export namespace Prisma {
     routesAsEnd?: RouteUncheckedUpdateManyWithoutEndStopNestedInput
   }
 
+  export type TicketBusAssignmentCreateWithoutTicketTypeInput = {
+    TicketBusAssignmentID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+    BusAssignment: BusAssignmentCreateNestedOneWithoutTicketBusAssignmentsInput
+  }
+
+  export type TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput = {
+    TicketBusAssignmentID: string
+    BusAssignmentID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentCreateOrConnectWithoutTicketTypeInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    create: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput>
+  }
+
+  export type TicketBusAssignmentCreateManyTicketTypeInputEnvelope = {
+    data: TicketBusAssignmentCreateManyTicketTypeInput | TicketBusAssignmentCreateManyTicketTypeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TicketBusAssignmentUpsertWithWhereUniqueWithoutTicketTypeInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    update: XOR<TicketBusAssignmentUpdateWithoutTicketTypeInput, TicketBusAssignmentUncheckedUpdateWithoutTicketTypeInput>
+    create: XOR<TicketBusAssignmentCreateWithoutTicketTypeInput, TicketBusAssignmentUncheckedCreateWithoutTicketTypeInput>
+  }
+
+  export type TicketBusAssignmentUpdateWithWhereUniqueWithoutTicketTypeInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    data: XOR<TicketBusAssignmentUpdateWithoutTicketTypeInput, TicketBusAssignmentUncheckedUpdateWithoutTicketTypeInput>
+  }
+
+  export type TicketBusAssignmentUpdateManyWithWhereWithoutTicketTypeInput = {
+    where: TicketBusAssignmentScalarWhereInput
+    data: XOR<TicketBusAssignmentUpdateManyMutationInput, TicketBusAssignmentUncheckedUpdateManyWithoutTicketTypeInput>
+  }
+
+  export type TicketBusAssignmentScalarWhereInput = {
+    AND?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
+    OR?: TicketBusAssignmentScalarWhereInput[]
+    NOT?: TicketBusAssignmentScalarWhereInput | TicketBusAssignmentScalarWhereInput[]
+    TicketBusAssignmentID?: StringFilter<"TicketBusAssignment"> | string
+    BusAssignmentID?: StringFilter<"TicketBusAssignment"> | string
+    TicketTypeID?: StringFilter<"TicketBusAssignment"> | string
+    StartingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+    EndingIDNumber?: IntFilter<"TicketBusAssignment"> | number
+  }
+
+  export type BusAssignmentCreateWithoutTicketBusAssignmentsInput = {
+    BusAssignmentID: string
+    BusID: string
+    AssignmentDate: Date | string
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
+    Status?: $Enums.BusOperationStatus
+    Route: RouteCreateNestedOneWithoutBusAssignmentsInput
+    RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
+  }
+
+  export type BusAssignmentUncheckedCreateWithoutTicketBusAssignmentsInput = {
+    BusAssignmentID: string
+    BusID: string
+    RouteID: string
+    AssignmentDate: Date | string
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
+    Status?: $Enums.BusOperationStatus
+    RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
+  }
+
+  export type BusAssignmentCreateOrConnectWithoutTicketBusAssignmentsInput = {
+    where: BusAssignmentWhereUniqueInput
+    create: XOR<BusAssignmentCreateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedCreateWithoutTicketBusAssignmentsInput>
+  }
+
+  export type TicketTypeCreateWithoutTicketBusAssignmentsInput = {
+    TicketTypeID: string
+    Value: number
+  }
+
+  export type TicketTypeUncheckedCreateWithoutTicketBusAssignmentsInput = {
+    TicketTypeID: string
+    Value: number
+  }
+
+  export type TicketTypeCreateOrConnectWithoutTicketBusAssignmentsInput = {
+    where: TicketTypeWhereUniqueInput
+    create: XOR<TicketTypeCreateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedCreateWithoutTicketBusAssignmentsInput>
+  }
+
+  export type BusAssignmentUpsertWithoutTicketBusAssignmentsInput = {
+    update: XOR<BusAssignmentUpdateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedUpdateWithoutTicketBusAssignmentsInput>
+    create: XOR<BusAssignmentCreateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedCreateWithoutTicketBusAssignmentsInput>
+    where?: BusAssignmentWhereInput
+  }
+
+  export type BusAssignmentUpdateToOneWithWhereWithoutTicketBusAssignmentsInput = {
+    where?: BusAssignmentWhereInput
+    data: XOR<BusAssignmentUpdateWithoutTicketBusAssignmentsInput, BusAssignmentUncheckedUpdateWithoutTicketBusAssignmentsInput>
+  }
+
+  export type BusAssignmentUpdateWithoutTicketBusAssignmentsInput = {
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusID?: StringFieldUpdateOperationsInput | string
+    AssignmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    Battery?: BoolFieldUpdateOperationsInput | boolean
+    Lights?: BoolFieldUpdateOperationsInput | boolean
+    Oil?: BoolFieldUpdateOperationsInput | boolean
+    Water?: BoolFieldUpdateOperationsInput | boolean
+    Break?: BoolFieldUpdateOperationsInput | boolean
+    Air?: BoolFieldUpdateOperationsInput | boolean
+    Gas?: BoolFieldUpdateOperationsInput | boolean
+    Engine?: BoolFieldUpdateOperationsInput | boolean
+    TireCondition?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
+    Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
+    RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
+  }
+
+  export type BusAssignmentUncheckedUpdateWithoutTicketBusAssignmentsInput = {
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusID?: StringFieldUpdateOperationsInput | string
+    RouteID?: StringFieldUpdateOperationsInput | string
+    AssignmentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    Battery?: BoolFieldUpdateOperationsInput | boolean
+    Lights?: BoolFieldUpdateOperationsInput | boolean
+    Oil?: BoolFieldUpdateOperationsInput | boolean
+    Water?: BoolFieldUpdateOperationsInput | boolean
+    Break?: BoolFieldUpdateOperationsInput | boolean
+    Air?: BoolFieldUpdateOperationsInput | boolean
+    Gas?: BoolFieldUpdateOperationsInput | boolean
+    Engine?: BoolFieldUpdateOperationsInput | boolean
+    TireCondition?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
+    IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
+    RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
+  }
+
+  export type TicketTypeUpsertWithoutTicketBusAssignmentsInput = {
+    update: XOR<TicketTypeUpdateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedUpdateWithoutTicketBusAssignmentsInput>
+    create: XOR<TicketTypeCreateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedCreateWithoutTicketBusAssignmentsInput>
+    where?: TicketTypeWhereInput
+  }
+
+  export type TicketTypeUpdateToOneWithWhereWithoutTicketBusAssignmentsInput = {
+    where?: TicketTypeWhereInput
+    data: XOR<TicketTypeUpdateWithoutTicketBusAssignmentsInput, TicketTypeUncheckedUpdateWithoutTicketBusAssignmentsInput>
+  }
+
+  export type TicketTypeUpdateWithoutTicketBusAssignmentsInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type TicketTypeUncheckedUpdateWithoutTicketBusAssignmentsInput = {
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    Value?: FloatFieldUpdateOperationsInput | number
+  }
+
   export type RouteCreateWithoutBusAssignmentsInput = {
     RouteID: string
     RouteName: string
@@ -13595,6 +16632,30 @@ export namespace Prisma {
   export type RegularBusAssignmentCreateOrConnectWithoutBusAssignmentInput = {
     where: RegularBusAssignmentWhereUniqueInput
     create: XOR<RegularBusAssignmentCreateWithoutBusAssignmentInput, RegularBusAssignmentUncheckedCreateWithoutBusAssignmentInput>
+  }
+
+  export type TicketBusAssignmentCreateWithoutBusAssignmentInput = {
+    TicketBusAssignmentID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+    TicketType: TicketTypeCreateNestedOneWithoutTicketBusAssignmentsInput
+  }
+
+  export type TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput = {
+    TicketBusAssignmentID: string
+    TicketTypeID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentCreateOrConnectWithoutBusAssignmentInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    create: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput>
+  }
+
+  export type TicketBusAssignmentCreateManyBusAssignmentInputEnvelope = {
+    data: TicketBusAssignmentCreateManyBusAssignmentInput | TicketBusAssignmentCreateManyBusAssignmentInput[]
+    skipDuplicates?: boolean
   }
 
   export type RouteUpsertWithoutBusAssignmentsInput = {
@@ -13653,6 +16714,22 @@ export namespace Prisma {
     TripRevenue?: FloatFieldUpdateOperationsInput | number
   }
 
+  export type TicketBusAssignmentUpsertWithWhereUniqueWithoutBusAssignmentInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    update: XOR<TicketBusAssignmentUpdateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedUpdateWithoutBusAssignmentInput>
+    create: XOR<TicketBusAssignmentCreateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedCreateWithoutBusAssignmentInput>
+  }
+
+  export type TicketBusAssignmentUpdateWithWhereUniqueWithoutBusAssignmentInput = {
+    where: TicketBusAssignmentWhereUniqueInput
+    data: XOR<TicketBusAssignmentUpdateWithoutBusAssignmentInput, TicketBusAssignmentUncheckedUpdateWithoutBusAssignmentInput>
+  }
+
+  export type TicketBusAssignmentUpdateManyWithWhereWithoutBusAssignmentInput = {
+    where: TicketBusAssignmentScalarWhereInput
+    data: XOR<TicketBusAssignmentUpdateManyMutationInput, TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentInput>
+  }
+
   export type Quota_PolicyCreateWithoutRegularBusAssignmentsInput = {
     QuotaPolicyID: string
     StartDate: Date | string
@@ -13692,6 +16769,7 @@ export namespace Prisma {
     IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
+    TicketBusAssignments?: TicketBusAssignmentCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentUncheckedCreateWithoutRegularBusAssignmentInput = {
@@ -13712,6 +16790,7 @@ export namespace Prisma {
     Self_Conductor?: boolean
     IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
+    TicketBusAssignments?: TicketBusAssignmentUncheckedCreateNestedManyWithoutBusAssignmentInput
   }
 
   export type BusAssignmentCreateOrConnectWithoutRegularBusAssignmentInput = {
@@ -13775,6 +16854,7 @@ export namespace Prisma {
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
+    TicketBusAssignments?: TicketBusAssignmentUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type BusAssignmentUncheckedUpdateWithoutRegularBusAssignmentInput = {
@@ -13795,6 +16875,7 @@ export namespace Prisma {
     Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
+    TicketBusAssignments?: TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type RegularBusAssignmentCreateManyQuotaPolicyInput = {
@@ -13978,6 +17059,7 @@ export namespace Prisma {
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
+    TicketBusAssignments?: TicketBusAssignmentUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type BusAssignmentUncheckedUpdateWithoutRouteInput = {
@@ -13998,6 +17080,7 @@ export namespace Prisma {
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
+    TicketBusAssignments?: TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentNestedInput
   }
 
   export type BusAssignmentUncheckedUpdateManyWithoutRouteInput = {
@@ -14017,6 +17100,62 @@ export namespace Prisma {
     Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
     Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
+  }
+
+  export type TicketBusAssignmentCreateManyTicketTypeInput = {
+    TicketBusAssignmentID: string
+    BusAssignmentID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentUpdateWithoutTicketTypeInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+    BusAssignment?: BusAssignmentUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateWithoutTicketTypeInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateManyWithoutTicketTypeInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    BusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentCreateManyBusAssignmentInput = {
+    TicketBusAssignmentID: string
+    TicketTypeID: string
+    StartingIDNumber: number
+    EndingIDNumber: number
+  }
+
+  export type TicketBusAssignmentUpdateWithoutBusAssignmentInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+    TicketType?: TicketTypeUpdateOneRequiredWithoutTicketBusAssignmentsNestedInput
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateWithoutBusAssignmentInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type TicketBusAssignmentUncheckedUpdateManyWithoutBusAssignmentInput = {
+    TicketBusAssignmentID?: StringFieldUpdateOperationsInput | string
+    TicketTypeID?: StringFieldUpdateOperationsInput | string
+    StartingIDNumber?: IntFieldUpdateOperationsInput | number
+    EndingIDNumber?: IntFieldUpdateOperationsInput | number
   }
 
 
