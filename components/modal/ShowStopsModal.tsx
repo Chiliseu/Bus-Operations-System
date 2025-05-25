@@ -27,7 +27,7 @@ const ShowStopsModal = ({
   useEffect(() => {
     const loadStops = async () => {
       try {
-        const res = await fetch('/api/stops');
+        const res = await fetch('/api/stops/[StopID]');
         if (!res.ok) {
           throw new Error('Failed to fetch stops');
         }
