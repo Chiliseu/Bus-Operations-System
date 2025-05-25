@@ -156,6 +156,19 @@ exports.Prisma.RouteStopScalarFieldEnum = {
   StopOrder: 'StopOrder'
 };
 
+exports.Prisma.TicketTypeScalarFieldEnum = {
+  TicketTypeID: 'TicketTypeID',
+  Value: 'Value'
+};
+
+exports.Prisma.TicketBusAssignmentScalarFieldEnum = {
+  TicketBusAssignmentID: 'TicketBusAssignmentID',
+  BusAssignmentID: 'BusAssignmentID',
+  TicketTypeID: 'TicketTypeID',
+  StartingIDNumber: 'StartingIDNumber',
+  EndingIDNumber: 'EndingIDNumber'
+};
+
 exports.Prisma.BusAssignmentScalarFieldEnum = {
   BusAssignmentID: 'BusAssignmentID',
   BusID: 'BusID',
@@ -170,8 +183,10 @@ exports.Prisma.BusAssignmentScalarFieldEnum = {
   Gas: 'Gas',
   Engine: 'Engine',
   TireCondition: 'TireCondition',
-  Self: 'Self',
-  IsDeleted: 'IsDeleted'
+  Self_Driver: 'Self_Driver',
+  Self_Conductor: 'Self_Conductor',
+  IsDeleted: 'IsDeleted',
+  Status: 'Status'
 };
 
 exports.Prisma.RegularBusAssignmentScalarFieldEnum = {
@@ -192,7 +207,11 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.BusOperationStatus = exports.$Enums.BusOperationStatus = {
+  NotStarted: 'NotStarted',
+  InOperation: 'InOperation',
+  Completed: 'Completed'
+};
 
 exports.Prisma.ModelName = {
   Quota_Policy: 'Quota_Policy',
@@ -201,6 +220,8 @@ exports.Prisma.ModelName = {
   Stop: 'Stop',
   Route: 'Route',
   RouteStop: 'RouteStop',
+  TicketType: 'TicketType',
+  TicketBusAssignment: 'TicketBusAssignment',
   BusAssignment: 'BusAssignment',
   RegularBusAssignment: 'RegularBusAssignment'
 };
