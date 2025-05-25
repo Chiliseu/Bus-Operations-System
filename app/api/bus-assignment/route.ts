@@ -76,17 +76,6 @@ export async function POST(request: Request) {
         BusID: data.BusID,
         RouteID: data.RouteID,
         AssignmentDate: new Date(data.AssignmentDate),
-        Battery: data.Battery,
-        Lights: data.Lights,
-        Oil: data.Oil,
-        Water: data.Water,
-        Break: data.Break,
-        Air: data.Air,
-        Gas: data.Gas,
-        Engine: data.Engine,
-        TireCondition: data.TireCondition,
-        Self: data.Self,
-        IsDeleted: false,
         RegularBusAssignment: {
           create: {
             DriverID: data.DriverID,

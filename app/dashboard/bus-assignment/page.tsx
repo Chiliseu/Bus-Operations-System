@@ -69,7 +69,6 @@ const BusAssignmentPage: React.FC = () => {
   const [showAssignConductorModal, setShowAssignConductorModal] = useState(false);
   const [showAssignRouteModal, setShowAssignRouteModal] = useState(false);
 
-
   // current record
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
@@ -119,16 +118,6 @@ const BusAssignmentPage: React.FC = () => {
       RouteID: selectedRoute?.RouteID || '', // Replace with the selected route ID
       BusID: selectedBus?.busId || '', // Use the selected bus ID
       AssignmentDate: new Date().toISOString(), // Use the current date or a selected date
-      Battery: true, // Replace with actual form values
-      Lights: true,
-      Oil: true,
-      Water: true,
-      Break: true,
-      Air: true,
-      Gas: true,
-      Engine: true,
-      TireCondition: true,
-      Self: true,
       DriverID: selectedDriver?.driver_id || '',
       ConductorID: selectedConductor?.conductor_id || '',
       Change: 0.0,

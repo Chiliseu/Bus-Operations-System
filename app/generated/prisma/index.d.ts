@@ -11539,18 +11539,18 @@ export namespace Prisma {
     BusAssignmentID: string
     BusID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
@@ -11561,18 +11561,18 @@ export namespace Prisma {
     BusID: string
     RouteID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
@@ -11624,18 +11624,18 @@ export namespace Prisma {
     BusID: string
     RouteID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
   }
 
@@ -13282,18 +13282,18 @@ export namespace Prisma {
     BusAssignmentID: string
     BusID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
   }
@@ -13302,18 +13302,18 @@ export namespace Prisma {
     BusAssignmentID: string
     BusID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
@@ -13678,18 +13678,18 @@ export namespace Prisma {
     BusAssignmentID: string
     BusID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
   }
@@ -13699,18 +13699,18 @@ export namespace Prisma {
     BusID: string
     RouteID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
   }
 
@@ -13927,18 +13927,18 @@ export namespace Prisma {
     BusAssignmentID: string
     BusID: string
     AssignmentDate: Date | string
-    Battery: boolean
-    Lights: boolean
-    Oil: boolean
-    Water: boolean
-    Break: boolean
-    Air: boolean
-    Gas: boolean
-    Engine: boolean
-    TireCondition: boolean
-    Self_Driver: boolean
-    Self_Conductor: boolean
-    IsDeleted: boolean
+    Battery?: boolean
+    Lights?: boolean
+    Oil?: boolean
+    Water?: boolean
+    Break?: boolean
+    Air?: boolean
+    Gas?: boolean
+    Engine?: boolean
+    TireCondition?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
+    IsDeleted?: boolean
     Status?: $Enums.BusOperationStatus
   }
 

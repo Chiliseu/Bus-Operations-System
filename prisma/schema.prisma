@@ -78,18 +78,18 @@ model BusAssignment {
   BusID           String
   RouteID         String 
   AssignmentDate  DateTime
-  Battery         Boolean
-  Lights          Boolean
-  Oil             Boolean
-  Water           Boolean
-  Break           Boolean
-  Air             Boolean
-  Gas             Boolean
-  Engine          Boolean
-  TireCondition   Boolean
-  Self_Driver     Boolean
-  Self_Conductor  Boolean
-  IsDeleted       Boolean
+  Battery         Boolean @default(false)
+  Lights          Boolean @default(false)
+  Oil             Boolean @default(false)
+  Water           Boolean @default(false)
+  Break           Boolean @default(false)
+  Air             Boolean @default(false)
+  Gas             Boolean @default(false)
+  Engine          Boolean @default(false)
+  TireCondition   Boolean @default(false)
+  Self_Driver     Boolean @default(false)
+  Self_Conductor  Boolean @default(false)
+  IsDeleted       Boolean @default(false)
 
   Status          BusOperationStatus @default(NotStarted)
   Route                Route                 @relation(fields: [RouteID], references: [RouteID])
