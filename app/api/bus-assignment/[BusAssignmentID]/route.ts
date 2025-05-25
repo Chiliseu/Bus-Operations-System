@@ -121,9 +121,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { BusAssignmentID: string } }) {
+export async function PUT(request: Request) {
   try {
-    const { BusAssignmentID } = await params;
+    const url = new URL(request.url);
+    const BusAssignmentID = url.pathname.split('/').pop();
+
     if (!BusAssignmentID) {
       return NextResponse.json({ error: 'BusAssignmentID is required' }, { status: 400 });
     }
