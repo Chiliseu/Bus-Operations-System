@@ -35,6 +35,11 @@ export async function GET(request: Request) {
       where: whereClause,
       include: {
         RegularBusAssignment: true,
+        TicketBusAssignments: {
+          include: {
+            TicketType: true,
+          },
+        },
       },
     });
 
@@ -66,7 +71,9 @@ type RegularBusAssignmentUpdateData = Partial<{
 }>;
 
 export async function PUT(request: Request, { params }: { params: { BusAssignmentID: string } }) {
-    const { BusAssignmentID } = await params;
+  const { BusAssignmentID } = await params;
+
+  console.log(BusAssignmentID);
 
   if (!BusAssignmentID) {
     return NextResponse.json({ error: 'BusAssignmentID is required in URL' }, { status: 400 });
@@ -75,25 +82,16 @@ export async function PUT(request: Request, { params }: { params: { BusAssignmen
   try {
     const body = await request.json();
 
-    // Validate status if present
+    // Validate BusOperationStatus if present
     if (body.Status && !Object.values(BusOperationStatus).includes(body.Status)) {
       return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
     }
 
-    // Extract BusAssignment fields from body
+    // Prepare BusAssignment update fields
     const busAssignmentFields: BusAssignmentUpdateData = {};
     const booleanFields: (keyof BusAssignmentUpdateData)[] = [
-      'Battery',
-      'Lights',
-      'Oil',
-      'Water',
-      'Break',
-      'Air',
-      'Gas',
-      'Engine',
-      'TireCondition',
-      'Self_Driver',
-      'Self_Conductor',
+      'Battery', 'Lights', 'Oil', 'Water', 'Break',
+      'Air', 'Gas', 'Engine', 'TireCondition', 'Self_Driver', 'Self_Conductor',
     ];
 
     if (body.Status) busAssignmentFields.Status = body.Status;
@@ -111,7 +109,7 @@ export async function PUT(request: Request, { params }: { params: { BusAssignmen
       include: { RegularBusAssignment: true },
     });
 
-    // Update RegularBusAssignment if exists and if Change or TripRevenue are present
+    // Prepare RegularBusAssignment update fields
     const regularFields: (keyof RegularBusAssignmentUpdateData)[] = ['Change', 'TripRevenue'];
     const regularBusAssignmentFields: RegularBusAssignmentUpdateData = {};
 
@@ -121,6 +119,7 @@ export async function PUT(request: Request, { params }: { params: { BusAssignmen
       }
     }
 
+    // Update RegularBusAssignment if related
     if (updatedBusAssignment.RegularBusAssignment) {
       if (Object.keys(regularBusAssignmentFields).length > 0) {
         await prisma.regularBusAssignment.update({
@@ -133,6 +132,41 @@ export async function PUT(request: Request, { params }: { params: { BusAssignmen
         { error: 'No RegularBusAssignment related to this BusAssignment to update Change or TripRevenue' },
         { status: 400 }
       );
+    }
+
+    // Update TicketBusAssignments quantities if provided
+    if (Array.isArray(body.TicketBusAssignments)) {
+      for (const ticket of body.TicketBusAssignments) {
+        if (!ticket.TicketTypeID || typeof ticket.Quantity !== 'number') {
+          return NextResponse.json({ error: 'TicketTypeID and Quantity are required to update tickets' }, { status: 400 });
+        }
+
+        // Fetch existing TicketBusAssignment to get StartingIDNumber
+        const existingTicket = await prisma.ticketBusAssignment.findFirst({
+          where: {
+            BusAssignmentID,
+            TicketTypeID: ticket.TicketTypeID,
+          }
+        });
+
+        if (!existingTicket) {
+          return NextResponse.json({ error: `No TicketBusAssignment found for TicketTypeID: ${ticket.TicketTypeID}` }, { status: 404 });
+        }
+
+        const newStart = existingTicket.StartingIDNumber; // Keep the current start
+        const newEnd = newStart + ticket.Quantity - 1;
+
+        await prisma.ticketBusAssignment.updateMany({
+          where: {
+            BusAssignmentID,
+            TicketTypeID: ticket.TicketTypeID,
+          },
+          data: {
+            StartingIDNumber: newStart,
+            EndingIDNumber: newEnd,
+          },
+        });
+      }
     }
 
     return NextResponse.json({ message: 'Update successful' });
