@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     // Step 1: Call API to create QuotaPolicy
     console.log('Calling QuotaPolicy API...'); // Debugging
-    const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment/[QuotaPolicyID]`, {
+    const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

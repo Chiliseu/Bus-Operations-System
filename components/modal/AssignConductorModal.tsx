@@ -30,11 +30,16 @@ const AssignConductorModal = ({
   useEffect(() => {
     const loadConductors = async () => {
       try {
-        const data = await fetchConductors();
-        setConductors(data);
-        setFilteredConductors(data);
+        const response = await fetch('/api/external/conductors');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch conductors: ${response.statusText}`);
+        }
+
+        const json = await response.json();
+        setConductors(json.data);
+        setFilteredConductors(json.data);
       } catch (error) {
-        console.error('Error fetching conductors:', error);
+        console.error('Error fetching conductors from API:', error);
       }
     };
 
