@@ -121,9 +121,9 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { BusAssignmentID: string } }) {
+export async function PUT(request: Request, context: { params: { BusAssignmentID: string } }) {
   try {
-    const { BusAssignmentID } = await params;
+    const { BusAssignmentID } = context.params;
     if (!BusAssignmentID) {
       return NextResponse.json({ error: 'BusAssignmentID is required' }, { status: 400 });
     }
