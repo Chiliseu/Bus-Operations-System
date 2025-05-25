@@ -43,7 +43,30 @@ export async function POST(request: Request) {
 
     const baseUrl = process.env.APPLICATION_URL;
 
- // Extract the numeric part after the hyphen from DriverID and ConductorID
+    // === Validate Required Fields (excluding AssignmentDate) ===
+    const requiredFields = [
+      'BusID',
+      'RouteID',
+      'DriverID',
+      'ConductorID',
+      'QuotaPolicy',
+    ];
+
+    for (const field of requiredFields) {
+      if (
+        !data[field] ||
+        (typeof data[field] === 'string' && data[field].trim() === '') ||
+        (field === 'QuotaPolicy' &&
+          (!data.QuotaPolicy.type || !data.QuotaPolicy.value))
+      ) {
+        return NextResponse.json(
+          { error: `Missing or empty required field: ${field}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Extract the numeric part after the hyphen from DriverID and ConductorID
     const driverSuffix = data.DriverID.split('-')[1];
     const conductorSuffix = data.ConductorID.split('-')[1];
 
@@ -56,7 +79,7 @@ export async function POST(request: Request) {
     }
 
     // Step 1: Call API to create QuotaPolicy
-    console.log('Calling QuotaPolicy API...'); // Debugging
+    console.log('Calling QuotaPolicy API...');
     const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
       method: 'POST',
       headers: {
@@ -73,26 +96,26 @@ export async function POST(request: Request) {
     }
 
     const newQuotaPolicy = await quotaPolicyResponse.json();
-    console.log('QuotaPolicy created via API:', newQuotaPolicy); // Debugging
+    console.log('QuotaPolicy created via API:', newQuotaPolicy);
 
     // Step 2: Generate BusAssignmentID
-    console.log('Generating new BusAssignmentID...'); // Debugging
+    console.log('Generating new BusAssignmentID...');
     const newBusAssignmentID = await generateFormattedID('BA');
-    console.log('Generated new BusAssignmentID:', newBusAssignmentID); // Debugging
+    console.log('Generated new BusAssignmentID:', newBusAssignmentID);
 
     // Step 3: Create the BusAssignment with RegularBusAssignment
-    console.log('Creating new BusAssignment record...'); // Debugging
+    console.log('Creating new BusAssignment record...');
     const newAssignment = await prisma.busAssignment.create({
       data: {
         BusAssignmentID: newBusAssignmentID,
         BusID: data.BusID,
         RouteID: data.RouteID,
-        AssignmentDate: new Date(data.AssignmentDate),
+        AssignmentDate: data.AssignmentDate ? new Date(data.AssignmentDate) : new Date(), // default to today if not provided
         RegularBusAssignment: {
           create: {
             DriverID: data.DriverID,
             ConductorID: data.ConductorID,
-            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID, // Use the QuotaPolicyID from the API
+            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID,
             Change: data.Change,
             TripRevenue: data.TripRevenue,
           },
@@ -117,6 +140,9 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Error creating BusAssignment:', error);
-    return NextResponse.json({ error: 'Failed to create BusAssignment' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create BusAssignment' },
+      { status: 500 }
+    );
   }
 }
