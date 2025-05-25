@@ -47,7 +47,7 @@ const CreateRoutePage: React.FC = () => {
   // Fetch routes from the backend
   const fetchRoutes = async () => {
     try {
-      const response = await fetch('/api/route-management'); // Replace with your API endpoint
+      const response = await fetch('/api/route-management/[RouteID]'); // Replace with your API endpoint
       if (!response.ok) {
         throw new Error('Failed to fetch routes');
       }
@@ -121,7 +121,7 @@ const CreateRoutePage: React.FC = () => {
     console.log('Payload being sent to the backend:', newRoute); // Debugging
   
     try {
-      const response = await fetch('/api/route-management', {
+      const response = await fetch('/api/route-management/[RouteID]', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,16 +150,16 @@ const CreateRoutePage: React.FC = () => {
   const handleDeleteRoute = async (routeID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this route?');
     if (!confirmDelete) {
-      return; // Exit if the user cancels
+      return;
     }
 
     try {
-      const response = await fetch('/api/route-management', {
-        method: 'PATCH', // Use PATCH for soft delete
+      const response = await fetch(`/api/route-management/${routeID}`, { 
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ routeID, isDeleted: true }), // Send routeID and isDeleted in the request body
+        body: JSON.stringify({ isDeleted: true }), 
       });
 
       if (!response.ok) {
@@ -167,7 +167,7 @@ const CreateRoutePage: React.FC = () => {
       }
 
       alert('Route deleted successfully!');
-      fetchRoutes(); // Refresh the routes list after deletion
+      fetchRoutes();
     } catch (error) {
       console.error('Error deleting route:', error);
       alert('Failed to delete route. Please try again.');
@@ -217,12 +217,12 @@ const CreateRoutePage: React.FC = () => {
     console.log('Request body:', updatedRoute); // Debugging
 
       try {
-        const response = await fetch('/api/route-management', {
-          method: 'PUT', // Use PUT for updates
+        const response = await fetch(`/api/route-management/${editingRouteID}`, {
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(updatedRoute), // Send updated route details
+          body: JSON.stringify(updatedRoute),
         });
 
       if (!response.ok) {

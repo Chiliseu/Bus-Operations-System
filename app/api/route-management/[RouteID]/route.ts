@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/client'; // Adjust the import path based on your setup
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { generateFormattedID } from '../../../lib/idGenerator';
+import { generateFormattedID } from '../../../../lib/idGenerator';
 
 export async function GET() {
   try {
@@ -141,16 +141,14 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest, { params }: { params: { RouteID: string } }) {
   try {
-    console.log('PUT request received for updating a route');
-
+    const { RouteID } = params;
     const data = await req.json();
-    const { RouteID, RouteName, StartStopID, EndStopID, RouteStops, IsDeleted } = data;
-    console.log('Data received in API:', data);
+    const { RouteName, StartStopID, EndStopID, RouteStops, IsDeleted } = data;
 
     if (!RouteID) {
-      return NextResponse.json({ error: 'RouteID is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'RouteID is required in URL path.' }, { status: 400 });
     }
 
     // Validate RouteStops (if present)
@@ -199,7 +197,6 @@ export async function PUT(req: Request) {
         data: { IsDeleted: true },
       });
 
-      console.log('Route soft-deleted:', softDeletedRoute);
       return NextResponse.json(softDeletedRoute, { status: 200 });
     }
 
@@ -216,32 +213,28 @@ export async function PUT(req: Request) {
     const updatedRoute = await prisma.route.update({
       where: { RouteID },
       data: {
-        RouteName: RouteName || existingRoute.RouteName,
-        StartStopID: StartStopID || existingRoute.StartStopID,
-        EndStopID: EndStopID || existingRoute.EndStopID,
-        IsDeleted: existingRoute.IsDeleted, // Keep the current IsDeleted status if not updating
+        RouteName: RouteName ?? existingRoute.RouteName,
+        StartStopID: StartStopID ?? existingRoute.StartStopID,
+        EndStopID: EndStopID ?? existingRoute.EndStopID,
+        IsDeleted: existingRoute.IsDeleted, // Keep current IsDeleted unless soft-deleted earlier
       },
     });
-    console.log('Updated Route:', updatedRoute);
 
     // Step 4: Handle RouteStops if provided (delete old and add new ones)
     if (routeStopIds.length > 0) {
-      const createdRouteStops = await prisma.$transaction(async (prisma) => {
-        // Step 4.1: Delete existing RouteStops
-        await prisma.routeStop.deleteMany({
+      await prisma.$transaction(async (prismaTx) => {
+        await prismaTx.routeStop.deleteMany({
           where: { RouteID },
         });
-        console.log('Deleted existing RouteStops for RouteID:', RouteID);
 
-        // Step 4.2: Create new RouteStops
-        return await Promise.all(
+        await Promise.all(
           rawRouteStops.map(async (routeStop: RouteStopInput) => {
-            const stopIdValue = typeof routeStop.StopID === 'string'
-              ? routeStop.StopID
-              : routeStop.StopID?.StopID;
+            const stopIdValue =
+              typeof routeStop.StopID === 'string' ? routeStop.StopID : routeStop.StopID?.StopID;
 
-            const RouteStopID = await generateFormattedID('RTS');
-            return prisma.routeStop.create({
+            const RouteStopID = await generateFormattedID('RTS'); // Your ID generation function
+
+            return prismaTx.routeStop.create({
               data: {
                 RouteStopID,
                 RouteID,
@@ -252,12 +245,8 @@ export async function PUT(req: Request) {
           })
         );
       });
-      console.log('Created new RouteStops:', createdRouteStops);
-    } else {
-      console.log('No RouteStops provided, skipping update.');
     }
 
-    // Return the updated route
     return NextResponse.json(updatedRoute, { status: 200 });
   } catch (error: unknown) {
     if (
@@ -278,17 +267,17 @@ export async function PUT(req: Request) {
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest, { params }: { params: { RouteID: string } }) {
   try {
-    const { routeID, isDeleted } = await req.json(); // Extract routeID and isDeleted from the request body
+    const { RouteID } = await params;
+    const { isDeleted } = await req.json();
 
-    if (!routeID) {
-      return NextResponse.json({ error: 'routeID is required' }, { status: 400 });
+    if (!RouteID) {
+      return NextResponse.json({ error: 'RouteID is required in URL path.' }, { status: 400 });
     }
 
-    // Update the isDeleted column for the specified route
     const updatedRoute = await prisma.route.update({
-      where: { RouteID: routeID },
+      where: { RouteID },
       data: { IsDeleted: isDeleted },
     });
 
