@@ -270,7 +270,9 @@ async function seedBusAssignments() {
       Gas: true,
       Engine: true,
       TireCondition: true,
-      Self: true,
+      Self_Driver: true,
+      Self_Conductor: true,
+      Status:"InOperation",
       IsDeleted: false,
     },
   });
@@ -291,7 +293,9 @@ async function seedBusAssignments() {
       Gas: true,
       Engine: true,
       TireCondition: false,
-      Self: true,
+      Self_Driver: true,
+      Self_Conductor: true,
+      Status:"NotStarted",
       IsDeleted: false,
     },
   });

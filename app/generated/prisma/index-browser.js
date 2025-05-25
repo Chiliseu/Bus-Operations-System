@@ -170,8 +170,10 @@ exports.Prisma.BusAssignmentScalarFieldEnum = {
   Gas: 'Gas',
   Engine: 'Engine',
   TireCondition: 'TireCondition',
-  Self: 'Self',
-  IsDeleted: 'IsDeleted'
+  Self_Driver: 'Self_Driver',
+  Self_Conductor: 'Self_Conductor',
+  IsDeleted: 'IsDeleted',
+  Status: 'Status'
 };
 
 exports.Prisma.RegularBusAssignmentScalarFieldEnum = {
@@ -192,7 +194,11 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.BusOperationStatus = exports.$Enums.BusOperationStatus = {
+  NotStarted: 'NotStarted',
+  InOperation: 'InOperation',
+  Completed: 'Completed'
+};
 
 exports.Prisma.ModelName = {
   Quota_Policy: 'Quota_Policy',

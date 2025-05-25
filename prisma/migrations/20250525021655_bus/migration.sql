@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "BusOperationStatus" AS ENUM ('NotStarted', 'InOperation', 'Completed');
+
 -- CreateTable
 CREATE TABLE "Quota_Policy" (
     "QuotaPolicyID" TEXT NOT NULL,
@@ -70,8 +73,10 @@ CREATE TABLE "BusAssignment" (
     "Gas" BOOLEAN NOT NULL,
     "Engine" BOOLEAN NOT NULL,
     "TireCondition" BOOLEAN NOT NULL,
-    "Self" BOOLEAN NOT NULL,
+    "Self_Driver" BOOLEAN NOT NULL,
+    "Self_Conductor" BOOLEAN NOT NULL,
     "IsDeleted" BOOLEAN NOT NULL,
+    "Status" "BusOperationStatus" NOT NULL DEFAULT 'NotStarted',
 
     CONSTRAINT "BusAssignment_pkey" PRIMARY KEY ("BusAssignmentID")
 );

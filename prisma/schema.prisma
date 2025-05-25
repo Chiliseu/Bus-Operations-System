@@ -67,6 +67,12 @@ model RouteStop {
   @@unique([RouteID, StopID])
 }
 
+enum BusOperationStatus {
+  NotStarted
+  InOperation
+  Completed
+}
+
 model BusAssignment {
   BusAssignmentID String @id
   BusID           String
@@ -81,9 +87,11 @@ model BusAssignment {
   Gas             Boolean
   Engine          Boolean
   TireCondition   Boolean
-  Self            Boolean
+  Self_Driver     Boolean
+  Self_Conductor  Boolean
   IsDeleted       Boolean
 
+  Status          BusOperationStatus @default(NotStarted)
   Route                Route                 @relation(fields: [RouteID], references: [RouteID])
   RegularBusAssignment RegularBusAssignment?
 

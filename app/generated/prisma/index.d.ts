@@ -55,6 +55,24 @@ export type BusAssignment = $Result.DefaultSelection<Prisma.$BusAssignmentPayloa
 export type RegularBusAssignment = $Result.DefaultSelection<Prisma.$RegularBusAssignmentPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const BusOperationStatus: {
+  NotStarted: 'NotStarted',
+  InOperation: 'InOperation',
+  Completed: 'Completed'
+};
+
+export type BusOperationStatus = (typeof BusOperationStatus)[keyof typeof BusOperationStatus]
+
+}
+
+export type BusOperationStatus = $Enums.BusOperationStatus
+
+export const BusOperationStatus: typeof $Enums.BusOperationStatus
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
@@ -8182,8 +8200,10 @@ export namespace Prisma {
     Gas: boolean | null
     Engine: boolean | null
     TireCondition: boolean | null
-    Self: boolean | null
+    Self_Driver: boolean | null
+    Self_Conductor: boolean | null
     IsDeleted: boolean | null
+    Status: $Enums.BusOperationStatus | null
   }
 
   export type BusAssignmentMaxAggregateOutputType = {
@@ -8200,8 +8220,10 @@ export namespace Prisma {
     Gas: boolean | null
     Engine: boolean | null
     TireCondition: boolean | null
-    Self: boolean | null
+    Self_Driver: boolean | null
+    Self_Conductor: boolean | null
     IsDeleted: boolean | null
+    Status: $Enums.BusOperationStatus | null
   }
 
   export type BusAssignmentCountAggregateOutputType = {
@@ -8218,8 +8240,10 @@ export namespace Prisma {
     Gas: number
     Engine: number
     TireCondition: number
-    Self: number
+    Self_Driver: number
+    Self_Conductor: number
     IsDeleted: number
+    Status: number
     _all: number
   }
 
@@ -8238,8 +8262,10 @@ export namespace Prisma {
     Gas?: true
     Engine?: true
     TireCondition?: true
-    Self?: true
+    Self_Driver?: true
+    Self_Conductor?: true
     IsDeleted?: true
+    Status?: true
   }
 
   export type BusAssignmentMaxAggregateInputType = {
@@ -8256,8 +8282,10 @@ export namespace Prisma {
     Gas?: true
     Engine?: true
     TireCondition?: true
-    Self?: true
+    Self_Driver?: true
+    Self_Conductor?: true
     IsDeleted?: true
+    Status?: true
   }
 
   export type BusAssignmentCountAggregateInputType = {
@@ -8274,8 +8302,10 @@ export namespace Prisma {
     Gas?: true
     Engine?: true
     TireCondition?: true
-    Self?: true
+    Self_Driver?: true
+    Self_Conductor?: true
     IsDeleted?: true
+    Status?: true
     _all?: true
   }
 
@@ -8365,8 +8395,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status: $Enums.BusOperationStatus
     _count: BusAssignmentCountAggregateOutputType | null
     _min: BusAssignmentMinAggregateOutputType | null
     _max: BusAssignmentMaxAggregateOutputType | null
@@ -8400,8 +8432,10 @@ export namespace Prisma {
     Gas?: boolean
     Engine?: boolean
     TireCondition?: boolean
-    Self?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
     IsDeleted?: boolean
+    Status?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
@@ -8420,8 +8454,10 @@ export namespace Prisma {
     Gas?: boolean
     Engine?: boolean
     TireCondition?: boolean
-    Self?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
     IsDeleted?: boolean
+    Status?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
 
@@ -8439,8 +8475,10 @@ export namespace Prisma {
     Gas?: boolean
     Engine?: boolean
     TireCondition?: boolean
-    Self?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
     IsDeleted?: boolean
+    Status?: boolean
     Route?: boolean | RouteDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["busAssignment"]>
 
@@ -8458,11 +8496,13 @@ export namespace Prisma {
     Gas?: boolean
     Engine?: boolean
     TireCondition?: boolean
-    Self?: boolean
+    Self_Driver?: boolean
+    Self_Conductor?: boolean
     IsDeleted?: boolean
+    Status?: boolean
   }
 
-  export type BusAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"BusAssignmentID" | "BusID" | "RouteID" | "AssignmentDate" | "Battery" | "Lights" | "Oil" | "Water" | "Break" | "Air" | "Gas" | "Engine" | "TireCondition" | "Self" | "IsDeleted", ExtArgs["result"]["busAssignment"]>
+  export type BusAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"BusAssignmentID" | "BusID" | "RouteID" | "AssignmentDate" | "Battery" | "Lights" | "Oil" | "Water" | "Break" | "Air" | "Gas" | "Engine" | "TireCondition" | "Self_Driver" | "Self_Conductor" | "IsDeleted" | "Status", ExtArgs["result"]["busAssignment"]>
   export type BusAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Route?: boolean | RouteDefaultArgs<ExtArgs>
     RegularBusAssignment?: boolean | BusAssignment$RegularBusAssignmentArgs<ExtArgs>
@@ -8494,8 +8534,10 @@ export namespace Prisma {
       Gas: boolean
       Engine: boolean
       TireCondition: boolean
-      Self: boolean
+      Self_Driver: boolean
+      Self_Conductor: boolean
       IsDeleted: boolean
+      Status: $Enums.BusOperationStatus
     }, ExtArgs["result"]["busAssignment"]>
     composites: {}
   }
@@ -8934,8 +8976,10 @@ export namespace Prisma {
     readonly Gas: FieldRef<"BusAssignment", 'Boolean'>
     readonly Engine: FieldRef<"BusAssignment", 'Boolean'>
     readonly TireCondition: FieldRef<"BusAssignment", 'Boolean'>
-    readonly Self: FieldRef<"BusAssignment", 'Boolean'>
+    readonly Self_Driver: FieldRef<"BusAssignment", 'Boolean'>
+    readonly Self_Conductor: FieldRef<"BusAssignment", 'Boolean'>
     readonly IsDeleted: FieldRef<"BusAssignment", 'Boolean'>
+    readonly Status: FieldRef<"BusAssignment", 'BusOperationStatus'>
   }
     
 
@@ -10571,8 +10615,10 @@ export namespace Prisma {
     Gas: 'Gas',
     Engine: 'Engine',
     TireCondition: 'TireCondition',
-    Self: 'Self',
-    IsDeleted: 'IsDeleted'
+    Self_Driver: 'Self_Driver',
+    Self_Conductor: 'Self_Conductor',
+    IsDeleted: 'IsDeleted',
+    Status: 'Status'
   };
 
   export type BusAssignmentScalarFieldEnum = (typeof BusAssignmentScalarFieldEnum)[keyof typeof BusAssignmentScalarFieldEnum]
@@ -10671,6 +10717,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BusOperationStatus'
+   */
+  export type EnumBusOperationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusOperationStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'BusOperationStatus[]'
+   */
+  export type ListEnumBusOperationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusOperationStatus[]'>
     
   /**
    * Deep Input Types
@@ -11010,8 +11070,10 @@ export namespace Prisma {
     Gas?: BoolFilter<"BusAssignment"> | boolean
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
-    Self?: BoolFilter<"BusAssignment"> | boolean
+    Self_Driver?: BoolFilter<"BusAssignment"> | boolean
+    Self_Conductor?: BoolFilter<"BusAssignment"> | boolean
     IsDeleted?: BoolFilter<"BusAssignment"> | boolean
+    Status?: EnumBusOperationStatusFilter<"BusAssignment"> | $Enums.BusOperationStatus
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
   }
@@ -11030,8 +11092,10 @@ export namespace Prisma {
     Gas?: SortOrder
     Engine?: SortOrder
     TireCondition?: SortOrder
-    Self?: SortOrder
+    Self_Driver?: SortOrder
+    Self_Conductor?: SortOrder
     IsDeleted?: SortOrder
+    Status?: SortOrder
     Route?: RouteOrderByWithRelationInput
     RegularBusAssignment?: RegularBusAssignmentOrderByWithRelationInput
   }
@@ -11053,8 +11117,10 @@ export namespace Prisma {
     Gas?: BoolFilter<"BusAssignment"> | boolean
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
-    Self?: BoolFilter<"BusAssignment"> | boolean
+    Self_Driver?: BoolFilter<"BusAssignment"> | boolean
+    Self_Conductor?: BoolFilter<"BusAssignment"> | boolean
     IsDeleted?: BoolFilter<"BusAssignment"> | boolean
+    Status?: EnumBusOperationStatusFilter<"BusAssignment"> | $Enums.BusOperationStatus
     Route?: XOR<RouteScalarRelationFilter, RouteWhereInput>
     RegularBusAssignment?: XOR<RegularBusAssignmentNullableScalarRelationFilter, RegularBusAssignmentWhereInput> | null
   }, "BusAssignmentID">
@@ -11073,8 +11139,10 @@ export namespace Prisma {
     Gas?: SortOrder
     Engine?: SortOrder
     TireCondition?: SortOrder
-    Self?: SortOrder
+    Self_Driver?: SortOrder
+    Self_Conductor?: SortOrder
     IsDeleted?: SortOrder
+    Status?: SortOrder
     _count?: BusAssignmentCountOrderByAggregateInput
     _max?: BusAssignmentMaxOrderByAggregateInput
     _min?: BusAssignmentMinOrderByAggregateInput
@@ -11097,8 +11165,10 @@ export namespace Prisma {
     Gas?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
     Engine?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
     TireCondition?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
-    Self?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
+    Self_Driver?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
+    Self_Conductor?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
     IsDeleted?: BoolWithAggregatesFilter<"BusAssignment"> | boolean
+    Status?: EnumBusOperationStatusWithAggregatesFilter<"BusAssignment"> | $Enums.BusOperationStatus
   }
 
   export type RegularBusAssignmentWhereInput = {
@@ -11478,8 +11548,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
   }
@@ -11498,8 +11570,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -11516,8 +11590,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
   }
@@ -11536,8 +11612,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -11555,8 +11633,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
   }
 
   export type BusAssignmentUpdateManyMutationInput = {
@@ -11572,8 +11652,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
   }
 
   export type BusAssignmentUncheckedUpdateManyInput = {
@@ -11590,8 +11672,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
   }
 
   export type RegularBusAssignmentCreateInput = {
@@ -11991,6 +12075,13 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type EnumBusOperationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusOperationStatus | EnumBusOperationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBusOperationStatusFilter<$PrismaModel> | $Enums.BusOperationStatus
+  }
+
   export type RegularBusAssignmentNullableScalarRelationFilter = {
     is?: RegularBusAssignmentWhereInput | null
     isNot?: RegularBusAssignmentWhereInput | null
@@ -12010,8 +12101,10 @@ export namespace Prisma {
     Gas?: SortOrder
     Engine?: SortOrder
     TireCondition?: SortOrder
-    Self?: SortOrder
+    Self_Driver?: SortOrder
+    Self_Conductor?: SortOrder
     IsDeleted?: SortOrder
+    Status?: SortOrder
   }
 
   export type BusAssignmentMaxOrderByAggregateInput = {
@@ -12028,8 +12121,10 @@ export namespace Prisma {
     Gas?: SortOrder
     Engine?: SortOrder
     TireCondition?: SortOrder
-    Self?: SortOrder
+    Self_Driver?: SortOrder
+    Self_Conductor?: SortOrder
     IsDeleted?: SortOrder
+    Status?: SortOrder
   }
 
   export type BusAssignmentMinOrderByAggregateInput = {
@@ -12046,8 +12141,20 @@ export namespace Prisma {
     Gas?: SortOrder
     Engine?: SortOrder
     TireCondition?: SortOrder
-    Self?: SortOrder
+    Self_Driver?: SortOrder
+    Self_Conductor?: SortOrder
     IsDeleted?: SortOrder
+    Status?: SortOrder
+  }
+
+  export type EnumBusOperationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusOperationStatus | EnumBusOperationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBusOperationStatusWithAggregatesFilter<$PrismaModel> | $Enums.BusOperationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBusOperationStatusFilter<$PrismaModel>
+    _max?: NestedEnumBusOperationStatusFilter<$PrismaModel>
   }
 
   export type BusAssignmentScalarRelationFilter = {
@@ -12538,6 +12645,10 @@ export namespace Prisma {
     connect?: RegularBusAssignmentWhereUniqueInput
   }
 
+  export type EnumBusOperationStatusFieldUpdateOperationsInput = {
+    set?: $Enums.BusOperationStatus
+  }
+
   export type RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput = {
     create?: XOR<RouteCreateWithoutBusAssignmentsInput, RouteUncheckedCreateWithoutBusAssignmentsInput>
     connectOrCreate?: RouteCreateOrConnectWithoutBusAssignmentsInput
@@ -12715,6 +12826,23 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedEnumBusOperationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusOperationStatus | EnumBusOperationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBusOperationStatusFilter<$PrismaModel> | $Enums.BusOperationStatus
+  }
+
+  export type NestedEnumBusOperationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusOperationStatus | EnumBusOperationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BusOperationStatus[] | ListEnumBusOperationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumBusOperationStatusWithAggregatesFilter<$PrismaModel> | $Enums.BusOperationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBusOperationStatusFilter<$PrismaModel>
+    _max?: NestedEnumBusOperationStatusFilter<$PrismaModel>
   }
 
   export type FixedCreateWithoutQuotaPolicyInput = {
@@ -13163,8 +13291,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -13181,8 +13311,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedCreateNestedOneWithoutBusAssignmentInput
   }
 
@@ -13307,8 +13439,10 @@ export namespace Prisma {
     Gas?: BoolFilter<"BusAssignment"> | boolean
     Engine?: BoolFilter<"BusAssignment"> | boolean
     TireCondition?: BoolFilter<"BusAssignment"> | boolean
-    Self?: BoolFilter<"BusAssignment"> | boolean
+    Self_Driver?: BoolFilter<"BusAssignment"> | boolean
+    Self_Conductor?: BoolFilter<"BusAssignment"> | boolean
     IsDeleted?: BoolFilter<"BusAssignment"> | boolean
+    Status?: EnumBusOperationStatusFilter<"BusAssignment"> | $Enums.BusOperationStatus
   }
 
   export type RouteCreateWithoutRouteStopsInput = {
@@ -13553,8 +13687,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
     Route: RouteCreateNestedOneWithoutBusAssignmentsInput
   }
 
@@ -13572,8 +13708,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
   }
 
   export type BusAssignmentCreateOrConnectWithoutRegularBusAssignmentInput = {
@@ -13632,8 +13770,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     Route?: RouteUpdateOneRequiredWithoutBusAssignmentsNestedInput
   }
 
@@ -13651,8 +13791,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
   }
 
   export type RegularBusAssignmentCreateManyQuotaPolicyInput = {
@@ -13794,8 +13936,10 @@ export namespace Prisma {
     Gas: boolean
     Engine: boolean
     TireCondition: boolean
-    Self: boolean
+    Self_Driver: boolean
+    Self_Conductor: boolean
     IsDeleted: boolean
+    Status?: $Enums.BusOperationStatus
   }
 
   export type RouteStopUpdateWithoutRouteInput = {
@@ -13829,8 +13973,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -13847,8 +13993,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
     RegularBusAssignment?: RegularBusAssignmentUncheckedUpdateOneWithoutBusAssignmentNestedInput
   }
 
@@ -13865,8 +14013,10 @@ export namespace Prisma {
     Gas?: BoolFieldUpdateOperationsInput | boolean
     Engine?: BoolFieldUpdateOperationsInput | boolean
     TireCondition?: BoolFieldUpdateOperationsInput | boolean
-    Self?: BoolFieldUpdateOperationsInput | boolean
+    Self_Driver?: BoolFieldUpdateOperationsInput | boolean
+    Self_Conductor?: BoolFieldUpdateOperationsInput | boolean
     IsDeleted?: BoolFieldUpdateOperationsInput | boolean
+    Status?: EnumBusOperationStatusFieldUpdateOperationsInput | $Enums.BusOperationStatus
   }
 
 
