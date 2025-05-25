@@ -75,12 +75,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { QuotaPolicyID: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
-    const { QuotaPolicyID } = await params;
+    // Extract QuotaPolicyID from URL path
+    const url = new URL(request.url);
+    const QuotaPolicyID = url.pathname.split('/').pop();
     const data = await request.json();
 
     // Validate input fields
