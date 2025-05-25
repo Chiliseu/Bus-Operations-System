@@ -141,15 +141,21 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { RouteID: string } }) {
+export async function PUT(request: NextRequest) {
   try {
-    const { RouteID } = params;
-    const data = await req.json();
-    const { RouteName, StartStopID, EndStopID, RouteStops, IsDeleted } = data;
+    // Extract RouteID from URL path (last segment)
+    const url = new URL(request.url);
+    const RouteID = url.pathname.split('/').pop();
 
     if (!RouteID) {
-      return NextResponse.json({ error: 'RouteID is required in URL path.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'RouteID is required in the URL path.' },
+        { status: 400 }
+      );
     }
+
+    const data = await request.json();
+    const { RouteName, StartStopID, EndStopID, RouteStops, IsDeleted } = data;
 
     // Validate RouteStops (if present)
     const rawRouteStops: typeof RouteStops = Array.isArray(RouteStops) ? RouteStops : [];
@@ -267,15 +273,21 @@ export async function PUT(req: NextRequest, { params }: { params: { RouteID: str
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { RouteID: string } }) {
+export async function PATCH(req: NextRequest) {
   try {
-    const { RouteID } = await params;
-    const { isDeleted } = await req.json();
+    // Extract RouteID from URL path (last segment)
+    const url = new URL(req.url);
+    const RouteID = url.pathname.split('/').pop();
 
     if (!RouteID) {
-      return NextResponse.json({ error: 'RouteID is required in URL path.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'RouteID is required in the URL path.' },
+        { status: 400 }
+      );
     }
 
+    const { isDeleted } = await req.json();
+    
     const updatedRoute = await prisma.route.update({
       where: { RouteID },
       data: { IsDeleted: isDeleted },

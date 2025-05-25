@@ -70,10 +70,10 @@ type RegularBusAssignmentUpdateData = Partial<{
   TripRevenue: number;
 }>;
 
-export async function PUT(request: Request, { params }: { params: { BusAssignmentID: string } }) {
-  const { BusAssignmentID } = await params;
-
-  console.log(BusAssignmentID);
+export async function PUT(request: Request) {
+  // Extract BusAssignmentID from URL
+  const url = new URL(request.url);
+  const BusAssignmentID = url.pathname.split('/').pop();
 
   if (!BusAssignmentID) {
     return NextResponse.json({ error: 'BusAssignmentID is required in URL' }, { status: 400 });

@@ -246,9 +246,10 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { BusAssignmentID: string } }) {
+export async function PATCH(req: Request) {
   try {
-    const {BusAssignmentID} = await params;
+    const url = new URL(req.url);
+    const BusAssignmentID = url.pathname.split('/').pop();
     const { isDeleted } = await req.json();
 
     if (!BusAssignmentID) {
