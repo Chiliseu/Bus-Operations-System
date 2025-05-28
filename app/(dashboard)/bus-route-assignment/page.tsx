@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-route-assignment.module.css';
-import '../../../../styles/globals.css';
+import '../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 
