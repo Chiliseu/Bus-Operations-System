@@ -13,12 +13,14 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@prisma/client": "^6.6.0",
+    "@react-pdf/renderer": "^4.3.0",
     "@supabase/supabase-js": "^2.49.4",
     "bootstrap": "^5.3.6",
     "cuid": "^3.0.0",
     "next": "15.3.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-to-print": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

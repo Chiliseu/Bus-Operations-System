@@ -6,6 +6,8 @@ import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
+import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
+import Print from '@/components/printtable/PrintStopListPDF'; // Importing the Print component
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,7 +33,6 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
-  // Update displayed stops whenever the current page changes
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
@@ -200,8 +201,35 @@ const RouteManagementPage: React.FC = () => {
     setLatitude('');
   }
 
+  const handlePrint = () => {
+    const printContents = document.getElementById('print-section')?.innerHTML;
+    if (!printContents) return;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (!printWindow) return;
+    printWindow.document.write('<html><head><title>Print</title></head><body>');
+    printWindow.document.write(printContents);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   return (
     <div className={`card mx-auto ${styles.wideCard}`}>
+      <div style={{ display: 'none' }}>
+        <PrintTable
+          title="Stop List"
+          subtitle=""
+          data={displayedStops}
+          filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
+          columns={[
+            { header: 'Stop Name', accessor: (row) => row.StopName },
+            { header: 'Longitude', accessor: (row) => row.longitude },
+            { header: 'Latitude', accessor: (row) => row.latitude },
+          ]}
+        />
+      </div>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
           
@@ -277,10 +305,11 @@ const RouteManagementPage: React.FC = () => {
                 </button>
               )}
 
-              <button className="btn btn-danger me-2">
+              <button className="btn btn-danger me-2" onClick={handlePrint}>
                 <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
               </button>
+              <Print></Print>
             </div>
           </div>
           
