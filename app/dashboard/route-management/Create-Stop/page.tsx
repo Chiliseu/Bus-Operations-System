@@ -7,7 +7,6 @@ import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
-import Print from '@/components/printtable/PrintStopListPDF'; // Importing the Print component
 import AddStopModal from "@/components/modal/AddStopModal";
 
 const ITEMS_PER_PAGE = 10;
@@ -19,8 +18,6 @@ const RouteManagementPage: React.FC = () => {
   const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
-  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
-  const [editingStopID, setEditingStopID] = useState<string | null>(null); // Track the stop being edited
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
 
@@ -274,11 +271,10 @@ const RouteManagementPage: React.FC = () => {
                 />
               </div>
 
-
-              <button className="btn btn-danger me-2" onClick={handlePrint}>
+              {/* <button className="btn btn-danger me-2" onClick={handlePrint}>
                 <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
-              </button>
+              </button> */}
             </div>
           </div>
           
