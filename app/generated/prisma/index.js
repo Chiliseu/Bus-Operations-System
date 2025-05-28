@@ -209,7 +209,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\rj2004\\Documents\\Programs\\Repos\\Bus-Operations-System\\app\\generated\\prisma",
+      "value": "C:\\Users\\User\\Downloads\\BUS-OPERATIONS\\Bus-Operations-System\\app\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -223,12 +223,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\rj2004\\Documents\\Programs\\Repos\\Bus-Operations-System\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\User\\Downloads\\BUS-OPERATIONS\\Bus-Operations-System\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.6.0",
@@ -237,11 +236,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:JPfUkaxOvbsLMEFGSElOYuWFEmmGtEqx@shinkansen.proxy.rlwy.net:35869/railway"
+        "value": null
       }
     }
   },
