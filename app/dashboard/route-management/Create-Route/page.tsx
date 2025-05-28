@@ -47,7 +47,7 @@ const CreateRoutePage: React.FC = () => {
   // Fetch routes from the backend
   const fetchRoutes = async () => {
     try {
-      const response = await fetch('/api/route-management/[RouteID]'); // Replace with your API endpoint
+      const response = await fetch('/api/route-management'); // Replace with your API endpoint
       if (!response.ok) {
         throw new Error('Failed to fetch routes');
       }
@@ -121,7 +121,7 @@ const CreateRoutePage: React.FC = () => {
     console.log('Payload being sent to the backend:', newRoute); // Debugging
   
     try {
-      const response = await fetch('/api/route-management/[RouteID]', {
+      const response = await fetch('/api/route-management', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

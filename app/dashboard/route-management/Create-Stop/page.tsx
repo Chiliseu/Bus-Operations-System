@@ -64,7 +64,7 @@ const RouteManagementPage: React.FC = () => {
   const fetchStops = async () => {
     setLoading(true); // Start loading
     try {
-      const response = await fetch('/api/stops/[StopID]');
+      const response = await fetch('/api/stops');
       if (!response.ok) {
         throw new Error(`Failed to fetch assignments: ${response.statusText}`);
       }
@@ -96,7 +96,7 @@ const RouteManagementPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('/api/stops/[StopID]', {
+      const response = await fetch('/api/stops', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

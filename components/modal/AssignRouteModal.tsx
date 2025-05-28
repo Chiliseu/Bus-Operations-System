@@ -38,7 +38,7 @@ const AssignRouteModal = ({
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await fetch('/api/route-management/[RouteID]'); // Replace with your API endpoint
+        const response = await fetch('/api/route-management'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error('Failed to fetch routes');
         }
