@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import ShowStopsModal from '@/components/modal/ShowStopsModal';
 import AssignBusModal from '@/components/modal/AssignBusModal';
+import AddRouteModal from "@/components/modal/AddRouteModal";
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
 
@@ -25,17 +26,22 @@ const CreateRoutePage: React.FC = () => {
   const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [editingRouteID, setEditingRouteID] = useState<string | null>(null); // Track the route being edited
+  const [routes, setRoutes] = useState<Route[]>([]); // All routes
   const [routeName, setRouteName] = useState('');
   const [startStopID, setStartStopID] = useState<string | null>(null); // Track StartStopID
   const [endStopID, setEndStopID] = useState<string | null>(null); // Track EndStopID
   const [startStop, setStartStop] = useState('');
   const [endStop, setEndStop] = useState('');
-  const [stopsBetween, setStopsBetween] = useState<{ StopID: string; StopName: string }[]>([]);
+  const [stopsBetween, setStopsBetween] = useState<Stop[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
+  const [sortOrder, setSortOrder] = useState(''); // State for sorting order
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
 
   // Use State for modal
   const [showStopsModal, setShowStopsModal] = useState(false);
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
+  const [showAddRouteModal, setShowAddRouteModal] = useState(false);
 
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
@@ -52,7 +58,7 @@ const CreateRoutePage: React.FC = () => {
         throw new Error('Failed to fetch routes');
       }
       const data: Route[] = await response.json();
-      setDisplayedRoutes(data);
+      setRoutes(data);
     } catch (error) {
       console.error('Error fetching routes:', error);
     }
@@ -63,14 +69,44 @@ const CreateRoutePage: React.FC = () => {
     fetchRoutes();
   }, []);
 
-  const totalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
+  // Update displayed routes whenever the current page, search query, or sort order changes
+  useEffect(() => {
+    let sortedRoutes = [...routes];
+
+    // Sort routes based on the selected sortOrder
+    if (sortOrder === 'A-Z') {
+      sortedRoutes.sort((a, b) => a.RouteName.localeCompare(b.RouteName));
+    } else if (sortOrder === 'Z-A') {
+      sortedRoutes.sort((a, b) => b.RouteName.localeCompare(a.RouteName));
+    }
+
+    // Filter routes based on the search query
+    const filteredRoutes = sortedRoutes.filter((route) =>
+      route.RouteName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      route.StartStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      route.EndStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+
+    setDisplayedRoutes(filteredRoutes.slice(startIndex, endIndex));
+    setTotalPages(Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE));
+
+    // Reset currentPage to 1 if the search query changes and currentPage is out of range
+    if (currentPage > Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE)) {
+      setCurrentPage(1);
+    }
+  }, [routes, currentPage, searchQuery, sortOrder]);
+
+  const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
   const currentRoutes = displayedroutes.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
+    if (page >= 1 && page <= TotalPages) {
       setCurrentPage(page);
     }
   };
@@ -86,7 +122,13 @@ const CreateRoutePage: React.FC = () => {
   };
 
   const handleAddStop = () => {
-    setStopsBetween([...stopsBetween, { StopID: '', StopName: '' }]);
+    setStopsBetween([...stopsBetween, { 
+          StopID: '',
+          StopName: '',
+          IsDeleted: false,
+          latitude: '',
+          longitude: ''
+     }]);
   };
 
   const handleRemoveStop = (index: number) => {
@@ -174,25 +216,25 @@ const CreateRoutePage: React.FC = () => {
     }
   };
 
-  const handleEditRoute = (route: Route) => {
-    setIsEditMode(true); // Enable edit mode
-    setEditingRouteID(route.RouteID); // Set the route being edited
-    setRouteName(route.RouteName); // Populate input fields
-    setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
-    setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
-    setStartStop(route.StartStop?.StopName || '');
-    setEndStop(route.EndStop?.StopName || '');
+  // const handleEditRoute = (route: Route) => {
+  //   setIsEditMode(true); // Enable edit mode
+  //   setEditingRouteID(route.RouteID); // Set the route being edited
+  //   setRouteName(route.RouteName); // Populate input fields
+  //   setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
+  //   setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
+  //   setStartStop(route.StartStop?.StopName || '');
+  //   setEndStop(route.EndStop?.StopName || '');
 
-    // Debugging: Log the RouteStops data
-    console.log('RouteStops:', route.RouteStops);
+  //   // Debugging: Log the RouteStops data
+  //   console.log('RouteStops:', route.RouteStops);
 
-    // Populate stopsBetween with StopIDs and StopNames from RouteStops
-    const routeStops = route.RouteStops?.map((routeStop) => ({
-      StopID: routeStop.StopID, // Use StopID from RouteStops
-      StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
-    })) || [];
-    setStopsBetween(routeStops);
-  };
+  //   // Populate stopsBetween with StopIDs and StopNames from RouteStops
+  //   const routeStops = route.RouteStops?.map((routeStop) => ({
+  //     StopID: routeStop.StopID, // Use StopID from RouteStops
+  //     StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
+  //   })) || [];
+  //   setStopsBetween(routeStops);
+  // };
 
   const handleSaveRoute = async () => {
     if (!routeName || !startStop || !endStop) {
@@ -272,13 +314,7 @@ const CreateRoutePage: React.FC = () => {
           <h2 className={styles.stopTitle}>
             {isEditMode ? 'EDIT ROUTE' : 'CREATE ROUTE'}
           </h2>
-          {/* <button className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
-            + Assign Bus
-          </button>
-          <button className={styles.saveButton} onClick={() => setShowStopsModal(true)}>
-            + Assign Stop
-          </button> */}
-          <div className="row g-3 mb-3">
+          {/* <div className="row g-3 mb-3">
             <div className="col-md-4">
               <input
                 type="text"
@@ -314,10 +350,10 @@ const CreateRoutePage: React.FC = () => {
                 }}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Stops Between Section */}
-          <h5 className="mb-2">Stops Between</h5>
+          {/* <h5 className="mb-2">Stops Between</h5>
           <div className="stops-scroll-container">
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="stops">
@@ -365,17 +401,22 @@ const CreateRoutePage: React.FC = () => {
             <button className="btn btn-success" onClick={handleAddStop}>
               <Image src="/assets/images/add-line.png" alt="Add Stop" className="icon-small" width={20} height={20} />
             </button>
-          </div>
+          </div> */}
 
           {/* Routes Table Section */}
           <h2 className="card-title mb-3">Routes</h2>
           <div className="row g-2 align-items-center mb-3">
             <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Search..." />
+              <input type="text" className="form-control" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
             </div>
             <div className="col-md-3">
-              <select className="form-select">
-                <option>Select item</option>
+              <select
+                className="form-select"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+              >
+                <option value="A-Z">Name: A-Z</option>
+                <option value="Z-A">Name: Z-A</option>
               </select>
             </div>
             <div className="col-md-5 text-end">
@@ -398,10 +439,38 @@ const CreateRoutePage: React.FC = () => {
                   </button>
                 </>
               ) : (
-                <button className="btn btn-success me-2" onClick={handleAddRoute}>
-                  <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
-                  Add
-                </button>
+                <div>
+                  <button className="btn btn-success me-2" onClick={() => setShowAddRouteModal(true)}>
+                    <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+                    Add
+                  </button>
+                  <AddRouteModal
+                    show={showAddRouteModal}
+                    onClose={() => setShowAddRouteModal(false)}
+                    onCreate={handleAddRoute} // <-- use your real create function here!
+                    routeName={routeName}
+                    setRouteName={setRouteName}
+                    startStop={startStop}
+                    setStartStop={setStartStop}
+                    endStop={endStop}
+                    setEndStop={setEndStop}
+                    stopsBetween={stopsBetween}
+                    setStopsBetween={setStopsBetween}
+                    onStartStopClick={() => {
+                      setStopType('start');
+                      setShowStopsModal(true);
+                    }}
+                    onEndStopClick={() => {
+                      setStopType('end');
+                      setShowStopsModal(true);
+                    }}
+                    onBetweenStopClick={(idx) => {
+                      setStopType('between');
+                      setSelectedStopIndex(idx);
+                      setShowStopsModal(true);
+                    }}
+                  />
+                </div>
               )}
               <button className="btn btn-danger me-2">
                 <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
@@ -425,43 +494,51 @@ const CreateRoutePage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {currentRoutes.map((route) => (
-                <tr key={route.RouteID}>
-                  <td>{route.RouteName}</td>
-                  <td>{route.StartStop?.StopName}</td>
-                  <td>{route.EndStop?.StopName}</td>
-                  <td>{route.RouteStops?.length ?? 0}</td> {/* Defaults to zero */}
-                  <td className="text-center">
-                    <div className="d-inline-flex align-items-center gap-1">
-                      <button className="btn btn-sm btn-primary p-1" onClick={() => handleEditRoute(route)}>
-                        <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
-                      </button>
-                      <button className="btn btn-sm btn-danger p-1" onClick={() => handleDeleteRoute(route.RouteID)}>
-                        <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25}  />
-                      </button>
-                    </div>
-                  </td>
+              {displayedroutes.length > 0 ? (
+                currentRoutes.map((route) => (
+                  <tr key={route.RouteID}>
+                    <td>{route.RouteName}</td>
+                    <td>{route.StartStop?.StopName}</td>
+                    <td>{route.EndStop?.StopName}</td>
+                    <td>{route.RouteStops?.length ?? 0}</td>
+                    <td className="text-center">
+                      <div className="d-inline-flex align-items-center gap-1">
+                        <button className="btn btn-sm btn-primary p-1">
+                          <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                        </button>
+                        <button className="btn btn-sm btn-danger p-1" onClick={() => handleDeleteRoute(route.RouteID)}>
+                          <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25}  />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center text-muted">No routes found.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
 
           {/* Pagination */}
-          <nav>
-            <ul className="pagination justify-content-center">
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>Previous</button>
-              </li>
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                  <button className="page-link" onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
+          {displayedroutes.length > 0 && (
+            <nav>
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>Previous</button>
                 </li>
-              ))}
-              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next</button>
-              </li>
-            </ul>
-          </nav>
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next</button>
+                </li>
+              </ul>
+            </nav>
+          )}
 
           {/* Modals */}
           {showStopsModal && (
@@ -479,7 +556,13 @@ const CreateRoutePage: React.FC = () => {
                 } else if (stopType === 'between' && selectedStopIndex !== null) {
                   const updatedStops = [...stopsBetween];
                   if (selectedStopIndex !== null) {
-                    updatedStops[selectedStopIndex] = { StopID: stop.StopID, StopName: stop.StopName }; // Update both StopID and StopName
+                    updatedStops[selectedStopIndex] = {
+                          StopID: stop.StopID,
+                          StopName: stop.StopName,
+                          IsDeleted: false,
+                          latitude: '',
+                          longitude: ''
+                    }; // Update both StopID and StopName
                   }
                   setStopsBetween(updatedStops);
                   // optionally setSelectedStopBetween(stop); if you want to track them

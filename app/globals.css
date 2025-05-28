@@ -40,3 +40,21 @@ body {
   border-radius: 5px;
   background-color: white;
 }
+
+@media print {
+  body * {
+    display: none !important;
+  }
+  #print-section, #print-section * {
+    display: block !important;
+    visibility: visible !important;
+  }
+  #print-section {
+    position: static !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
