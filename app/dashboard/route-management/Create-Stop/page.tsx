@@ -9,12 +9,9 @@ import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
 import AddStopModal from "@/components/modal/AddStopModal";
 import EditStopModal from '@/components/modal/EditStopModal';
-
-const ITEMS_PER_PAGE = 10;
+import Pagination from '@/components/ui/Pagination';
 
 const RouteManagementPage: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // Number of items per page
   const [stops, setStops] = useState<Stop[]>([]); // All stops
   const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
@@ -26,8 +23,10 @@ const RouteManagementPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
+  // Pagination states
   const [totalPages, setTotalPages] = useState(1); // State for total pages
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10; // Number of items per page
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -356,34 +355,11 @@ const RouteManagementPage: React.FC = () => {
             </tbody>
           </table>
           )}
-
-          {/* Pagination */}
-            {displayedStops.length > 0 && (
-              <nav>
-                <ul className="pagination justify-content-center">
-                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                      Previous
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <li
-                      key={i + 1}
-                      className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                    >
-                      <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>

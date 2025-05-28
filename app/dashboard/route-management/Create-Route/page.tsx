@@ -9,6 +9,7 @@ import AssignBusModal from '@/components/modal/AssignBusModal';
 import AddRouteModal from "@/components/modal/AddRouteModal";
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
+import Pagination from '@/components/ui/Pagination';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
 import '../../../../styles/globals.css';
@@ -20,8 +21,6 @@ import {
   DropResult,
 } from '@hello-pangea/dnd';
 
-const ITEMS_PER_PAGE = 10;
-
 const CreateRoutePage: React.FC = () => {
   const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
   const [editingRouteID, setEditingRouteID] = useState<string | null>(null); // Track the route being edited
@@ -32,10 +31,8 @@ const CreateRoutePage: React.FC = () => {
   const [startStop, setStartStop] = useState('');
   const [endStop, setEndStop] = useState('');
   const [stopsBetween, setStopsBetween] = useState<Stop[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
-  const [totalPages, setTotalPages] = useState(1); // State for total pages
   const [loading, setLoading] = useState(false); // Track loading state
 
   // Use State for modal
@@ -49,6 +46,20 @@ const CreateRoutePage: React.FC = () => {
   const [selectedStopBetween, setSelectedStopBetween] = useState<Stop | null>(null);
   const [stopType, setStopType] = useState<'start' | 'end' | 'between' | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(null); // for between stops
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  const ITEMS_PER_PAGE = 10;
+  const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
+  const currentRoutes = displayedroutes.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= TotalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   // Fetch routes from the backend
   const fetchRoutes = async () => {
@@ -76,43 +87,25 @@ const CreateRoutePage: React.FC = () => {
   useEffect(() => {
     const sortedRoutes = [...routes];
 
-    // Sort routes based on the selected sortOrder
     if (sortOrder === 'A-Z') {
       sortedRoutes.sort((a, b) => a.RouteName.localeCompare(b.RouteName));
     } else if (sortOrder === 'Z-A') {
       sortedRoutes.sort((a, b) => b.RouteName.localeCompare(a.RouteName));
     }
 
-    // Filter routes based on the search query
     const filteredRoutes = sortedRoutes.filter((route) =>
       route.RouteName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       route.StartStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       route.EndStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-
-    setDisplayedRoutes(filteredRoutes.slice(startIndex, endIndex));
+    setDisplayedRoutes(filteredRoutes); // <-- Set to ALL filtered routes, not paginated
     setTotalPages(Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE));
 
-    // Reset currentPage to 1 if the search query changes and currentPage is out of range
     if (currentPage > Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE)) {
       setCurrentPage(1);
     }
   }, [routes, currentPage, searchQuery, sortOrder]);
-
-  const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
-  const currentRoutes = displayedroutes.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= TotalPages) {
-      setCurrentPage(page);
-    }
-  };
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -501,7 +494,7 @@ const CreateRoutePage: React.FC = () => {
           )}
 
           {/* Pagination */}
-          {displayedroutes.length > 0 && (
+          {/* {displayedroutes.length > 0 && (
             <nav>
               <ul className="pagination justify-content-center">
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
@@ -517,7 +510,12 @@ const CreateRoutePage: React.FC = () => {
                 </li>
               </ul>
             </nav>
-          )}
+          )} */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
 
           {/* Modals */}
           {showStopsModal && (
