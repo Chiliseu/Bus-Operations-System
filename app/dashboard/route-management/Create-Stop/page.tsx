@@ -8,6 +8,7 @@ import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
 import Print from '@/components/printtable/PrintStopListPDF'; // Importing the Print component
+import AddStopModal from "@/components/modal/AddStopModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,14 +17,12 @@ const RouteManagementPage: React.FC = () => {
   const ITEMS_PER_PAGE = 10; // Number of items per page
   const [stops, setStops] = useState<Stop[]>([]); // All stops
   const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
-  const [stopName, setStopName] = useState(''); // State for Stop Name
-  const [longitude, setLongitude] = useState(''); // State for Longitude
-  const [latitude, setLatitude] = useState(''); // State for Latitude
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [editingStopID, setEditingStopID] = useState<string | null>(null); // Track the stop being edited
   const [loading, setLoading] = useState(false); // Track loading state
+  const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
 
   const [totalPages, setTotalPages] = useState(1); // State for total pages
 
@@ -83,17 +82,17 @@ const RouteManagementPage: React.FC = () => {
     fetchStops();
   }, []);
 
-  const handleAddStop = async () => {
-    if (!stopName || !longitude || !latitude) {
+  const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
+    if (!stop.name || !stop.longitude || !stop.latitude) {
       alert('Please fill in all fields with valid values.');
-      return;
+      return false;
     }
 
-    console.log(stopName, longitude, latitude); // Debugging
+    console.log(stop.name, stop.longitude, stop.latitude); // Debugging
     const newStop = {
-      StopName: stopName,
-      longitude: longitude,
-      latitude: latitude
+      StopName: stop.name,
+      longitude: stop.longitude,
+      latitude: stop.latitude
     };
 
     try {
@@ -112,61 +111,58 @@ const RouteManagementPage: React.FC = () => {
       }
 
       alert('Stop added successfully!');
-      handleClear(); // Clear input fields after successful addition
       fetchStops(); // Refresh the stops list
+      setShowAddStopModal(false); // Close the modal
+      return true;
     } catch (error) {
       console.error('Error adding stop:', error);
       alert('Failed to add stop. Please try again.');
+      setShowAddStopModal(false); // Close the modal
+      return false;
     } finally {
+      setShowAddStopModal(false); // Close the modal
+      return false;
     }
   };
 
-  const handleEdit = (stop: Stop) => {
-    setIsEditMode(true); // Enable edit mode
-    setEditingStopID(stop.StopID); // Set the stop being edited
-    setStopName(stop.StopName); // Populate input fields
-    setLongitude(stop.longitude);
-    setLatitude(stop.latitude);
-  };
+  // const handleSave = async () => {
+  //   if (!stopName || !longitude || !latitude) {
+  //     alert('Please fill in all fields with valid values.');
+  //     return;
+  //   }
 
-  const handleSave = async () => {
-    if (!stopName || !longitude || !latitude) {
-      alert('Please fill in all fields with valid values.');
-      return;
-    }
+  //   // No need to send StopID in body since it’s in the URL
+  //   const updatedStop = {
+  //     StopName: stopName,
+  //     latitude,
+  //     longitude,
+  //   };
 
-    // No need to send StopID in body since it’s in the URL
-    const updatedStop = {
-      StopName: stopName,
-      latitude,
-      longitude,
-    };
+  //   console.log('Request body:', updatedStop);
 
-    console.log('Request body:', updatedStop);
+  //   try {
+  //     const response = await fetch(`/api/stops/${editingStopID}`, {  // <-- use template literal here
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(updatedStop),
+  //     });
 
-    try {
-      const response = await fetch(`/api/stops/${editingStopID}`, {  // <-- use template literal here
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedStop),
-      });
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to update stop: ${response.statusText}`);
+  //     }
 
-      if (!response.ok) {
-        throw new Error(`Failed to update stop: ${response.statusText}`);
-      }
-
-      alert('Stop updated successfully!');
-      setIsEditMode(false);
-      setEditingStopID(null);
-      handleClear();
-      fetchStops();
-    } catch (error) {
-      console.error('Error updating stop:', error);
-      alert('Failed to update stop. Please try again.');
-    }
-  };
+  //     alert('Stop updated successfully!');
+  //     setIsEditMode(false);
+  //     setEditingStopID(null);
+  //     handleClear();
+  //     fetchStops();
+  //   } catch (error) {
+  //     console.error('Error updating stop:', error);
+  //     alert('Failed to update stop. Please try again.');
+  //   }
+  // };
 
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
@@ -188,12 +184,6 @@ const RouteManagementPage: React.FC = () => {
       alert('Failed to delete stop. Please try again.');
     }
 
-  }
-
-  const handleClear = () => {
-    setStopName(''); // Clear input fields
-    setLongitude('');
-    setLatitude('');
   }
 
   const handlePrint = () => {
@@ -228,7 +218,7 @@ const RouteManagementPage: React.FC = () => {
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
           
-          {/* Create Stop Section */}
+          {/* Create Stop Section
           <h2 className={styles.stopTitle}>
             {isEditMode ? 'EDIT STOP' : 'CREATE STOP'}
           </h2>
@@ -245,7 +235,7 @@ const RouteManagementPage: React.FC = () => {
               <input type="text" className="form-control" placeholder="Latitude" value={latitude}
                 onChange={(e) => setLatitude(e.target.value)}/>
             </div>
-          </div>
+          </div> */}
 
           {/* Stops Table Section */}
           <h2 className="card-title mb-3">Stops</h2>
@@ -270,41 +260,25 @@ const RouteManagementPage: React.FC = () => {
               </select>
             </div>
             <div className="col-md-5 text-end">
-              <button className="btn btn-primary me-2" onClick={handleClear}>
-                <Image src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" width={20} height={20} />
-                Clear
-              </button>
 
               {/* Shows Add button as default, shows save button when edit mode */}
-              {isEditMode ? (
-                <>
-                  <button className="btn btn-success me-2" onClick={handleSave}>
-                    <Image src="/assets/images/save-line.png" alt="Save" className="icon-small" width={20} height={20} />
-                    Save
-                  </button>
-                  <button
-                    className="btn btn-secondary me-2"
-                    onClick={() => {
-                      setIsEditMode(false); // Exit edit mode
-                      setEditingStopID(null); // Clear the editing stop ID
-                      handleClear(); // Clear input fields
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button className="btn btn-success me-2" onClick={handleAddStop}>
+              <div>
+                <button className="btn btn-success me-2" onClick={() => setShowAddStopModal(true)}>
                   <Image src="/assets/images/add-line.png" alt="Add" className="icon-small" width={20} height={20} />
                   Add
                 </button>
-              )}
+                <AddStopModal
+                  show={showAddStopModal}
+                  onClose={() => setShowAddStopModal(false)}
+                  onCreate={handleCreateStop}
+                />
+              </div>
+
 
               <button className="btn btn-danger me-2" onClick={handlePrint}>
                 <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
               </button>
-              <Print></Print>
             </div>
           </div>
           
@@ -334,8 +308,7 @@ const RouteManagementPage: React.FC = () => {
                     <td>{stop.latitude}</td>
                     <td className="text-center">
                       <div className="d-inline-flex align-items-center gap-1">
-                        <button className="btn btn-sm btn-primary p-1" onClick={() => handleEdit(stop)} // Enable edit mode
-                        >
+                        <button className="btn btn-sm btn-primary p-1">
                           <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"

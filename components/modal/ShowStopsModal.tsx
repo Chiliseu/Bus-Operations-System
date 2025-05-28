@@ -62,7 +62,7 @@ const ShowStopsModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)", zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
         {/* Search Bar */}
         <header className="mb-4">
