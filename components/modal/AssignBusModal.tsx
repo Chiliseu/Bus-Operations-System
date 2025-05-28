@@ -27,14 +27,19 @@ const AssignBusModal = ({
   useEffect(() => {
     const loadBuses = async () => {
       try {
-        const data = await fetchBuses();
-        setBuses(data);
-        setFilteredBuses(data); 
+        const response = await fetch('/api/external/buses');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch buses: ${response.statusText}`);
+        }
+
+        const json = await response.json();
+        setBuses(json.data);
+        setFilteredBuses(json.data);
       } catch (error) {
-        console.error('Error fetching buses:', error);
+        console.error('Error fetching buses from API:', error);
       }
     };
-  
+
     loadBuses();
   }, []);
 
