@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "BusOperationStatus" AS ENUM ('NotStarted', 'InOperation', 'Completed');
+
 -- CreateTable
 CREATE TABLE "Quota_Policy" (
     "QuotaPolicyID" TEXT NOT NULL,
@@ -56,22 +59,43 @@ CREATE TABLE "RouteStop" (
 );
 
 -- CreateTable
+CREATE TABLE "Ticket_Type" (
+    "TicketTypeID" TEXT NOT NULL,
+    "Value" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Ticket_Type_pkey" PRIMARY KEY ("TicketTypeID")
+);
+
+-- CreateTable
+CREATE TABLE "TicketBusAssignment" (
+    "TicketBusAssignmentID" TEXT NOT NULL,
+    "BusAssignmentID" TEXT NOT NULL,
+    "TicketTypeID" TEXT NOT NULL,
+    "StartingIDNumber" INTEGER NOT NULL,
+    "EndingIDNumber" INTEGER NOT NULL,
+
+    CONSTRAINT "TicketBusAssignment_pkey" PRIMARY KEY ("TicketBusAssignmentID")
+);
+
+-- CreateTable
 CREATE TABLE "BusAssignment" (
     "BusAssignmentID" TEXT NOT NULL,
     "BusID" TEXT NOT NULL,
     "RouteID" TEXT NOT NULL,
     "AssignmentDate" TIMESTAMP(3) NOT NULL,
-    "Battery" BOOLEAN NOT NULL,
-    "Lights" BOOLEAN NOT NULL,
-    "Oil" BOOLEAN NOT NULL,
-    "Water" BOOLEAN NOT NULL,
-    "Break" BOOLEAN NOT NULL,
-    "Air" BOOLEAN NOT NULL,
-    "Gas" BOOLEAN NOT NULL,
-    "Engine" BOOLEAN NOT NULL,
-    "TireCondition" BOOLEAN NOT NULL,
-    "Self" BOOLEAN NOT NULL,
-    "IsDeleted" BOOLEAN NOT NULL,
+    "Battery" BOOLEAN NOT NULL DEFAULT false,
+    "Lights" BOOLEAN NOT NULL DEFAULT false,
+    "Oil" BOOLEAN NOT NULL DEFAULT false,
+    "Water" BOOLEAN NOT NULL DEFAULT false,
+    "Break" BOOLEAN NOT NULL DEFAULT false,
+    "Air" BOOLEAN NOT NULL DEFAULT false,
+    "Gas" BOOLEAN NOT NULL DEFAULT false,
+    "Engine" BOOLEAN NOT NULL DEFAULT false,
+    "TireCondition" BOOLEAN NOT NULL DEFAULT false,
+    "Self_Driver" BOOLEAN NOT NULL DEFAULT false,
+    "Self_Conductor" BOOLEAN NOT NULL DEFAULT false,
+    "IsDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "Status" "BusOperationStatus" NOT NULL DEFAULT 'NotStarted',
 
     CONSTRAINT "BusAssignment_pkey" PRIMARY KEY ("BusAssignmentID")
 );
@@ -117,6 +141,12 @@ ALTER TABLE "RouteStop" ADD CONSTRAINT "RouteStop_RouteID_fkey" FOREIGN KEY ("Ro
 
 -- AddForeignKey
 ALTER TABLE "RouteStop" ADD CONSTRAINT "RouteStop_StopID_fkey" FOREIGN KEY ("StopID") REFERENCES "Stop"("StopID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TicketBusAssignment" ADD CONSTRAINT "TicketBusAssignment_BusAssignmentID_fkey" FOREIGN KEY ("BusAssignmentID") REFERENCES "BusAssignment"("BusAssignmentID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TicketBusAssignment" ADD CONSTRAINT "TicketBusAssignment_TicketTypeID_fkey" FOREIGN KEY ("TicketTypeID") REFERENCES "Ticket_Type"("TicketTypeID") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BusAssignment" ADD CONSTRAINT "BusAssignment_RouteID_fkey" FOREIGN KEY ("RouteID") REFERENCES "Route"("RouteID") ON DELETE RESTRICT ON UPDATE CASCADE;

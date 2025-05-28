@@ -42,9 +42,44 @@ export async function POST(request: Request) {
     console.log('Data received in API:', data); // Debugging
 
     const baseUrl = process.env.APPLICATION_URL;
-    
+
+    // === Validate Required Fields (excluding AssignmentDate) ===
+    const requiredFields = [
+      'BusID',
+      'RouteID',
+      'DriverID',
+      'ConductorID',
+      'QuotaPolicy',
+    ];
+
+    for (const field of requiredFields) {
+      if (
+        !data[field] ||
+        (typeof data[field] === 'string' && data[field].trim() === '') ||
+        (field === 'QuotaPolicy' &&
+          (!data.QuotaPolicy.type || !data.QuotaPolicy.value))
+      ) {
+        return NextResponse.json(
+          { error: `Missing or empty required field: ${field}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Extract the numeric part after the hyphen from DriverID and ConductorID
+    const driverSuffix = data.DriverID.split('-')[1];
+    const conductorSuffix = data.ConductorID.split('-')[1];
+
+    // Validate that driver and conductor suffix are not the same
+    if (driverSuffix === conductorSuffix) {
+      return NextResponse.json(
+        { error: 'Driver and Conductor cannot be the same person' },
+        { status: 400 }
+      );
+    }
+
     // Step 1: Call API to create QuotaPolicy
-    console.log('Calling QuotaPolicy API...'); // Debugging
+    console.log('Calling QuotaPolicy API...');
     const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
       method: 'POST',
       headers: {
@@ -61,37 +96,26 @@ export async function POST(request: Request) {
     }
 
     const newQuotaPolicy = await quotaPolicyResponse.json();
-    console.log('QuotaPolicy created via API:', newQuotaPolicy); // Debugging
+    console.log('QuotaPolicy created via API:', newQuotaPolicy);
 
     // Step 2: Generate BusAssignmentID
-    console.log('Generating new BusAssignmentID...'); // Debugging
+    console.log('Generating new BusAssignmentID...');
     const newBusAssignmentID = await generateFormattedID('BA');
-    console.log('Generated new BusAssignmentID:', newBusAssignmentID); // Debugging
+    console.log('Generated new BusAssignmentID:', newBusAssignmentID);
 
     // Step 3: Create the BusAssignment with RegularBusAssignment
-    console.log('Creating new BusAssignment record...'); // Debugging
+    console.log('Creating new BusAssignment record...');
     const newAssignment = await prisma.busAssignment.create({
       data: {
         BusAssignmentID: newBusAssignmentID,
         BusID: data.BusID,
         RouteID: data.RouteID,
-        AssignmentDate: new Date(data.AssignmentDate),
-        Battery: data.Battery,
-        Lights: data.Lights,
-        Oil: data.Oil,
-        Water: data.Water,
-        Break: data.Break,
-        Air: data.Air,
-        Gas: data.Gas,
-        Engine: data.Engine,
-        TireCondition: data.TireCondition,
-        Self: data.Self,
-        IsDeleted: false,
+        AssignmentDate: data.AssignmentDate ? new Date(data.AssignmentDate) : new Date(), // default to today if not provided
         RegularBusAssignment: {
           create: {
             DriverID: data.DriverID,
             ConductorID: data.ConductorID,
-            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID, // Use the QuotaPolicyID from the API
+            QuotaPolicyID: newQuotaPolicy.QuotaPolicyID,
             Change: data.Change,
             TripRevenue: data.TripRevenue,
           },
@@ -116,115 +140,9 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Error creating BusAssignment:', error);
-    return NextResponse.json({ error: 'Failed to create BusAssignment' }, { status: 500 });
-  }
-}
-
-interface QuotaPolicyData {
-  QuotaPolicyID: string;
-  type: 'Fixed' | 'Percentage';
-  value: string;
-  StartDate?: string;
-  EndDate?: string;
-}
-
-export async function PUT(request: Request) {
-  try {
-    const data = await request.json();
-
-    // Step 1: Soft delete if IsDeleted is true
-    if (data.IsDeleted === true) {
-      const updatedBusAssignment = await prisma.busAssignment.update({
-        where: { BusAssignmentID: data.BusAssignmentID },
-        data: { IsDeleted: true },
-      });
-
-      return NextResponse.json(updatedBusAssignment, { status: 200 });
-    }
-
-    // Step 2: Fetch the existing BusAssignment with its related RegularBusAssignment
-    const existingBusAssignment = await prisma.busAssignment.findUnique({
-      where: { BusAssignmentID: data.BusAssignmentID },
-      include: {
-        RegularBusAssignment: {
-          include: {
-            quotaPolicy: true,
-          },
-        },
-      },
-    });
-
-    if (!existingBusAssignment || !existingBusAssignment.RegularBusAssignment) {
-      return NextResponse.json({ error: 'BusAssignment or RegularBusAssignment not found' }, { status: 404 });
-    }
-
-    const baseUrl = process.env.APPLICATION_URL;
-    if (!baseUrl) {
-      return NextResponse.json({ error: 'Base URL is not defined' }, { status: 500 });
-    }
-
-    // Step 3: Conditionally call QuotaPolicy API only if all required fields are present
-    const quotaPolicyId = existingBusAssignment.RegularBusAssignment.quotaPolicy?.QuotaPolicyID;
-    const shouldUpdateQuotaPolicy = data.type && data.value && quotaPolicyId;
-
-    if (shouldUpdateQuotaPolicy) {
-      const quotaPolicyData: QuotaPolicyData = {
-        QuotaPolicyID: quotaPolicyId,
-        type: data.type,
-        value: data.value,
-        StartDate: data.StartDate,
-        EndDate: data.EndDate,
-      };
-
-      const quotaPolicyResponse = await fetch(`${baseUrl}/api/quota-assignment`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(quotaPolicyData),
-      });
-
-      const quotaPolicyResponseData = await quotaPolicyResponse.json();
-
-      if (!quotaPolicyResponse.ok) {
-        return NextResponse.json(
-          { error: quotaPolicyResponseData.error || 'Failed to update QuotaPolicy' },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Step 4: Update the BusAssignment
-    const updatedBusAssignment = await prisma.busAssignment.update({
-      where: { BusAssignmentID: data.BusAssignmentID },
-      data: {
-        BusID: data.BusID,
-        RouteID: data.RouteID,
-        RegularBusAssignment: {
-          update: {
-            DriverID: data.DriverID,
-            ConductorID: data.ConductorID,
-          },
-        },
-      },
-      include: {
-        RegularBusAssignment: {
-          include: {
-            quotaPolicy: {
-              include: {
-                Fixed: true,
-                Percentage: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return NextResponse.json(updatedBusAssignment, { status: 200 });
-
-  } catch (error) {
-    console.error('Error updating bus assignment:', error);
-    return NextResponse.json({ error: 'Failed to update bus assignment' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create BusAssignment' },
+      { status: 500 }
+    );
   }
 }

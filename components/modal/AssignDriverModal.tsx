@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
 import { useEffect} from 'react';
-import { fetchDrivers } from '../../lib/fetchDrivers';
 
 interface Driver {
   driver_id: string;
@@ -30,11 +29,16 @@ const AssignDriverModal = ({
   useEffect(() => {
     const loadDrivers = async () => {
       try {
-        const data = await fetchDrivers();
-        setDrivers(data);
-        setFilteredDrivers(data);
+        const response = await fetch('/api/external/drivers');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch drivers: ${response.statusText}`);
+        }
+
+        const json = await response.json();
+        setDrivers(json.data);
+        setFilteredDrivers(json.data);
       } catch (error) {
-        console.error('Error fetching drivers:', error);
+        console.error('Error fetching drivers from API:', error);
       }
     };
 

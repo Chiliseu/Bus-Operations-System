@@ -134,34 +134,34 @@ const RouteManagementPage: React.FC = () => {
       alert('Please fill in all fields with valid values.');
       return;
     }
-  
+
+    // No need to send StopID in body since it’s in the URL
     const updatedStop = {
-      StopID: editingStopID, // Ensure this matches the backend's expected field name
       StopName: stopName,
-      latitude: latitude,
-      longitude: longitude,
+      latitude,
+      longitude,
     };
 
-    console.log('Request body:', updatedStop); // Debuggings
-  
+    console.log('Request body:', updatedStop);
+
     try {
-      const response = await fetch('/api/stops', {
-        method: 'PUT', // Use PUT for updates
+      const response = await fetch(`/api/stops/${editingStopID}`, {  // <-- use template literal here
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedStop), // Send updated stop details
+        body: JSON.stringify(updatedStop),
       });
-  
+
       if (!response.ok) {
         throw new Error(`Failed to update stop: ${response.statusText}`);
       }
-  
+
       alert('Stop updated successfully!');
-      setIsEditMode(false); // Exit edit mode
+      setIsEditMode(false);
       setEditingStopID(null);
-      handleClear(); // Clear input fields
-      fetchStops(); // Refresh the stops list
+      handleClear();
+      fetchStops();
     } catch (error) {
       console.error('Error updating stop:', error);
       alert('Failed to update stop. Please try again.');
@@ -170,30 +170,25 @@ const RouteManagementPage: React.FC = () => {
 
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
-    if (!confirmDelete) {
-      return; // Exit if the user cancels
-    }
-  
+    if (!confirmDelete) return;
+
     try {
-      const response = await fetch('/api/stops', {
+      const response = await fetch(`/api/stops/${stopID}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ stopID, isDeleted: true }), // Send stopID and isDeleted in the request body
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isDeleted: true }),  // send only isDeleted in body
       });
-  
-      if (!response.ok) {
-        throw new Error(`Failed to delete stop: ${response.statusText}`);
-      }
-  
+
+      if (!response.ok) throw new Error(`Failed to delete stop: ${response.statusText}`);
+
       alert('Stop deleted successfully!');
-      fetchStops(); // Refresh the stops list after deletion
+      fetchStops(); // Refresh the stops list
     } catch (error) {
       console.error('Error deleting stop:', error);
       alert('Failed to delete stop. Please try again.');
     }
-  };
+
+  }
 
   const handleClear = () => {
     setStopName(''); // Clear input fields
