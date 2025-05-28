@@ -8,6 +8,7 @@ import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
 import AddStopModal from "@/components/modal/AddStopModal";
+import EditStopModal from '@/components/modal/EditStopModal';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,6 +21,10 @@ const RouteManagementPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
+
+  // For editing stops
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
   const [totalPages, setTotalPages] = useState(1); // State for total pages
 
@@ -122,44 +127,43 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
-  // const handleSave = async () => {
-  //   if (!stopName || !longitude || !latitude) {
-  //     alert('Please fill in all fields with valid values.');
-  //     return;
-  //   }
+  const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
+    if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
+      alert('Please fill in all fields with valid values.');
+      return false;
+    }
 
-  //   // No need to send StopID in body since it’s in the URL
-  //   const updatedStop = {
-  //     StopName: stopName,
-  //     latitude,
-  //     longitude,
-  //   };
+    const updatedStop = {
+      StopName: editedStop.name,
+      latitude: editedStop.latitude,
+      longitude: editedStop.longitude,
+    };
 
-  //   console.log('Request body:', updatedStop);
+    try {
+      const response = await fetch(`/api/stops/${editedStop.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStop),
+      });
 
-  //   try {
-  //     const response = await fetch(`/api/stops/${editingStopID}`, {  // <-- use template literal here
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(updatedStop),
-  //     });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Failed to update stop: ${response.statusText}`);
+      }
 
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to update stop: ${response.statusText}`);
-  //     }
-
-  //     alert('Stop updated successfully!');
-  //     setIsEditMode(false);
-  //     setEditingStopID(null);
-  //     handleClear();
-  //     fetchStops();
-  //   } catch (error) {
-  //     console.error('Error updating stop:', error);
-  //     alert('Failed to update stop. Please try again.');
-  //   }
-  // };
+      alert('Stop updated successfully!');
+      fetchStops(); // Refresh the stops list
+      setShowEditModal(false); // Close the modal
+      setSelectedStop(null);   // Clear selection
+      return true;
+    } catch (error) {
+      console.error('Error updating stop:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
+      return false;
+    }
+  };
 
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
@@ -304,7 +308,7 @@ const RouteManagementPage: React.FC = () => {
                     <td>{stop.latitude}</td>
                     <td className="text-center">
                       <div className="d-inline-flex align-items-center gap-1">
-                        <button className="btn btn-sm btn-primary p-1">
+                        <button className="btn btn-sm btn-primary p-1" onClick={() => { setSelectedStop(stop); setShowEditModal(true); }}>
                           <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -312,6 +316,21 @@ const RouteManagementPage: React.FC = () => {
                             height={25}
                           />
                         </button>
+                        <EditStopModal
+                          show={showEditModal}
+                          onClose={() => setShowEditModal(false)}
+                          stop={
+                            selectedStop
+                              ? {
+                                  id: selectedStop.StopID,
+                                  name: selectedStop.StopName,
+                                  latitude: selectedStop.latitude,
+                                  longitude: selectedStop.longitude,
+                                }
+                              : null
+                          }
+                          onSave={handleSave} // your function to update the stop
+                        />
                         <button
                           className="btn btn-sm btn-danger p-1"
                           onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
