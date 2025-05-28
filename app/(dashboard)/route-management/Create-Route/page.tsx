@@ -10,7 +10,8 @@ import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
-import '../../../styles/globals.css';
+import '@/styles/globals.css';
+
 
 
 import {
