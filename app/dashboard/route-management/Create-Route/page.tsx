@@ -46,6 +46,8 @@ const CreateRoutePage: React.FC = () => {
   const [editStartStop, setEditStartStop] = useState('');
   const [editEndStop, setEditEndStop] = useState('');
   const [editStopsBetween, setEditStopsBetween] = useState<Stop[]>([]);
+  const [editSelectedStartStop, setEditSelectedStartStop] = useState<Stop | null>(null);
+  const [editSelectedEndStop, setEditSelectedEndStop] = useState<Stop | null>(null);
 
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
@@ -154,9 +156,19 @@ const CreateRoutePage: React.FC = () => {
     setEditRouteName(route.RouteName || '');
     setEditStartStop(route.StartStop?.StopName || '');
     setEditEndStop(route.EndStop?.StopName || '');
+    setEditSelectedStartStop(route.StartStop || null);
+    setEditSelectedEndStop(route.EndStop || null);
     setEditStopsBetween(
       route.RouteStops
-        ? route.RouteStops.filter(rs => rs.Stop).map(rs => rs.Stop)
+        ? route.RouteStops
+            .filter(rs => rs.StopID && rs.Stop)
+            .map(rs => ({
+              StopID: rs.StopID,
+              StopName: rs.Stop?.StopName || '',
+              IsDeleted: rs.Stop?.IsDeleted ?? false,
+              latitude: rs.Stop?.latitude ?? '',
+              longitude: rs.Stop?.longitude ?? ''
+            }))
         : []
     );
     setShowEditRouteModal(true);
@@ -269,6 +281,9 @@ const CreateRoutePage: React.FC = () => {
       StopOrder: index + 1,
     }));
 
+    // Add this log:
+    console.log("RouteStops to be sent for update:", routeStops);
+
     // Check for missing StopID
     if (routeStops.some(rs => !rs.StopID)) {
       alert('All stops must have a valid StopID.');
@@ -276,12 +291,15 @@ const CreateRoutePage: React.FC = () => {
     }
 
     const updatedRoute = {
-      RouteID: routeToEdit?.RouteID, // Use the route being edited
+      RouteID: routeToEdit?.RouteID,
       RouteName: editRouteName,
-      StartStopID: routeToEdit?.StartStopID, // Use the original StartStopID
-      EndStopID: routeToEdit?.EndStopID,     // Use the original EndStopID
+      StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
+      EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
       RouteStops: routeStops,
     };
+
+    // You can also log the full payload:
+    console.log("Full updatedRoute payload:", updatedRoute);
 
     try {
       const response = await fetch(`/api/route-management/${routeToEdit?.RouteID}`, {
@@ -590,14 +608,13 @@ const CreateRoutePage: React.FC = () => {
               onAssign={(stop) => {
                 if (showEditRouteModal) {
                   // Editing
+                  console.log("Assigned stop:", stop); // <--- Add this
                   if (stopType === 'start') {
                     setEditStartStop(stop.StopName);
-                    setStartStopID(stop.StopID);
-                    setSelectedStartStop(stop);
+                    setEditSelectedStartStop(stop);
                   } else if (stopType === 'end') {
                     setEditEndStop(stop.StopName);
-                    setEndStopID(stop.StopID);
-                    setSelectedEndStop(stop);
+                    setEditSelectedEndStop(stop);
                   } else if (stopType === 'between' && selectedStopIndex !== null) {
                     const updatedStops = [...editStopsBetween];
                     updatedStops[selectedStopIndex] = {
