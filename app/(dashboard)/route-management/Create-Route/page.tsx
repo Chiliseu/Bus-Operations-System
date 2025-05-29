@@ -79,7 +79,7 @@ const CreateRoutePage: React.FC = () => {
     setLoading(true); // Start loading
     try {
       const data = await fetchRoutesWithToken(); // Call the new function
-      setRoutes(data); // Set the fetched routes
+      setRoutes(data);
     } catch (error) {
       console.error('Error fetching routes:', error);
     } finally {
@@ -157,18 +157,18 @@ const CreateRoutePage: React.FC = () => {
     setEditSelectedStartStop(route.StartStop || null);
     setEditSelectedEndStop(route.EndStop || null);
     setEditStopsBetween(
-      route.RouteStops
-        ? route.RouteStops
-            .filter(rs => rs.StopID && rs.Stop)
-            .map(rs => ({
-              StopID: rs.StopID,
-              StopName: rs.Stop?.StopName || '',
-              IsDeleted: rs.Stop?.IsDeleted ?? false,
-              latitude: rs.Stop?.latitude ?? '',
-              longitude: rs.Stop?.longitude ?? ''
-            }))
-        : []
-    );
+    route.RouteStops
+      ? route.RouteStops
+          .filter(rs => rs.Stop && rs.Stop.StopID)
+          .map(rs => ({
+            StopID: rs.Stop.StopID,
+            StopName: rs.Stop.StopName || '',
+            IsDeleted: rs.Stop.IsDeleted ?? false,
+            latitude: rs.Stop.latitude ?? '',
+            longitude: rs.Stop.longitude ?? ''
+          }))
+      : []
+  );
     setShowEditRouteModal(true);
   };
 
@@ -253,28 +253,36 @@ const CreateRoutePage: React.FC = () => {
     }));
 
 
-    // Build the update payload
+    // // Build the update payload
+    // const updatedRoute = {
+    //   RouteID: routeToEdit.RouteID,
+    //   RouteName: editRouteName,
+    //   StartStopID: startStopID,
+    //   EndStopID: endStopID,
+
+    //   // // Add this log:
+    //   // console.log("RouteStops to be sent for update:", routeStops);
+
+    //   // // Check for missing StopID
+    //   // if (routeStops.some(rs => !rs.StopID)) {
+    //   //   alert('All stops must have a valid StopID.');
+    //   //   return;
+    //   // }
+
+    //   // const updatedRoute = {
+    //   //   RouteID: routeToEdit?.RouteID,
+    //   //   RouteName: editRouteName,
+    //   //   StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
+    //   //   EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
+
+    //   RouteStops: routeStops,
+    // };
+
     const updatedRoute = {
       RouteID: routeToEdit.RouteID,
       RouteName: editRouteName,
       StartStopID: startStopID,
       EndStopID: endStopID,
-
-      // // Add this log:
-      // console.log("RouteStops to be sent for update:", routeStops);
-
-      // // Check for missing StopID
-      // if (routeStops.some(rs => !rs.StopID)) {
-      //   alert('All stops must have a valid StopID.');
-      //   return;
-      // }
-
-      // const updatedRoute = {
-      //   RouteID: routeToEdit?.RouteID,
-      //   RouteName: editRouteName,
-      //   StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
-      //   EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
-
       RouteStops: routeStops,
     };
 
@@ -595,14 +603,14 @@ const CreateRoutePage: React.FC = () => {
               onClose={() => setShowStopsModal(false) } 
               onAssign={(stop) => {
                 if (showEditRouteModal) {
-                  // Editing
-                  console.log("Assigned stop:", stop); // <--- Add this
                   if (stopType === 'start') {
                     setEditStartStop(stop.StopName);
                     setEditSelectedStartStop(stop);
+                    setStartStopID(stop.StopID); // <-- Add this line
                   } else if (stopType === 'end') {
                     setEditEndStop(stop.StopName);
                     setEditSelectedEndStop(stop);
+                    setEndStopID(stop.StopID); // <-- Add this line
                   } else if (stopType === 'between' && selectedStopIndex !== null) {
                     const updatedStops = [...editStopsBetween];
                     updatedStops[selectedStopIndex] = {

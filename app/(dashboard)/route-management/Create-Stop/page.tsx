@@ -11,6 +11,7 @@ import AddStopModal from "@/components/modal/AddStopModal";
 import EditStopModal from '@/components/modal/EditStopModal';
 import Pagination from '@/components/ui/Pagination';
 import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
+import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
 
 const RouteManagementPage: React.FC = () => {
   const [stops, setStops] = useState<Stop[]>([]); // All stops
@@ -69,53 +70,30 @@ const RouteManagementPage: React.FC = () => {
   }, [stops, searchQuery, sortOrder, pageSize]);
 
   const fetchStops = async () => {
-    setLoading(true); // Start loading
-    try {
-      const response = await fetch('/api/stops');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch assignments: ${response.statusText}`);
+      setLoading(true);
+      try {
+        const data = await fetchStopsWithToken();
+        setStops(data);
+      } catch (error) {
+        console.error("Error fetching stops:", error);
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setStops(data); // Update the full stops list
-    } catch (error) {
-      console.error('Error fetching assignments:', error);
-    } finally {
-      setLoading(false); // Stop loading
-    }
-  };
+    };
 
   // Fetch data on component mount
   useEffect(() => {
     fetchStops();
   }, []);
 
-  const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
+ const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
     if (!stop.name || !stop.longitude || !stop.latitude) {
       alert('Please fill in all fields with valid values.');
       return false;
     }
 
-    console.log(stop.name, stop.longitude, stop.latitude); // Debugging
-    const newStop = {
-      StopName: stop.name,
-      longitude: stop.longitude,
-      latitude: stop.latitude
-    };
-
     try {
-      const response = await fetch('/api/stops', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newStop),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Backend error:', errorText);
-        throw new Error('Failed to add stop');
-      }
+      await createStopWithToken(stop);
 
       alert('Stop added successfully!');
       fetchStops(); // Refresh the stops list
@@ -124,73 +102,46 @@ const RouteManagementPage: React.FC = () => {
     } catch (error) {
       console.error('Error adding stop:', error);
       alert('Failed to add stop. Please try again.');
-      setShowAddStopModal(false); // Close the modal
-      return false;
-    } finally {
-      setShowAddStopModal(false); // Close the modal
+      setShowAddStopModal(false);
       return false;
     }
   };
 
-  const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
-    if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
-      alert('Please fill in all fields with valid values.');
-      return false;
-    }
+    const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
+        if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
+          alert('Please fill in all fields with valid values.');
+          return false;
+        }
 
-    const updatedStop = {
-      StopName: editedStop.name,
-      latitude: editedStop.latitude,
-      longitude: editedStop.longitude,
-    };
+        try {
+          await updateStopWithToken(editedStop);
 
-    try {
-      const response = await fetch(`/api/stops/${editedStop.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedStop),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Failed to update stop: ${response.statusText}`);
-      }
-
-      alert('Stop updated successfully!');
-      fetchStops(); // Refresh the stops list
-      setShowEditModal(false); // Close the modal
-      setSelectedStop(null);   // Clear selection
-      return true;
-    } catch (error) {
-      console.error('Error updating stop:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
-      return false;
-    }
-  };
+          alert('Stop updated successfully!');
+          fetchStops(); // Refresh the stops list
+          setShowEditModal(false); // Close the modal
+          setSelectedStop(null);   // Clear selection
+          return true;
+        } catch (error) {
+          console.error('Error updating stop:', error);
+          alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
+          return false;
+        }
+      };
 
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/api/stops/${stopID}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isDeleted: true }),  // send only isDeleted in body
-      });
-
-      if (!response.ok) throw new Error(`Failed to delete stop: ${response.statusText}`);
+      await softDeleteStopWithToken(stopID);
 
       alert('Stop deleted successfully!');
-      fetchStops(); // Refresh the stops list
+      fetchStops();
     } catch (error) {
       console.error('Error deleting stop:', error);
       alert('Failed to delete stop. Please try again.');
     }
-
-  }
+  };
 
   const handlePrint = () => {
     const printContents = document.getElementById('print-section')?.innerHTML;
