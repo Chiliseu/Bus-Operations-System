@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
-import { fetchBuses } from '../../lib/fetchBuses';
+import { fetchBusesWithToken } from '@/lib/apiCalls/external';
 
 interface Bus {
   busId: string;
@@ -27,14 +27,9 @@ const AssignBusModal = ({
   useEffect(() => {
     const loadBuses = async () => {
       try {
-        const response = await fetch('/api/external/buses');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch buses: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setBuses(json.data);
-        setFilteredBuses(json.data);
+        const buses = await fetchBusesWithToken();
+        setBuses(buses);
+        setFilteredBuses(buses);
       } catch (error) {
         console.error('Error fetching buses from API:', error);
       }

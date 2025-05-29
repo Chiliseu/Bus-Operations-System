@@ -5,9 +5,12 @@ import { fetchBackendToken } from "@/lib/backend";
 
 export default function Token_Generation() {
   useEffect(() => {
-    console.log("[Token_Generation] Running token fetch...");
     fetchBackendToken().then(token => {
-      console.log("[Token_Generation] Token received:", token);
+      if (token) {
+        localStorage.setItem("backend_token", token);
+      } else {
+        console.warn("[Token_Generation] Token is null or undefined");
+      }
     }).catch((err) => {
       console.error("[Token_Generation] Failed to fetch backend token:", err);
     });

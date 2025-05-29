@@ -10,8 +10,8 @@ import AssignRouteModal from '@/components/modal/AssignRouteModal';
 // import Button from "@/components/ui/Button";
 import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
-import { fetchConductorById } from '../../../lib/fetchConductors';
-import { fetchDriverById } from '../../../lib/fetchDrivers';
+import { fetchAssignmentDetails, createBusAssignment } from '@/lib/apiCalls/bus-assignment';
+import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 
 interface RegularBusAssignment {
   RegularBusAssignmentID: string;
@@ -40,6 +40,7 @@ interface Bus {
   type: string;
   capacity: number;
   image: string | null;
+  license_plate?: string;
 }
 
 interface Driver {
@@ -66,6 +67,7 @@ const BusAssignmentPage: React.FC = () => {
   const [busAssignments, setAssignments] = useState<(RegularBusAssignment & {
   driverName?: string;
   conductorName?: string;
+  busLicensePlate?: string;
   })[]>([]);
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
   const [showAssignDriverModal, setShowAssignDriverModal] = useState(false);
@@ -87,52 +89,11 @@ const BusAssignmentPage: React.FC = () => {
 
   const fetchAssignments = async () => {
     try {
-      const response = await fetch('/api/bus-assignment');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch assignments: ${response.statusText}`);
+        const assignments = await fetchAssignmentDetails();
+        setAssignments(assignments);
+      } catch (error) {
+        console.error('Error loading assignments:', error);
       }
-      const data: RegularBusAssignment[] = await response.json();
-
-      // Fetch driver and conductor names for each assignment
-      const assignmentsWithNames = await Promise.all(
-        data.map(async (assignment) => {
-          let driverName = '';
-          let conductorName = '';
-
-          // Fetch driver name
-          if (assignment.DriverID) {
-            try {
-              const res = await fetch(`/api/external/drivers/${assignment.DriverID}`);
-              if (res.ok) {
-                const { data } = await res.json();
-                driverName = data?.name ?? '';
-              }
-            } catch {}
-          }
-
-          // Fetch conductor name
-          if (assignment.ConductorID) {
-            try {
-              const res = await fetch(`/api/external/conductors/${assignment.ConductorID}`);
-              if (res.ok) {
-                const { data } = await res.json();
-                conductorName = data?.name ?? '';
-              }
-            } catch {}
-          }
-
-          return {
-            ...assignment,
-            driverName,
-            conductorName,
-          };
-        })
-      );
-
-      setAssignments(assignmentsWithNames); // Update the table data
-    } catch (error) {
-      console.error('Error fetching assignments:', error);
-    }
   };
 
   // **Initial data fetch on component mount**
@@ -150,53 +111,30 @@ const BusAssignmentPage: React.FC = () => {
   };
 
   const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior
-  
-    // Gather the data to send to the API
+    e.preventDefault();
+
     const data = {
-      RouteID: selectedRoute?.RouteID || '', // Replace with the selected route ID
-      BusID: selectedBus?.busId || '', // Use the selected bus ID
-      AssignmentDate: new Date().toISOString(), // Use the current date or a selected date
+      RouteID: selectedRoute?.RouteID || '',
+      BusID: selectedBus?.busId || '',
       DriverID: selectedDriver?.driver_id || '',
       ConductorID: selectedConductor?.conductor_id || '',
-      Change: 0.0,
-      TripRevenue: 1000.0,
       QuotaPolicy: {
-        type: quotaType, // 'Fixed' or 'Percentage'
-        value: quotaValue, // The processed quota value
-      },
+      type: quotaType,
+      value: quotaType.toUpperCase() === 'PERCENTAGE' ? parseFloat(quotaValue) / 100 : parseFloat(quotaValue),
+    },
     };
-  
-    console.log('Data to be sent to API:', data); // Debugging
-  
+
     try {
-      // Send a POST request to the API route
-      const response = await fetch('/api/bus-assignment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const result = await createBusAssignment(data);
 
-      const result = await response.json(); // Always parse the response body
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create BusAssignment');
-      }
-
-      console.log('New BusAssignment created:', result);
-
-      // Optionally, reset the form or update the UI
       handleClear();
       alert('BusAssignment created successfully!');
-      // Refresh the table data
-      fetchAssignments();
+      fetchAssignments(); // refresh table
     } catch (error) {
       console.error('Error creating BusAssignment:', error);
       alert(error instanceof Error ? error.message : String(error));
     }
-  }
+  };
 
   const handleEdit = async  (assignment: RegularBusAssignment) => {
     setIsEditMode(true);
@@ -219,52 +157,59 @@ const BusAssignmentPage: React.FC = () => {
     }
 
     const driverId = assignment.DriverID ?? '';
-
     if (driverId) {
       try {
-        const res = await fetch(`/api/external/drivers/${driverId}`);
-        
-        if (!res.ok) {
-          throw new Error(`Failed to fetch driver: ${res.statusText}`);
+        const data = await fetchDriverById(driverId);
+        if (data) {
+          setSelectedDriver({
+            driver_id: data.id,
+            name: data.name,
+            job: '',
+            contactNo: '',
+            address: '',
+            image: null,
+          });
         }
-
-        const { data } = await res.json();
-
-        setSelectedDriver({
-          driver_id: data?.driver_id ?? '',
-          name: data?.name ?? '',
-          job: data?.job ?? '',
-          contactNo: data?.contactNo ?? '',
-          address: data?.address ?? '',
-          image: data?.image ?? null,
-        });
       } catch (error) {
         console.error('Failed to fetch driver:', error);
       }
     }
 
     const conductorId = assignment.ConductorID ?? '';
-
     if (conductorId) {
       try {
-        const res = await fetch(`/api/external/conductors/${conductorId}`);
-
-        if (!res.ok) {
-          throw new Error(`Failed to fetch conductor: ${res.statusText}`);
+        const data = await fetchConductorById(conductorId);
+        if (data) {
+          setSelectedConductor({
+            conductor_id: data.id,
+            name: data.name,
+            job: '',
+            contactNo: '',
+            address: '',
+            image: null,
+          });
         }
-
-        const { data } = await res.json();
-
-        setSelectedConductor({
-          conductor_id: data?.conductor_id ?? '',
-          name: data?.name ?? '',
-          job: data?.job ?? '',
-          contactNo: data?.contactNo ?? '',
-          address: data?.address ?? '',
-          image: data?.image ?? null,
-        });
       } catch (error) {
         console.error('Failed to fetch conductor:', error);
+      }
+    }
+
+    const busId = assignment.BusAssignment?.BusID ?? '';
+    if (busId) {
+      try {
+        const data = await fetchBusById(busId);
+        if (data) {
+          setSelectedBus({
+            busId: data.busId,
+            license_plate: data.license_plate,
+            route: '',     // You can set this from assignment.BusAssignment.Route?.RouteName if needed
+            type: '',      // Fill with '' since it's not returned from the API
+            capacity: 0,
+            image: null,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch bus:', error);
       }
     }
 
@@ -438,7 +383,7 @@ const BusAssignmentPage: React.FC = () => {
               <thead>
                 <tr className={styles.tableHeadRow}>
                   <th>Assignment</th>
-                  <th>Bus ID</th>
+                  <th>Bus</th>
                   <th>Driver</th>
                   <th>Conductor</th>
                   <th>Route</th>
@@ -450,7 +395,7 @@ const BusAssignmentPage: React.FC = () => {
                 {busAssignments.map((assignment) => (
                   <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
                     <td>{assignment.RegularBusAssignmentID}</td>
-                    <td>{assignment.BusAssignment?.BusID}</td>
+                    <td>{assignment.busLicensePlate}</td>
                     <td>{assignment.driverName || assignment.DriverID}</td>
                     <td>{assignment.conductorName || assignment.ConductorID}</td>
                     <td>{assignment.BusAssignment?.Route?.RouteName}</td>

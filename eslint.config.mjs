@@ -9,6 +9,7 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default [
   {
     ignores: ["app/generated/**"], // Ignore Prisma generated files
@@ -20,6 +21,8 @@ export default [
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/no-unused-vars": "off", // or use warn with patterns
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
     },
   },
 ];
