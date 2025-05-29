@@ -243,34 +243,41 @@ const RouteManagementPage: React.FC = () => {
             </div>
           </div> */}
 
-          {/* Stops Table Section */}
-          <h2 className="card-title mb-3">Stops</h2>
-          <div className="row g-2 align-items-center mb-3">
-            <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery} // Bind to searchQuery state
-                onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
-              />
-            </div>
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={sortOrder} // Bind to sortOrder state
-                onChange={(e) => setSortOrder(e.target.value)} // Update sortOrder state
-              >
-                <option value="A-Z">Name: A-Z</option>
-                <option value="Z-A">Name: Z-A</option>
-              </select>
-            </div>
-            <div className="col-md-5 text-end">
+            {/* Stops Table Section */}
+            <h2 className="card-title mb-3">Stops</h2>
 
-              {/* Shows Add button as default, shows save button when edit mode */}
-              <div>
-                <button className="btn btn-success me-2" onClick={() => setShowAddStopModal(true)}>
-                  <Image src="/assets/images/add-line.png" alt="Add" className="icon-small" width={20} height={20} />
+            {/* Search & Sort Inputs */}
+            <div className="row g-2 align-items-center mb-3">
+              <div className="col-md-4">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="col-md-3">
+                <select
+                  className="form-select"
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                >
+                  <option value="A-Z">Name: A-Z</option>
+                  <option value="Z-A">Name: Z-A</option>
+                </select>
+              </div>
+              <div className="col-md-5 text-end">
+                <button
+                  className="btn btn-success"
+                  onClick={() => setShowAddStopModal(true)}
+                >
+                  <Image
+                    src="/assets/images/add-line.png"
+                    alt="Add"
+                    width={20}
+                    height={20}
+                  />
                   Add
                 </button>
                 <AddStopModal
@@ -279,103 +286,88 @@ const RouteManagementPage: React.FC = () => {
                   onCreate={handleCreateStop}
                 />
               </div>
+            </div>
 
-              {/* <button className="btn btn-danger me-2" onClick={handlePrint}>
-                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
-                Print
-              </button> */}
-            </div>
-          </div>
-          
-          {loading ? (
-            // Render this when loading is true
-            <div className="text-center my-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ):(
-            <table className="table table-striped table-bordered custom-table">
-            <thead>
-              <tr>
-                <th>Stop Name</th>
-                <th>Longitude</th>
-                <th>Latitude</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentStops.length > 0 ? (
-                currentStops.map((stop) => (
-                  <tr key={stop.StopID}>
-                    <td>{stop.StopName}</td>
-                    <td>{stop.longitude}</td>
-                    <td>{stop.latitude}</td>
-                    <td className="text-center">
-                      <div className="d-inline-flex align-items-center gap-1">
-                        <button className="btn btn-sm btn-primary p-1" onClick={() => { setSelectedStop(stop); setShowEditModal(true); }}>
-                          <Image
-                            src="/assets/images/edit-white.png"
-                            alt="Edit"
-                            width={25}
-                            height={25}
-                          />
-                        </button>
-                        <EditStopModal
-                          show={showEditModal}
-                          onClose={() => setShowEditModal(false)}
-                          stop={
-                            selectedStop
-                              ? {
-                                  id: selectedStop.StopID,
-                                  name: selectedStop.StopName,
-                                  latitude: selectedStop.latitude,
-                                  longitude: selectedStop.longitude,
-                                }
-                              : null
-                          }
-                          onSave={handleSave} // your function to update the stop
-                        />
-                        <button
-                          className="btn btn-sm btn-danger p-1"
-                          onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
-                        >
-                          <Image
-                            src="/assets/images/delete-white.png"
-                            alt="Delete"
-                            width={25}
-                            height={25}
-                          />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+              {/* Loading Spinner */}
+              {loading ? (
+                <div className={styles.loadingWrapper}>
+                  <div className={styles.spinner} role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
               ) : (
-                <tr>
-                  <td colSpan={4} className="text-center">
-                    No records found.
-                  </td>
-                </tr>
+                <table className={styles.table}>
+                  <thead>
+                    <tr className={styles.tableHeadRow}>
+                      <th>Stop Name</th>
+                      <th>Longitude</th>
+                      <th>Latitude</th>
+                      <th className={styles.actions}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentStops.length > 0 ? (
+                      currentStops.map((stop) => (
+                        <tr key={stop.StopID} className={styles.tableRow}>
+                          <td>{stop.StopName}</td>
+                          <td>{stop.longitude}</td>
+                          <td>{stop.latitude}</td>
+                          <td className={styles.actions}>
+                            <button
+                              className={styles.editBtn}
+                              onClick={() => {
+                                setSelectedStop(stop);
+                                setShowEditModal(true);
+                              }}
+                            >
+                              <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                            </button>
+                            <EditStopModal
+                              show={showEditModal}
+                              onClose={() => setShowEditModal(false)}
+                              stop={
+                                selectedStop
+                                  ? {
+                                      id: selectedStop.StopID,
+                                      name: selectedStop.StopName,
+                                      latitude: selectedStop.latitude,
+                                      longitude: selectedStop.longitude,
+                                    }
+                                  : null
+                              }
+                              onSave={handleSave}
+                            />
+                            <button
+                              className={styles.deleteBtn}
+                              onClick={() => handleDelete(stop.StopID)}
+                            >
+                              <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className={styles.noRecords}>
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               )}
-            </tbody>
-          </table>
-          )}
-          {/* <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          /> */}
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1); // Reset to first page when page size changes
-            }}
-          />
+
+              {/* Pagination */}
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+              />
         </div>
       </div>
     </div>
