@@ -15,7 +15,7 @@ import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
 //   image: string | null;
 // }
 
-const ShowStopsModal = ({ 
+const AssignStopsModal = ({ 
   onClose,
   onAssign, 
 }: { 
@@ -140,4 +140,4 @@ const ShowStopsModal = ({
   );
 };
 
-export default ShowStopsModal;
+export default AssignStopsModal;

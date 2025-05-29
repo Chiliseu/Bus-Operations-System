@@ -7,23 +7,6 @@ import DropdownButton from '../ui/DropdownButton';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
 
-//OLD ROUTE INTERFACE
-// interface Route {
-//   RouteID: string;
-//   RouteName: string;
-//   StartStop: {
-//     StopID: string;
-//     StopName: string;
-//   };
-//   EndStop: {
-//     StopID: string;
-//     StopName: string;
-//   };
-//   roundTrip: boolean;
-//   noOfBus: number;
-//   image: string | null;
-// }
-
 const AssignRouteModal = ({ 
   onClose,
   onAssign, 
@@ -58,20 +41,6 @@ const AssignRouteModal = ({
         setFilteredRoutes(sorted);
       },
     },
-    // {
-    //   name: 'Round Trip Only',
-    //   action: () => {
-    //     const filtered = routes.filter(route => route.roundTrip === true);
-    //     setFilteredRoutes(filtered);
-    //   },
-    // },
-    // {
-    //   name: 'One-Way Only',
-    //   action: () => {
-    //     const filtered = routes.filter(route => route.roundTrip === false);
-    //     setFilteredRoutes(filtered);
-    //   },
-    // },
     {
       name: 'Show All',
       action: () => {
@@ -81,7 +50,7 @@ const AssignRouteModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-lg p-4 flex flex-col">
         {/* Search Bar */}
         <header className='mb-4'>  

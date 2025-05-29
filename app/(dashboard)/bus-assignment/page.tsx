@@ -7,11 +7,12 @@ import AssignBusModal from '@/components/modal/AssignBusModal';
 import AssignDriverModal from '@/components/modal/AssignDriverModal';
 import AssignConductorModal from '@/components/modal/AssignConductorModal';
 import AssignRouteModal from '@/components/modal/AssignRouteModal';
-// import Button from "@/components/ui/Button";
+import AddRegularBusAssignmentModal from '@/components/modal/AddRegularBusAssignmentModal';
 import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchAssignmentDetails, createBusAssignment } from '@/lib/apiCalls/bus-assignment';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
+//import { Bus, Driver, Conductor, RegularBusAssignment} from '@/app/interface';
 
 interface RegularBusAssignment {
   RegularBusAssignmentID: string;
@@ -61,6 +62,7 @@ interface Conductor {
   image: string | null;
 }
 
+
 const BusAssignmentPage: React.FC = () => {
 
   // Flags for modal
@@ -73,6 +75,7 @@ const BusAssignmentPage: React.FC = () => {
   const [showAssignDriverModal, setShowAssignDriverModal] = useState(false);
   const [showAssignConductorModal, setShowAssignConductorModal] = useState(false);
   const [showAssignRouteModal, setShowAssignRouteModal] = useState(false);
+  const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
 
   // current record
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
@@ -85,7 +88,15 @@ const BusAssignmentPage: React.FC = () => {
   const [editAssignment, setEditAssignment] = useState<RegularBusAssignment | null>(null);
 
   const [quotaType, setQuotaType] = useState('Fixed'); // Default to 'Fixed'
-  const [quotaValue, setQuotaValue] = useState(''); // Default to an empty string
+  const [quotaValue, setQuotaValue] = useState<number>(0); // Default to 0 or any sensible default
+
+  const [assignmentDate, setAssignmentDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (showAddAssignmentModal) {
+      setAssignmentDate(new Date().toISOString());
+    }
+  }, [showAddAssignmentModal]);
 
   const fetchAssignments = async () => {
     try {
@@ -101,27 +112,47 @@ const BusAssignmentPage: React.FC = () => {
     fetchAssignments();
   }, []);
 
+  function getQuotaValue(assignment: RegularBusAssignment): number {
+  const fixedQuota = assignment.quotaPolicy?.Fixed?.Quota;
+  const percentageQuota = assignment.quotaPolicy?.Percentage?.Percentage;
+
+    if (percentageQuota) {
+      return parseFloat(percentageQuota) / 100;
+    }
+
+    if (fixedQuota) {
+      return parseFloat(fixedQuota);
+    }
+
+    return 0; // fallback if no quota info
+  }
+
   const handleClear = () => {
     // Clear logic for resetting form values or handling state
     setSelectedBus(null);
     setSelectedDriver(null);
     setSelectedConductor(null);
     setSelectedRoute(null);
-    setQuotaValue('');
+    setQuotaValue(0);
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleAdd = async (assignment: {
+    bus: Bus;
+    driver: Driver;
+    conductor: Conductor;
+    route: Route;
+    quotaType: "Fixed" | "Percentage";
+    quotaValue: number;
+  }) => {
     const data = {
-      RouteID: selectedRoute?.RouteID || '',
-      BusID: selectedBus?.busId || '',
-      DriverID: selectedDriver?.driver_id || '',
-      ConductorID: selectedConductor?.conductor_id || '',
+      RouteID: assignment.route.RouteID,
+      BusID: assignment.bus.busId,
+      DriverID: assignment.driver.driver_id,
+      ConductorID: assignment.conductor.conductor_id,
       QuotaPolicy: {
-      type: quotaType,
-      value: quotaType.toUpperCase() === 'PERCENTAGE' ? parseFloat(quotaValue) / 100 : parseFloat(quotaValue),
-    },
+        type: assignment.quotaType,
+        value: assignment.quotaType === 'Percentage' ? assignment.quotaValue / 100 : assignment.quotaValue,
+      },
     };
 
     try {
@@ -130,6 +161,49 @@ const BusAssignmentPage: React.FC = () => {
       handleClear();
       alert('BusAssignment created successfully!');
       fetchAssignments(); // refresh table
+
+  // const handleAdd = async (assignment: {
+  //   bus: Bus;
+  //   driver: Driver;
+  //   conductor: Conductor;
+  //   route: Route;
+  //   quotaType: "Fixed" | "Percentage";
+  //   quotaValue: number;
+  // }) => {
+  //   // Gather the data to send to the API
+  //   const data = {
+  //     RouteID: assignment.route.RouteID,
+  //     BusID: assignment.bus.busId,
+  //     AssignmentDate: assignmentDate,
+  //     DriverID: assignment.driver.driver_id,
+  //     ConductorID: assignment.conductor.conductor_id,
+  //     Change: 0.0,
+  //     TripRevenue: 1000.0,
+  //     QuotaPolicy: {
+  //       type: assignment.quotaType,
+  //       value: assignment.quotaValue,
+  //     },
+  //   };
+
+  //   try {
+  //     const response = await fetch('/api/bus-assignment', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
+
+  //     const result = await response.json();
+
+  //     if (!response.ok) {
+  //       throw new Error(result.error || 'Failed to create BusAssignment');
+  //     }
+
+  //     handleClear();
+  //     alert('BusAssignment created successfully!');
+  //     fetchAssignments();
+
     } catch (error) {
       console.error('Error creating BusAssignment:', error);
       alert(error instanceof Error ? error.message : String(error));
@@ -147,13 +221,13 @@ const BusAssignmentPage: React.FC = () => {
 
     if (assignment.quotaPolicy?.Fixed) {
       setQuotaType('Fixed');
-      setQuotaValue(assignment.quotaPolicy.Fixed.Quota);
+      setQuotaValue(parseFloat(assignment.quotaPolicy.Fixed.Quota));
     } else if (assignment.quotaPolicy?.Percentage) {
       setQuotaType('Percentage');
-      setQuotaValue(assignment.quotaPolicy.Percentage.Percentage);
+      setQuotaValue(parseFloat(assignment.quotaPolicy.Percentage.Percentage));
     } else {
       setQuotaType(''); // Reset if no quotaPolicy is present
-      setQuotaValue(''); // Reset the value
+      setQuotaValue(0); // Reset the value
     }
 
     const driverId = assignment.DriverID ?? '';
@@ -308,7 +382,7 @@ const BusAssignmentPage: React.FC = () => {
                     value={quotaType}
                     onChange={(e) => {
                       setQuotaType(e.target.value);
-                      setQuotaValue(''); // Reset quota value when type changes
+                      setQuotaValue(0); // Reset quota value when type changes
                     }}
                   >
                     <option value="Fixed">Fixed</option>
@@ -320,51 +394,34 @@ const BusAssignmentPage: React.FC = () => {
                     value={quotaValue}
                     onChange={(e) => {
                       const value = e.target.value;
+                      // Only allow valid numbers
+                      if (value === '') {
+                        setQuotaValue(0);
+                        return;
+                      }
+                      const num = Number(value);
 
                       // Validation for Fixed
                       if (quotaType === 'Fixed') {
-                        if (value && (!/^\d+(\.\d{1,2})?$/.test(value) || parseFloat(value) <= 0)) {
-                          alert('Fixed value must be greater than 0 and have up to 2 decimal places.');
+                        if (isNaN(num) || num <= 0) {
+                          alert('Fixed value must be greater than 0.');
                           return;
                         }
                       }
 
                       // Validation for Percentage
                       if (quotaType === 'Percentage') {
-                        if (value && (parseInt(value, 10) < 1 || parseInt(value, 10) > 99)) {
+                        if (isNaN(num) || num < 1 || num > 99) {
                           alert('Percentage value must be between 1 and 99.');
                           return;
                         }
                       }
 
-                      setQuotaValue(value); // Update quota value if valid
+                      setQuotaValue(num);
                     }}
-                    onInput={(e) => {
-                      const input = e.target as HTMLInputElement;
-
-                      // Prevent negative numbers
-                      if (input.value.includes('-')) {
-                        input.value = input.value.replace('-', '');
-                      }
-
-                      // Prevent invalid decimal places for Fixed
-                      if (quotaType === 'Fixed' && !/^\d+(\.\d{0,2})?$/.test(input.value)) {
-                        input.value = input.value.slice(0, -1);
-                      }
-
-                      // Prevent values outside 1-99 for Percentage
-                      if (quotaType === 'Percentage') {
-                        const numericValue = parseInt(input.value, 10);
-                        if (numericValue < 1) {
-                          input.value = '1';
-                        } else if (numericValue > 99) {
-                          input.value = '99';
-                        }
-                      }
-                    }}
-                    step={quotaType === 'Fixed' ? '0.01' : '1'} // Allow up to 2 decimal places for Fixed, whole numbers for Percentage
-                    min={quotaType === 'Fixed' ? '0.01' : '1'} // Minimum value
-                    max={quotaType === 'Percentage' ? '99' : undefined} // Maximum value for Percentage
+                    step={quotaType === 'Fixed' ? '0.01' : '1'}
+                    min={quotaType === 'Fixed' ? '0.01' : '1'}
+                    max={quotaType === 'Percentage' ? '99' : undefined}
                   />
                 </div>
               </div>
@@ -372,7 +429,7 @@ const BusAssignmentPage: React.FC = () => {
               {/* Buttons */}
               <div className={styles.buttonColumn}>
                 <button className={styles.clearButton} onClick={handleClear}>Clear</button>
-                <button type="submit" className={styles.addButton} onClick={handleAdd}>Add</button>
+                <button type="button" className={styles.addButton} onClick={() => setShowAddAssignmentModal(true)}>Add</button>
               </div>
             </div>
 
@@ -422,46 +479,65 @@ const BusAssignmentPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Modals */}
-          {showAssignBusModal && (
-            <AssignBusModal 
-              onClose={() => setShowAssignBusModal(false) } 
-              onAssign={(bus) => {
-                setSelectedBus(bus); // store or use it as needed
-                setShowAssignBusModal(false); // close modal
-              }}
-            />
-          )}
-          {showAssignDriverModal && (
-            <AssignDriverModal 
-              onClose={() => setShowAssignDriverModal(false)} 
-              onAssign={(driver) => {
-                setSelectedDriver(driver); // store or use it as needed
-                setShowAssignDriverModal(false); // close modal
-              }}
-            />
-          )}
-          {showAssignConductorModal && (
-            <AssignConductorModal 
-              onClose={() => setShowAssignConductorModal(false)}
-              onAssign={(conductor) => {
-                setSelectedConductor(conductor); // store or use it as needed
-                setShowAssignConductorModal(false); // close modal
-              }} 
-            />
-          )}
-          {showAssignRouteModal && (
-            <AssignRouteModal 
-              onClose={() => setShowAssignRouteModal(false)}
-              onAssign={(route) => {
-                setSelectedRoute(route); // store or use it as needed
-                setShowAssignRouteModal(false); // close modal
-              }} 
-            />
-          )}
-          
         </div>
+      </div>
+      <div>
+        {/* Modals */}
+        {showAddAssignmentModal && (
+          <AddRegularBusAssignmentModal
+            show={showAddAssignmentModal}
+            onClose={() => setShowAddAssignmentModal(false)}
+            onCreate={handleAdd}
+            onBusClick={() => setShowAssignBusModal(true)}
+            onDriverClick={() => setShowAssignDriverModal(true)}
+            onConductorClick={() => setShowAssignConductorModal(true)}
+            onRouteClick={() => setShowAssignRouteModal(true)}
+            selectedBus={selectedBus}
+            selectedDriver={selectedDriver}
+            selectedConductor={selectedConductor}
+            selectedRoute={selectedRoute}
+            setSelectedBus={setSelectedBus}
+            setSelectedDriver={setSelectedDriver}
+            setSelectedConductor={setSelectedConductor}
+            setSelectedRoute={setSelectedRoute}
+          />
+        )}
+        {showAssignBusModal && (
+          <AssignBusModal 
+            onClose={() => setShowAssignBusModal(false) } 
+            onAssign={(bus) => {
+              setSelectedBus(bus); // store or use it as needed
+              setShowAssignBusModal(false); // close modal
+            }}
+          />
+        )}
+        {showAssignDriverModal && (
+          <AssignDriverModal 
+            onClose={() => setShowAssignDriverModal(false)} 
+            onAssign={(driver) => {
+              setSelectedDriver(driver); // store or use it as needed
+              setShowAssignDriverModal(false); // close modal
+            }}
+          />
+        )}
+        {showAssignConductorModal && (
+          <AssignConductorModal 
+            onClose={() => setShowAssignConductorModal(false)}
+            onAssign={(conductor) => {
+              setSelectedConductor(conductor); // store or use it as needed
+              setShowAssignConductorModal(false); // close modal
+            }} 
+          />
+        )}
+        {showAssignRouteModal && (
+          <AssignRouteModal 
+            onClose={() => setShowAssignRouteModal(false)}
+            onAssign={(route) => {
+              setSelectedRoute(route); // store or use it as needed
+              setShowAssignRouteModal(false); // close modal
+            }} 
+          />
+        )}
       </div>
     </div>
   );

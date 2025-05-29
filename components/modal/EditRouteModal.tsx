@@ -63,7 +63,7 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
   };
 
   const handleRemoveStop = (index: number) => {
-    setStopsBetween(stopsBetween.filter((_, i) => i !== index));
+    setStopsBetween(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleStopChange = (value: string, index: number) => {
@@ -151,33 +151,32 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                 <Droppable droppableId="stops">
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {stopsBetween.length === 0 ? (
+                      {stopsBetween.map((stop, index) => (
+                        <Draggable key={stop.StopID || index.toString()} draggableId={stop.StopID || index.toString()} index={index}>
+                          {(provided) => (
+                            <div
+                              className="d-flex align-items-center mb-2"
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                            >
+                              <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
+                              <input
+                                type="text"
+                                className="form-control me-2"
+                                placeholder={`Stop ${index + 1}`}
+                                value={stop.StopName}
+                                onClick={() => onBetweenStopClick(index)}
+                                readOnly
+                              />
+                              <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
+                                <Image src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" width={20} height={20} />
+                              </button>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {stopsBetween.length === 0 && (
                         <p className="text-muted">Click + button to add stops.</p>
-                      ) : (
-                        stopsBetween.map((stop, index) => (
-                          <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
-                            {(provided) => (
-                              <div
-                                className="d-flex align-items-center mb-2"
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                              >
-                                <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
-                                <input
-                                  type="text"
-                                  className="form-control me-2"
-                                  placeholder={`Stop ${index + 1}`}
-                                  value={stop.StopName}
-                                  onClick={() => onBetweenStopClick(index)}
-                                  readOnly
-                                />
-                                <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
-                                  <Image src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" width={20} height={20} />
-                                </button>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))
                       )}
                       {provided.placeholder}
                     </div>

@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
+//import { Bus } from "@/app/interface";
 
 interface Bus {
   busId: string;
@@ -79,7 +80,7 @@ const AssignBusModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
         {/* Search Bar */}
         <header className="mb-4">
