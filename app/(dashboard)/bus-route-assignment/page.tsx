@@ -2,64 +2,70 @@
 
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import styles from './route-management.module.css';
-import '../../../../styles/globals.css';
+import styles from './bus-route-assignment.module.css';
+import '@/styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
-import Print from '@/components/printtable/PrintStopListPDF'; // Importing the Print component
 import AddStopModal from "@/components/modal/AddStopModal";
-
-const ITEMS_PER_PAGE = 10;
+import EditStopModal from '@/components/modal/EditStopModal';
+import Pagination from '@/components/ui/Pagination';
+import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 
 const RouteManagementPage: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // Number of items per page
   const [stops, setStops] = useState<Stop[]>([]); // All stops
   const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
-  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
-  const [editingStopID, setEditingStopID] = useState<string | null>(null); // Track the stop being edited
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
 
-  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  // For editing stops
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const totalPages = Math.ceil(displayedStops.length / pageSize);
+  const currentStops = displayedStops.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+  // const [totalPages, setTotalPages] = useState(1); // State for total pages
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const ITEMS_PER_PAGE = 10; // Number of items per page
+  // const handlePageChange = (page: number) => {
+  //   if (page >= 1 && page <= totalPages) {
+  //     setCurrentPage(page);
+  //   }
+  // };
 
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
-  
+
     // Sort stops based on the selected sortOrder
     if (sortOrder === 'A-Z') {
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
     } else if (sortOrder === 'Z-A') {
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
     }
-  
+
     const filteredStops = sortedStops.filter((stop) =>
       stop.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stop.longitude?.toString().includes(searchQuery) ||
       stop.latitude?.toString().includes(searchQuery)
     );
-  
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-  
-    setDisplayedStops(filteredStops.slice(startIndex, endIndex));
-    setTotalPages(Math.ceil(filteredStops.length / ITEMS_PER_PAGE)); // Update total pages based on filtered stops
-  
-    // Reset currentPage to 1 if the search query changes
-    if (currentPage > Math.ceil(filteredStops.length / ITEMS_PER_PAGE)) {
+
+    setDisplayedStops(filteredStops); // <-- Store ALL filtered stops, not paginated
+
+    // Reset currentPage to 1 if the search query or sort changes and currentPage is out of range
+    const totalPages = Math.ceil(filteredStops.length / pageSize);
+    if (currentPage > totalPages) {
       setCurrentPage(1);
     }
-  }, [currentPage, stops, searchQuery, sortOrder]);
+  }, [stops, searchQuery, sortOrder, pageSize]);
 
   const fetchStops = async () => {
     setLoading(true); // Start loading
@@ -125,44 +131,43 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
-  // const handleSave = async () => {
-  //   if (!stopName || !longitude || !latitude) {
-  //     alert('Please fill in all fields with valid values.');
-  //     return;
-  //   }
+  const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
+    if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
+      alert('Please fill in all fields with valid values.');
+      return false;
+    }
 
-  //   // No need to send StopID in body since it’s in the URL
-  //   const updatedStop = {
-  //     StopName: stopName,
-  //     latitude,
-  //     longitude,
-  //   };
+    const updatedStop = {
+      StopName: editedStop.name,
+      latitude: editedStop.latitude,
+      longitude: editedStop.longitude,
+    };
 
-  //   console.log('Request body:', updatedStop);
+    try {
+      const response = await fetch(`/api/stops/${editedStop.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStop),
+      });
 
-  //   try {
-  //     const response = await fetch(`/api/stops/${editingStopID}`, {  // <-- use template literal here
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(updatedStop),
-  //     });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Failed to update stop: ${response.statusText}`);
+      }
 
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to update stop: ${response.statusText}`);
-  //     }
-
-  //     alert('Stop updated successfully!');
-  //     setIsEditMode(false);
-  //     setEditingStopID(null);
-  //     handleClear();
-  //     fetchStops();
-  //   } catch (error) {
-  //     console.error('Error updating stop:', error);
-  //     alert('Failed to update stop. Please try again.');
-  //   }
-  // };
+      alert('Stop updated successfully!');
+      fetchStops(); // Refresh the stops list
+      setShowEditModal(false); // Close the modal
+      setSelectedStop(null);   // Clear selection
+      return true;
+    } catch (error) {
+      console.error('Error updating stop:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
+      return false;
+    }
+  };
 
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
@@ -206,7 +211,7 @@ const RouteManagementPage: React.FC = () => {
         <PrintTable
           title="Stop List"
           subtitle=""
-          data={displayedStops}
+          data={currentStops}
           filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
           columns={[
             { header: 'Stop Name', accessor: (row) => row.StopName },
@@ -274,11 +279,10 @@ const RouteManagementPage: React.FC = () => {
                 />
               </div>
 
-
-              <button className="btn btn-danger me-2" onClick={handlePrint}>
+              {/* <button className="btn btn-danger me-2" onClick={handlePrint}>
                 <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
-              </button>
+              </button> */}
             </div>
           </div>
           
@@ -300,15 +304,15 @@ const RouteManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedStops.length > 0 ? (
-                displayedStops.map((stop) => (
+              {currentStops.length > 0 ? (
+                currentStops.map((stop) => (
                   <tr key={stop.StopID}>
                     <td>{stop.StopName}</td>
                     <td>{stop.longitude}</td>
                     <td>{stop.latitude}</td>
                     <td className="text-center">
                       <div className="d-inline-flex align-items-center gap-1">
-                        <button className="btn btn-sm btn-primary p-1">
+                        <button className="btn btn-sm btn-primary p-1" onClick={() => { setSelectedStop(stop); setShowEditModal(true); }}>
                           <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -316,6 +320,21 @@ const RouteManagementPage: React.FC = () => {
                             height={25}
                           />
                         </button>
+                        <EditStopModal
+                          show={showEditModal}
+                          onClose={() => setShowEditModal(false)}
+                          stop={
+                            selectedStop
+                              ? {
+                                  id: selectedStop.StopID,
+                                  name: selectedStop.StopName,
+                                  latitude: selectedStop.latitude,
+                                  longitude: selectedStop.longitude,
+                                }
+                              : null
+                          }
+                          onSave={handleSave} // your function to update the stop
+                        />
                         <button
                           className="btn btn-sm btn-danger p-1"
                           onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
@@ -341,34 +360,21 @@ const RouteManagementPage: React.FC = () => {
             </tbody>
           </table>
           )}
-
-          {/* Pagination */}
-            {displayedStops.length > 0 && (
-              <nav>
-                <ul className="pagination justify-content-center">
-                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                      Previous
-                    </button>
-                  </li>
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <li
-                      key={i + 1}
-                      className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                    >
-                      <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            )}
+          {/* <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          /> */}
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1); // Reset to first page when page size changes
+            }}
+          />
         </div>
       </div>
     </div>

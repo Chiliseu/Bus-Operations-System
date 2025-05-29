@@ -194,7 +194,7 @@ const BusAssignmentPage: React.FC = () => {
       fetchAssignments();
     } catch (error) {
       console.error('Error creating BusAssignment:', error);
-      alert(error instanceof Error ? error.message : 'An unexpected error occurred');
+      alert(error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -287,7 +287,7 @@ const BusAssignmentPage: React.FC = () => {
                   <img src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.tabIcon} />
                   Bus
                 </div>
-                <button className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
+                <button type="button" className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
                   + Assign Bus
                 </button>
                 {/* <input type="text" value={selectedBus.busId} placeholder="Bus ID" /> */}

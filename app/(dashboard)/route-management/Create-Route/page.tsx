@@ -9,9 +9,13 @@ import AssignBusModal from '@/components/modal/AssignBusModal';
 import AddRouteModal from "@/components/modal/AddRouteModal";
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
+import PaginationComponent from '@/components/ui/PaginationV2';
+import EditRouteModal from '@/components/modal/EditRouteModal';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
-import '../../../../styles/globals.css';
+import '@/styles/globals.css';
+
+
 
 import {
   DragDropContext,
@@ -20,11 +24,8 @@ import {
   DropResult,
 } from '@hello-pangea/dnd';
 
-const ITEMS_PER_PAGE = 10;
-
 const CreateRoutePage: React.FC = () => {
   const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
-  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [editingRouteID, setEditingRouteID] = useState<string | null>(null); // Track the route being edited
   const [routes, setRoutes] = useState<Route[]>([]); // All routes
   const [routeName, setRouteName] = useState('');
@@ -33,15 +34,20 @@ const CreateRoutePage: React.FC = () => {
   const [startStop, setStartStop] = useState('');
   const [endStop, setEndStop] = useState('');
   const [stopsBetween, setStopsBetween] = useState<Stop[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
-  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  const [loading, setLoading] = useState(false); // Track loading state
 
   // Use State for modal
   const [showStopsModal, setShowStopsModal] = useState(false);
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
   const [showAddRouteModal, setShowAddRouteModal] = useState(false);
+  const [showEditRouteModal, setShowEditRouteModal] = useState(false);
+  const [routeToEdit, setRouteToEdit] = useState<Route | null>(null);
+  const [editRouteName, setEditRouteName] = useState('');
+  const [editStartStop, setEditStartStop] = useState('');
+  const [editEndStop, setEditEndStop] = useState('');
+  const [editStopsBetween, setEditStopsBetween] = useState<Stop[]>([]);
 
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
@@ -50,8 +56,27 @@ const CreateRoutePage: React.FC = () => {
   const [stopType, setStopType] = useState<'start' | 'end' | 'between' | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(null); // for between stops
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const totalPages = Math.ceil(displayedroutes.length / pageSize);
+  const currentRoutes = displayedroutes.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+  // const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
+  // const currentRoutes = displayedroutes.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
+  // const handlePageChange = (page: number) => {
+  //   if (page >= 1 && page <= TotalPages) {
+  //     setCurrentPage(page);
+  //   }
+  // };
+
   // Fetch routes from the backend
   const fetchRoutes = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await fetch('/api/route-management'); // Replace with your API endpoint
       if (!response.ok) {
@@ -61,6 +86,8 @@ const CreateRoutePage: React.FC = () => {
       setRoutes(data);
     } catch (error) {
       console.error('Error fetching routes:', error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -71,45 +98,28 @@ const CreateRoutePage: React.FC = () => {
 
   // Update displayed routes whenever the current page, search query, or sort order changes
   useEffect(() => {
-    let sortedRoutes = [...routes];
+    const sortedRoutes = [...routes];
 
-    // Sort routes based on the selected sortOrder
     if (sortOrder === 'A-Z') {
       sortedRoutes.sort((a, b) => a.RouteName.localeCompare(b.RouteName));
     } else if (sortOrder === 'Z-A') {
       sortedRoutes.sort((a, b) => b.RouteName.localeCompare(a.RouteName));
     }
 
-    // Filter routes based on the search query
     const filteredRoutes = sortedRoutes.filter((route) =>
       route.RouteName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       route.StartStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       route.EndStop?.StopName?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setDisplayedRoutes(filteredRoutes);
 
-    setDisplayedRoutes(filteredRoutes.slice(startIndex, endIndex));
-    setTotalPages(Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE));
-
-    // Reset currentPage to 1 if the search query changes and currentPage is out of range
-    if (currentPage > Math.ceil(filteredRoutes.length / ITEMS_PER_PAGE)) {
+    // Reset currentPage if out of range
+    const totalPages = Math.ceil(filteredRoutes.length / pageSize);
+    if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(1);
     }
-  }, [routes, currentPage, searchQuery, sortOrder]);
-
-  const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
-  const currentRoutes = displayedroutes.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= TotalPages) {
-      setCurrentPage(page);
-    }
-  };
+  }, [routes, searchQuery, sortOrder, pageSize]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -139,6 +149,19 @@ const CreateRoutePage: React.FC = () => {
     const updatedStops = [...stopsBetween];
     updatedStops[index] = { ...updatedStops[index], StopName: value }; // Update only the StopName
     setStopsBetween(updatedStops);
+  };
+
+  const handleEditRoute = (route: Route) => {
+    setRouteToEdit(route);
+    setEditRouteName(route.RouteName || '');
+    setEditStartStop(route.StartStop?.StopName || '');
+    setEditEndStop(route.EndStop?.StopName || '');
+    setEditStopsBetween(
+      route.RouteStops
+        ? route.RouteStops.filter(rs => rs.Stop).map(rs => rs.Stop)
+        : []
+    );
+    setShowEditRouteModal(true);
   };
 
   const handleAddRoute = async () => {
@@ -236,6 +259,61 @@ const CreateRoutePage: React.FC = () => {
   //   setStopsBetween(routeStops);
   // };
 
+  const handleSaveEditedRoute = async () => {
+    if (!editRouteName || !editStartStop || !editEndStop) {
+      alert('Please fill in all fields with valid values.');
+      return;
+    }
+
+    // Prepare the RouteStops array with StopID and StopOrder
+    const routeStops = editStopsBetween.map((stop, index) => ({
+      StopID: stop.StopID,
+      StopOrder: index + 1,
+    }));
+
+    // Check for missing StopID
+    if (routeStops.some(rs => !rs.StopID)) {
+      alert('All stops must have a valid StopID.');
+      return;
+    }
+
+    const updatedRoute = {
+      RouteID: routeToEdit?.RouteID, // Use the route being edited
+      RouteName: editRouteName,
+      StartStopID: routeToEdit?.StartStopID, // Use the original StartStopID
+      EndStopID: routeToEdit?.EndStopID,     // Use the original EndStopID
+      RouteStops: routeStops,
+    };
+
+    try {
+      const response = await fetch(`/api/route-management/${routeToEdit?.RouteID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedRoute),
+      });
+      if (!response.ok) {
+        // Try to get error message from response JSON
+        let errorMsg = `Failed to update route: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMsg = errorData.error;
+          }
+        } catch {
+          // ignore JSON parsing errors, fallback to statusText
+        }
+        throw new Error(errorMsg);
+      }
+      alert('Route updated successfully!');
+      setShowEditRouteModal(false);
+      setRouteToEdit(null);
+      fetchRoutes();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update route. Please try again.';
+      alert(message);
+    }
+  };
+
   const handleSaveRoute = async () => {
     if (!routeName || !startStop || !endStop) {
       alert('Please fill in all fields with valid values.');
@@ -282,7 +360,6 @@ const CreateRoutePage: React.FC = () => {
       }
 
       alert('Route updated successfully!');
-      setIsEditMode(false);
       setEditingRouteID(null);
       handleClear();
       fetchRoutes();
@@ -310,10 +387,6 @@ const CreateRoutePage: React.FC = () => {
     <div className={`card mx-auto ${styles.wideCard}`}>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
-          {/* Create Route Section */}
-          <h2 className={styles.stopTitle}>
-            {isEditMode ? 'EDIT ROUTE' : 'CREATE ROUTE'}
-          </h2>
           {/* <div className="row g-3 mb-3">
             <div className="col-md-4">
               <input
@@ -420,155 +493,163 @@ const CreateRoutePage: React.FC = () => {
               </select>
             </div>
             <div className="col-md-5 text-end">
-              <button className="btn btn-primary me-2" onClick={handleClear}>
-                <Image src="/assets/images/eraser-line.png" alt="Clear" className="icon-small" width={20} height={20} />
-                Clear
-              </button>
-              {isEditMode ? (
-                <>
-                  <button className="btn btn-success me-2" onClick={handleSaveRoute}>
-                    <Image src="/assets/images/save-line.png" alt="Save" width={20} height={20} />
-                    Save
-                  </button>
-                  <button className="btn btn-secondary me-2" onClick={() => {
-                      setIsEditMode(false); // Exit edit mode
-                      setEditingRouteID(null); // Clear the editing stop ID
-                      handleClear(); // Clear input fields
-                    }}>
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <div>
-                  <button className="btn btn-success me-2" onClick={() => setShowAddRouteModal(true)}>
-                    <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
-                    Add
-                  </button>
-                  <AddRouteModal
-                    show={showAddRouteModal}
-                    onClose={() => setShowAddRouteModal(false)}
-                    onCreate={handleAddRoute} // <-- use your real create function here!
-                    routeName={routeName}
-                    setRouteName={setRouteName}
-                    startStop={startStop}
-                    setStartStop={setStartStop}
-                    endStop={endStop}
-                    setEndStop={setEndStop}
-                    stopsBetween={stopsBetween}
-                    setStopsBetween={setStopsBetween}
-                    onStartStopClick={() => {
-                      setStopType('start');
-                      setShowStopsModal(true);
-                    }}
-                    onEndStopClick={() => {
-                      setStopType('end');
-                      setShowStopsModal(true);
-                    }}
-                    onBetweenStopClick={(idx) => {
-                      setStopType('between');
-                      setSelectedStopIndex(idx);
-                      setShowStopsModal(true);
-                    }}
-                  />
-                </div>
-              )}
-              <button className="btn btn-danger me-2">
-                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
-                Export CSV
-              </button>
-              <button className="btn btn-danger text-white">
-                <Image src="/assets/images/import.png" alt="Import" className="icon-small" width={20} height={20} />
-                Import CSV
-              </button>
+              <div>
+                <button className="btn btn-success me-2" onClick={() => setShowAddRouteModal(true)}>
+                  <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+                  Add
+                </button>
+                <AddRouteModal
+                  show={showAddRouteModal}
+                  onClose={() => setShowAddRouteModal(false)}
+                  onCreate={handleAddRoute} // <-- use your real create function here!
+                  routeName={routeName}
+                  setRouteName={setRouteName}
+                  startStop={startStop}
+                  setStartStop={setStartStop}
+                  endStop={endStop}
+                  setEndStop={setEndStop}
+                  stopsBetween={stopsBetween}
+                  setStopsBetween={setStopsBetween}
+                  onStartStopClick={() => {
+                    setStopType('start');
+                    setShowStopsModal(true);
+                  }}
+                  onEndStopClick={() => {
+                    setStopType('end');
+                    setShowStopsModal(true);
+                  }}
+                  onBetweenStopClick={(idx) => {
+                    setStopType('between');
+                    setSelectedStopIndex(idx);
+                    setShowStopsModal(true);
+                  }}
+                />
+              </div>
             </div>
           </div>
 
-          <table className="table table-striped table-bordered custom-table">
-            <thead>
-              <tr>
-                <th>Route Name</th>
-                <th>Start Stop</th>
-                <th>End Stop</th>
-                <th>No. of Stops Between</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedroutes.length > 0 ? (
-                currentRoutes.map((route) => (
-                  <tr key={route.RouteID}>
-                    <td>{route.RouteName}</td>
-                    <td>{route.StartStop?.StopName}</td>
-                    <td>{route.EndStop?.StopName}</td>
-                    <td>{route.RouteStops?.length ?? 0}</td>
-                    <td className="text-center">
-                      <div className="d-inline-flex align-items-center gap-1">
-                        <button className="btn btn-sm btn-primary p-1">
-                          <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
-                        </button>
-                        <button className="btn btn-sm btn-danger p-1" onClick={() => handleDeleteRoute(route.RouteID)}>
-                          <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25}  />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="text-center text-muted">No routes found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+{loading ? (
+  <div className="text-center my-4">
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+) : (
+  <table className={styles.table}>
+    <thead>
+      <tr className={styles.tableHeadRow}>
+        <th>Route Name</th>
+        <th>Start Stop</th>
+        <th>End Stop</th>
+        <th>No. of Stops Between</th>
+        <th className={styles.actions}>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {displayedroutes.length > 0 ? (
+        currentRoutes.map((route) => (
+          <tr key={route.RouteID} className={styles.tableRow}>
+            <td>{route.RouteName}</td>
+            <td>{route.StartStop?.StopName}</td>
+            <td>{route.EndStop?.StopName}</td>
+            <td>{route.RouteStops?.length ?? 0}</td>
+            <td className={styles.actions}>
+              <button
+                className={styles.editBtn}
+                onClick={() => handleEditRoute(route)}
+              >
+                <Image
+                  src="/assets/images/edit-white.png"
+                  alt="Edit"
+                  width={25}
+                  height={25}
+                />
+              </button>
+              <button
+                className={styles.deleteBtn}
+                onClick={() => handleDeleteRoute(route.RouteID)}
+              >
+                <Image
+                  src="/assets/images/delete-white.png"
+                  alt="Delete"
+                  width={25}
+                  height={25}
+                />
+              </button>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan={5} className={styles.noRecords}>
+            No routes found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+)}
 
-          {/* Pagination */}
-          {displayedroutes.length > 0 && (
-            <nav>
-              <ul className="pagination justify-content-center">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>Previous</button>
-                </li>
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
-                  </li>
-                ))}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next</button>
-                </li>
-              </ul>
-            </nav>
-          )}
+<PaginationComponent
+  currentPage={currentPage}
+  totalPages={totalPages}
+  pageSize={pageSize}
+  onPageChange={setCurrentPage}
+  onPageSizeChange={(size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  }}
+/>
+
 
           {/* Modals */}
           {showStopsModal && (
             <ShowStopsModal 
               onClose={() => setShowStopsModal(false) } 
               onAssign={(stop) => {
-                if (stopType === 'start') {
-                  setStartStop(stop.StopName); // or however you want to use it
-                  setStartStopID(stop.StopID); // Update StartStop ID
-                  setSelectedStartStop(stop);  // optionally store the whole object
-                } else if (stopType === 'end') {
-                  setEndStop(stop.StopName);
-                  setEndStopID(stop.StopID); // Update EndStop ID
-                  setSelectedEndStop(stop);
-                } else if (stopType === 'between' && selectedStopIndex !== null) {
-                  const updatedStops = [...stopsBetween];
-                  if (selectedStopIndex !== null) {
+                if (showEditRouteModal) {
+                  // Editing
+                  if (stopType === 'start') {
+                    setEditStartStop(stop.StopName);
+                    setStartStopID(stop.StopID);
+                    setSelectedStartStop(stop);
+                  } else if (stopType === 'end') {
+                    setEditEndStop(stop.StopName);
+                    setEndStopID(stop.StopID);
+                    setSelectedEndStop(stop);
+                  } else if (stopType === 'between' && selectedStopIndex !== null) {
+                    const updatedStops = [...editStopsBetween];
                     updatedStops[selectedStopIndex] = {
-                          StopID: stop.StopID,
-                          StopName: stop.StopName,
-                          IsDeleted: false,
-                          latitude: '',
-                          longitude: ''
-                    }; // Update both StopID and StopName
+                      StopID: stop.StopID,
+                      StopName: stop.StopName,
+                      IsDeleted: false,
+                      latitude: '',
+                      longitude: ''
+                    };
+                    setEditStopsBetween(updatedStops);
                   }
-                  setStopsBetween(updatedStops);
-                  // optionally setSelectedStopBetween(stop); if you want to track them
+                } else {
+                  // Adding
+                  if (stopType === 'start') {
+                    setStartStop(stop.StopName);
+                    setStartStopID(stop.StopID);
+                    setSelectedStartStop(stop);
+                  } else if (stopType === 'end') {
+                    setEndStop(stop.StopName);
+                    setEndStopID(stop.StopID);
+                    setSelectedEndStop(stop);
+                  } else if (stopType === 'between' && selectedStopIndex !== null) {
+                    const updatedStops = [...stopsBetween];
+                    updatedStops[selectedStopIndex] = {
+                      StopID: stop.StopID,
+                      StopName: stop.StopName,
+                      IsDeleted: false,
+                      latitude: '',
+                      longitude: ''
+                    };
+                    setStopsBetween(updatedStops);
+                  }
                 }
-              
-                // Reset modal and selection state
                 setStopType(null);
                 setSelectedStopIndex(null);
                 setShowStopsModal(false);
@@ -584,6 +665,33 @@ const CreateRoutePage: React.FC = () => {
               }}
             />
           )}
+          <EditRouteModal
+            show={showEditRouteModal}
+            onClose={() => setShowEditRouteModal(false)}
+            route={routeToEdit}
+            routeName={editRouteName}
+            setRouteName={setEditRouteName}
+            startStop={editStartStop}
+            setStartStop={setEditStartStop}
+            endStop={editEndStop}
+            setEndStop={setEditEndStop}
+            stopsBetween={editStopsBetween}
+            setStopsBetween={setEditStopsBetween}
+            onSave={handleSaveEditedRoute}
+            onStartStopClick={() => {
+              setStopType('start');
+              setShowStopsModal(true);
+            }}
+            onEndStopClick={() => {
+              setStopType('end');
+              setShowStopsModal(true);
+            }}
+            onBetweenStopClick={(idx) => {
+              setStopType('between');
+              setSelectedStopIndex(idx);
+              setShowStopsModal(true);
+            }}
+          />
         </div>
       </div>
     </div>
