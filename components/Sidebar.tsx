@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
         <div className="nav-links">
           {/* Assignment (direct link to bus-assignment) */}
           <Link
-            href="/dashboard/bus-assignment"
+            href="/bus-assignment"
             className={`nav-item module ${activeItem === 'assignment' ? 'active' : ''}`}
             onClick={() => setActiveItem('assignment')}
           >
@@ -49,14 +49,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {openSubMenu === 'route-management-submenu' && (
             <div className="sub-menu active">
               <Link
-                href="/dashboard/route-management/Create-Stop"
+                href="/route-management/Create-Stop"
                 className={`sub-item ${activeItem === 'create-stop' ? 'active' : ''}`}
                 onClick={() => setActiveItem('create-stop')}
               >
                 Create Stop
               </Link>
               <Link
-                href="/dashboard/route-management/Create-Route"
+                href="/route-management/Create-Route"
                 className={`sub-item ${activeItem === 'create-route' ? 'active' : ''}`}
                 onClick={() => setActiveItem('create-route')}
               >
@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
           {/* GPS */}
           <Link
-            href="/dashboard/gps"
+            href="/gps"
             className={`nav-item ${activeItem === 'gps' ? 'active' : ''}`}
             onClick={() => setActiveItem('gps')}
           >
@@ -75,19 +75,46 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
             <span className="nav-text">GPS</span>
           </Link>
 
-          {/* Bus Operation */}
-          <Link
-            href="/dashboard/bus-operation"
-            className={`nav-item ${activeItem === 'bus-operation' ? 'active' : ''}`}
-            onClick={() => setActiveItem('bus-operation')}
-          >
-            <Image src="/assets/images/busoperation.png" alt="Bus Operation" className="nav-icon" width={24} height={24} />
-            <span className="nav-text">Bus Operation</span>
-          </Link>
+        {/* Bus Operation*/}
+        <div
+          className={`nav-item module ${openSubMenu === 'bus-operation-submenu' ? 'active' : ''} ${activeItem === 'bus-operation' ? 'active' : ''}`}
+          onClick={() => {
+            setOpenSubMenu(prev => (prev === 'bus-operation-submenu' ? null : 'bus-operation-submenu'));
+            setActiveItem('bus-operation');
+          }}
+        >
+          <img src="/assets/images/busoperation.png" alt="Bus Operation" className="nav-icon" />
+          <span className="nav-text">Bus Operation</span>
+        </div>
+        {openSubMenu === 'bus-operation-submenu' && (
+          <div className="sub-menu active">
+            <Link
+              href="/bus-operation/Pre-Dispatch"
+              className={`sub-item ${activeItem === 'pre-dispatch' ? 'active' : ''}`}
+              onClick={() => setActiveItem('pre-dispatch')}
+            >
+              Pre-Dispatch
+            </Link>
+            <Link
+              href="/bus-operation/Dispatch"
+              className={`sub-item ${activeItem === 'dispatch' ? 'active' : ''}`}
+              onClick={() => setActiveItem('dispatch')}
+            >
+              Dispatch
+            </Link>
+            <Link
+              href="/bus-operation/Post-Dispatch"
+              className={`sub-item ${activeItem === 'post-dispatch' ? 'active' : ''}`}
+              onClick={() => setActiveItem('post-dispatch')}
+            >
+              Post-Dispatch
+            </Link>
+          </div>
+        )}
 
           {/* Bus Rental */}
           <Link
-            href="/dashboard/bus-rental"
+            href="/bus-rental"
             className={`nav-item ${activeItem === 'bus-rental' ? 'active' : ''}`}
             onClick={() => setActiveItem('bus-rental')}
           >
@@ -97,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
 
           {/* Performance Report */}
           <Link
-            href="/dashboard/performance-report"
+            href="/performance-report"
             className={`nav-item ${activeItem === 'performance-report' ? 'active' : ''}`}
             onClick={() => setActiveItem('performance-report')}
           >

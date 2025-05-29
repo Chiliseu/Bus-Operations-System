@@ -13,7 +13,9 @@ import PaginationComponent from '@/components/ui/PaginationV2';
 import EditRouteModal from '@/components/modal/EditRouteModal';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
-import '../../../../styles/globals.css';
+import '@/styles/globals.css';
+
+
 
 import {
   DragDropContext,
@@ -543,64 +545,81 @@ const CreateRoutePage: React.FC = () => {
               </div>
             </div>
           </div>
-          
-          {loading ? (
-            // Render this when loading is true
-            <div className="text-center my-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ):(
-            <table className="table table-striped table-bordered custom-table">
-              <thead>
-                <tr>
-                  <th>Route Name</th>
-                  <th>Start Stop</th>
-                  <th>End Stop</th>
-                  <th>No. of Stops Between</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedroutes.length > 0 ? (
-                  currentRoutes.map((route) => (
-                    <tr key={route.RouteID}>
-                      <td>{route.RouteName}</td>
-                      <td>{route.StartStop?.StopName}</td>
-                      <td>{route.EndStop?.StopName}</td>
-                      <td>{route.RouteStops?.length ?? 0}</td>
-                      <td className="text-center">
-                        <div className="d-inline-flex align-items-center gap-1">
-                          <button className="btn btn-sm btn-primary p-1">
-                            <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} onClick={() => handleEditRoute(route)}/>
-                          </button>
-                          <button className="btn btn-sm btn-danger p-1" onClick={() => handleDeleteRoute(route.RouteID)}>
-                            <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25}  />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="text-center text-muted">No routes found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
 
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
+{loading ? (
+  <div className="text-center my-4">
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+) : (
+  <table className={styles.table}>
+    <thead>
+      <tr className={styles.tableHeadRow}>
+        <th>Route Name</th>
+        <th>Start Stop</th>
+        <th>End Stop</th>
+        <th>No. of Stops Between</th>
+        <th className={styles.actions}>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {displayedroutes.length > 0 ? (
+        currentRoutes.map((route) => (
+          <tr key={route.RouteID} className={styles.tableRow}>
+            <td>{route.RouteName}</td>
+            <td>{route.StartStop?.StopName}</td>
+            <td>{route.EndStop?.StopName}</td>
+            <td>{route.RouteStops?.length ?? 0}</td>
+            <td className={styles.actions}>
+              <button
+                className={styles.editBtn}
+                onClick={() => handleEditRoute(route)}
+              >
+                <Image
+                  src="/assets/images/edit-white.png"
+                  alt="Edit"
+                  width={25}
+                  height={25}
+                />
+              </button>
+              <button
+                className={styles.deleteBtn}
+                onClick={() => handleDeleteRoute(route.RouteID)}
+              >
+                <Image
+                  src="/assets/images/delete-white.png"
+                  alt="Delete"
+                  width={25}
+                  height={25}
+                />
+              </button>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan={5} className={styles.noRecords}>
+            No routes found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+)}
+
+<PaginationComponent
+  currentPage={currentPage}
+  totalPages={totalPages}
+  pageSize={pageSize}
+  onPageChange={setCurrentPage}
+  onPageSizeChange={(size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  }}
+/>
+
+
           {/* Modals */}
           {showStopsModal && (
             <AssignStopsModal 

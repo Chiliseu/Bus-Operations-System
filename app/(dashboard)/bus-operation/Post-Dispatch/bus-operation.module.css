@@ -1,0 +1,144 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Local Button Styles === */
+
+/* General button styling for custom buttons */
+.custom-button {
+  display: flex;               /* Use flexbox to align icon and text */
+  align-items: center;         /* Vertically center content */
+  justify-content: center;     /* Horizontally center content */
+  padding: 8px 12px;           /* Padding inside button */
+  background-color: #f8f9fa;   /* Light background color */
+  border-radius: 5px;          /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: all 0.3s ease;   /* Smooth transition on hover */
+}
+
+/* Style for images/icons inside the custom button */
+.custom-button img {
+  margin-right: 8px;           /* Space between icon and text */
+  transition: transform 0.3s ease; /* Smooth scaling effect on hover */
+}
+
+/* Scale up icon slightly when hovering on button */
+.custom-button:hover img {
+  transform: scale(1.1);
+}
+
+/* === Edit Button Specific Styles === */
+
+.btn-edit {
+  color: #007bff;              /* Bootstrap primary blue color */
+  border: 1px solid #007bff;  /* Blue border */
+}
+
+.btn-edit:hover {
+  background-color: #007bff;  /* Blue background on hover */
+  color: white;               /* White text on hover */
+}
+
+/* === Delete Button Specific Styles === */
+
+.btn-delete {
+  color: #dc3545;              /* Bootstrap danger red color */
+  border: 1px solid #dc3545;  /* Red border */
+}
+
+.btn-delete:hover {
+  background-color: #dc3545;  /* Red background on hover */
+  color: white;               /* White text on hover */
+}
+
+/* === Utility and Layout Classes === */
+
+/* 
+  Make buttons fill the width of the action column while 
+  ensuring multiple buttons fit side by side neatly 
+*/
+.w-48 {
+  width: 1%; /* This is a trick to shrink width and let flexbox or table layout adjust */
+}
+
+/* === Center Box Styling === */
+
+.center-box {
+  background-color: #ffffff;           /* White background */
+  padding-top: 40px;                   /* Space at the top */
+  border-radius: 10px;                 /* Rounded corners */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  margin-top: 130px;                   /* Space from top of the page */
+}
+
+/* === Icon Styling === */
+
+.icon-small {
+  width: 60px;       /* Fixed width */
+  height: 6px;       /* Very short height, like a small bar */
+  margin-right: 10px; /* Space to the right of the icon */
+  vertical-align: middle; /* Align vertically with text */
+}
+
+/* === Assignment Title Styling === */
+
+.stopTitle {
+  display: flex;                    /* Use flexbox for alignment */
+  align-items: center;              /* Vertically center contents */
+  gap: 0.5rem;                     /* Space between children */
+  font-size: 24px;                  /* Larger font size */
+  font-weight: 800;                 /* Very bold text */
+  justify-content: center;          /* Center horizontally */
+  color: #ffffff;                   /* White text color */
+  background-color: #961c1e;       /* Dark red background */
+  border: 4px solid #FFB71F;       /* Thick yellow-orange border */
+  border-radius: 12px;              /* Rounded corners */
+  padding: 0.75rem 1.5rem;          /* Padding inside the title */
+  font-family: 'Open Sans', sans-serif; /* Use imported Open Sans font */
+  margin-bottom: 20px;              /* Space below the title */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Slight shadow for depth */
+}
+
+/* === Container Card Styling === */
+
+.wideCard {
+  max-width: 95%; /* Limit max width to 95% of container */
+  width: 100%;    /* Take full width available */
+  margin-top: 0px; /* No margin on top */
+}
+
+/* === Table Wrapper Styling === */
+
+.styledTableWrapper {
+  border-radius: 12px;                    /* Rounded corners */
+  overflow: hidden;                      /* Hide overflow (for border radius on table) */
+  border: 2px solid #d1d5db;             /* Light gray border (Tailwind gray-300) */
+  margin-top: 10px;                      /* Small spacing above */
+}
+
+/* === Table Styling === */
+
+.styledTable {
+  width: 100%;                /* Full width */
+  border-collapse: collapse;  /* Remove double borders */
+  font-size: 16px;            /* Readable font size */
+}
+
+/* Table header background color */
+.styledTable thead {
+  background-color: #D8D8D8;  /* Light gray background for header */
+}
+
+/* Table row hover effect */
+.styledTable tbody tr:hover {
+  background-color: #ECECEC;  /* Slightly darker gray on hover */
+}
+
+/* Table cells styling */
+.styledTable th,
+.styledTable td {
+  padding: 12px;                     /* Padding inside cells */
+  border-bottom: 1px solid #e5e7eb; /* Light bottom border */
+  text-align: left;                 /* Left align text */
+  border-bottom: 1px solid #999;   /* Darker and thicker horizontal lines */
+}

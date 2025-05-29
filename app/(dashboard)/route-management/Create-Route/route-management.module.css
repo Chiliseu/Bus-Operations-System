@@ -1,0 +1,147 @@
+/* === Google Fonts Import === */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Custom Button Base Style === */
+.custom-button {
+  display: flex;
+  align-items: center;           /* Center content vertically */
+  justify-content: center;       /* Center content horizontally */
+  padding: 8px 12px;             /* Internal spacing */
+  background-color: #f8f9fa;     /* Light background */
+  border-radius: 5px;            /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: all 0.3s ease;     /* Smooth transition on hover */
+}
+
+/* === Button Icon inside Custom Button === */
+.custom-button img {
+  margin-right: 8px;             /* Space between icon and text */
+  transition: transform 0.3s ease; /* Smooth scaling on hover */
+}
+
+/* === Icon Scale on Button Hover === */
+.custom-button:hover img {
+  transform: scale(1.1);         /* Slightly enlarge icon */
+}
+
+/* === Edit Button Specific Style === */
+.btn-edit {
+  color: #007bff;                /* Bootstrap blue */
+  border: 1px solid #007bff;    /* Blue border */
+}
+
+/* === Edit Button Hover Effect === */
+.btn-edit:hover {
+  background-color: #007bff;    /* Blue background */
+  color: white;                 /* White text */
+}
+
+/* === Delete Button Specific Style === */
+.btn-delete {
+  color: #dc3545;                /* Bootstrap red */
+  border: 1px solid #dc3545;    /* Red border */
+}
+
+/* === Delete Button Hover Effect === */
+.btn-delete:hover {
+  background-color: #dc3545;    /* Red background */
+  color: white;                 /* White text */
+}
+
+/* === Width Fix for Action Buttons Container === */
+.w-48 {
+  width: 1%;                    /* Ensure buttons fit side by side */
+}
+
+/* === Centered Box Container === */
+.center-box {
+  background-color: #ffffff;    /* White background */
+  padding-top: 60px;            /* Top padding */
+  border-radius: 10px;          /* Rounded corners */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  margin-top: 0px;
+}
+
+/* === Small Icon Size for Buttons or Labels === */
+.icon-small {
+  width: 60px;
+  height: 6px;
+  margin-right: 10px;           /* Space to the right */
+  vertical-align: middle;       /* Align vertically with text */
+}
+
+/* === Assignment Title Styling === */
+.stopTitle {
+  display: flex;
+  align-items: center;          /* Center items vertically */
+  gap: 0.5rem;                  /* Space between icon and text */
+  font-size: 24px;              /* Large font size */
+  font-weight: 800;             /* Extra bold */
+  justify-content: center;      /* Center horizontally */
+  color: #ffffff;               /* White text */
+  background-color: #961c1e;   /* Dark red background */
+  border: 4px solid #FFB71F;    /* Yellow border */
+  border-radius: 12px;          /* Rounded corners */
+  padding: 0.75rem 1.5rem;      /* Padding inside box */
+  font-family: 'Open Sans', sans-serif;
+  margin-bottom: 20px;          /* Space below title */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Strong shadow */
+}
+
+/* === Main Container Width Control === */
+.wideCard {
+  max-width: 95%;               /* Responsive max width */
+  width: 100%;                 /* Full width within max */
+  margin-top: 0px;
+}
+
+/* === Table Base Styling === */
+.table {
+  width: 100%;                 /* Full width table */
+  border-collapse: collapse;   /* Collapse borders */
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 16px;
+  color: #000000;              /* Black text */
+  background-color: #fff;      /* White background */
+  border-radius: 10px;         /* Rounded corners */
+  overflow: hidden;            /* Hide overflow */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Soft shadow */
+}
+
+/* === Table Header Row Styling === */
+.table thead tr {
+  height: 40px;
+  background-color: #D8D8D8;  /* Light gray background */
+  color: #000000;              /* Black text */
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 1px solid #B3B3B3; /* Border under header */
+}
+
+/* === Table Header Cells Padding & Border === */
+.table thead tr th {
+  padding: 0 15px;
+  border-bottom: 1px solid #B3B3B3;
+}
+
+/* === Table Body Row Styling === */
+.table tbody tr {
+  height: 40px;
+  border-bottom: 1px solid #B3B3B3; /* Border between rows */
+  transition: background-color 0.3s ease; /* Smooth hover */
+}
+
+/* === Table Row Hover Effect === */
+.table tbody tr:hover {
+  background-color: #ECECEC;  /* Light highlight on hover */
+}
+
+/* === Table Body Cells Styling === */
+.table tbody tr td {
+  padding: 0 15px;
+  vertical-align: middle;     /* Vertically center content */
+  text-overflow: ellipsis;    /* Ellipsis for overflow text */
+  overflow: hidden;           /* Hide overflow */
+  white-space: nowrap;        /* Prevent wrapping */
+}
