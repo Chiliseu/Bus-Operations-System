@@ -10,6 +10,7 @@ import PrintTable from '@/components/printtable/PrintTable'; // Importing the Pr
 import AddStopModal from "@/components/modal/AddStopModal";
 import EditStopModal from '@/components/modal/EditStopModal';
 import Pagination from '@/components/ui/Pagination';
+import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 
 const RouteManagementPage: React.FC = () => {
   const [stops, setStops] = useState<Stop[]>([]); // All stops
@@ -24,43 +25,47 @@ const RouteManagementPage: React.FC = () => {
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
   // Pagination states
-  const [totalPages, setTotalPages] = useState(1); // State for total pages
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // Number of items per page
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const totalPages = Math.ceil(displayedStops.length / pageSize);
+  const currentStops = displayedStops.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+  // const [totalPages, setTotalPages] = useState(1); // State for total pages
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const ITEMS_PER_PAGE = 10; // Number of items per page
+  // const handlePageChange = (page: number) => {
+  //   if (page >= 1 && page <= totalPages) {
+  //     setCurrentPage(page);
+  //   }
+  // };
 
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
-  
+
     // Sort stops based on the selected sortOrder
     if (sortOrder === 'A-Z') {
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
     } else if (sortOrder === 'Z-A') {
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
     }
-  
+
     const filteredStops = sortedStops.filter((stop) =>
       stop.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stop.longitude?.toString().includes(searchQuery) ||
       stop.latitude?.toString().includes(searchQuery)
     );
-  
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-  
-    setDisplayedStops(filteredStops.slice(startIndex, endIndex));
-    setTotalPages(Math.ceil(filteredStops.length / ITEMS_PER_PAGE)); // Update total pages based on filtered stops
-  
-    // Reset currentPage to 1 if the search query changes
-    if (currentPage > Math.ceil(filteredStops.length / ITEMS_PER_PAGE)) {
+
+    setDisplayedStops(filteredStops); // <-- Store ALL filtered stops, not paginated
+
+    // Reset currentPage to 1 if the search query or sort changes and currentPage is out of range
+    const totalPages = Math.ceil(filteredStops.length / pageSize);
+    if (currentPage > totalPages) {
       setCurrentPage(1);
     }
-  }, [currentPage, stops, searchQuery, sortOrder]);
+  }, [stops, searchQuery, sortOrder, pageSize]);
 
   const fetchStops = async () => {
     setLoading(true); // Start loading
@@ -206,7 +211,7 @@ const RouteManagementPage: React.FC = () => {
         <PrintTable
           title="Stop List"
           subtitle=""
-          data={displayedStops}
+          data={currentStops}
           filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
           columns={[
             { header: 'Stop Name', accessor: (row) => row.StopName },
@@ -299,8 +304,8 @@ const RouteManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedStops.length > 0 ? (
-                displayedStops.map((stop) => (
+              {currentStops.length > 0 ? (
+                currentStops.map((stop) => (
                   <tr key={stop.StopID}>
                     <td>{stop.StopName}</td>
                     <td>{stop.longitude}</td>
@@ -355,10 +360,20 @@ const RouteManagementPage: React.FC = () => {
             </tbody>
           </table>
           )}
-          <Pagination
+          {/* <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={handlePageChange}
+          /> */}
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1); // Reset to first page when page size changes
+            }}
           />
         </div>
       </div>
