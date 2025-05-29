@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
-import { fetchConductors } from '../../lib/fetchConductors';
+import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
+//import { Conductor } from "@/app/interface"; // Conductor interface
 
 interface Conductor {
   conductor_id: string;
@@ -30,14 +31,9 @@ const AssignConductorModal = ({
   useEffect(() => {
     const loadConductors = async () => {
       try {
-        const response = await fetch('/api/external/conductors');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch conductors: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setConductors(json.data);
-        setFilteredConductors(json.data);
+        const conductors = await fetchConductorsWithToken();
+        setConductors(conductors);
+        setFilteredConductors(conductors);
       } catch (error) {
         console.error('Error fetching conductors from API:', error);
       }
@@ -60,7 +56,7 @@ const AssignConductorModal = ({
   ];
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
         {/* Search Bar */}
         <header className="mb-4">

@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
-import { fetchBuses } from '../../lib/fetchBuses';
+import { fetchBusesWithToken } from '@/lib/apiCalls/external';
+//import { Bus } from "@/app/interface";
 
 interface Bus {
   busId: string;
@@ -27,14 +28,9 @@ const AssignBusModal = ({
   useEffect(() => {
     const loadBuses = async () => {
       try {
-        const response = await fetch('/api/external/buses');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch buses: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setBuses(json.data);
-        setFilteredBuses(json.data);
+        const buses = await fetchBusesWithToken();
+        setBuses(buses);
+        setFilteredBuses(buses);
       } catch (error) {
         console.error('Error fetching buses from API:', error);
       }
@@ -84,7 +80,7 @@ const AssignBusModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
         {/* Search Bar */}
         <header className="mb-4">

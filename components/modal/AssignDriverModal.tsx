@@ -5,6 +5,8 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
 import { useEffect} from 'react';
+import { fetchDriversWithToken } from '@/lib/apiCalls/external';
+//import { Driver } from "@/app/interface";
 
 interface Driver {
   driver_id: string;
@@ -29,14 +31,9 @@ const AssignDriverModal = ({
   useEffect(() => {
     const loadDrivers = async () => {
       try {
-        const response = await fetch('/api/external/drivers');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch drivers: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setDrivers(json.data);
-        setFilteredDrivers(json.data);
+        const drivers = await fetchDriversWithToken();
+        setDrivers(drivers);
+        setFilteredDrivers(drivers);
       } catch (error) {
         console.error('Error fetching drivers from API:', error);
       }
@@ -60,7 +57,7 @@ const AssignDriverModal = ({
 
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-lg p-4 flex flex-col">
         {/*  Search Bar */}
         <header className='mb-4'>
