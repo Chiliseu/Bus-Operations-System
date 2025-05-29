@@ -1,0 +1,190 @@
+/* === Google Fonts Import === */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Container Styling === */
+.wideCard {
+  max-width: 95%;            /* Maximum width relative to viewport */
+  width: 100%;              /* Full width within max-width */
+  margin-top: 0px;
+  margin-left: auto;         /* Center horizontally */
+  margin-right: auto;        /* Center horizontally */
+}
+
+/* === Assignment Title Styling === */
+.stopTitle {
+  display: flex;
+  align-items: center;       /* Vertically center contents */
+  gap: 0.5rem;               /* Space between elements */
+  font-size: 24px;           /* Large text size */
+  font-weight: 800;          /* Extra bold */
+  justify-content: center;   /* Center horizontally */
+  color: #ffffff;            /* White text */
+  background-color: #961c1e; /* Dark red background */
+  border: 4px solid #FFB71F; /* Yellow border */
+  border-radius: 12px;       /* Rounded corners */
+  padding: 0.75rem 1.5rem;   /* Inner spacing */
+  font-family: 'Open Sans', sans-serif;
+  margin-bottom: 20px;       /* Space below */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Drop shadow */
+}
+
+/* === Table Styling === */
+.table {
+  width: 100%;              /* Full container width */
+  border-collapse: collapse; /* Collapse borders for clean look */
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 16px;          /* Readable text size */
+  color: #000000;           /* Black text */
+  background-color: #fff;   /* White background */
+  border-radius: 10px;      /* Rounded corners */
+  overflow: hidden;         /* Hide overflow */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+/* Table header row */
+.table thead tr {
+  height: 40px;
+  background-color: #D8D8D8; /* Light gray background */
+  color: #000000;            /* Black text */
+  font-weight: bold;
+  text-align: left;          /* Align header text left */
+  border-bottom: 1px solid #B3B3B3; /* Bottom border */
+}
+
+/* Table header cells */
+.table thead tr th {
+  padding: 0 15px;           /* Horizontal padding */
+  border-bottom: 1px solid #B3B3B3; /* Border for separation */
+}
+
+/* Table body rows */
+.table tbody tr {
+  height: 40px;
+  border-bottom: 1px solid #B3B3B3; /* Border between rows */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover effect on body rows */
+.table tbody tr:hover {
+  background-color: #ECECEC; /* Highlight on hover */
+}
+
+/* Table body cells */
+.table tbody tr td {
+  padding: 0 15px;            /* Horizontal padding */
+  vertical-align: middle;     /* Center content vertically */
+  text-overflow: ellipsis;    /* Ellipsis for overflow text */
+  overflow: hidden;           /* Hide overflow */
+  white-space: nowrap;        /* Prevent wrapping */
+}
+
+/* === Actions Column Styling === */
+.actions {
+  width: 120px;              /* Fixed width to fit buttons */
+  text-align: center;        /* Center content horizontally */
+  white-space: nowrap;       /* Prevent line breaks */
+}
+
+/* === Base Button Styling === */
+.custom-button {
+  display: inline-flex;       /* Inline flex for horizontal layout */
+  align-items: center;        /* Vertically center content */
+  justify-content: center;    /* Center horizontally */
+  padding: 6px 10px;          /* Padding inside button */
+  font-weight: 600;           /* Semi-bold text */
+  font-size: 14px;            /* Readable font size */
+  border-radius: 6px;         /* Rounded corners */
+  cursor: pointer;            /* Pointer cursor on hover */
+  border: 2px solid transparent; /* Default border transparent */
+  transition: all 0.3s ease;  /* Smooth transitions */
+  user-select: none;          /* Prevent text selection */
+  min-width: 38px;            /* Minimum button width */
+  height: 38px;               /* Fixed height */
+  margin: 0 5px;              /* Horizontal spacing between buttons */
+}
+
+/* Button icons inside buttons */
+.custom-button img {
+  margin-right: 6px;          /* Space between icon and text */
+  transition: transform 0.3s ease; /* Smooth scale effect */
+  vertical-align: middle;     /* Align vertically */
+  width: 20px;                /* Icon width */
+  height: 20px;               /* Icon height */
+}
+
+/* Scale icon on button hover */
+.custom-button:hover img {
+  transform: scale(1.1);
+}
+
+/* === Edit Button Specific Styling === */
+.editBtn {
+  /* composes: custom-button; - (Note: `composes` is CSS Modules syntax, ignored in plain CSS) */
+  background-color: #007bff;     /* Blue background */
+  border-color: #007bff;         /* Blue border */
+  color: #fff;                   /* White text */
+  box-shadow: 0 2px 6px rgba(0,123,255,0.4); /* Blue shadow */
+}
+
+.editBtn:hover {
+  background-color: #0056b3;     /* Darker blue */
+  border-color: #0056b3;
+  color: #fff;
+}
+
+/* === Delete Button Specific Styling === */
+.deleteBtn {
+  /* composes: custom-button; */
+  background-color: #dc3545;     /* Red background */
+  border-color: #dc3545;         /* Red border */
+  color: #fff;                   /* White text */
+  box-shadow: 0 2px 6px rgba(220,53,69,0.5); /* Red shadow */
+}
+
+.deleteBtn:hover {
+  background-color: #a71d2a;     /* Darker red */
+  border-color: #a71d2a;
+  color: #fff;
+}
+
+/* === Small Icon Styling (for inputs/buttons) === */
+.icon-small {
+  width: 20px !important;        /* Fixed width */
+  height: 20px !important;       /* Fixed height */
+  margin-right: 6px;             /* Space after icon */
+  vertical-align: middle;        /* Vertical alignment */
+}
+
+/* === Center Box Container === */
+.center-box {
+  background-color: #ffffff;     /* White background */
+  padding-top: 40px;             /* Top padding */
+  border-radius: 10px;           /* Rounded corners */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  margin-top: 130px;             /* Space from top */
+}
+
+/* === Width Utility for Buttons in Narrow Columns === */
+.w-48 {
+  width: 1%;                    /* Shrinks to fit side-by-side */
+}
+
+/* === Responsive Styles for Smaller Screens === */
+@media (max-width: 768px) {
+  /* Reduce padding in table cells */
+  .table thead tr th, 
+  .table tbody tr td {
+    padding: 8px 12px;
+  }
+  /* Slightly smaller actions column */
+  .actions {
+    width: 100px;
+  }
+  /* Smaller buttons */
+  .custom-button {
+    min-width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+}
