@@ -5,14 +5,7 @@ import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
 import { fetchBuses } from '../../lib/fetchBuses';
-
-interface Bus {
-  busId: string;
-  route: string;
-  type: string;
-  capacity: number;
-  image: string | null;
-}
+import { Bus } from "@/app/interface";
 
 const AssignBusModal = ({ 
   onClose,
@@ -84,7 +77,7 @@ const AssignBusModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
         {/* Search Bar */}
         <header className="mb-4">

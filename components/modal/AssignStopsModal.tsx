@@ -14,7 +14,7 @@ import { Stop } from '@/app/interface'; // Importing the Stop interface
 //   image: string | null;
 // }
 
-const ShowStopsModal = ({ 
+const AssignStopsModal = ({ 
   onClose,
   onAssign, 
 }: { 
@@ -143,4 +143,4 @@ const ShowStopsModal = ({
   );
 };
 
-export default ShowStopsModal;
+export default AssignStopsModal;

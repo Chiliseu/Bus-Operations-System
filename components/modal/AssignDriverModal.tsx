@@ -5,15 +5,7 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
 import { useEffect} from 'react';
-
-interface Driver {
-  driver_id: string;
-  name: string;
-  job: string;
-  contactNo: string;
-  address: string;
-  image: string | null; 
-}
+import { Driver } from "@/app/interface";
 
 const AssignDriverModal = ({ 
   onClose,
@@ -60,7 +52,7 @@ const AssignDriverModal = ({
 
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
       <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-lg p-4 flex flex-col">
         {/*  Search Bar */}
         <header className='mb-4'>

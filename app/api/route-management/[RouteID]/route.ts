@@ -94,30 +94,30 @@ export async function PUT(request: NextRequest) {
     });
 
     // Step 4: Handle RouteStops if provided (delete old and add new ones)
+    // Always delete old RouteStops
+    await prisma.routeStop.deleteMany({
+      where: { RouteID },
+    });
+
+    // Only add new RouteStops if any
     if (routeStopIds.length > 0) {
-      await prisma.$transaction(async (prismaTx) => {
-        await prismaTx.routeStop.deleteMany({
-          where: { RouteID },
-        });
+      await Promise.all(
+        rawRouteStops.map(async (routeStop: RouteStopInput) => {
+          const stopIdValue =
+            typeof routeStop.StopID === 'string' ? routeStop.StopID : routeStop.StopID?.StopID;
 
-        await Promise.all(
-          rawRouteStops.map(async (routeStop: RouteStopInput) => {
-            const stopIdValue =
-              typeof routeStop.StopID === 'string' ? routeStop.StopID : routeStop.StopID?.StopID;
+          const RouteStopID = await generateFormattedID('RTS');
 
-            const RouteStopID = await generateFormattedID('RTS'); // Your ID generation function
-
-            return prismaTx.routeStop.create({
-              data: {
-                RouteStopID,
-                RouteID,
-                StopID: stopIdValue,
-                StopOrder: routeStop.StopOrder,
-              },
-            });
-          })
-        );
-      });
+          return prisma.routeStop.create({
+            data: {
+              RouteStopID,
+              RouteID,
+              StopID: stopIdValue,
+              StopOrder: routeStop.StopOrder,
+            },
+          });
+        })
+      );
     }
 
     return NextResponse.json(updatedRoute, { status: 200 });
