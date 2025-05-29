@@ -3,111 +3,111 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
-import '@/styles/globals.css';
-import { Stop } from '@/app/interface';
+import '../../../../styles/globals.css';
+import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
-
-const ITEMS_PER_PAGE = 10;
+import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
+import AddStopModal from "@/components/modal/AddStopModal";
+import EditStopModal from '@/components/modal/EditStopModal';
+import Pagination from '@/components/ui/Pagination';
+import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 
 const RouteManagementPage: React.FC = () => {
-  // Pagination & data states
+  const [stops, setStops] = useState<Stop[]>([]); // All stops
+  const [displayedStops, setDisplayedStops] = useState<Stop[]>([]); // Stops for the current page
+  const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
+  const [sortOrder, setSortOrder] = useState(''); // State for sorting order
+  const [loading, setLoading] = useState(false); // Track loading state
+  const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
+  const [showRegularBusAssignmentModal, setShowRegularBusAssignmentModal] = useState(false);// Shows Add Stop Modal
+
+  // For editing stops
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
+
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [stops, setStops] = useState<Stop[]>([]);
-  const [displayedStops, setDisplayedStops] = useState<Stop[]>([]);
-  
-  // Form input states
-  const [stopName, setStopName] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [latitude, setLatitude] = useState('');
-  
-  // Filtering & sorting states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
-  
-  // Edit mode control states
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editingStopID, setEditingStopID] = useState<string | null>(null);
-  
-  // Loading indicator & pagination total pages
-  const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const totalPages = Math.ceil(displayedStops.length / pageSize);
+  const currentStops = displayedStops.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+  // const [totalPages, setTotalPages] = useState(1); // State for total pages
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const ITEMS_PER_PAGE = 10; // Number of items per page
+  // const handlePageChange = (page: number) => {
+  //   if (page >= 1 && page <= totalPages) {
+  //     setCurrentPage(page);
+  //   }
+  // };
 
-  // Handle page change with bounds check
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  // Effect: filter, sort, and paginate stops whenever dependencies change
+  // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
 
+    // Sort stops based on the selected sortOrder
     if (sortOrder === 'A-Z') {
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
     } else if (sortOrder === 'Z-A') {
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
     }
 
-    // Filter stops based on search query matching name or coordinates
     const filteredStops = sortedStops.filter((stop) =>
       stop.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       stop.longitude?.toString().includes(searchQuery) ||
       stop.latitude?.toString().includes(searchQuery)
     );
 
-    // Pagination logic
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setDisplayedStops(filteredStops); // <-- Store ALL filtered stops, not paginated
 
-    setDisplayedStops(filteredStops.slice(startIndex, endIndex));
-    setTotalPages(Math.ceil(filteredStops.length / ITEMS_PER_PAGE));
-
-    // Reset to page 1 if current page is out of bounds after filtering
-    if (currentPage > Math.ceil(filteredStops.length / ITEMS_PER_PAGE)) {
+    // Reset currentPage to 1 if the search query or sort changes and currentPage is out of range
+    const totalPages = Math.ceil(filteredStops.length / pageSize);
+    if (currentPage > totalPages) {
       setCurrentPage(1);
     }
-  }, [currentPage, stops, searchQuery, sortOrder]);
+  }, [stops, searchQuery, sortOrder, pageSize]);
 
-  // Fetch stops data from API
   const fetchStops = async () => {
-    setLoading(true);
+    setLoading(true); // Start loading
     try {
       const response = await fetch('/api/stops');
       if (!response.ok) {
-        throw new Error(`Failed to fetch stops: ${response.statusText}`);
+        throw new Error(`Failed to fetch assignments: ${response.statusText}`);
       }
       const data = await response.json();
-      setStops(data);
+      setStops(data); // Update the full stops list
     } catch (error) {
-      console.error('Error fetching stops:', error);
+      console.error('Error fetching assignments:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
 
-  // Initial fetch on component mount
+  // Fetch data on component mount
   useEffect(() => {
     fetchStops();
   }, []);
 
-  // Add new stop handler
-  const handleAddStop = async () => {
-    if (!stopName || !longitude || !latitude) {
+  const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
+    if (!stop.name || !stop.longitude || !stop.latitude) {
       alert('Please fill in all fields with valid values.');
-      return;
+      return false;
     }
 
+    console.log(stop.name, stop.longitude, stop.latitude); // Debugging
     const newStop = {
-      StopName: stopName,
-      longitude: longitude,
-      latitude: latitude,
+      StopName: stop.name,
+      longitude: stop.longitude,
+      latitude: stop.latitude
     };
 
     try {
       const response = await fetch('/api/stops', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(newStop),
       });
 
@@ -118,269 +118,202 @@ const RouteManagementPage: React.FC = () => {
       }
 
       alert('Stop added successfully!');
-      handleClear();
-      fetchStops();
+      fetchStops(); // Refresh the stops list
+      setShowAddStopModal(false); // Close the modal
+      return true;
     } catch (error) {
       console.error('Error adding stop:', error);
       alert('Failed to add stop. Please try again.');
+      setShowAddStopModal(false); // Close the modal
+      return false;
+    } finally {
+      setShowAddStopModal(false); // Close the modal
+      return false;
     }
   };
 
-  // Edit button handler - populate form with stop data
-  const handleEdit = (stop: Stop) => {
-    setIsEditMode(true);
-    setEditingStopID(stop.StopID);
-    setStopName(stop.StopName);
-    setLongitude(stop.longitude);
-    setLatitude(stop.latitude);
-  };
-
-  // Save updated stop handler
-  const handleSave = async () => {
-    if (!stopName || !longitude || !latitude) {
+  const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
+    if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
       alert('Please fill in all fields with valid values.');
-      return;
+      return false;
     }
 
     const updatedStop = {
-      StopID: editingStopID,
-      StopName: stopName,
-      longitude: longitude,
-      latitude: latitude,
+      StopName: editedStop.name,
+      latitude: editedStop.latitude,
+      longitude: editedStop.longitude,
     };
 
     try {
-      const response = await fetch('/api/stops', {
+      const response = await fetch(`/api/stops/${editedStop.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(updatedStop),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to update stop: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `Failed to update stop: ${response.statusText}`);
       }
 
       alert('Stop updated successfully!');
-      setIsEditMode(false);
-      setEditingStopID(null);
-      handleClear();
-      fetchStops();
+      fetchStops(); // Refresh the stops list
+      setShowEditModal(false); // Close the modal
+      setSelectedStop(null);   // Clear selection
+      return true;
     } catch (error) {
       console.error('Error updating stop:', error);
-      alert('Failed to update stop. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
+      return false;
     }
   };
 
-  // Delete stop handler (soft delete with PATCH)
   const handleDelete = async (stopID: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('/api/stops', {
+      const response = await fetch(`/api/stops/${stopID}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stopID, isDeleted: true }),
+        body: JSON.stringify({ isDeleted: true }),  // send only isDeleted in body
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to delete stop: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Failed to delete stop: ${response.statusText}`);
 
       alert('Stop deleted successfully!');
-      fetchStops();
+      fetchStops(); // Refresh the stops list
     } catch (error) {
       console.error('Error deleting stop:', error);
       alert('Failed to delete stop. Please try again.');
     }
-  };
 
-  // Clear form inputs
-  const handleClear = () => {
-    setStopName('');
-    setLongitude('');
-    setLatitude('');
+  }
+
+  const handlePrint = () => {
+    const printContents = document.getElementById('print-section')?.innerHTML;
+    if (!printContents) return;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    if (!printWindow) return;
+    printWindow.document.write('<html><head><title>Print</title></head><body>');
+    printWindow.document.write(printContents);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   return (
     <div className={`card mx-auto ${styles.wideCard}`}>
+      <div style={{ display: 'none' }}>
+        <PrintTable
+          title="Stop List"
+          subtitle=""
+          data={currentStops}
+          filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
+          columns={[
+            { header: 'Stop Name', accessor: (row) => row.StopName },
+            { header: 'Longitude', accessor: (row) => row.longitude },
+            { header: 'Latitude', accessor: (row) => row.latitude },
+          ]}
+        />
+      </div>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
-
-          {/* CREATE / EDIT STOP FORM */}
+          
+          {/* Create Stop Section
           <h2 className={styles.stopTitle}>
             {isEditMode ? 'EDIT STOP' : 'CREATE STOP'}
           </h2>
-
           <div className="row g-3 mb-4">
-            {/* Stop Name Input */}
             <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Stop Name"
-                value={stopName}
-                onChange={(e) => setStopName(e.target.value)}
-              />
+              <input type="text"className="form-control" placeholder="Stop Name" value={stopName}
+                onChange={(e) => setStopName(e.target.value)}/>
             </div>
-
-            {/* Longitude Input */}
             <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Longitude"
-                value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}
-              />
+              <input type="text" className="form-control" placeholder="Longitude" value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}/>
             </div>
-
-            {/* Latitude Input */}
             <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Latitude"
-                value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}
-              />
+              <input type="text" className="form-control" placeholder="Latitude" value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}/>
             </div>
-          </div>
+          </div> */}
 
-          {/* STOPS TABLE & CONTROLS */}
+          {/* Stops Table Section */}
           <h2 className="card-title mb-3">Stops</h2>
-
-          {/* Search, Sort, and Action Buttons */}
           <div className="row g-2 align-items-center mb-3">
-            {/* Search Box */}
             <div className="col-md-4">
               <input
                 type="text"
                 className="form-control"
                 placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery} // Bind to searchQuery state
+                onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
               />
             </div>
-
-            {/* Sort Order Select */}
             <div className="col-md-3">
               <select
                 className="form-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
+                value={sortOrder} // Bind to sortOrder state
+                onChange={(e) => setSortOrder(e.target.value)} // Update sortOrder state
               >
                 <option value="A-Z">Name: A-Z</option>
                 <option value="Z-A">Name: Z-A</option>
               </select>
             </div>
-
-            {/* Buttons: Clear, Add/Save, Cancel, Print */}
             <div className="col-md-5 text-end">
-              {/* Clear Form Button */}
-              <button className="btn btn-primary me-2" onClick={handleClear}>
-                <Image
-                  src="/assets/images/eraser-line.png"
-                  alt="Clear"
-                  className="icon-small"
-                  width={20}
-                  height={20}
-                />
-                Clear
-              </button>
 
-              {/* Conditional Add / Save / Cancel Buttons */}
-              {isEditMode ? (
-                <>
-                  {/* Save Edited Stop */}
-                  <button
-                    className="btn btn-success me-2"
-                    onClick={handleSave}
-                  >
-                    <Image
-                      src="/assets/images/save-line.png"
-                      alt="Save"
-                      className="icon-small"
-                      width={20}
-                      height={20}
-                    />
-                    Save
-                  </button>
-
-                  {/* Cancel Editing */}
-                  <button
-                    className="btn btn-secondary me-2"
-                    onClick={() => {
-                      setIsEditMode(false);
-                      setEditingStopID(null);
-                      handleClear();
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                /* Add New Stop */
-                <button
-                  className="btn btn-success me-2"
-                  onClick={handleAddStop}
-                >
-                  <Image
-                    src="/assets/images/add-line.png"
-                    alt="Add"
-                    className="icon-small"
-                    width={20}
-                    height={20}
-                  />
+              {/* Shows Add button as default, shows save button when edit mode */}
+              <div>
+                <button className="btn btn-success me-2" onClick={() => setShowAddStopModal(true)}>
+                  <Image src="/assets/images/add-line.png" alt="Add" className="icon-small" width={20} height={20} />
                   Add
                 </button>
-              )}
-
-              {/* Print Button (no handler implemented) */}
-              <button className="btn btn-danger me-2">
-                <Image
-                  src="/assets/images/export.png"
-                  alt="Export"
-                  className="icon-small"
-                  width={20}
-                  height={20}
+                <AddStopModal
+                  show={showAddStopModal}
+                  onClose={() => setShowAddStopModal(false)}
+                  onCreate={handleCreateStop}
                 />
+              </div>
+
+              {/* <button className="btn btn-danger me-2" onClick={handlePrint}>
+                <Image src="/assets/images/export.png" alt="Export" className="icon-small" width={20} height={20} />
                 Print
-              </button>
+              </button> */}
             </div>
           </div>
-
-          {/* Loading Spinner */}
+          
           {loading ? (
+            // Render this when loading is true
             <div className="text-center my-4">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
-          ) : (
-            /* Stops Data Table */
-            <table className={styles.table}>
-              <thead>
-                <tr className={styles.tableHeadRow}>
-                  <th>Stop Name</th>
-                  <th>Longitude</th>
-                  <th>Latitude</th>
-                  <th className={styles.actions}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedStops.length > 0 ? (
-                  displayedStops.map((stop) => (
-                    <tr key={stop.StopID} className={styles.tableRow}>
-                      <td>{stop.StopName}</td>
-                      <td>{stop.longitude}</td>
-                      <td>{stop.latitude}</td>
-                      <td className={styles.actions}>
-                        {/* Edit Button */}
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEdit(stop)}
-                        >
+          ):(
+            <table className="table table-striped table-bordered custom-table">
+            <thead>
+              <tr>
+                <th>Stop Name</th>
+                <th>Longitude</th>
+                <th>Latitude</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentStops.length > 0 ? (
+                currentStops.map((stop) => (
+                  <tr key={stop.StopID}>
+                    <td>{stop.StopName}</td>
+                    <td>{stop.longitude}</td>
+                    <td>{stop.latitude}</td>
+                    <td className="text-center">
+                      <div className="d-inline-flex align-items-center gap-1">
+                        <button className="btn btn-sm btn-primary p-1" onClick={() => { setSelectedStop(stop); setShowEditModal(true); }}>
                           <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -388,11 +321,24 @@ const RouteManagementPage: React.FC = () => {
                             height={25}
                           />
                         </button>
-
-                        {/* Delete Button */}
+                        <EditStopModal
+                          show={showEditModal}
+                          onClose={() => setShowEditModal(false)}
+                          stop={
+                            selectedStop
+                              ? {
+                                  id: selectedStop.StopID,
+                                  name: selectedStop.StopName,
+                                  latitude: selectedStop.latitude,
+                                  longitude: selectedStop.longitude,
+                                }
+                              : null
+                          }
+                          onSave={handleSave} // your function to update the stop
+                        />
                         <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDelete(stop.StopID)}
+                          className="btn btn-sm btn-danger p-1"
+                          onClick={() => handleDelete(stop.StopID)} // Call the delete handler with the StopID
                         >
                           <Image
                             src="/assets/images/delete-white.png"
@@ -401,61 +347,35 @@ const RouteManagementPage: React.FC = () => {
                             height={25}
                           />
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="text-center">
-                      No records found.
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center">
+                    No records found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
           )}
-
-          {/* Pagination Controls */}
-          {displayedStops.length > 0 && (
-            <nav>
-              <ul className="pagination justify-content-center">
-                {/* Previous Button */}
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                  >
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page Number Buttons */}
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <li
-                    key={i + 1}
-                    className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                  >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageChange(i + 1)}
-                    >
-                      {i + 1}
-                    </button>
-                  </li>
-                ))}
-
-                {/* Next Button */}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
+          {/* <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          /> */}
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1); // Reset to first page when page size changes
+            }}
+          />
         </div>
       </div>
     </div>
