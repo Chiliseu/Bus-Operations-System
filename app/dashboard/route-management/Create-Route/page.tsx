@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import cuid from 'cuid'; // Install cuid if not already installed: npm install cuid
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
-import ShowStopsModal from '@/components/modal/ShowStopsModal';
+import AssignStopsModal from '@/components/modal/AssignStopsModal';
 import AssignBusModal from '@/components/modal/AssignBusModal';
 import AddRouteModal from "@/components/modal/AddRouteModal";
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
@@ -603,7 +603,7 @@ const CreateRoutePage: React.FC = () => {
           />
           {/* Modals */}
           {showStopsModal && (
-            <ShowStopsModal 
+            <AssignStopsModal 
               onClose={() => setShowStopsModal(false) } 
               onAssign={(stop) => {
                 if (showEditRouteModal) {

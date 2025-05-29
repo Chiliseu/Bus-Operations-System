@@ -8,3 +8,6 @@ export * from './regular-bus-assignment';
 export * from './route-stop';
 export * from './route';
 export * from './stop';
+export * from './driver';
+export * from './bus';
+export * from './conductor';

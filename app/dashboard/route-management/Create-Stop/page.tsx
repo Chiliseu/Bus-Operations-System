@@ -19,6 +19,7 @@ const RouteManagementPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
+  const [showRegularBusAssignmentModal, setShowRegularBusAssignmentModal] = useState(false);// Shows Add Stop Modal
 
   // For editing stops
   const [showEditModal, setShowEditModal] = useState(false);
