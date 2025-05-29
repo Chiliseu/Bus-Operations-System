@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import Image from 'next/image'; // Import Image
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -20,7 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`} id="sidebar">
       <div>
         <div className="logo">
-          <img src="/assets/images/agilalogo.png" alt="Agila Logo" />
+          <Image src="/assets/images/agilalogo.png" alt="Agila Logo" width={100} height={100} />
         </div>
 
         <div className="nav-links">
@@ -30,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
             className={`nav-item module ${activeItem === 'assignment' ? 'active' : ''}`}
             onClick={() => setActiveItem('assignment')}
           >
-            <img src="/assets/images/assignmentbus.png" alt="Assignment" className="nav-icon" />
+            <Image src="/assets/images/assignmentbus.png" alt="Assignment" className="nav-icon" width={24} height={24} />
             <span className="nav-text">Assignment</span>
           </Link>
 
@@ -42,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
               setActiveItem('route-management');
             }}
           >
-            <img src="/assets/images/routemanagement.png" alt="Route Management" className="nav-icon" />
+            <Image src="/assets/images/routemanagement.png" alt="Route Management" className="nav-icon" width={24} height={24} />
             <span className="nav-text">Route Management</span>
           </div>
           {openSubMenu === 'route-management-submenu' && (
@@ -70,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
             className={`nav-item ${activeItem === 'gps' ? 'active' : ''}`}
             onClick={() => setActiveItem('gps')}
           >
-            <img src="/assets/images/GPS.png" alt="GPS" className="nav-icon" />
+            <Image src="/assets/images/GPS.png" alt="GPS" className="nav-icon" width={24} height={24} />
             <span className="nav-text">GPS</span>
           </Link>
 
@@ -117,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
             className={`nav-item ${activeItem === 'bus-rental' ? 'active' : ''}`}
             onClick={() => setActiveItem('bus-rental')}
           >
-            <img src="/assets/images/busrental.png" alt="Bus Rental" className="nav-icon" />
+            <Image src="/assets/images/busrental.png" alt="Bus Rental" className="nav-icon" width={24} height={24} />
             <span className="nav-text">Bus Rental</span>
           </Link>
 
@@ -127,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
             className={`nav-item ${activeItem === 'performance-report' ? 'active' : ''}`}
             onClick={() => setActiveItem('performance-report')}
           >
-            <img src="/assets/images/performancereport.png" alt="Performance Report" className="nav-icon" />
+            <Image src="/assets/images/performancereport.png" alt="Performance Report" className="nav-icon" width={24} height={24} />
             <span className="nav-text">Performance Report</span>
           </Link>
         </div>
@@ -136,17 +137,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
       {/* Logout */}
       <div className="logout">
         <a href="#">
-          <img src="/assets/images/logout.png" alt="Logout" className="nav-icon" />
+          <Image src="/assets/images/logout.png" alt="Logout" className="nav-icon" width={24} height={24} />
           <span className="nav-text">Logout</span>
         </a>
       </div>
 
       {/* Sidebar Toggle Button */}
       <div className="toggle-btn" onClick={toggleSidebar}>
-        <img 
-          src={isCollapsed ? '/assets/images/arrow-right-line.png' : '/assets/images/arrow-left-line.png'} 
-          alt="Sidebar Toggle" 
-          id="arrow" 
+        <Image
+          src={isCollapsed ? '/assets/images/arrow-right-line.png' : '/assets/images/arrow-left-line.png'}
+          alt="Sidebar Toggle"
+          id="arrow"
+          width={24}
+          height={24}
         />
       </div>
     </div>
