@@ -13,7 +13,9 @@ import PaginationComponent from '@/components/ui/PaginationV2';
 import EditRouteModal from '@/components/modal/EditRouteModal';
 
 import { generateFormattedID } from '../../../../lib/idGenerator';
-import '../../../../styles/globals.css';
+import '@/styles/globals.css';
+
+
 
 import {
   DragDropContext,

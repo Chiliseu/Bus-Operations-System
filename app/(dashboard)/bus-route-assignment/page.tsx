@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import styles from './route-management.module.css';
-import '../../../../styles/globals.css';
+import styles from './bus-route-assignment.module.css';
+import '@/styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
