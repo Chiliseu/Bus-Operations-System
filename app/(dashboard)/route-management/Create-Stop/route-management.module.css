@@ -188,3 +188,146 @@
     font-size: 12px;
   }
 }
+
+/* === Table Base Styling === */
+.table {
+  width: 100%;                 /* Full width table */
+  border-collapse: collapse;   /* Collapse borders */
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 16px;
+  color: #000000;              /* Black text */
+  background-color: #fff;      /* White background */
+  border-radius: 10px;         /* Rounded corners */
+  overflow: hidden;            /* Hide overflow */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Soft shadow */
+}
+
+/* === Table Header Row Styling === */
+.table thead tr {
+  height: 40px;
+  background-color: #D8D8D8;  /* Light gray background */
+  color: #000000;              /* Black text */
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 1px solid #B3B3B3; /* Border under header */
+}
+
+/* === Table Header Cells Padding & Border === */
+.table thead tr th {
+  padding: 0 15px;
+  border-bottom: 1px solid #B3B3B3;
+}
+
+/* === Table Body Row Styling === */
+.table tbody tr {
+  height: 40px;
+  border-bottom: 1px solid #B3B3B3; /* Border between rows */
+  transition: background-color 0.3s ease; /* Smooth hover */
+}
+
+/* === Table Row Hover Effect === */
+.table tbody tr:hover {
+  background-color: #ECECEC;  /* Light highlight on hover */
+}
+
+/* === Table Body Cells Styling === */
+.table tbody tr td {
+  padding: 0 15px;
+  vertical-align: middle;     /* Vertically center content */
+  text-overflow: ellipsis;    /* Ellipsis for overflow text */
+  overflow: hidden;           /* Hide overflow */
+  white-space: nowrap;        /* Prevent wrapping */
+}
+
+/* === Buttons === */
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  user-select: none;
+  min-width: 38px;
+  height: 38px;
+  margin: 0 5px;
+  
+  background-color: #198754;
+  border-color: #198754;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(25,135,84,0.4);
+}
+
+.addBtn:hover {
+  background-color: #157347;
+  border-color: #157347;
+  color: #fff;
+}
+
+/* === SEARCH FIELD & DROPDOWN === */
+
+.controlsRow {
+  display: flex;
+  justify-content: space-between; /* left and right sides */
+  align-items: center;
+  gap: 16px;
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchWrapper {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.selectWrapper {
+  flex: 0 0 180px; /* fixed width */
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'Cooper Hewitt', sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'Cooper Hewitt', sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+  margin-bottom: 20px; 
+}
+
+.select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.addButtonWrapper {
+  /* no change needed unless you want to style */
+}
