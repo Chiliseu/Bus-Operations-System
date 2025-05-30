@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
 import { Route } from '@/app/interface'; // Importing the Route interface
+import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
 
 const AssignRouteModal = ({ 
   onClose,
@@ -21,11 +22,7 @@ const AssignRouteModal = ({
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        const response = await fetch('/api/route-management'); // Replace with your API endpoint
-        if (!response.ok) {
-          throw new Error('Failed to fetch routes');
-        }
-        const data: Route[] = await response.json();
+        const data: Route[] = await fetchRoutesModalWithToken();
         setRoutes(data); // Set the fetched routes
         setFilteredRoutes(data); // Initialize filtered routes
       } catch (error) {

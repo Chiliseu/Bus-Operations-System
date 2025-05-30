@@ -4,8 +4,17 @@ import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../ui/DropdownButton';
-import { fetchConductors } from '../../lib/fetchConductors';
-import { Conductor } from "@/app/interface"; // Conductor interface
+import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
+//import { Conductor } from "@/app/interface"; // Conductor interface
+
+interface Conductor {
+  conductor_id: string;
+  name: string;
+  job: string;
+  contactNo: string;
+  address: string;
+  image: string | null;
+}
 
 const AssignConductorModal = ({ 
   onClose,
@@ -22,14 +31,9 @@ const AssignConductorModal = ({
   useEffect(() => {
     const loadConductors = async () => {
       try {
-        const response = await fetch('/api/external/conductors');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch conductors: ${response.statusText}`);
-        }
-
-        const json = await response.json();
-        setConductors(json.data);
-        setFilteredConductors(json.data);
+        const conductors = await fetchConductorsWithToken();
+        setConductors(conductors);
+        setFilteredConductors(conductors);
       } catch (error) {
         console.error('Error fetching conductors from API:', error);
       }

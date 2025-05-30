@@ -12,10 +12,8 @@ import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
 import EditRouteModal from '@/components/modal/EditRouteModal';
 
-import { generateFormattedID } from '../../../../lib/idGenerator';
 import '@/styles/globals.css';
-
-
+import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
 
 import {
   DragDropContext,
@@ -80,11 +78,7 @@ const CreateRoutePage: React.FC = () => {
   const fetchRoutes = async () => {
     setLoading(true); // Start loading
     try {
-      const response = await fetch('/api/route-management'); // Replace with your API endpoint
-      if (!response.ok) {
-        throw new Error('Failed to fetch routes');
-      }
-      const data: Route[] = await response.json();
+      const data = await fetchRoutesWithToken(); // Call the new function
       setRoutes(data);
     } catch (error) {
       console.error('Error fetching routes:', error);
@@ -158,21 +152,23 @@ const CreateRoutePage: React.FC = () => {
     setEditRouteName(route.RouteName || '');
     setEditStartStop(route.StartStop?.StopName || '');
     setEditEndStop(route.EndStop?.StopName || '');
+    setStartStopID(route.StartStop?.StopID || null);
+    setEndStopID(route.EndStop?.StopID || null);
     setEditSelectedStartStop(route.StartStop || null);
     setEditSelectedEndStop(route.EndStop || null);
     setEditStopsBetween(
-      route.RouteStops
-        ? route.RouteStops
-            .filter(rs => rs.StopID && rs.Stop)
-            .map(rs => ({
-              StopID: rs.StopID,
-              StopName: rs.Stop?.StopName || '',
-              IsDeleted: rs.Stop?.IsDeleted ?? false,
-              latitude: rs.Stop?.latitude ?? '',
-              longitude: rs.Stop?.longitude ?? ''
-            }))
-        : []
-    );
+    route.RouteStops
+      ? route.RouteStops
+          .filter(rs => rs.Stop && rs.Stop.StopID)
+          .map(rs => ({
+            StopID: rs.Stop.StopID,
+            StopName: rs.Stop.StopName || '',
+            IsDeleted: rs.Stop.IsDeleted ?? false,
+            latitude: rs.Stop.latitude ?? '',
+            longitude: rs.Stop.longitude ?? ''
+          }))
+      : []
+  );
     setShowEditRouteModal(true);
   };
 
@@ -181,122 +177,112 @@ const CreateRoutePage: React.FC = () => {
       alert('Please fill in all required fields.');
       return;
     }
-  
-    // Prepare the RouteStops array with StopID and StopOrder
-    const routeStops = stopsBetween.map((stopID, index) => ({
-      StopID: stopID, 
-      StopOrder: index + 1, 
+
+    const routeStops = stopsBetween.map((stop, index) => ({
+      StopID: stop.StopID,
+      StopOrder: index + 1,
     }));
-  
+
     const newRoute = {
       RouteName: routeName,
       StartStopID: selectedStartStop.StopID,
       EndStopID: selectedEndStop.StopID,
-      RouteStops: routeStops, 
+      RouteStops: routeStops,
     };
-  
-    console.log('Payload being sent to the backend:', newRoute); // Debugging
-  
+
+    console.log('Payload being sent to the backend:', newRoute);
+
     try {
-      const response = await fetch('/api/route-management', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newRoute),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Unknown error occurred');
-      }
-
+      await createRouteWithToken(newRoute);
       alert('Route added successfully!');
       setRouteName('');
       setStartStop('');
       setEndStop('');
       setStopsBetween([]);
-      fetchRoutes(); // Refresh the list of routes
-    } catch (error) {
-      console.error('Error adding route:', error);
-      // Show the actual error message returned by the backend
-      alert(error instanceof Error ? error.message : 'Failed to add route. Please try again.');
-    }
-  }
-
-  const handleDeleteRoute = async (routeID: string) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this route?');
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/route-management/${routeID}`, { 
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isDeleted: true }), 
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete route: ${response.statusText}`);
-      }
-
-      alert('Route deleted successfully!');
       fetchRoutes();
     } catch (error) {
-      console.error('Error deleting route:', error);
-      alert('Failed to delete route. Please try again.');
+      console.error('Error adding route:', error);
+      alert(error instanceof Error ? error.message : 'Failed to add route. Please try again.');
     }
   };
 
-  // const handleEditRoute = (route: Route) => {
-  //   setIsEditMode(true); // Enable edit mode
-  //   setEditingRouteID(route.RouteID); // Set the route being edited
-  //   setRouteName(route.RouteName); // Populate input fields
-  //   setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
-  //   setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
-  //   setStartStop(route.StartStop?.StopName || '');
-  //   setEndStop(route.EndStop?.StopName || '');
+  const handleDeleteRoute = async (routeID: string) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this route?');
+    if (!confirmDelete) return;
 
-  //   // Debugging: Log the RouteStops data
-  //   console.log('RouteStops:', route.RouteStops);
+    try {
+      await deleteRouteWithToken(routeID);
+      alert('Route deleted successfully!');
+      fetchRoutes(); // Refresh the route list
+    } catch (error) {
+      console.error('Error deleting route:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete route. Please try again.');
+    }
+  };
 
-  //   // Populate stopsBetween with StopIDs and StopNames from RouteStops
-  //   const routeStops = route.RouteStops?.map((routeStop) => ({
-  //     StopID: routeStop.StopID, // Use StopID from RouteStops
-  //     StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
-  //   })) || [];
-  //   setStopsBetween(routeStops);
-  // };
+    // const handleEditRoute = (route: Route) => {
+    //   setIsEditMode(true); // Enable edit mode
+    //   setEditingRouteID(route.RouteID); // Set the route being edited
+    //   setRouteName(route.RouteName); // Populate input fields
+    //   setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
+    //   setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
+    //   setStartStop(route.StartStop?.StopName || '');
+    //   setEndStop(route.EndStop?.StopName || '');
+
+    //   // Debugging: Log the RouteStops data
+    //   console.log('RouteStops:', route.RouteStops);
+
+    //   // Populate stopsBetween with StopIDs and StopNames from RouteStops
+    //   const routeStops = route.RouteStops?.map((routeStop) => ({
+    //     StopID: routeStop.StopID, // Use StopID from RouteStops
+    //     StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
+    //   })) || [];
+    //   setStopsBetween(routeStops);
+    // };
 
   const handleSaveEditedRoute = async () => {
-    if (!editRouteName || !editStartStop || !editEndStop) {
-      alert('Please fill in all fields with valid values.');
+  if (!routeToEdit || !editRouteName || !startStopID || !endStopID) {
+      alert('Please fill in all required fields.');
       return;
     }
 
-    // Prepare the RouteStops array with StopID and StopOrder
+    // Prepare stopsBetween array for the payload
     const routeStops = editStopsBetween.map((stop, index) => ({
       StopID: stop.StopID,
       StopOrder: index + 1,
     }));
 
-    // Add this log:
-    console.log("RouteStops to be sent for update:", routeStops);
 
-    // Check for missing StopID
-    if (routeStops.some(rs => !rs.StopID)) {
-      alert('All stops must have a valid StopID.');
-      return;
-    }
+    // // Build the update payload
+    // const updatedRoute = {
+    //   RouteID: routeToEdit.RouteID,
+    //   RouteName: editRouteName,
+    //   StartStopID: startStopID,
+    //   EndStopID: endStopID,
+
+    //   // // Add this log:
+    //   // console.log("RouteStops to be sent for update:", routeStops);
+
+    //   // // Check for missing StopID
+    //   // if (routeStops.some(rs => !rs.StopID)) {
+    //   //   alert('All stops must have a valid StopID.');
+    //   //   return;
+    //   // }
+
+    //   // const updatedRoute = {
+    //   //   RouteID: routeToEdit?.RouteID,
+    //   //   RouteName: editRouteName,
+    //   //   StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
+    //   //   EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
+
+    //   RouteStops: routeStops,
+    // };
 
     const updatedRoute = {
-      RouteID: routeToEdit?.RouteID,
+      RouteID: routeToEdit.RouteID,
       RouteName: editRouteName,
-      StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
-      EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
+      StartStopID: startStopID,
+      EndStopID: endStopID,
       RouteStops: routeStops,
     };
 
@@ -304,31 +290,22 @@ const CreateRoutePage: React.FC = () => {
     console.log("Full updatedRoute payload:", updatedRoute);
 
     try {
-      const response = await fetch(`/api/route-management/${routeToEdit?.RouteID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedRoute),
-      });
-      if (!response.ok) {
-        // Try to get error message from response JSON
-        let errorMsg = `Failed to update route: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch {
-          // ignore JSON parsing errors, fallback to statusText
-        }
-        throw new Error(errorMsg);
-      }
+      await updateRouteWithToken(updatedRoute); // Your API call to update route
       alert('Route updated successfully!');
+
+      // Refresh the routes list after update
+      fetchRoutes();
+
+      // Close modal and reset
       setShowEditRouteModal(false);
       setRouteToEdit(null);
-      fetchRoutes();
+      setEditRouteName('');
+      setStartStopID(null);
+      setEndStopID(null);
+      setEditStopsBetween([]);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update route. Please try again.';
-      alert(message);
+      console.error('Error updating route:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update route. Please try again.');
     }
   };
 
@@ -626,14 +603,14 @@ const CreateRoutePage: React.FC = () => {
               onClose={() => setShowStopsModal(false) } 
               onAssign={(stop) => {
                 if (showEditRouteModal) {
-                  // Editing
-                  console.log("Assigned stop:", stop); // <--- Add this
                   if (stopType === 'start') {
                     setEditStartStop(stop.StopName);
                     setEditSelectedStartStop(stop);
+                    setStartStopID(stop.StopID); // <-- Add this line
                   } else if (stopType === 'end') {
                     setEditEndStop(stop.StopName);
                     setEditSelectedEndStop(stop);
+                    setEndStopID(stop.StopID); // <-- Add this line
                   } else if (stopType === 'between' && selectedStopIndex !== null) {
                     const updatedStops = [...editStopsBetween];
                     updatedStops[selectedStopIndex] = {
