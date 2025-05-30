@@ -4,4 +4,5 @@ export interface Bus {
   type: string;
   capacity: number;
   image: string | null;
+  license_plate?: string;
 }

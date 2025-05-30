@@ -5,83 +5,147 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import Image from 'next/image';
+import PaginationComponent from '@/components/ui/PaginationV2';
 
-const ITEMS_PER_PAGE = 10;
+// Import interfaces
+import { RegularBusAssignment } from '@/app/interface/regular-bus-assignment';
 
-interface BusAssignment {
-  id: string;
-  bus: string;
-  driver: string;
-}
-
-const sampleAssignments: BusAssignment[] = [
-  { id: '1', bus: 'Bus 101', driver: 'John Doe' },
-  { id: '2', bus: 'Bus 102', driver: 'Jane Smith' },
-  { id: '3', bus: 'Bus 103', driver: 'Bob Johnson' },
-  { id: '4', bus: 'Bus 104', driver: 'Alice Brown' },
-  { id: '5', bus: 'Bus 105', driver: 'Charlie Lee' },
-  { id: '6', bus: 'Bus 106', driver: 'Diana Ross' },
-  { id: '7', bus: 'Bus 107', driver: 'Ethan Hunt' },
-  { id: '8', bus: 'Bus 108', driver: 'Fiona Green' },
-  { id: '9', bus: 'Bus 109', driver: 'George White' },
-  { id: '10', bus: 'Bus 110', driver: 'Hannah Black' },
-  { id: '11', bus: 'Bus 111', driver: 'Ivan Grey' },
+// Sample data of regular bus assignments
+const sampleRegularAssignments: RegularBusAssignment[] = [
+  {
+    RegularBusAssignmentID: 'RBA-1',
+    DriverID: 'D1',
+    ConductorID: 'C1',
+    Change: 0,
+    TripRevenue: 0,
+    quota_Policy: [{
+      QuotaPolicyID: 'Q1',
+      StartDate: new Date(),
+      EndDate: new Date(),
+      Fixed: undefined,
+      Percentage: undefined,
+      RegularBusAssignmentID: "asdasd",
+    }],
+    BusAssignment: {
+      BusAssignmentID: '1',
+      BusID: 'Bus 101',
+      RouteID: 'Route 1',
+      AssignmentDate: new Date(),
+      Battery: true,
+      Lights: true,
+      Oil: true,
+      Water: true,
+      Break: true,
+      Air: true,
+      Gas: true,
+      Engine: true,
+      TireCondition: true,
+      Self: true,
+      Route: {
+        RouteID: 'Route 1',
+        StartStopID: '',
+        EndStopID: '',
+        RouteName: 'Route 1',
+        IsDeleted: false,
+        StartStop: undefined,
+        EndStop: undefined,
+        RouteStops: [],
+        BusAssignments: [],
+      },
+      IsDeleted: false,
+      RegularBusAssignment: undefined, // Avoid circular reference in sample
+    },
+  },
+  {
+    RegularBusAssignmentID: 'RBA-2',
+    DriverID: 'D2',
+    ConductorID: 'C2',
+    Change: 0,
+    TripRevenue: 0,
+    quota_Policy: [{
+      QuotaPolicyID: 'Q2',
+      StartDate: new Date(),
+      EndDate: new Date(),
+      Fixed: undefined,
+      Percentage: undefined,
+      RegularBusAssignmentID: 'sddfsdf',
+    }],
+    BusAssignment: {
+      BusAssignmentID: '2',
+      BusID: 'Bus 102',
+      RouteID: 'Route 2',
+      AssignmentDate: new Date(),
+      Battery: true,
+      Lights: true,
+      Oil: true,
+      Water: true,
+      Break: true,
+      Air: true,
+      Gas: true,
+      Engine: true,
+      TireCondition: true,
+      Self: true,
+      Route: {
+        RouteID: 'Route 2',
+        StartStopID: '',
+        EndStopID: '',
+        RouteName: 'Route 2',
+        IsDeleted: false,
+        StartStop: undefined,
+        EndStop: undefined,
+        RouteStops: [],
+        BusAssignments: [],
+      },
+      IsDeleted: false,
+      RegularBusAssignment: undefined,
+    },
+  },
+  // ...add more as needed
 ];
 
 const BusOperationPage: React.FC = () => {
-  // State for current page number in pagination
   const [currentPage, setCurrentPage] = useState(1);
-  // State to hold all assignments
-  const [assignments, setAssignments] = useState<BusAssignment[]>([]);
-  // State for assignments displayed on current page after filtering and sorting
-  const [displayedAssignments, setDisplayedAssignments] = useState<BusAssignment[]>([]);
-  // State for total number of pages available based on filtered data
+  const [assignments, setAssignments] = useState<RegularBusAssignment[]>([]);
+  const [displayedAssignments, setDisplayedAssignments] = useState<RegularBusAssignment[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  // State to store search input query
   const [searchQuery, setSearchQuery] = useState('');
-  // State to store current sorting order
   const [sortOrder, setSortOrder] = useState('');
+  const [pageSize, setPageSize] = useState(10);
 
-  // On component mount, initialize assignments with sample data
+  // Replace this with your real fetch call
   useEffect(() => {
-    setAssignments(sampleAssignments);
+    setAssignments(sampleRegularAssignments);
   }, []);
 
-  // Effect to filter, sort and paginate assignments when dependencies change
   useEffect(() => {
     let filtered = [...assignments];
 
-    // Filter assignments based on search query for bus or driver (case-insensitive)
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (a) =>
-          a.bus.toLowerCase().includes(lower) ||
-          a.driver.toLowerCase().includes(lower)
+          a.BusAssignment.BusID.toLowerCase().includes(lower) ||
+          a.DriverID.toLowerCase().includes(lower) ||
+          a.ConductorID.toLowerCase().includes(lower)
       );
     }
 
-    // Sort filtered assignments according to selected sort order
     if (sortOrder === 'Bus A-Z') {
-      filtered.sort((a, b) => a.bus.localeCompare(b.bus));
+      filtered.sort((a, b) => a.BusAssignment.BusID.localeCompare(b.BusAssignment.BusID));
     } else if (sortOrder === 'Bus Z-A') {
-      filtered.sort((a, b) => b.bus.localeCompare(a.bus));
+      filtered.sort((a, b) => b.BusAssignment.BusID.localeCompare(a.BusAssignment.BusID));
     } else if (sortOrder === 'Driver A-Z') {
-      filtered.sort((a, b) => a.driver.localeCompare(b.driver));
+      filtered.sort((a, b) => a.DriverID.localeCompare(b.DriverID));
     } else if (sortOrder === 'Driver Z-A') {
-      filtered.sort((a, b) => b.driver.localeCompare(a.driver));
+      filtered.sort((a, b) => b.DriverID.localeCompare(a.DriverID));
     }
 
-    // Calculate start and end index for current page slice
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    // Set displayed assignments for current page
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
     setDisplayedAssignments(filtered.slice(startIndex, endIndex));
-    // Calculate total pages based on filtered length
-    setTotalPages(Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  }, [currentPage, assignments, searchQuery, sortOrder]);
+    setTotalPages(Math.ceil(filtered.length / pageSize));
+  }, [currentPage, assignments, searchQuery, sortOrder, pageSize]);
 
-  // Handler to change page, ensures page is within valid range
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -89,29 +153,23 @@ const BusOperationPage: React.FC = () => {
   };
 
   return (
-    // Outer card container with styling
     <div className={`card mx-auto ${styles.wideCard}`}>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
-          
-          {/* Header titles */}
           <h2 className={styles.stopTitle}>POST-DISPATCH BUS OPERATION</h2>
           <h2 className="card-title mb-3">Bus Assignments</h2>
 
-          {/* Row containing search input and sort dropdown */}
           <div className="row g-2 mb-3">
             <div className="col-md-4">
-              {/* Search input box */}
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by bus or driver..."
+                placeholder="Search by bus, driver, or conductor..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <div className="col-md-3">
-              {/* Sort order select dropdown */}
               <select
                 className="form-select"
                 value={sortOrder}
@@ -126,28 +184,26 @@ const BusOperationPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Description text */}
-          <p className="text-muted ms-1">Review operations and record Sales Entry.</p>
+          <p className="text-muted ms-1">Review and update regular bus assignments after dispatch.</p>
 
-          {/* Wrapper for styled table */}
           <div className={styles.styledTableWrapper}>
             <table className={styles.styledTable}>
               <thead>
                 <tr>
                   <th>Bus</th>
                   <th>Driver</th>
+                  <th>Conductor</th>
                   <th className="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {/* Display table rows if assignments exist, else show no records */}
                 {displayedAssignments.length > 0 ? (
                   displayedAssignments.map((assignment) => (
-                    <tr key={assignment.id}>
-                      <td>{assignment.bus}</td>
-                      <td>{assignment.driver}</td>
+                    <tr key={assignment.RegularBusAssignmentID}>
+                      <td>{assignment.BusAssignment.BusID}</td>
+                      <td>{assignment.DriverID}</td>
+                      <td>{assignment.ConductorID}</td>
                       <td className="text-center">
-                        {/* Edit button with icon */}
                         <button className="btn btn-sm btn-primary p-1">
                           <Image
                             src="/assets/images/edit-white.png"
@@ -161,7 +217,7 @@ const BusOperationPage: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={3} className="text-center py-4">
+                    <td colSpan={4} className="text-center py-4">
                       No records found.
                     </td>
                   </tr>
@@ -170,37 +226,17 @@ const BusOperationPage: React.FC = () => {
             </table>
           </div>
 
-          {/* Pagination controls shown only if there are assignments */}
           {displayedAssignments.length > 0 && (
-            <nav>
-              <ul className="pagination justify-content-center mt-3">
-                {/* Previous page button, disabled on first page */}
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page number buttons */}
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <li
-                    key={i + 1}
-                    className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-                  >
-                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>
-                      {i + 1}
-                    </button>
-                  </li>
-                ))}
-
-                {/* Next page button, disabled on last page */}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={(size: number) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
           )}
         </div>
       </div>

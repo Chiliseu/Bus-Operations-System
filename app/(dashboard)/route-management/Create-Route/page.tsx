@@ -220,26 +220,6 @@ const CreateRoutePage: React.FC = () => {
     }
   };
 
-    // const handleEditRoute = (route: Route) => {
-    //   setIsEditMode(true); // Enable edit mode
-    //   setEditingRouteID(route.RouteID); // Set the route being edited
-    //   setRouteName(route.RouteName); // Populate input fields
-    //   setStartStopID(route.StartStop?.StopID || null); // Set StartStopID
-    //   setEndStopID(route.EndStop?.StopID || null); // Set EndStopID
-    //   setStartStop(route.StartStop?.StopName || '');
-    //   setEndStop(route.EndStop?.StopName || '');
-
-    //   // Debugging: Log the RouteStops data
-    //   console.log('RouteStops:', route.RouteStops);
-
-    //   // Populate stopsBetween with StopIDs and StopNames from RouteStops
-    //   const routeStops = route.RouteStops?.map((routeStop) => ({
-    //     StopID: routeStop.StopID, // Use StopID from RouteStops
-    //     StopName: routeStop.Stop?.StopName || '', // Use StopName from the Stop object, fallback to an empty string
-    //   })) || [];
-    //   setStopsBetween(routeStops);
-    // };
-
   const handleSaveEditedRoute = async () => {
   if (!routeToEdit || !editRouteName || !startStopID || !endStopID) {
       alert('Please fill in all required fields.');
@@ -251,32 +231,6 @@ const CreateRoutePage: React.FC = () => {
       StopID: stop.StopID,
       StopOrder: index + 1,
     }));
-
-
-    // // Build the update payload
-    // const updatedRoute = {
-    //   RouteID: routeToEdit.RouteID,
-    //   RouteName: editRouteName,
-    //   StartStopID: startStopID,
-    //   EndStopID: endStopID,
-
-    //   // // Add this log:
-    //   // console.log("RouteStops to be sent for update:", routeStops);
-
-    //   // // Check for missing StopID
-    //   // if (routeStops.some(rs => !rs.StopID)) {
-    //   //   alert('All stops must have a valid StopID.');
-    //   //   return;
-    //   // }
-
-    //   // const updatedRoute = {
-    //   //   RouteID: routeToEdit?.RouteID,
-    //   //   RouteName: editRouteName,
-    //   //   StartStopID: editSelectedStartStop?.StopID || routeToEdit?.StartStopID,
-    //   //   EndStopID: editSelectedEndStop?.StopID || routeToEdit?.EndStopID,
-
-    //   RouteStops: routeStops,
-    // };
 
     const updatedRoute = {
       RouteID: routeToEdit.RouteID,
@@ -382,95 +336,6 @@ const CreateRoutePage: React.FC = () => {
     <div className={`card mx-auto ${styles.wideCard}`}>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
-          {/* <div className="row g-3 mb-3">
-            <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Route Name"
-                value={routeName}
-                onChange={(e) => setRouteName(e.target.value)}
-              />
-            </div>
-            <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Start Stop"
-                value={startStop}
-                onChange={(e) => setStartStop(e.target.value)}
-                onClick={() => {
-                  setStopType('start');
-                  setShowStopsModal(true);
-                }}
-              />
-            </div>
-            <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="End Stop"
-                value={endStop}
-                onChange={(e) => setEndStop(e.target.value)}
-                onClick={() => {
-                  setStopType('end');
-                  setShowStopsModal(true);
-                }}
-              />
-            </div>
-          </div> */}
-
-          {/* Stops Between Section */}
-          {/* <h5 className="mb-2">Stops Between</h5>
-          <div className="stops-scroll-container">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="stops">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {stopsBetween.length === 0 ? (
-                      <p className="text-muted">Click + button to add stops.</p>
-                    ) : (
-                      stopsBetween.map((stop, index) => (
-                        <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
-                          {(provided) => (
-                            <div
-                              className="d-flex align-items-center mb-2"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                            >
-                              <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
-                              <input
-                                type="text"
-                                className="form-control me-2"
-                                placeholder={`Stop ${index + 1}`}
-                                value={stop.StopName}
-                                onChange={(e) => handleStopChange(e.target.value, index)}
-                                onClick={() => {
-                                  setStopType('between');
-                                  setSelectedStopIndex(index);
-                                  setShowStopsModal(true);
-                                }}
-                              />
-                              <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
-                                <Image src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" width={20} height={20} />
-                              </button>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))
-                    )}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-          <div className="my-2">
-            <button className="btn btn-success" onClick={handleAddStop}>
-              <Image src="/assets/images/add-line.png" alt="Add Stop" className="icon-small" width={20} height={20} />
-            </button>
-          </div> */}
-
           {/* Routes Table Section */}
           <h2 className="card-title mb-3">Routes</h2>
           <div className="row g-2 align-items-center mb-3">

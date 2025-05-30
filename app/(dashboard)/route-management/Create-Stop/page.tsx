@@ -34,14 +34,6 @@ const RouteManagementPage: React.FC = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
-  // const [totalPages, setTotalPages] = useState(1); // State for total pages
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const ITEMS_PER_PAGE = 10; // Number of items per page
-  // const handlePageChange = (page: number) => {
-  //   if (page >= 1 && page <= totalPages) {
-  //     setCurrentPage(page);
-  //   }
-  // };
 
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
@@ -174,25 +166,6 @@ const RouteManagementPage: React.FC = () => {
       </div>
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
-          
-          {/* Create Stop Section
-          <h2 className={styles.stopTitle}>
-            {isEditMode ? 'EDIT STOP' : 'CREATE STOP'}
-          </h2>
-          <div className="row g-3 mb-4">
-            <div className="col-md-4">
-              <input type="text"className="form-control" placeholder="Stop Name" value={stopName}
-                onChange={(e) => setStopName(e.target.value)}/>
-            </div>
-            <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Longitude" value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}/>
-            </div>
-            <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Latitude" value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}/>
-            </div>
-          </div> */}
 
             {/* Stops Table Section */}
             <h2 className="card-title mb-3">Stops</h2>
@@ -241,8 +214,8 @@ const RouteManagementPage: React.FC = () => {
 
               {/* Loading Spinner */}
               {loading ? (
-                <div className={styles.loadingWrapper}>
-                  <div className={styles.spinner} role="status">
+                <div className="text-center my-4">
+                  <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </div>
                 </div>
