@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
+import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
 
 // OLD STOP INTERFACE
 // interface Stop {
@@ -27,11 +28,7 @@ const AssignStopsModal = ({
   useEffect(() => {
     const loadStops = async () => {
       try {
-        const res = await fetch('/api/stops');
-        if (!res.ok) {
-          throw new Error('Failed to fetch stops');
-        }
-        const data = await res.json();
+        const data = await fetchStopsWithToken();
         setStops(data);
         setFilteredStops(data);
       } catch (error) {
