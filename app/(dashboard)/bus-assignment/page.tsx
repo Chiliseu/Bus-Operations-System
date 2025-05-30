@@ -12,64 +12,22 @@ import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchAssignmentDetails, createBusAssignment } from '@/lib/apiCalls/bus-assignment';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
-//import { Bus, Driver, Conductor, RegularBusAssignment} from '@/app/interface';
-
-interface RegularBusAssignment {
-  RegularBusAssignmentID: string;
-  DriverID: string;
-  ConductorID: string;
-  BusAssignment?: {
-    BusID: string;
-    Route? : {
-      RouteName: string;
-    } | null;
-  } | null;
-  quotaPolicy?: {
-    QuotaPolicyID : string;
-    Fixed?: {
-      Quota: string;
-    } | null;
-    Percentage?: {
-      Percentage: string;
-    } | null;
-  } | null;
-}
-
-interface Bus {
-  busId: string;
-  route: string;
-  type: string;
-  capacity: number;
-  image: string | null;
-  license_plate?: string;
-}
-
-interface Driver {
-  driver_id: string;
-  name: string;
-  job: string;
-  contactNo: string;
-  address: string;
-  image: string | null; 
-}
-
-interface Conductor {
-  conductor_id: string;
-  name: string;
-  job: string;
-  contactNo: string;
-  address: string;
-  image: string | null;
-}
-
+import Image from 'next/image';
+import PaginationComponent from '@/components/ui/PaginationV2';
+import { Bus, Driver, Conductor, RegularBusAssignment } from '@/app/interface';
 
 const BusAssignmentPage: React.FC = () => {
 
   // Flags for modal
   const [busAssignments, setAssignments] = useState<(RegularBusAssignment & {
-  driverName?: string;
-  conductorName?: string;
-  busLicensePlate?: string;
+    driverName?: string;
+    conductorName?: string;
+    busLicensePlate?: string;
+  })[]>([]);
+  const [displayedBusAssignments, setDisplayedBusAssignments] = useState<(RegularBusAssignment & {
+    driverName?: string;
+    conductorName?: string;
+    busLicensePlate?: string;
   })[]>([]);
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
   const [showAssignDriverModal, setShowAssignDriverModal] = useState(false);
@@ -83,9 +41,21 @@ const BusAssignmentPage: React.FC = () => {
   const [selectedConductor, setSelectedConductor] = useState<Conductor | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
-  // Edit mode state
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editAssignment, setEditAssignment] = useState<RegularBusAssignment | null>(null);
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const totalPages = Math.ceil(displayedBusAssignments.length / pageSize);
+  const currentStops = busAssignments.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
+  const [sortOrder, setSortOrder] = useState(''); // State for sorting order
+
+  // Loading State
+  const [loading, setLoading] = useState(false);
 
   const [quotaType, setQuotaType] = useState('Fixed'); // Default to 'Fixed'
   const [quotaValue, setQuotaValue] = useState<number>(0); // Default to 0 or any sensible default
@@ -99,11 +69,14 @@ const BusAssignmentPage: React.FC = () => {
   }, [showAddAssignmentModal]);
 
   const fetchAssignments = async () => {
+    setLoading(true); // Start loading
     try {
         const assignments = await fetchAssignmentDetails();
         setAssignments(assignments);
       } catch (error) {
         console.error('Error loading assignments:', error);
+      } finally{
+        setLoading(false); // Start loading
       }
   };
 
@@ -112,20 +85,23 @@ const BusAssignmentPage: React.FC = () => {
     fetchAssignments();
   }, []);
 
-  function getQuotaValue(assignment: RegularBusAssignment): number {
-  const fixedQuota = assignment.quotaPolicy?.Fixed?.Quota;
-  const percentageQuota = assignment.quotaPolicy?.Percentage?.Percentage;
-
-    if (percentageQuota) {
-      return parseFloat(percentageQuota) / 100;
-    }
-
-    if (fixedQuota) {
-      return parseFloat(fixedQuota);
-    }
-
-    return 0; // fallback if no quota info
-  }
+  useEffect(() => {
+      const sortedAssignments = [...busAssignments];
+  
+      const filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
+        busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  
+      setDisplayedBusAssignments(filteredBusAssignments);
+  
+      // Reset currentPage if out of range
+      const totalPages = Math.ceil(filteredBusAssignments.length / pageSize);
+      if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(1);
+      }
+    }, [busAssignments, searchQuery, sortOrder, pageSize]);
 
   const handleClear = () => {
     // Clear logic for resetting form values or handling state
@@ -144,341 +120,147 @@ const BusAssignmentPage: React.FC = () => {
     quotaType: "Fixed" | "Percentage";
     quotaValue: number;
   }) => {
+    if (!assignment || !assignment.quotaValue || isNaN(assignment.quotaValue)) {
+      alert("Invalid quota value.");
+      return;
+    }
+
     const data = {
-      RouteID: assignment.route.RouteID,
-      BusID: assignment.bus.busId,
-      DriverID: assignment.driver.driver_id,
-      ConductorID: assignment.conductor.conductor_id,
-      QuotaPolicy: {
+      RouteID: assignment.route?.RouteID?.trim(),
+      BusID: assignment.bus?.busId?.trim(),
+      DriverID: assignment.driver?.driver_id?.trim(),
+      ConductorID: assignment.conductor?.conductor_id?.trim(),
+      QuotaPolicy: [{
         type: assignment.quotaType,
-        value: assignment.quotaType === 'Percentage' ? assignment.quotaValue / 100 : assignment.quotaValue,
-      },
+        value: assignment.quotaType === 'Percentage'
+          ? parseFloat((assignment.quotaValue / 100).toFixed(4))
+          : assignment.quotaValue,
+      }],
     };
 
     try {
       const result = await createBusAssignment(data);
-
       handleClear();
       alert('BusAssignment created successfully!');
-      fetchAssignments(); // refresh table
-
-  // const handleAdd = async (assignment: {
-  //   bus: Bus;
-  //   driver: Driver;
-  //   conductor: Conductor;
-  //   route: Route;
-  //   quotaType: "Fixed" | "Percentage";
-  //   quotaValue: number;
-  // }) => {
-  //   // Gather the data to send to the API
-  //   const data = {
-  //     RouteID: assignment.route.RouteID,
-  //     BusID: assignment.bus.busId,
-  //     AssignmentDate: assignmentDate,
-  //     DriverID: assignment.driver.driver_id,
-  //     ConductorID: assignment.conductor.conductor_id,
-  //     Change: 0.0,
-  //     TripRevenue: 1000.0,
-  //     QuotaPolicy: {
-  //       type: assignment.quotaType,
-  //       value: assignment.quotaValue,
-  //     },
-  //   };
-
-  //   try {
-  //     const response = await fetch('/api/bus-assignment', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (!response.ok) {
-  //       throw new Error(result.error || 'Failed to create BusAssignment');
-  //     }
-
-  //     handleClear();
-  //     alert('BusAssignment created successfully!');
-  //     fetchAssignments();
-
+      fetchAssignments(); // refresh the table
     } catch (error) {
       console.error('Error creating BusAssignment:', error);
       alert(error instanceof Error ? error.message : String(error));
     }
   };
 
-  const handleEdit = async  (assignment: RegularBusAssignment) => {
-    setIsEditMode(true);
-    setEditAssignment(assignment);
+  const paginatedAssignments = displayedBusAssignments.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      );
 
-    // Populate the form with the selected assignment's values
-    setSelectedBus({ busId: assignment.BusAssignment?.BusID ?? '', route: '', type: '', capacity: 0, image: null }); 
-
-    setSelectedRoute({ RouteName: assignment.BusAssignment?.Route?.RouteName ?? '', RouteID: '', StartStopID: '', EndStopID: '', IsDeleted: false});
-
-    if (assignment.quotaPolicy?.Fixed) {
-      setQuotaType('Fixed');
-      setQuotaValue(parseFloat(assignment.quotaPolicy.Fixed.Quota));
-    } else if (assignment.quotaPolicy?.Percentage) {
-      setQuotaType('Percentage');
-      setQuotaValue(parseFloat(assignment.quotaPolicy.Percentage.Percentage));
-    } else {
-      setQuotaType(''); // Reset if no quotaPolicy is present
-      setQuotaValue(0); // Reset the value
-    }
-
-    const driverId = assignment.DriverID ?? '';
-    if (driverId) {
-      try {
-        const data = await fetchDriverById(driverId);
-        if (data) {
-          setSelectedDriver({
-            driver_id: data.id,
-            name: data.name,
-            job: '',
-            contactNo: '',
-            address: '',
-            image: null,
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch driver:', error);
-      }
-    }
-
-    const conductorId = assignment.ConductorID ?? '';
-    if (conductorId) {
-      try {
-        const data = await fetchConductorById(conductorId);
-        if (data) {
-          setSelectedConductor({
-            conductor_id: data.id,
-            name: data.name,
-            job: '',
-            contactNo: '',
-            address: '',
-            image: null,
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch conductor:', error);
-      }
-    }
-
-    const busId = assignment.BusAssignment?.BusID ?? '';
-    if (busId) {
-      try {
-        const data = await fetchBusById(busId);
-        if (data) {
-          setSelectedBus({
-            busId: data.busId,
-            license_plate: data.license_plate,
-            route: '',     // You can set this from assignment.BusAssignment.Route?.RouteName if needed
-            type: '',      // Fill with '' since it's not returned from the API
-            capacity: 0,
-            image: null,
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch bus:', error);
-      }
-    }
-
-  };
 
   return (
     <div className="dashboard-content">
       <div className="center-box">
         <div className={styles.container}>
-
-          {/* Title */}
-          <h2 className={styles.assignmentTitle}>CREATE ASSIGNMENT</h2>
-
-          {/* Assignment Boxes */}
-          <div className={styles.topPart}>
-            {/* Bus Box */}
-            <div className={styles.topItem}>
-              <div className={styles.assignmentBox}>
-                <div className={styles.tab}>
-                  <img src="/assets/images/assignedbus.png" alt="Bus Icon" className={styles.tabIcon} />
-                  Bus
-                </div>
-                <button type="button" className={styles.saveButton} onClick={() => setShowAssignBusModal(true)}>
-                  + Assign Bus
-                </button>
-                {/* <input type="text" value={selectedBus.busId} placeholder="Bus ID" /> */}
-                <div className={styles.outputField}>
-                  {selectedBus ? selectedBus.busId : 'None Selected'}
-                </div>
+          <h2 className="card-title mb-3">Create Assignment</h2>
+          {/* Buttons */}
+          <div className="row g-2 align-items-center mb-3">
+            <div className="col-md-4">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-            </div>
-
-            {/* Driver Box */}
-            <div className={styles.topItem}>
-              <div className={styles.assignmentBox}>
-                <div className={styles.tab}>
-                  <img src="/assets/images/bus-driver.png" alt="Driver Icon" className={styles.tabIcon} />
-                  Driver
-                </div>
-                <button className={styles.saveButton} onClick={() => setShowAssignDriverModal(true)}>
-                  + Assign Driver
-                </button>
-                {/* <input type="text" placeholder="Name" /> */}
-                <div className={styles.outputField}>
-                  {selectedDriver ? selectedDriver.name : 'None Selected'}
-                </div>
+              <div className="col-md-3">
+                <select
+                  className="form-select"
+                  // value={sortOrder}
+                  // onChange={(e) => setSortOrder(e.target.value)}
+                >
+                  <option value="A-Z">Name: A-Z</option>
+                  <option value="Z-A">Name: Z-A</option>
+                </select>
               </div>
-            </div>
-
-            {/* Conductor Box */}
-            <div className={styles.topItem}>
-              <div className={styles.assignmentBox}>
-                <div className={styles.tab}>
-                  <img src="/assets/images/bus-conductor.png" alt="Conductor Icon" className={styles.tabIcon} />
-                  Conductor
-                </div>
-                <button className={styles.saveButton} onClick={() => setShowAssignConductorModal(true)}>
-                  + Assign Conductor
-                </button>
-                {/* <input type="text" placeholder="Name" /> */}
-                <div className={styles.outputField}>
-                  {selectedConductor ? selectedConductor.name : 'None Selected'}
-                </div>
-              </div>
+            <div className="col text-end ms-auto">
+              <button 
+                className="btn btn-success"
+                onClick = {() => setShowAddAssignmentModal(true)}
+              >
+                <Image
+                  src="/assets/images/add-line.png"
+                  alt="Add"
+                  width={20}
+                  height={20}
+                />
+                Add
+              </button>
             </div>
           </div>
-
-            {/* Bottom Row: Route + Quota + Buttons */}
-            <div className={styles.bottomRow}>
-              {/* Route Box */}
-              <div className={styles.topItem}>
-                <div className={styles.assignmentBox}>
-                  <div className={styles.tab}>
-                    <img src="/assets/images/assignedroute.png" alt="Route Icon" className={styles.tabIcon} />
-                    Route
-                  </div>
-                  <button className={styles.saveButton} onClick={() => setShowAssignRouteModal(true)}>
-                    + Assign Route
-                  </button>
-                  {/* <input type="text" placeholder="Route Name" /> */}
-                  <div className={styles.outputField}>
-                    {selectedRoute ? selectedRoute.RouteName : 'None Selected'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Quota Box */}
-              <div className={styles.topItem}>
-                <div className={styles.assignmentBox}>
-                  <div className={styles.tab}>
-                    <img src="/assets/images/philippine-peso.png" alt="Quota Icon" className={styles.tabIcon} />
-                    Quota
-                  </div>
-                  <select
-                    className={styles.selectInput}
-                    value={quotaType}
-                    onChange={(e) => {
-                      setQuotaType(e.target.value);
-                      setQuotaValue(0); // Reset quota value when type changes
-                    }}
-                  >
-                    <option value="Fixed">Fixed</option>
-                    <option value="Percentage">Percentage</option>
-                  </select>
-                  <input
-                    type="number"
-                    placeholder={quotaType === 'Fixed' ? 'Enter Fixed Value' : 'Enter Percentage (1-99)'}
-                    value={quotaValue}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Only allow valid numbers
-                      if (value === '') {
-                        setQuotaValue(0);
-                        return;
-                      }
-                      const num = Number(value);
-
-                      // Validation for Fixed
-                      if (quotaType === 'Fixed') {
-                        if (isNaN(num) || num <= 0) {
-                          alert('Fixed value must be greater than 0.');
-                          return;
-                        }
-                      }
-
-                      // Validation for Percentage
-                      if (quotaType === 'Percentage') {
-                        if (isNaN(num) || num < 1 || num > 99) {
-                          alert('Percentage value must be between 1 and 99.');
-                          return;
-                        }
-                      }
-
-                      setQuotaValue(num);
-                    }}
-                    step={quotaType === 'Fixed' ? '0.01' : '1'}
-                    min={quotaType === 'Fixed' ? '0.01' : '1'}
-                    max={quotaType === 'Percentage' ? '99' : undefined}
-                  />
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div className={styles.buttonColumn}>
-                <button className={styles.clearButton} onClick={handleClear}>Clear</button>
-                <button type="button" className={styles.addButton} onClick={() => setShowAddAssignmentModal(true)}>Add</button>
-              </div>
-            </div>
 
 
           {/* Table Part */}
-          <div className={styles.dataTable}>
-            <table className={styles.table}>
-              <thead>
-                <tr className={styles.tableHeadRow}>
-                  <th>Assignment</th>
-                  <th>Bus</th>
-                  <th>Driver</th>
-                  <th>Conductor</th>
-                  <th>Route</th>
-                  <th>Quota</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {busAssignments.map((assignment) => (
-                  <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
-                    <td>{assignment.RegularBusAssignmentID}</td>
-                    <td>{assignment.busLicensePlate}</td>
-                    <td>{assignment.driverName || assignment.DriverID}</td>
-                    <td>{assignment.conductorName || assignment.ConductorID}</td>
-                    <td>{assignment.BusAssignment?.Route?.RouteName}</td>
-                    <td>
-                      {assignment.quotaPolicy?.Fixed
-                        ? `Fixed: ${assignment.quotaPolicy.Fixed.Quota}`
-                        : assignment.quotaPolicy?.Percentage
-                        ? `Percentage: ${(parseFloat(assignment.quotaPolicy.Percentage.Percentage) * 100)}%`
-                        : 'No Quota'}
-                    </td>
-                    <td className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => handleEdit(assignment)}
-                      >
-                        <img src="/assets/images/edit.png" alt="Edit" />
-                      </button>
-                      <button className={styles.deleteBtn}>
-                        <img src="/assets/images/delete.png" alt="Delete" />
-                      </button>
-                    </td>
+          {loading ? (
+            <div className="text-center my-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ):(
+            <div className={styles.dataTable}>
+              <table className={styles.table}>
+                <thead>
+                  <tr className={styles.tableHeadRow}>
+                    <th>Bus</th>
+                    <th>Driver</th>
+                    <th>Conductor</th>
+                    <th>Route</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paginatedAssignments.length > 0 ? (
+                    paginatedAssignments.map((assignment) => (
+                    <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
+                      <td>{assignment.busLicensePlate}</td>
+                      <td>{assignment.driverName || assignment.DriverID}</td>
+                      <td>{assignment.conductorName || assignment.ConductorID}</td>
+                      <td>{assignment.BusAssignment?.Route?.RouteName}</td>
+                      <td>
+                        <button
+                          className={styles.editBtn}
+                          // onClick={() => handleEdit(assignment)}
+                        >
+                          <img src="/assets/images/edit.png" alt="Edit" />
+                        </button>
+                        <button className={styles.deleteBtn}>
+                          <img src="/assets/images/delete.png" alt="Delete" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className={styles.noRecords}>
+                        No records found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+
         </div>
       </div>
       <div>

@@ -16,17 +16,16 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
     RegularBusAssignmentID: 'RBA-1',
     DriverID: 'D1',
     ConductorID: 'C1',
-    QuotaPolicyID: 'Q1',
     Change: 0,
     TripRevenue: 0,
-    quotaPolicy: {
+    quota_Policy: [{
       QuotaPolicyID: 'Q1',
       StartDate: new Date(),
       EndDate: new Date(),
       Fixed: undefined,
       Percentage: undefined,
-      RegularBusAssignments: [],
-    },
+      RegularBusAssignmentID: "asdasd",
+    }],
     BusAssignment: {
       BusAssignmentID: '1',
       BusID: 'Bus 101',
@@ -61,17 +60,16 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
     RegularBusAssignmentID: 'RBA-2',
     DriverID: 'D2',
     ConductorID: 'C2',
-    QuotaPolicyID: 'Q2',
     Change: 0,
     TripRevenue: 0,
-    quotaPolicy: {
+    quota_Policy: [{
       QuotaPolicyID: 'Q2',
       StartDate: new Date(),
       EndDate: new Date(),
       Fixed: undefined,
       Percentage: undefined,
-      RegularBusAssignments: [],
-    },
+      RegularBusAssignmentID: 'sddfsdf',
+    }],
     BusAssignment: {
       BusAssignmentID: '2',
       BusID: 'Bus 102',
