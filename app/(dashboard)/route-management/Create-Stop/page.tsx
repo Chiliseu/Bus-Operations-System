@@ -241,8 +241,8 @@ const RouteManagementPage: React.FC = () => {
 
               {/* Loading Spinner */}
               {loading ? (
-                <div className={styles.loadingWrapper}>
-                  <div className={styles.spinner} role="status">
+                <div className="text-center my-4">
+                  <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </div>
                 </div>
