@@ -120,32 +120,35 @@
 
 /* === Edit Button Specific Styling === */
 .editBtn {
-  /* composes: custom-button; - (Note: `composes` is CSS Modules syntax, ignored in plain CSS) */
-  background-color: #007bff;     /* Blue background */
-  border-color: #007bff;         /* Blue border */
-  color: #fff;                   /* White text */
-  box-shadow: 0 2px 6px rgba(0,123,255,0.4); /* Blue shadow */
+  background-color: #2D8EFF;
+  padding: 3px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px; /* Space between buttons */
 }
 
 .editBtn:hover {
-  background-color: #0056b3;     /* Darker blue */
-  border-color: #0056b3;
-  color: #fff;
+  background-color: #267BDB;
 }
 
 /* === Delete Button Specific Styling === */
 .deleteBtn {
-  /* composes: custom-button; */
-  background-color: #dc3545;     /* Red background */
-  border-color: #dc3545;         /* Red border */
-  color: #fff;                   /* White text */
-  box-shadow: 0 2px 6px rgba(220,53,69,0.5); /* Red shadow */
+  background-color: #FF4949;
+  padding: 3px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
 }
 
 .deleteBtn:hover {
-  background-color: #a71d2a;     /* Darker red */
-  border-color: #a71d2a;
-  color: #fff;
+  background-color: #DE3939;
 }
 
 /* === Small Icon Styling (for inputs/buttons) === */
