@@ -17,7 +17,8 @@ export interface BusAssignment {
   Gas: boolean;
   Engine: boolean;
   TireCondition: boolean;
-  Self: boolean;
+  Self_Driver: boolean;
+  Self_Conductor: boolean;
   Route: Route;
   IsDeleted: boolean;
   RegularBusAssignment?: RegularBusAssignment;

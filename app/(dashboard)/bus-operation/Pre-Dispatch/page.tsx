@@ -6,6 +6,8 @@ import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
+import BusReadinessModal from '@/components/modal/UpdateBusReadinessModal';
+import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 
 // Import interfaces
 import { RegularBusAssignment } from '@/app/interface/regular-bus-assignment';
@@ -112,6 +114,18 @@ const BusOperationPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
 
+  // Bus Readiness Check Modal
+  type BusInfo = {
+    regularBusAssignmentID: string;
+    busNumber: string;
+    driver: string;
+    conductor: string;
+  };
+  const [showBusReadinessModal, setShowBusReadinessModal] = useState(false);
+  const [selectedRegularBusAssignment, setSelectedRegularBusAssignment] = useState<RegularBusAssignment | null>(null);
+  const [selectedBusInfo, setSelectedBusInfo] = useState<BusInfo | null>(null);
+  
+
   // Replace this with your real fetch call
   useEffect(() => {
     setAssignments(sampleRegularAssignments);
@@ -150,6 +164,25 @@ const BusOperationPage: React.FC = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleSaveReadiness = () => {
+    return;
+  };
+
+  const handleOpenBusReadinessModal = async (assignment: RegularBusAssignment) => {
+    const bus = await fetchBusById(assignment.BusAssignment.BusID);
+    const driver = await fetchDriverById(assignment.DriverID);
+    const conductor = await fetchConductorById(assignment.ConductorID);
+
+    setSelectedBusInfo({
+      regularBusAssignmentID: assignment.RegularBusAssignmentID,
+      busNumber: bus?.license_plate || 'Unknown',
+      driver: driver?.name || 'Unknown',
+      conductor: conductor?.name || 'Unknown',
+    });
+
+    setShowBusReadinessModal(true);
   };
 
   return (
@@ -210,7 +243,14 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.DriverID}</td>
                       <td>{assignment.ConductorID}</td>
                       <td className="text-center">
-                        <button className="btn btn-sm btn-primary p-1">
+                        <button
+                          className="btn btn-sm btn-primary p-1"
+                          onClick={() => {
+                            setShowBusReadinessModal(true);
+                            setSelectedRegularBusAssignment(assignment);
+                          }}
+                          
+                        >
                           <Image
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -231,7 +271,7 @@ const BusOperationPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-
+          
           {/* Pagination controls */}
           {displayedAssignments.length > 0 && (
             <PaginationComponent
@@ -243,6 +283,19 @@ const BusOperationPage: React.FC = () => {
                 setPageSize(size);
                 setCurrentPage(1); // Reset to first page when page size changes
               }}
+            />
+          )}
+
+          {/* Bus Readiness Modal */}
+          {selectedBusInfo && (
+            <BusReadinessModal
+              show={showBusReadinessModal}
+              onClose={() => {
+                setShowBusReadinessModal(false);
+                setSelectedBusInfo(null);
+              }}
+              busInfo={selectedBusInfo}
+              onSave={handleSaveReadiness}
             />
           )}
         </div>
