@@ -7,8 +7,8 @@ import '@/styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
-import AddStopModal from "@/components/modal/AddStopModal";
-import EditStopModal from '@/components/modal/EditStopModal';
+import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
+import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
 import Pagination from '@/components/ui/Pagination';
 import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops'; // Importing the API function to fetch stops

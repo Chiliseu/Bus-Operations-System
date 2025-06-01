@@ -3,11 +3,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import AssignBusModal from '@/components/modal/AssignBusModal';
-import AssignDriverModal from '@/components/modal/AssignDriverModal';
-import AssignConductorModal from '@/components/modal/AssignConductorModal';
-import AssignRouteModal from '@/components/modal/AssignRouteModal';
-import AddRegularBusAssignmentModal from '@/components/modal/AddRegularBusAssignmentModal';
+import AssignBusModal from '@/components/modal/Assign-Bus/AssignBusModal';
+import AssignDriverModal from '@/components/modal/Assign-Driver/AssignDriverModal';
+import AssignConductorModal from '@/components/modal/Assign-Conductor/AssignConductorModal';
+import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
+import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
 import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchAssignmentDetails, createBusAssignment } from '@/lib/apiCalls/bus-assignment';
@@ -52,7 +52,7 @@ const BusAssignmentPage: React.FC = () => {
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
-  const [sortOrder, setSortOrder] = useState(''); // State for sorting order
+  const [sortOrder, setSortOrder] = useState('A-Z'); // State for sorting order
 
   // Loading State
   const [loading, setLoading] = useState(false);
@@ -154,37 +154,33 @@ const BusAssignmentPage: React.FC = () => {
         currentPage * pageSize
       );
 
-
   return (
-    <div className="dashboard-content">
-      <div className="center-box">
-        <div className={styles.container}>
-          <h2 className="card-title mb-3">Create Assignment</h2>
-          {/* Buttons */}
+    <div className={`card mx-auto ${styles.wideCard}`}>
+      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
+        <div className="card-body">
+          {/* Header and Filters */}
+          <h2 className={styles.assignmentTitle}>BUS ASSIGNMENTS</h2>
+
           <div className="row g-2 align-items-center mb-3">
             <div className="col-md-4">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="col-md-3">
-                <select
-                  className="form-select"
-                  // value={sortOrder}
-                  // onChange={(e) => setSortOrder(e.target.value)}
-                >
-                  <option value="A-Z">Name: A-Z</option>
-                  <option value="Z-A">Name: Z-A</option>
-                </select>
-              </div>
-            <div className="col text-end ms-auto">
-              <button 
-                className="btn btn-success"
-                onClick = {() => setShowAddAssignmentModal(true)}
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="col-md-3">
+              <select className="form-select">
+                <option value="A-Z">Name: A-Z</option>
+                <option value="Z-A">Name: Z-A</option>
+              </select>
+            </div>
+            <div className="col-md-5 text-end">
+              <button
+                className="btn btn-success me-2"
+                onClick={() => setShowAddAssignmentModal(true)}
               >
                 <Image
                   src="/assets/images/add-line.png"
@@ -197,132 +193,135 @@ const BusAssignmentPage: React.FC = () => {
             </div>
           </div>
 
-
-          {/* Table Part */}
+          {/* Loading Spinner */}
           {loading ? (
             <div className="text-center my-4">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
-          ):(
-            <div className={styles.dataTable}>
-              <table className={styles.table}>
-                <thead>
-                  <tr className={styles.tableHeadRow}>
-                    <th>Bus</th>
-                    <th>Driver</th>
-                    <th>Conductor</th>
-                    <th>Route</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedAssignments.length > 0 ? (
-                    paginatedAssignments.map((assignment) => (
-                    <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
-                      <td>{assignment.busLicensePlate}</td>
-                      <td>{assignment.driverName || assignment.DriverID}</td>
-                      <td>{assignment.conductorName || assignment.ConductorID}</td>
-                      <td>{assignment.BusAssignment?.Route?.RouteName}</td>
-                      <td>
-                        <button
-                          className={styles.editBtn}
-                          // onClick={() => handleEdit(assignment)}
+          ) : (
+            <>
+              {/* Data Table */}
+              <div className={styles.dataTable}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr className={styles.tableHeadRow}>
+                      <th>Bus</th>
+                      <th>Driver</th>
+                      <th>Conductor</th>
+                      <th>Route</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedAssignments.length > 0 ? (
+                      paginatedAssignments.map((assignment) => (
+                        <tr
+                          key={assignment.RegularBusAssignmentID}
+                          className={styles.tableRow}
                         >
-                          <img src="/assets/images/edit.png" alt="Edit" />
-                        </button>
-                        <button className={styles.deleteBtn}>
-                          <img src="/assets/images/delete.png" alt="Delete" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className={styles.noRecords}>
-                        No records found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          <td>{assignment.busLicensePlate}</td>
+                          <td>{assignment.driverName || assignment.DriverID}</td>
+                          <td>{assignment.conductorName || assignment.ConductorID}</td>
+                          <td>{assignment.BusAssignment?.Route?.RouteName}</td>
+                          <td>
+                            <button className={styles.editBtn}>
+                              <img src="/assets/images/edit-white.png" alt="Edit" />
+                            </button>
+                            <button className={styles.deleteBtn}>
+                              <img src="/assets/images/delete-white.png" alt="Delete" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className={styles.noRecords}>
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+              />
+            </>
           )}
-
-          <PaginationComponent
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
-
         </div>
       </div>
-      <div>
-        {/* Modals */}
-        {showAddAssignmentModal && (
-          <AddRegularBusAssignmentModal
-            show={showAddAssignmentModal}
-            onClose={() => setShowAddAssignmentModal(false)}
-            onCreate={handleAdd}
-            onBusClick={() => setShowAssignBusModal(true)}
-            onDriverClick={() => setShowAssignDriverModal(true)}
-            onConductorClick={() => setShowAssignConductorModal(true)}
-            onRouteClick={() => setShowAssignRouteModal(true)}
-            selectedBus={selectedBus}
-            selectedDriver={selectedDriver}
-            selectedConductor={selectedConductor}
-            selectedRoute={selectedRoute}
-            setSelectedBus={setSelectedBus}
-            setSelectedDriver={setSelectedDriver}
-            setSelectedConductor={setSelectedConductor}
-            setSelectedRoute={setSelectedRoute}
-          />
-        )}
-        {showAssignBusModal && (
-          <AssignBusModal 
-            onClose={() => setShowAssignBusModal(false) } 
-            onAssign={(bus) => {
-              setSelectedBus(bus); // store or use it as needed
-              setShowAssignBusModal(false); // close modal
-            }}
-          />
-        )}
-        {showAssignDriverModal && (
-          <AssignDriverModal 
-            onClose={() => setShowAssignDriverModal(false)} 
-            onAssign={(driver) => {
-              setSelectedDriver(driver); // store or use it as needed
-              setShowAssignDriverModal(false); // close modal
-            }}
-          />
-        )}
-        {showAssignConductorModal && (
-          <AssignConductorModal 
-            onClose={() => setShowAssignConductorModal(false)}
-            onAssign={(conductor) => {
-              setSelectedConductor(conductor); // store or use it as needed
-              setShowAssignConductorModal(false); // close modal
-            }} 
-          />
-        )}
-        {showAssignRouteModal && (
-          <AssignRouteModal 
-            onClose={() => setShowAssignRouteModal(false)}
-            onAssign={(route) => {
-              setSelectedRoute(route); // store or use it as needed
-              setShowAssignRouteModal(false); // close modal
-            }} 
-          />
-        )}
-      </div>
+
+      {/* Modals */}
+      {showAddAssignmentModal && (
+        <AddRegularBusAssignmentModal
+          show={showAddAssignmentModal}
+          onClose={() => setShowAddAssignmentModal(false)}
+          onCreate={handleAdd}
+          onBusClick={() => setShowAssignBusModal(true)}
+          onDriverClick={() => setShowAssignDriverModal(true)}
+          onConductorClick={() => setShowAssignConductorModal(true)}
+          onRouteClick={() => setShowAssignRouteModal(true)}
+          selectedBus={selectedBus}
+          selectedDriver={selectedDriver}
+          selectedConductor={selectedConductor}
+          selectedRoute={selectedRoute}
+          setSelectedBus={setSelectedBus}
+          setSelectedDriver={setSelectedDriver}
+          setSelectedConductor={setSelectedConductor}
+          setSelectedRoute={setSelectedRoute}
+        />
+      )}
+
+      {showAssignBusModal && (
+        <AssignBusModal
+          onClose={() => setShowAssignBusModal(false)}
+          onAssign={(bus) => {
+            setSelectedBus(bus);
+            setShowAssignBusModal(false);
+          }}
+        />
+      )}
+      {showAssignDriverModal && (
+        <AssignDriverModal
+          onClose={() => setShowAssignDriverModal(false)}
+          onAssign={(driver) => {
+            setSelectedDriver(driver);
+            setShowAssignDriverModal(false);
+          }}
+        />
+      )}
+      {showAssignConductorModal && (
+        <AssignConductorModal
+          onClose={() => setShowAssignConductorModal(false)}
+          onAssign={(conductor) => {
+            setSelectedConductor(conductor);
+            setShowAssignConductorModal(false);
+          }}
+        />
+      )}
+      {showAssignRouteModal && (
+        <AssignRouteModal
+          onClose={() => setShowAssignRouteModal(false)}
+          onAssign={(route) => {
+            setSelectedRoute(route);
+            setShowAssignRouteModal(false);
+          }}
+        />
+      )}
     </div>
   );
+
 };
 
 export default BusAssignmentPage;

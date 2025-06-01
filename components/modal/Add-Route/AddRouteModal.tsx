@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { Stop } from "@/app/interface";
 import {
@@ -7,6 +7,7 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import styles from "./add-route.module.css";
 
 interface AddRouteModalProps {
   show: boolean;
@@ -41,19 +42,20 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
   onEndStopClick,
   onBetweenStopClick,
 }) => {
+  if (!show) return null;
 
   const handleAddStop = () => {
     setStopsBetween([
-        ...stopsBetween,
-        {
+      ...stopsBetween,
+      {
         StopID: "",
         StopName: "",
         IsDeleted: false,
         latitude: "",
-        longitude: ""
-        }
+        longitude: "",
+      },
     ]);
-};
+  };
 
   const handleRemoveStop = (index: number) => {
     setStopsBetween(stopsBetween.filter((_, i) => i !== index));
@@ -78,12 +80,11 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
       alert("Please fill in all required fields.");
       return;
     }
-    // Validation: No empty StopName in stopsBetween
-    if (stopsBetween.some(stop => !stop.StopName.trim())) {
-        alert("All 'Stops Between' must have a stop selected.");
-        return;
+    if (stopsBetween.some((stop) => !stop.StopName.trim())) {
+      alert("All 'Stops Between' must have a stop selected.");
+      return;
     }
-    onCreate({ routeName, startStop, endStop, stopsBetween }); // <-- call parent handler
+    onCreate({ routeName, startStop, endStop, stopsBetween });
     setRouteName("");
     setStartStop("");
     setEndStop("");
@@ -91,82 +92,104 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
     onClose();
   };
 
-  if (!show) return null;
-
   return (
-    <div className="modal show d-block" tabIndex={-1} style={{ background: "rgba(0,0,0,0.5)" }}>
-      <div className="modal-dialog modal-lg">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Add Route</h5>
-            <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
-          </div>
-          <div className="modal-body">
-            <div className="row g-3 mb-3">
-              <div className="col-md-4">
-                <label className="form-label">Route Name</label>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Add Route</h2>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        <div className={styles.body}>
+          {/* Route Info */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Route Information</h4>
+            <div className={styles.grid3}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Route Name</label>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder="Route Name"
+                  className={styles.input}
+                  placeholder="Enter route name"
                   value={routeName}
                   onChange={(e) => setRouteName(e.target.value)}
                 />
               </div>
-              <div className="col-md-4">
-                <label className="form-label">Start Stop</label>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Start Stop</label>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder="Start Stop"
+                  className={`${styles.input} ${startStop ? styles.filled : ""}`}
+                  placeholder="Click to select start stop"
                   value={startStop}
-                  onChange={(e) => setStartStop(e.target.value)}
                   onClick={onStartStopClick}
                   readOnly
                 />
               </div>
-              <div className="col-md-4">
-                <label className="form-label">End Stop</label>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>End Stop</label>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder="End Stop"
+                  className={`${styles.input} ${endStop ? styles.filled : ""}`}
+                  placeholder="Click to select end stop"
                   value={endStop}
-                  onChange={(e) => setEndStop(e.target.value)}
                   onClick={onEndStopClick}
                   readOnly
                 />
               </div>
             </div>
-            <h5 className="mb-2">Stops Between</h5>
-            <div className="stops-scroll-container">
+          </div>
+
+          {/* Stops Between */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Stops Between</h4>
+            <div className={styles.scrollArea}>
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="stops">
                   {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                    <div ref={provided.innerRef} {...provided.droppableProps}>
                       {stopsBetween.length === 0 ? (
-                        <p className="text-muted">Click + button to add stops.</p>
+                        <div className={styles.empty}>
+                          No intermediate stops added yet.
+                        </div>
                       ) : (
                         stopsBetween.map((stop, index) => (
                           <Draggable key={index.toString()} draggableId={index.toString()} index={index}>
                             {(provided) => (
                               <div
-                                className="d-flex align-items-center mb-2"
+                                className={styles.stopItem}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                               >
-                                <span {...provided.dragHandleProps} className="me-2">⋮⋮</span>
+                                <span
+                                  className={styles.dragHandle}
+                                  {...provided.dragHandleProps}
+                                >
+                                  ⋮⋮
+                                </span>
                                 <input
                                   type="text"
-                                  className="form-control me-2"
+                                  className={styles.stopInput}
                                   placeholder={`Stop ${index + 1}`}
                                   value={stop.StopName}
                                   onChange={(e) => handleStopChange(e.target.value, index)}
                                   onClick={() => onBetweenStopClick(index)}
                                   readOnly
                                 />
-                                <button className="btn btn-danger" onClick={() => handleRemoveStop(index)}>
-                                  <Image src="/assets/images/close-line.png" alt="Remove Stop" className="icon-small" width={20} height={20} />
+                                <button
+                                  className={styles.btnRemove}
+                                  onClick={() => handleRemoveStop(index)}
+                                >
+                                  <Image
+                                    src="/assets/images/close-line.png"
+                                    alt="Remove Stop"
+                                    width={16}
+                                    height={16}
+                                  />
                                 </button>
                               </div>
                             )}
@@ -179,20 +202,29 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
                 </Droppable>
               </DragDropContext>
             </div>
-            <div className="my-2">
-              <button className="btn btn-success" onClick={handleAddStop}>
-                <Image src="/assets/images/add-line.png" alt="Add Stop" className="icon-small" width={20} height={20} />
-              </button>
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="button" className="btn btn-primary" onClick={handleCreate}>
-              Create
+            <button className={styles.btnAdd} onClick={handleAddStop}>
+              <Image
+                src="/assets/images/add-line.png"
+                alt="Add Stop"
+                width={16}
+                height={16}
+              />
+              Add Stop
             </button>
           </div>
+        </div>
+
+        <div className={styles.footer}>
+          <button className={styles.btnCancel} onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className={styles.btnCreate}
+            onClick={handleCreate}
+            disabled={!routeName || !startStop || !endStop}
+          >
+            Create Route
+          </button>
         </div>
       </div>
     </div>
