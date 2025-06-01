@@ -65,7 +65,7 @@ const recalcQuotaDateRanges = (count: number): QuotaPolicy[] => {
   const baseDays = Math.floor(totalDays / count);
   const remainder = totalDays % count;
 
-  let policies: QuotaPolicy[] = [];
+  const policies: QuotaPolicy[] = [];
   let currentStart = YEAR_START;
 
   for (let i = 0; i < count; i++) {
