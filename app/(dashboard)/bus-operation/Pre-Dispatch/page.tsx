@@ -42,7 +42,8 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       Gas: true,
       Engine: true,
       TireCondition: true,
-      Self: true,
+      Self_Driver: false,
+      Self_Conductor: false,
       Route: {
         RouteID: 'Route 1',
         StartStopID: '',
@@ -86,7 +87,8 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       Gas: true,
       Engine: true,
       TireCondition: true,
-      Self: true,
+      Self_Driver: false,
+      Self_Conductor: false,
       Route: {
         RouteID: 'Route 2',
         StartStopID: '',
@@ -287,17 +289,17 @@ const BusOperationPage: React.FC = () => {
           )}
 
           {/* Bus Readiness Modal */}
-          {selectedBusInfo && (
-            <BusReadinessModal
-              show={showBusReadinessModal}
-              onClose={() => {
-                setShowBusReadinessModal(false);
-                setSelectedBusInfo(null);
-              }}
-              busInfo={selectedBusInfo}
-              onSave={handleSaveReadiness}
-            />
-          )}
+          {/* {selectedBusInfo && (
+            // <BusReadinessModal
+            //   show={showBusReadinessModal}
+            //   onClose={() => {
+            //     setShowBusReadinessModal(false);
+            //     setSelectedBusInfo(null);
+            //   }}
+            //   busInfo={selectedBusInfo}
+            //   onSave={handleSaveReadiness}
+            // />
+          )} */}
         </div>
       </div>
     </div>
