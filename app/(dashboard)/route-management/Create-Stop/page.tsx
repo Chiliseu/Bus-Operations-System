@@ -62,16 +62,16 @@ const RouteManagementPage: React.FC = () => {
   }, [stops, searchQuery, sortOrder, pageSize]);
 
   const fetchStops = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchStopsWithToken();
-        setStops(data);
-      } catch (error) {
-        console.error("Error fetching stops:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      const data = await fetchStopsWithToken();
+      setStops(data);
+    } catch (error) {
+      console.error("Error fetching stops:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch data on component mount
   useEffect(() => {

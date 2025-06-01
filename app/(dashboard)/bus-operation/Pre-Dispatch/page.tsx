@@ -8,113 +8,20 @@ import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
 import BusReadinessModal from '@/components/modal/UpdateBusReadinessModal';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
+import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
 
 // Import interfaces
-import { RegularBusAssignment } from '@/app/interface/regular-bus-assignment';
-
-// Sample data of regular bus assignments
-const sampleRegularAssignments: RegularBusAssignment[] = [
-  {
-    RegularBusAssignmentID: 'RBA-1',
-    DriverID: 'D1',
-    ConductorID: 'C1',
-    Change: 0,
-    TripRevenue: 0,
-    quota_Policy: [{
-      QuotaPolicyID: 'Q1',
-      StartDate: new Date(),
-      EndDate: new Date(),
-      Fixed: undefined,
-      Percentage: undefined,
-      RegularBusAssignmentID: "asdasd",
-    }],
-    BusAssignment: {
-      BusAssignmentID: '1',
-      BusID: 'Bus 101',
-      RouteID: 'Route 1',
-      AssignmentDate: new Date(),
-      Battery: true,
-      Lights: true,
-      Oil: true,
-      Water: true,
-      Break: true,
-      Air: true,
-      Gas: true,
-      Engine: true,
-      TireCondition: true,
-      Self_Driver: false,
-      Self_Conductor: false,
-      Route: {
-        RouteID: 'Route 1',
-        StartStopID: '',
-        EndStopID: '',
-        RouteName: 'Route 1',
-        IsDeleted: false,
-        StartStop: undefined,
-        EndStop: undefined,
-        RouteStops: [],
-        BusAssignments: [],
-      },
-      IsDeleted: false,
-      RegularBusAssignment: undefined, // Avoid circular reference in sample
-    },
-  },
-  {
-    RegularBusAssignmentID: 'RBA-2',
-    DriverID: 'D2',
-    ConductorID: 'C2',
-    Change: 0,
-    TripRevenue: 0,
-    quota_Policy: [{
-      QuotaPolicyID: 'Q2',
-      StartDate: new Date(),
-      EndDate: new Date(),
-      Fixed: undefined,
-      Percentage: undefined,
-      RegularBusAssignmentID: 'sddfsdf',
-    }],
-    BusAssignment: {
-      BusAssignmentID: '2',
-      BusID: 'Bus 102',
-      RouteID: 'Route 2',
-      AssignmentDate: new Date(),
-      Battery: true,
-      Lights: true,
-      Oil: true,
-      Water: true,
-      Break: true,
-      Air: true,
-      Gas: true,
-      Engine: true,
-      TireCondition: true,
-      Self_Driver: false,
-      Self_Conductor: false,
-      Route: {
-        RouteID: 'Route 2',
-        StartStopID: '',
-        EndStopID: '',
-        RouteName: 'Route 2',
-        IsDeleted: false,
-        StartStop: undefined,
-        EndStop: undefined,
-        RouteStops: [],
-        BusAssignments: [],
-      },
-      IsDeleted: false,
-      RegularBusAssignment: undefined,
-    },
-  },
-  // ...add more as needed
-];
+import { BusAssignment } from '@/app/interface/bus-assignment';
 
 const BusOperationPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [assignments, setAssignments] = useState<RegularBusAssignment[]>([]);
-  const [displayedAssignments, setDisplayedAssignments] = useState<RegularBusAssignment[]>([]);
+  const [assignments, setAssignments] = useState<BusAssignment[]>([]);
+  const [displayedAssignments, setDisplayedAssignments] = useState<BusAssignment[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   // Bus Readiness Check Modal
   type BusInfo = {
@@ -124,14 +31,26 @@ const BusOperationPage: React.FC = () => {
     conductor: string;
   };
   const [showBusReadinessModal, setShowBusReadinessModal] = useState(false);
-  const [selectedRegularBusAssignment, setSelectedRegularBusAssignment] = useState<RegularBusAssignment | null>(null);
+  const [selectedBusAssignment, setSelectedBusAssignment] = useState<BusAssignment | null>(null);
   const [selectedBusInfo, setSelectedBusInfo] = useState<BusInfo | null>(null);
-  
 
-  // Replace this with your real fetch call
+  const fetchAssignments = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchBusAssignmentsWithStatus('NotStarted');
+      setAssignments(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching stops:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setAssignments(sampleRegularAssignments);
+    fetchAssignments();
   }, []);
+
 
   useEffect(() => {
     let filtered = [...assignments];
@@ -140,21 +59,21 @@ const BusOperationPage: React.FC = () => {
       const lower = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (a) =>
-          a.BusAssignment.BusID.toLowerCase().includes(lower) ||
-          a.DriverID.toLowerCase().includes(lower) ||
-          a.ConductorID.toLowerCase().includes(lower)
+          a.BusID.toLowerCase().includes(lower) ||
+          a.RegularBusAssignment?.DriverID.toLowerCase().includes(lower) ||
+          a.RegularBusAssignment?.ConductorID.toLowerCase().includes(lower)
       );
     }
 
-    if (sortOrder === 'Bus A-Z') {
-      filtered.sort((a, b) => a.BusAssignment.BusID.localeCompare(b.BusAssignment.BusID));
-    } else if (sortOrder === 'Bus Z-A') {
-      filtered.sort((a, b) => b.BusAssignment.BusID.localeCompare(a.BusAssignment.BusID));
-    } else if (sortOrder === 'Driver A-Z') {
-      filtered.sort((a, b) => a.DriverID.localeCompare(b.DriverID));
-    } else if (sortOrder === 'Driver Z-A') {
-      filtered.sort((a, b) => b.DriverID.localeCompare(a.DriverID));
-    }
+    // if (sortOrder === 'Bus A-Z') {
+    //   filtered.sort((a, b) => a.BusID.localeCompare(b.BusID));
+    // } else if (sortOrder === 'Bus Z-A') {
+    //   filtered.sort((a, b) => b.BusID.localeCompare(a.BusID));
+    // } else if (sortOrder === 'Driver A-Z') {
+    //   filtered.sort((a, b) => a.DriverID.localeCompare(b.DriverID));
+    // } else if (sortOrder === 'Driver Z-A') {
+    //   filtered.sort((a, b) => b.DriverID.localeCompare(a.DriverID));
+    // }
 
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -172,20 +91,20 @@ const BusOperationPage: React.FC = () => {
     return;
   };
 
-  const handleOpenBusReadinessModal = async (assignment: RegularBusAssignment) => {
-    const bus = await fetchBusById(assignment.BusAssignment.BusID);
-    const driver = await fetchDriverById(assignment.DriverID);
-    const conductor = await fetchConductorById(assignment.ConductorID);
+  // const handleOpenBusReadinessModal = async (assignment: BusAssignment) => {
+  //   const bus = await fetchBusById(assignment.BusID);
+  //   const driver = await fetchDriverById(assignment.RegularBusAssignment.DriverID);
+  //   const conductor = await fetchConductorById(assignment.RegularBusAssignment.ConductorID);
 
-    setSelectedBusInfo({
-      regularBusAssignmentID: assignment.RegularBusAssignmentID,
-      busNumber: bus?.license_plate || 'Unknown',
-      driver: driver?.name || 'Unknown',
-      conductor: conductor?.name || 'Unknown',
-    });
+  //   setSelectedBusInfo({
+  //     regularBusAssignmentID: assignment.RegularBusAssignment?.RegularBusAssignmentID??,
+  //     busNumber: bus?.license_plate || 'Unknown',
+  //     driver: driver?.name || 'Unknown',
+  //     conductor: conductor?.name || 'Unknown',
+  //   });
 
-    setShowBusReadinessModal(true);
-  };
+  //   setShowBusReadinessModal(true);
+  // };
 
   return (
     <div className={`card mx-auto ${styles.wideCard}`}>
@@ -228,50 +147,51 @@ const BusOperationPage: React.FC = () => {
 
           {/* Table wrapper with custom styles */}
           <div className={styles.styledTableWrapper}>
-            <table className={styles.styledTable}>
-              <thead>
-                <tr>
-                  <th>Bus</th>
-                  <th>Driver</th>
-                  <th>Conductor</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedAssignments.length > 0 ? (
-                  displayedAssignments.map((assignment) => (
-                    <tr key={assignment.RegularBusAssignmentID}>
-                      <td>{assignment.BusAssignment.BusID}</td>
-                      <td>{assignment.DriverID}</td>
-                      <td>{assignment.ConductorID}</td>
-                      <td className="text-center">
-                        <button
-                          className="btn btn-sm btn-primary p-1"
-                          onClick={() => {
-                            setShowBusReadinessModal(true);
-                            setSelectedRegularBusAssignment(assignment);
-                          }}
-                          
-                        >
-                          <Image
-                            src="/assets/images/edit-white.png"
-                            alt="Edit"
-                            width={25}
-                            height={25}
-                          />
-                        </button>
+            {loading?(
+              <div className="text-center my-4">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            ):(
+              <table className={styles.styledTable}>
+                <thead>
+                  <tr>
+                    <th>Bus</th>
+                    <th>Driver</th>
+                    <th>Conductor</th>
+                    <th className="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedAssignments.length > 0 ? (
+                    displayedAssignments.map((assignment) => (
+                      <tr key={assignment.BusAssignmentID}>
+                        <td>{assignment.BusID}</td>
+                        <td>{assignment.RegularBusAssignment?.DriverID}</td>
+                        <td>{assignment.RegularBusAssignment?.ConductorID}</td>
+                        <td className="text-center">
+                          <button className="btn btn-sm btn-primary p-1">
+                            <Image
+                              src="/assets/images/edit-white.png"
+                              alt="Edit"
+                              width={25}
+                              height={25}
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4">
+                        No records found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="text-center py-4">
-                      No records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
           
           {/* Pagination controls */}

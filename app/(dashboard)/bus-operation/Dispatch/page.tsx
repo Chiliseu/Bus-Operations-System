@@ -41,7 +41,8 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       Gas: true,
       Engine: true,
       TireCondition: true,
-      Self: true,
+      Self_Driver: false,
+      Self_Conductor: false,
       Route: {
         RouteID: 'Route 1',
         StartStopID: '',
@@ -55,6 +56,7 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       },
       IsDeleted: false,
       RegularBusAssignment: undefined, // Avoid circular reference in sample
+      Status: 'NotStarted',
     },
   },
   {
@@ -85,7 +87,8 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       Gas: true,
       Engine: true,
       TireCondition: true,
-      Self: true,
+      Self_Driver: false,
+      Self_Conductor: false,
       Route: {
         RouteID: 'Route 2',
         StartStopID: '',
@@ -99,6 +102,7 @@ const sampleRegularAssignments: RegularBusAssignment[] = [
       },
       IsDeleted: false,
       RegularBusAssignment: undefined,
+      Status: 'NotStarted',
     },
   },
   // ...add more as needed
