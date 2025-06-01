@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
-import DropdownButton from '../ui/DropdownButton';
+import DropdownButton from '../../ui/DropdownButton';
 import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
 //import { Conductor } from "@/app/interface"; // Conductor interface
 

@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import cuid from 'cuid'; // Install cuid if not already installed: npm install cuid
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
-import AssignStopsModal from '@/components/modal/AssignStopsModal';
-import AssignBusModal from '@/components/modal/AssignBusModal';
-import AddRouteModal from "@/components/modal/AddRouteModal";
+import AssignStopsModal from '@/components/modal/Assign-Stop/AssignStopsModal';
+import AssignBusModal from '@/components/modal/Assign-Bus/AssignBusModal';
+import AddRouteModal from "@/components/modal/Add-Route/AddRouteModal";
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
-import EditRouteModal from '@/components/modal/EditRouteModal';
+import EditRouteModal from '@/components/modal/Edit-Route/EditRouteModal';
 
 import '@/styles/globals.css';
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
@@ -337,7 +337,7 @@ const CreateRoutePage: React.FC = () => {
       <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
         <div className="card-body">
           {/* Routes Table Section */}
-          <h2 className="card-title mb-3">Routes</h2>
+          <h2 className={styles.stopTitle}>CREATE ROUTE</h2>
           <div className="row g-2 align-items-center mb-3">
             <div className="col-md-4">
               <input type="text" className="form-control" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>

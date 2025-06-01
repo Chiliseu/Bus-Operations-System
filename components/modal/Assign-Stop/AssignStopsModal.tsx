@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
-import DropdownButton from '../ui/DropdownButton';
+import DropdownButton from '@/components/ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
 

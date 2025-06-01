@@ -1,0 +1,217 @@
+.busModalOverlay {
+  background: rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.busModalTitle{
+  display: flex;                  /* Flex container */
+  align-items: center;            /* Center vertically */
+  gap: 0.5rem;                   /* Space between icon/text */
+  font-size: 24px;               /* Large font size */
+  font-weight: 800;              /* Bold */
+  justify-content: center;       /* Center horizontally */
+  color: #ffffff;                /* White text */
+  background-color: #961c1e;     /* Dark red background */
+  border: 4px solid #FFB71F;     /* Yellow border */
+  border-radius: 12px;           /* Rounded corners */
+  padding: 0.75rem 1.5rem;       /* Padding inside */
+  font-family: 'Open Sans', sans-serif; /* Bold font */
+  margin-bottom: 20px;            /* Space below title */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Shadow for depth */
+}
+
+.busModalContent {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: white;
+  animation: slideUp 0.3s ease-out;
+}
+
+.busModalHeader {
+  background: #961c1e;
+  color: white;
+  border: none;
+  padding: 20px 25px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.busModalTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.busModalBody {
+  padding: 25px;
+  background: white;
+}
+
+.formSection {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.formLabel {
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.selectionInput {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+  background: white;
+}
+
+.selectionInput:hover {
+  border-color: #961c1e;
+}
+
+.selectionInput:focus {
+  border-color: #961c1e;
+  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
+  outline: none;
+}
+
+.selectionInput.filled {
+  background: #f8f9fa;
+  border-color: #6c757d;
+}
+
+.formSelectCustom {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+  background: white;
+}
+
+.formSelectCustom:focus {
+  border-color: #961c1e;
+  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
+  outline: none;
+}
+
+.quotaInput {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+}
+
+.quotaInput:focus {
+  border-color: #961c1e;
+  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
+  outline: none;
+}
+
+.busModalFooter {
+  background: #f8f9fa;
+  border: none;
+  padding: 15px 25px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-radius: 0 0 8px 8px;
+}
+
+.btnCancel {
+  background: #961C1E;
+  border: 1px solid #FFB71F;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.btnCancel:hover {
+  background: #db1212;
+  border-color: #5a6268;
+  color: white;
+}
+
+.btnCreate {
+  background: #961C1E;
+  border: 1px solid #FFB71F;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.btnCreate:hover:not(:disabled) {
+  background: #13CE66;
+  border-color: #FFB71F;
+  color: white;
+}
+
+.btnCreate:disabled {
+  background: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  opacity: 1;
+  color: white;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

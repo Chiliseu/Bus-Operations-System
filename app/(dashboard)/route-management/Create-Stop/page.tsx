@@ -7,8 +7,8 @@ import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
-import AddStopModal from "@/components/modal/AddStopModal";
-import EditStopModal from '@/components/modal/EditStopModal';
+import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
+import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
 import Pagination from '@/components/ui/Pagination';
 import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
@@ -168,7 +168,7 @@ const RouteManagementPage: React.FC = () => {
         <div className="card-body">
 
             {/* Stops Table Section */}
-            <h2 className="card-title mb-3">Stops</h2>
+            <h2 className={styles.stopTitle}>CREATE STOP</h2>
 
             {/* Search & Sort Inputs */}
             <div className="row g-2 align-items-center mb-3">
