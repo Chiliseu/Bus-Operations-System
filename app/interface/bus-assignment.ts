@@ -2,6 +2,8 @@
 import { Route } from './route';
 import { RegularBusAssignment } from './regular-bus-assignment';
 
+export type BusOperationStatus = "NotStarted" | "InOperation" | "Completed";
+
 //Bus assignment interface
 export interface BusAssignment {
   BusAssignmentID: string;
@@ -17,8 +19,10 @@ export interface BusAssignment {
   Gas: boolean;
   Engine: boolean;
   TireCondition: boolean;
-  Self: boolean;
+  Self_Driver: boolean;
+  Self_Conductor: boolean;
   Route: Route;
   IsDeleted: boolean;
   RegularBusAssignment?: RegularBusAssignment;
+  Status: BusOperationStatus;
 }

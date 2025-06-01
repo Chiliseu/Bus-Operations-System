@@ -112,40 +112,50 @@ const BusAssignmentPage: React.FC = () => {
     setQuotaValue(0);
   };
 
-  const handleAdd = async (assignment: {
-    bus: Bus;
-    driver: Driver;
-    conductor: Conductor;
-    route: Route;
-    quotaType: "Fixed" | "Percentage";
-    quotaValue: number;
+  const handleCreateBusAssignment = async (assignment: {
+    BusID: string;
+    RouteID: string;
+    AssignmentDate?: string;
+    DriverID: string;
+    ConductorID: string;
+    QuotaPolicy: {
+      type: 'Fixed' | 'Percentage';
+      value: number;
+      startDate: string;
+      endDate: string;
+    }[];
   }) => {
-    if (!assignment || !assignment.quotaValue || isNaN(assignment.quotaValue)) {
-      alert("Invalid quota value.");
-      return;
+    // Basic validation
+    if (
+      !assignment.BusID ||
+      !assignment.RouteID ||
+      !assignment.DriverID ||
+      !assignment.ConductorID ||
+      !assignment.QuotaPolicy.length ||
+      assignment.QuotaPolicy.some(
+        (q) =>
+          !q.type ||
+          isNaN(q.value) ||
+          !q.startDate ||
+          !q.endDate
+      )
+    ) {
+      alert('Please fill in all required fields and valid quota policies.');
+      return false;
     }
 
-    const data = {
-      RouteID: assignment.route?.RouteID?.trim(),
-      BusID: assignment.bus?.busId?.trim(),
-      DriverID: assignment.driver?.driver_id?.trim(),
-      ConductorID: assignment.conductor?.conductor_id?.trim(),
-      QuotaPolicy: [{
-        type: assignment.quotaType,
-        value: assignment.quotaType === 'Percentage'
-          ? parseFloat((assignment.quotaValue / 100).toFixed(4))
-          : assignment.quotaValue,
-      }],
-    };
-
     try {
-      const result = await createBusAssignment(data);
-      handleClear();
-      alert('BusAssignment created successfully!');
-      fetchAssignments(); // refresh the table
+      await createBusAssignment(assignment);
+
+      alert('Bus assignment created successfully!');
+      // Optional: Refresh list or reset form/modal
+      setShowAddAssignmentModal(false);
+      return true;
     } catch (error) {
-      console.error('Error creating BusAssignment:', error);
-      alert(error instanceof Error ? error.message : String(error));
+      console.error('Error creating bus assignment:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create bus assignment. Please try again.');
+      setShowAddAssignmentModal(false);
+      return false;
     }
   };
 
@@ -265,9 +275,9 @@ const BusAssignmentPage: React.FC = () => {
       {/* Modals */}
       {showAddAssignmentModal && (
         <AddRegularBusAssignmentModal
-          show={showAddAssignmentModal}
+          show={true}
           onClose={() => setShowAddAssignmentModal(false)}
-          onCreate={handleAdd}
+          handleAdd={handleCreateBusAssignment}
           onBusClick={() => setShowAssignBusModal(true)}
           onDriverClick={() => setShowAssignDriverModal(true)}
           onConductorClick={() => setShowAssignConductorModal(true)}
