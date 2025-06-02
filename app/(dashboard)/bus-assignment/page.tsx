@@ -93,7 +93,7 @@ const BusAssignmentPage: React.FC = () => {
         const assignments = await fetchAssignmentDetails();
         setAssignments(assignments);
       } catch (error) {
-        console.error('Error loading assignments:', error);
+        alert('Error loading assignments');
       } finally{
         setLoading(false); // Start loading
       }
@@ -222,38 +222,39 @@ const BusAssignmentPage: React.FC = () => {
     }
   };
 
-  // async function handleSave() {
-  //   try {
-  //     if (!selectedAssignment) {
-  //       throw new Error("No bus assignment selected");
-  //     }
+  async function handleSave({
+    bus,
+    driver,
+    conductor,
+    route,
+  }: {
+    bus: Bus;
+    driver: Driver;
+    conductor: Conductor;
+    route: Route;
+  }) {
 
-  //     // Prepare data matching the API expected format
-  //     const data = {
-  //       BusID: selectedAssignment.BusID,
-  //       RouteID: selectedAssignment.RouteID,
-  //       DriverID: selectedAssignment.DriverID,
-  //       ConductorID: selectedAssignment.ConductorID,
-  //       QuotaPolicy: (selectedAssignment.QuotaPolicy || []).map((policy) => ({
-  //         startDate: policy.startDate || null,
-  //         endDate: policy.endDate || null,
-  //         type: policy.quotaType,  // "Fixed" or "Percentage"
-  //         value: policy.quotaValue,
-  //       })),
-  //     };
+    try {
+      if (!bus || !driver || !conductor || !route) {
+        throw new Error("Missing required fields");
+      }
 
-  //     // Call the API function to update
-  //     const updated = await updateBusAssignment(selectedAssignment.BusAssignmentID, data);
+      const data = {
+        BusID: bus.busId, // Or `bus.id`, depending on your model
+        RouteID: route.RouteID,
+        DriverID: driver.driver_id,
+        ConductorID: conductor.conductor_id,
+      };
 
-  //     // Handle success (e.g., update UI, close modal, notify user)
-  //     console.log("Updated bus assignment:", updated);
-  //     // Close modal or refresh data here
+      const updated = await updateBusAssignment(selectedAssignment, data);
+      setShowEditModal(false);
+      alert("Bus assignment successfully updated!");
+      fetchAssignments();
+    } catch (error) {
+      alert("Failed to save bus assignment");
+    }
+  }
 
-  //   } catch (error) {
-  //     // Handle error (show message to user, etc.)
-  //     console.error("Failed to save bus assignment:", error);
-  //   }
-  // }
 
 
   const paginatedAssignments = displayedBusAssignments.slice(
@@ -336,7 +337,6 @@ const BusAssignmentPage: React.FC = () => {
                             <button
                               className={styles.editBtn}
                               onClick={() => {
-                                console.log(assignment);
                                 handleEdit(assignment);}}
                             >
                               <img src="/assets/images/edit-white.png" alt="Edit" />
@@ -396,7 +396,7 @@ const BusAssignmentPage: React.FC = () => {
           onDriverClick={() => setShowAssignDriverModal(true)}
           onConductorClick={() => setShowAssignConductorModal(true)}
           onRouteClick={() => setShowAssignRouteModal(true)}
-          // onSave={handleSave}
+          onSave={handleSave}
         />
       )}
 

@@ -4,8 +4,6 @@ import { Driver } from "@/app/interface/driver";
 import { Conductor } from "@/app/interface/conductor";
 import { Route } from "@/app/interface/route";
 import styles from "./edit-regular-bus-assignment.module.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-
 
 interface EditRegularBusAssignmentModalProps {
   show: boolean;
@@ -22,7 +20,12 @@ interface EditRegularBusAssignmentModalProps {
   setSelectedDriver: (driver: Driver | null) => void;
   setSelectedConductor: (conductor: Conductor | null) => void;
   setSelectedRoute: (route: Route | null) => void;
-  // onSave: () => void;
+  onSave: (data: {
+    bus: Bus;
+    driver: Driver;
+    conductor: Conductor;
+    route: Route;
+  }) => void;
 }
 
 const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps> = ({
@@ -40,9 +43,22 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
   setSelectedDriver,
   setSelectedConductor,
   setSelectedRoute,
-  // onSave
+  onSave
 }) => {
   if (!show) return null;
+
+  const handleSave = () => {
+    if (selectedBus && selectedDriver && selectedConductor && selectedRoute) {
+      onSave({
+        bus: selectedBus,
+        driver: selectedDriver,
+        conductor: selectedConductor,
+        route: selectedRoute,
+      });
+    } else {
+      alert("Please make sure all fields are selected before saving.");
+    }
+  };
 
   return (
     <div
@@ -139,7 +155,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
             <button
               type="button"
               className="btn btn-success"
-              // onClick={onSave}
+              onClick={handleSave}
             >
               Save Assignment
             </button>
