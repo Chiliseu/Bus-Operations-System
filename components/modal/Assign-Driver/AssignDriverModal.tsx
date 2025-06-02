@@ -6,16 +6,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
 import { useEffect} from 'react';
 import { fetchDriversWithToken } from '@/lib/apiCalls/external';
-//import { Driver } from "@/app/interface";
-
-interface Driver {
-  driver_id: string;
-  name: string;
-  job: string;
-  contactNo: string;
-  address: string;
-  image: string | null; 
-}
+import { Driver } from "@/app/interface";
 
 const AssignDriverModal = ({ 
   onClose,

@@ -52,10 +52,9 @@ const BusAssignmentPage: React.FC = () => {
   const [showAssignRouteModal, setShowAssignRouteModal] = useState(false);
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<BusAssignment | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState('');
 
   // current record
-
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedConductor, setSelectedConductor] = useState<Conductor | null>(null);
@@ -132,23 +131,33 @@ const BusAssignmentPage: React.FC = () => {
     setQuotaValue(0);
   };
 
-  const handleEdit = (assignment: any) => {
-    console.log("assignment:", assignment);
-    const formattedAssignment: BusAssignment = {
-      BusAssignmentID: assignment.RegularBusAssignmentID,
-      BusID: assignment.BusID,
-      RouteID: assignment.RouteID,
-      DriverID: assignment.DriverID,
-      ConductorID: assignment.ConductorID,
-      QuotaPolicy: assignment.QuotaPolicy?.map((policy: any) => ({
-        startDate: policy.startDate,
-        endDate: policy.endDate,
-        quotaType: policy.quotaType,
-        quotaValue: policy.quotaValue,
-      })) || [],
-    };
-
-    setSelectedAssignment(formattedAssignment);
+  const handleEdit = (assignment: typeof displayedBusAssignments[number]) => {
+    setSelectedAssignment(assignment.RegularBusAssignmentID);
+    setSelectedBus({
+      busId: assignment.BusAssignment.BusID,
+      route: '',
+      type: '',
+      capacity: 0,
+      image: null,
+      license_plate: assignment.busLicensePlate,
+    });
+    setSelectedDriver({
+      driver_id: assignment.DriverID,
+      name: assignment.driverName??'',
+      job: '',
+      contactNo: '',
+      address: '',
+      image: null, 
+    });
+    setSelectedConductor({
+      conductor_id: assignment.ConductorID,
+      name: assignment.conductorName ?? '',
+      job: '',
+      contactNo: '',
+      address: '',
+      image: null,
+    });
+    setSelectedRoute(assignment.BusAssignment.Route);
     setShowEditModal(true);
   };
 
@@ -213,38 +222,38 @@ const BusAssignmentPage: React.FC = () => {
     }
   };
 
-  async function handleSave() {
-    try {
-      if (!selectedAssignment) {
-        throw new Error("No bus assignment selected");
-      }
+  // async function handleSave() {
+  //   try {
+  //     if (!selectedAssignment) {
+  //       throw new Error("No bus assignment selected");
+  //     }
 
-      // Prepare data matching the API expected format
-      const data = {
-        BusID: selectedAssignment.BusID,
-        RouteID: selectedAssignment.RouteID,
-        DriverID: selectedAssignment.DriverID,
-        ConductorID: selectedAssignment.ConductorID,
-        QuotaPolicy: (selectedAssignment.QuotaPolicy || []).map((policy) => ({
-          startDate: policy.startDate || null,
-          endDate: policy.endDate || null,
-          type: policy.quotaType,  // "Fixed" or "Percentage"
-          value: policy.quotaValue,
-        })),
-      };
+  //     // Prepare data matching the API expected format
+  //     const data = {
+  //       BusID: selectedAssignment.BusID,
+  //       RouteID: selectedAssignment.RouteID,
+  //       DriverID: selectedAssignment.DriverID,
+  //       ConductorID: selectedAssignment.ConductorID,
+  //       QuotaPolicy: (selectedAssignment.QuotaPolicy || []).map((policy) => ({
+  //         startDate: policy.startDate || null,
+  //         endDate: policy.endDate || null,
+  //         type: policy.quotaType,  // "Fixed" or "Percentage"
+  //         value: policy.quotaValue,
+  //       })),
+  //     };
 
-      // Call the API function to update
-      const updated = await updateBusAssignment(selectedAssignment.BusAssignmentID, data);
+  //     // Call the API function to update
+  //     const updated = await updateBusAssignment(selectedAssignment.BusAssignmentID, data);
 
-      // Handle success (e.g., update UI, close modal, notify user)
-      console.log("Updated bus assignment:", updated);
-      // Close modal or refresh data here
+  //     // Handle success (e.g., update UI, close modal, notify user)
+  //     console.log("Updated bus assignment:", updated);
+  //     // Close modal or refresh data here
 
-    } catch (error) {
-      // Handle error (show message to user, etc.)
-      console.error("Failed to save bus assignment:", error);
-    }
-  }
+  //   } catch (error) {
+  //     // Handle error (show message to user, etc.)
+  //     console.error("Failed to save bus assignment:", error);
+  //   }
+  // }
 
 
   const paginatedAssignments = displayedBusAssignments.slice(
@@ -326,13 +335,14 @@ const BusAssignmentPage: React.FC = () => {
                           <td>
                             <button
                               className={styles.editBtn}
-                              onClick={() => handleEdit(assignment)}
+                              onClick={() => {
+                                console.log(assignment);
+                                handleEdit(assignment);}}
                             >
                               <img src="/assets/images/edit-white.png" alt="Edit" />
                             </button>
                             <button className={styles.deleteBtn}
                               onClick={() => {
-                                alert(JSON.stringify(assignment.BusAssignment.IsDeleted));
                                 handleDelete(assignment.RegularBusAssignmentID, assignment.BusAssignment?.IsDeleted);
                               }}
                             >
@@ -370,11 +380,10 @@ const BusAssignmentPage: React.FC = () => {
 
       {/* Modals */}
 
-      {showEditModal && selectedAssignment &&(
+      {showEditModal && selectedAssignment && (
         <EditRegularBusAssignmentModal
           show={showEditModal}
           onClose={() => setShowEditModal(false)}
-          busAssignment={selectedAssignment} // This now matches what the modal wants
           selectedBus={selectedBus}
           selectedDriver={selectedDriver}
           selectedConductor={selectedConductor}
@@ -387,9 +396,10 @@ const BusAssignmentPage: React.FC = () => {
           onDriverClick={() => setShowAssignDriverModal(true)}
           onConductorClick={() => setShowAssignConductorModal(true)}
           onRouteClick={() => setShowAssignRouteModal(true)}
-          handleSave={handleSave}
+          // onSave={handleSave}
         />
       )}
+
 
 
 
