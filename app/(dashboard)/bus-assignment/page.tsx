@@ -10,13 +10,30 @@ import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
 import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
 import styles from './bus-assignment.module.css';
 import { Route } from '@/app/interface'; // Importing the Route interface
-import { fetchAssignmentDetails, createBusAssignment } from '@/lib/apiCalls/bus-assignment';
+import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
-import { Bus, Driver, Conductor, RegularBusAssignment } from '@/app/interface';
+import { Bus, Driver, Conductor, RegularBusAssignment, Quota_Policy } from '@/app/interface';
+import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
+
 
 const BusAssignmentPage: React.FC = () => {
+  interface QuotaPolicy {
+    startDate: string;
+    endDate: string;
+    quotaType: "Fixed" | "Percentage";
+    quotaValue: number;
+  }
+
+  interface BusAssignment {
+    BusAssignmentID: string;
+    BusID: string;
+    RouteID: string;
+    DriverID: string;
+    ConductorID: string;
+    QuotaPolicy: QuotaPolicy[];
+  }
 
   // Flags for modal
   const [busAssignments, setAssignments] = useState<(RegularBusAssignment & {
@@ -34,6 +51,8 @@ const BusAssignmentPage: React.FC = () => {
   const [showAssignConductorModal, setShowAssignConductorModal] = useState(false);
   const [showAssignRouteModal, setShowAssignRouteModal] = useState(false);
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState('');
 
   // current record
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
@@ -74,7 +93,7 @@ const BusAssignmentPage: React.FC = () => {
         const assignments = await fetchAssignmentDetails();
         setAssignments(assignments);
       } catch (error) {
-        console.error('Error loading assignments:', error);
+        alert('Error loading assignments');
       } finally{
         setLoading(false); // Start loading
       }
@@ -111,6 +130,37 @@ const BusAssignmentPage: React.FC = () => {
     setSelectedRoute(null);
     setQuotaValue(0);
   };
+
+  const handleEdit = (assignment: typeof displayedBusAssignments[number]) => {
+    setSelectedAssignment(assignment.RegularBusAssignmentID);
+    setSelectedBus({
+      busId: assignment.BusAssignment.BusID,
+      route: '',
+      type: '',
+      capacity: 0,
+      image: null,
+      license_plate: assignment.busLicensePlate,
+    });
+    setSelectedDriver({
+      driver_id: assignment.DriverID,
+      name: assignment.driverName??'',
+      job: '',
+      contactNo: '',
+      address: '',
+      image: null, 
+    });
+    setSelectedConductor({
+      conductor_id: assignment.ConductorID,
+      name: assignment.conductorName ?? '',
+      job: '',
+      contactNo: '',
+      address: '',
+      image: null,
+    });
+    setSelectedRoute(assignment.BusAssignment.Route);
+    setShowEditModal(true);
+  };
+
 
   const handleCreateBusAssignment = async (assignment: {
     BusID: string;
@@ -158,6 +208,54 @@ const BusAssignmentPage: React.FC = () => {
       return false;
     }
   };
+
+  const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this assignment?');
+    if (!confirmDelete) return;
+    try {
+      await sofDeleteBusAssignment(BusAssignmentID, IsDeleted);
+      alert('Assignment deleted successfully!');
+      fetchAssignments();
+    } catch (error) {
+      console.error('Error deleting assignment:', error);
+      alert('Failed to delete assignment. Please try again.');
+    }
+  };
+
+  async function handleSave({
+    bus,
+    driver,
+    conductor,
+    route,
+  }: {
+    bus: Bus;
+    driver: Driver;
+    conductor: Conductor;
+    route: Route;
+  }) {
+
+    try {
+      if (!bus || !driver || !conductor || !route) {
+        throw new Error("Missing required fields");
+      }
+
+      const data = {
+        BusID: bus.busId, // Or `bus.id`, depending on your model
+        RouteID: route.RouteID,
+        DriverID: driver.driver_id,
+        ConductorID: conductor.conductor_id,
+      };
+
+      const updated = await updateBusAssignment(selectedAssignment, data);
+      setShowEditModal(false);
+      alert("Bus assignment successfully updated!");
+      fetchAssignments();
+    } catch (error) {
+      alert("Failed to save bus assignment");
+    }
+  }
+
+
 
   const paginatedAssignments = displayedBusAssignments.slice(
         (currentPage - 1) * pageSize,
@@ -236,10 +334,18 @@ const BusAssignmentPage: React.FC = () => {
                           <td>{assignment.conductorName || assignment.ConductorID}</td>
                           <td>{assignment.BusAssignment?.Route?.RouteName}</td>
                           <td>
-                            <button className={styles.editBtn}>
+                            <button
+                              className={styles.editBtn}
+                              onClick={() => {
+                                handleEdit(assignment);}}
+                            >
                               <img src="/assets/images/edit-white.png" alt="Edit" />
                             </button>
-                            <button className={styles.deleteBtn}>
+                            <button className={styles.deleteBtn}
+                              onClick={() => {
+                                handleDelete(assignment.RegularBusAssignmentID, assignment.BusAssignment?.IsDeleted);
+                              }}
+                            >
                               <img src="/assets/images/delete-white.png" alt="Delete" />
                             </button>
                           </td>
@@ -273,6 +379,30 @@ const BusAssignmentPage: React.FC = () => {
       </div>
 
       {/* Modals */}
+
+      {showEditModal && selectedAssignment && (
+        <EditRegularBusAssignmentModal
+          show={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          selectedBus={selectedBus}
+          selectedDriver={selectedDriver}
+          selectedConductor={selectedConductor}
+          selectedRoute={selectedRoute}
+          setSelectedBus={setSelectedBus}
+          setSelectedDriver={setSelectedDriver}
+          setSelectedConductor={setSelectedConductor}
+          setSelectedRoute={setSelectedRoute}
+          onBusClick={() => setShowAssignBusModal(true)}
+          onDriverClick={() => setShowAssignDriverModal(true)}
+          onConductorClick={() => setShowAssignConductorModal(true)}
+          onRouteClick={() => setShowAssignRouteModal(true)}
+          onSave={handleSave}
+        />
+      )}
+
+
+
+
       {showAddAssignmentModal && (
         <AddRegularBusAssignmentModal
           show={true}

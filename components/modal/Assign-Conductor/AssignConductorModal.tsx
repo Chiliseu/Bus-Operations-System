@@ -5,16 +5,7 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
-//import { Conductor } from "@/app/interface"; // Conductor interface
-
-interface Conductor {
-  conductor_id: string;
-  name: string;
-  job: string;
-  contactNo: string;
-  address: string;
-  image: string | null;
-}
+import { Conductor } from "@/app/interface"; // Conductor interface
 
 const AssignConductorModal = ({ 
   onClose,

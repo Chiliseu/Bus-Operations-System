@@ -5,15 +5,7 @@ import Button from '@/components/ui/Button';
 import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
-//import { Bus } from "@/app/interface";
-
-interface Bus {
-  busId: string;
-  route: string;
-  type: string;
-  capacity: number;
-  image: string | null;
-}
+import { Bus } from "@/app/interface";
 
 const AssignBusModal = ({ 
   onClose,
