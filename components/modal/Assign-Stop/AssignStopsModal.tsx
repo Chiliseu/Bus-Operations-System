@@ -7,14 +7,6 @@ import DropdownButton from '@/components/ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
 
-// OLD STOP INTERFACE
-// interface Stop {
-//   StopID: string;
-//   StopName: string;
-//   Location: string;
-//   image: string | null;
-// }
-
 const AssignStopsModal = ({ 
   onClose,
   onAssign, 

@@ -68,6 +68,8 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
   const token = localStorage.getItem("backend_token");
 
+  alert(JSON.stringify(data));
+
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!token) throw new Error("No backend token found in localStorage.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
