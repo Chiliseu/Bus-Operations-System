@@ -273,8 +273,6 @@ const BusAssignmentPage: React.FC = () => {
         quotaPolicies: transformedQuotaPolicies,
       };
 
-      alert(JSON.stringify(data));
-
       const updated = await updateBusAssignment(selectedAssignment, data);
       setShowEditModal(false);
       alert("Bus assignment successfully updated!");
