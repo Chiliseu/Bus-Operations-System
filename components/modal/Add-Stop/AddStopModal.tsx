@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Swal from 'sweetalert2';
 import styles from "./add-stop.module.css";
 
 interface AddStopModalProps {
@@ -14,7 +15,11 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
 
   const handleCreate = async () => {
     if (!name || !latitude || !longitude) {
-      alert("Please fill in all fields.");
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill in all fields.',
+          });
       return;
     }
 
@@ -80,11 +85,8 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>
-            Cancel
-          </button>
           <button
-            className={styles.createBtn}
+            className={styles.createStopBtn}
             onClick={handleCreate}
             disabled={!name || !latitude || !longitude}
           >

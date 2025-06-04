@@ -15,6 +15,8 @@ import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
 import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
 import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
+import Swal from 'sweetalert2';
+
 
 
 const BusAssignmentPage: React.FC = () => {
@@ -191,35 +193,59 @@ const BusAssignmentPage: React.FC = () => {
           !q.endDate
       )
     ) {
-      alert('Please fill in all required fields and valid quota policies.');
+      await Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please fill in all required fields and valid quota policies.',
+    });
       return false;
     }
 
     try {
       await createBusAssignment(assignment);
 
-      alert('Bus assignment created successfully!');
+      await Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Bus assignment created successfully!',
+    });
       // Optional: Refresh list or reset form/modal
       setShowAddAssignmentModal(false);
       return true;
     } catch (error) {
       console.error('Error creating bus assignment:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create bus assignment. Please try again.');
+      await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error instanceof Error ? error.message : 'Failed to create bus assignment. Please try again.',
+    });
       setShowAddAssignmentModal(false);
       return false;
     }
   };
 
-  const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this assignment?');
-    if (!confirmDelete) return;
+    const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await sofDeleteBusAssignment(BusAssignmentID, IsDeleted);
-      alert('Assignment deleted successfully!');
+      
+      await Swal.fire('Deleted!', 'Assignment deleted successfully!', 'success'); // ✅ Await this
+      
       fetchAssignments();
     } catch (error) {
       console.error('Error deleting assignment:', error);
-      alert('Failed to delete assignment. Please try again.');
+      await Swal.fire('Error', 'Failed to delete assignment. Please try again.', 'error'); // ✅ Replace alert with Swal
     }
   };
 
@@ -275,10 +301,18 @@ const BusAssignmentPage: React.FC = () => {
 
       const updated = await updateBusAssignment(selectedAssignment, data);
       setShowEditModal(false);
-      alert("Bus assignment successfully updated!");
+      await Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Bus assignment successfully updated!',
+    });
       fetchAssignments();
     } catch (error) {
-      alert("Failed to save bus assignment: " + (error instanceof Error ? error.message : error));
+      await Swal.fire({
+      icon: 'error',
+      title: 'Save Failed',
+      text: "Failed to save bus assignment: " + (error instanceof Error ? error.message : error),
+    });
     }
   }
 
@@ -288,50 +322,48 @@ const BusAssignmentPage: React.FC = () => {
       );
 
   return (
-    <div className={`card mx-auto ${styles.wideCard}`}>
-      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-        <div className="card-body">
-          {/* Header and Filters */}
-          <h2 className={styles.assignmentTitle}>BUS ASSIGNMENTS</h2>
+  <div className={`card mx-auto ${styles.wideCard}`}>
+    <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
+      <div className="card-body">
+        <h2 className={styles.assignmentTitle}>Bus Assignments</h2>
 
-          <div className="row g-2 align-items-center mb-3">
-            <div className="col-md-4">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              <select className="form-select">
-                <option value="A-Z">Name: A-Z</option>
-                <option value="Z-A">Name: Z-A</option>
-              </select>
-            </div>
-            <div className="col-md-5 text-end">
-              <button
-                className="btn btn-success me-2"
-                onClick={() => setShowAddAssignmentModal(true)}
-              >
-                <Image
-                  src="/assets/images/add-line.png"
-                  alt="Add"
-                  width={20}
-                  height={20}
-                />
-                Add
-              </button>
-            </div>
+        {/* Toolbar container */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
+
+          {/* Dropdown */}
+          <select
+            className={styles.sortSelect}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="A-Z">Name: A-Z</option>
+            <option value="Z-A">Name: Z-A</option>
+          </select>
+
+          {/* Add Button */}
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddAssignmentModal(true)}
+          >
+            <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+            Add Assignment
+          </button>
+        </div>
 
           {/* Loading Spinner */}
           {loading ? (
             <div className="text-center my-4">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
+              <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
             </div>
           ) : (
             <>

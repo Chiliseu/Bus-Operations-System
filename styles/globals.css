@@ -1,4 +1,7 @@
+/* === Import Google Fonts === */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;400;600;800&display=swap');
 @import "tailwindcss";
+
 
 /* Reset and box-sizing */
 *,
@@ -57,12 +60,28 @@
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Body styles */
+/* Global body font - default normal weight */
 body {
-  font-family: "Open Sans", sans-serif;
-  background-color: var(--background-color);
-  color: var(--primary-text-color);
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
 }
+
+/* Title styles */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 100;
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #000000;
+}
+
+/* Table text specifically */
+.table td,
+.table th {
+  font-weight: 100; /* make sure this overrides any inheritance */
+  font-size: 16px;
+  color: #1f2937;
+}
+
 
 /* Optional login styles (commented out) */
 /*

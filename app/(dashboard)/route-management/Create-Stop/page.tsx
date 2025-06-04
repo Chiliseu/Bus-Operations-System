@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
@@ -80,20 +81,32 @@ const RouteManagementPage: React.FC = () => {
 
  const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
     if (!stop.name || !stop.longitude || !stop.latitude) {
-      alert('Please fill in all fields with valid values.');
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Missing Fields',
+            text: 'Please fill in all fields with valid values.',
+          });
       return false;
     }
 
     try {
       await createStopWithToken(stop);
 
-      alert('Stop added successfully!');
+      await Swal.fire({
+          icon: 'success',
+          title: 'Stop Added',
+          text: 'Stop added successfully!',
+        });
       fetchStops(); // Refresh the stops list
       setShowAddStopModal(false); // Close the modal
       return true;
     } catch (error) {
       console.error('Error adding stop:', error);
-      alert('Failed to add stop. Please try again.');
+          await Swal.fire({
+            icon: 'error',
+            title: 'Add Failed',
+            text: 'Failed to add stop. Please try again.',
+          });
       setShowAddStopModal(false);
       return false;
     }
@@ -101,37 +114,66 @@ const RouteManagementPage: React.FC = () => {
 
     const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
         if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
-          alert('Please fill in all fields with valid values.');
+              await Swal.fire({
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Please fill in all fields with valid values.',
+              });
           return false;
         }
 
         try {
           await updateStopWithToken(editedStop);
 
-          alert('Stop updated successfully!');
+          await Swal.fire({
+              icon: 'success',
+              title: 'Stop Updated',
+              text: 'Stop updated successfully!',
+            });
           fetchStops(); // Refresh the stops list
           setShowEditModal(false); // Close the modal
           setSelectedStop(null);   // Clear selection
           return true;
         } catch (error) {
           console.error('Error updating stop:', error);
-          alert(error instanceof Error ? error.message : 'Failed to update stop. Please try again.');
+          await Swal.fire({
+              icon: 'error',
+              title: 'Update Failed',
+              text: error instanceof Error ? error.message : 'Failed to update stop. Please try again.',
+            });
           return false;
         }
       };
 
   const handleDelete = async (stopID: string) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this stop?');
-    if (!confirmDelete) return;
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Are you sure you want to delete this stop?',
+    icon: 'warning',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it',
+    cancelButtonText: 'Cancel',
+  });
+  if (!result.isConfirmed) return;
 
     try {
       await softDeleteStopWithToken(stopID);
 
-      alert('Stop deleted successfully!');
+      await Swal.fire({
+          icon: 'success',
+          title: 'Deleted',
+          text: 'Stop deleted successfully!',
+        });
       fetchStops();
     } catch (error) {
       console.error('Error deleting stop:', error);
-      alert('Failed to delete stop. Please try again.');
+      await Swal.fire({
+          icon: 'error',
+          title: 'Delete Failed',
+          text: 'Failed to delete stop. Please try again.',
+        });
     }
   };
 
@@ -168,56 +210,50 @@ const RouteManagementPage: React.FC = () => {
         <div className="card-body">
 
             {/* Stops Table Section */}
-            <h2 className={styles.stopTitle}>CREATE STOP</h2>
+            <h2 className={styles.stopTitle}>Create Stop</h2>
 
             {/* Search & Sort Inputs */}
-            <div className="row g-2 align-items-center mb-3">
-              <div className="col-md-4">
+            <div className={styles.toolbar}>
+              <div className={styles.searchWrapper}>
+                <i className="ri-search-2-line"></i>
                 <input
                   type="text"
-                  className="form-control"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
                 />
               </div>
-              <div className="col-md-3">
-                <select
-                  className="form-select"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                >
-                  <option value="A-Z">Name: A-Z</option>
-                  <option value="Z-A">Name: Z-A</option>
-                </select>
-              </div>
-              <div className="col-md-5 text-end">
-                <button
-                  className="btn btn-success"
-                  onClick={() => setShowAddStopModal(true)}
-                >
-                  <Image
-                    src="/assets/images/add-line.png"
-                    alt="Add"
-                    width={20}
-                    height={20}
-                  />
-                  Add
-                </button>
-                <AddStopModal
-                  show={showAddStopModal}
-                  onClose={() => setShowAddStopModal(false)}
-                  onCreate={handleCreateStop}
-                />
-              </div>
+
+              <select
+                className={styles.sortSelect}
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+              >
+                <option value="A-Z">Name: A-Z</option>
+                <option value="Z-A">Name: Z-A</option>
+              </select>
+
+              <button
+                className={styles.addButton}
+                onClick={() => setShowAddStopModal(true)}
+              >
+                <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+                Add Stop
+              </button>
+
+              <AddStopModal
+                show={showAddStopModal}
+                onClose={() => setShowAddStopModal(false)}
+                onCreate={handleCreateStop}
+              />
             </div>
+
 
               {/* Loading Spinner */}
               {loading ? (
                 <div className="text-center my-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
+                  <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
                 </div>
               ) : (
                 <table className={styles.table}>

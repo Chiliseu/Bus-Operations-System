@@ -90,18 +90,11 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
           <div className={styles.modalFooter}>
             <button
               type="button"
-              className={`${styles.btn} ${styles.btnCancel}`}
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnSave}`}
+              className={`${styles.btn} ${styles.saveStopBtn}`}
               onClick={handleSave}
               disabled={!name.trim() || !latitude.trim() || !longitude.trim()}
             >
-              Save Changes
+              Save Stop
             </button>
           </div>
         </div>

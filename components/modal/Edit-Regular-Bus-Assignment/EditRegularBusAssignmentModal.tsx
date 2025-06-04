@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Bus, Driver, Conductor, Route, Quota_Policy, Fixed, Percentage } from "@/app/interface";
 import styles from "./edit-regular-bus-assignment.module.css";
+import Swal from 'sweetalert2';
 
 interface EditRegularBusAssignmentModalProps {
   show: boolean;
@@ -107,10 +108,14 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
         });
       });
 
-      if (isOverlapping) {
-        alert("Quota policy date ranges should not overlap.");
-        return;
-      }
+        if (isOverlapping) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Date Range Overlap',
+            text: 'Quota policy date ranges should not overlap.',
+          });
+          return;
+        }
 
       const formattedPolicies: Quota_Policy[] = quotaPolicies.map((policy) => {
         const base: Quota_Policy = {
@@ -132,7 +137,11 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
         quotaPolicies: formattedPolicies,
       });
     } else {
-      alert("Please make sure all fields are selected before saving.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Fields',
+        text: 'Please make sure all fields are selected before saving.',
+      });
     }
   };
 
@@ -348,14 +357,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn btn-success"
+              className={styles.saveAssignmentBtn}
               onClick={handleSave}
             >
               Save Assignment

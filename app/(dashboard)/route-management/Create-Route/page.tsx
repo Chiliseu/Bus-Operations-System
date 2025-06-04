@@ -11,6 +11,7 @@ import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
 import EditRouteModal from '@/components/modal/Edit-Route/EditRouteModal';
+import Swal from 'sweetalert2';
 
 import '@/styles/globals.css';
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
@@ -174,7 +175,11 @@ const CreateRoutePage: React.FC = () => {
 
   const handleAddRoute = async () => {
     if (!routeName || !selectedStartStop || !selectedEndStop) {
-      alert('Please fill in all required fields.');
+         await Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Fields',
+            text: 'Please fill in all required fields.',
+          });
       return;
     }
 
@@ -190,11 +195,14 @@ const CreateRoutePage: React.FC = () => {
       RouteStops: routeStops,
     };
 
-    console.log('Payload being sent to the backend:', newRoute);
 
     try {
       await createRouteWithToken(newRoute);
-      alert('Route added successfully!');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Route added successfully!',
+        });
       setRouteName('');
       setStartStop('');
       setEndStop('');
@@ -202,27 +210,52 @@ const CreateRoutePage: React.FC = () => {
       fetchRoutes();
     } catch (error) {
       console.error('Error adding route:', error);
-      alert(error instanceof Error ? error.message : 'Failed to add route. Please try again.');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Failed to add route. Please try again.',
+      });
     }
   };
 
   const handleDeleteRoute = async (routeID: string) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this route?');
-    if (!confirmDelete) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Are you sure you want to delete this route?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    });
+
+  if (!result.isConfirmed) return;
 
     try {
       await deleteRouteWithToken(routeID);
-      alert('Route deleted successfully!');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Route deleted successfully!',
+        });
       fetchRoutes(); // Refresh the route list
     } catch (error) {
       console.error('Error deleting route:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete route. Please try again.');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Failed to delete route. Please try again.',
+      });
     }
   };
 
   const handleSaveEditedRoute = async () => {
   if (!routeToEdit || !editRouteName || !startStopID || !endStopID) {
-      alert('Please fill in all required fields.');
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      });
       return;
     }
 
@@ -240,12 +273,13 @@ const CreateRoutePage: React.FC = () => {
       RouteStops: routeStops,
     };
 
-    // You can also log the full payload:
-    console.log("Full updatedRoute payload:", updatedRoute);
-
     try {
       await updateRouteWithToken(updatedRoute); // Your API call to update route
-      alert('Route updated successfully!');
+       await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Route updated successfully!',
+      });
 
       // Refresh the routes list after update
       fetchRoutes();
@@ -259,13 +293,21 @@ const CreateRoutePage: React.FC = () => {
       setEditStopsBetween([]);
     } catch (error) {
       console.error('Error updating route:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update route. Please try again.');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Failed to update route. Please try again.',
+      });
     }
   };
 
   const handleSaveRoute = async () => {
     if (!routeName || !startStop || !endStop) {
-      alert('Please fill in all fields with valid values.');
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all fields with valid values.',
+      });
       return;
     }
 
@@ -308,7 +350,11 @@ const CreateRoutePage: React.FC = () => {
         throw new Error(errorMsg);
       }
 
-      alert('Route updated successfully!');
+        await Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Route updated successfully!',
+        });
       setEditingRouteID(null);
       handleClear();
       fetchRoutes();
@@ -316,7 +362,11 @@ const CreateRoutePage: React.FC = () => {
       console.error('Error updating route:', error);
       // Safe error message extraction
       const message = error instanceof Error ? error.message : 'Failed to update route. Please try again.';
-      alert(message);
+        await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: message,
+      });
     }
   };
   
@@ -332,211 +382,55 @@ const CreateRoutePage: React.FC = () => {
     setSelectedStopIndex(null);
   };
 
-  return (
-    <div className={`card mx-auto ${styles.wideCard}`}>
-      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-        <div className="card-body">
-          {/* Routes Table Section */}
-          <h2 className={styles.stopTitle}>CREATE ROUTE</h2>
-          <div className="row g-2 align-items-center mb-3">
-            <div className="col-md-4">
-              <input type="text" className="form-control" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
-            </div>
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="A-Z">Name: A-Z</option>
-                <option value="Z-A">Name: Z-A</option>
-              </select>
-            </div>
-            <div className="col-md-5 text-end">
-              <div>
-                <button className="btn btn-success me-2" onClick={() => setShowAddRouteModal(true)}>
-                  <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
-                  Add
-                </button>
-                <AddRouteModal
-                  show={showAddRouteModal}
-                  onClose={() => setShowAddRouteModal(false)}
-                  onCreate={handleAddRoute} // <-- use your real create function here!
-                  routeName={routeName}
-                  setRouteName={setRouteName}
-                  startStop={startStop}
-                  setStartStop={setStartStop}
-                  endStop={endStop}
-                  setEndStop={setEndStop}
-                  stopsBetween={stopsBetween}
-                  setStopsBetween={setStopsBetween}
-                  onStartStopClick={() => {
-                    setStopType('start');
-                    setShowStopsModal(true);
-                  }}
-                  onEndStopClick={() => {
-                    setStopType('end');
-                    setShowStopsModal(true);
-                  }}
-                  onBetweenStopClick={(idx) => {
-                    setStopType('between');
-                    setSelectedStopIndex(idx);
-                    setShowStopsModal(true);
-                  }}
-                />
-              </div>
-            </div>
+return (
+  <div className={`card mx-auto ${styles.wideCard}`}>
+    <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
+      <div className="card-body">
+        {/* Title */}
+        <h2 className={styles.stopTitle}>Create Route</h2>
+
+        {/* Toolbar container */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
 
-{loading ? (
-  <div className="text-center my-4">
-    <div className="spinner-border text-primary" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </div>
-  </div>
-) : (
-  <table className={styles.table}>
-    <thead>
-      <tr className={styles.tableHeadRow}>
-        <th>Route Name</th>
-        <th>Start Stop</th>
-        <th>End Stop</th>
-        <th>No. of Stops Between</th>
-        <th className={styles.actions}>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {displayedroutes.length > 0 ? (
-        currentRoutes.map((route) => (
-          <tr key={route.RouteID} className={styles.tableRow}>
-            <td>{route.RouteName}</td>
-            <td>{route.StartStop?.StopName}</td>
-            <td>{route.EndStop?.StopName}</td>
-            <td>{route.RouteStops?.length ?? 0}</td>
-            <td className={styles.actions}>
-              <button
-                className={styles.editBtn}
-                onClick={() => handleEditRoute(route)}
-              >
-                <Image
-                  src="/assets/images/edit-white.png"
-                  alt="Edit"
-                  width={25}
-                  height={25}
-                />
-              </button>
-              <button
-                className={styles.deleteBtn}
-                onClick={() => handleDeleteRoute(route.RouteID)}
-              >
-                <Image
-                  src="/assets/images/delete-white.png"
-                  alt="Delete"
-                  width={25}
-                  height={25}
-                />
-              </button>
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan={5} className={styles.noRecords}>
-            No routes found.
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-)}
+          <select
+            className={styles.sortSelect}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="A-Z">Name: A-Z</option>
+            <option value="Z-A">Name: Z-A</option>
+          </select>
 
-<PaginationComponent
-  currentPage={currentPage}
-  totalPages={totalPages}
-  pageSize={pageSize}
-  onPageChange={setCurrentPage}
-  onPageSizeChange={(size) => {
-    setPageSize(size);
-    setCurrentPage(1);
-  }}
-/>
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddRouteModal(true)}
+          >
+            <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+            Add Route
+          </button>
 
-
-          {/* Modals */}
-          {showStopsModal && (
-            <AssignStopsModal 
-              onClose={() => setShowStopsModal(false) } 
-              onAssign={(stop) => {
-                if (showEditRouteModal) {
-                  if (stopType === 'start') {
-                    setEditStartStop(stop.StopName);
-                    setEditSelectedStartStop(stop);
-                    setStartStopID(stop.StopID); // <-- Add this line
-                  } else if (stopType === 'end') {
-                    setEditEndStop(stop.StopName);
-                    setEditSelectedEndStop(stop);
-                    setEndStopID(stop.StopID); // <-- Add this line
-                  } else if (stopType === 'between' && selectedStopIndex !== null) {
-                    const updatedStops = [...editStopsBetween];
-                    updatedStops[selectedStopIndex] = {
-                      StopID: stop.StopID,
-                      StopName: stop.StopName,
-                      IsDeleted: false,
-                      latitude: '',
-                      longitude: ''
-                    };
-                    setEditStopsBetween(updatedStops);
-                  }
-                } else {
-                  // Adding
-                  if (stopType === 'start') {
-                    setStartStop(stop.StopName);
-                    setStartStopID(stop.StopID);
-                    setSelectedStartStop(stop);
-                  } else if (stopType === 'end') {
-                    setEndStop(stop.StopName);
-                    setEndStopID(stop.StopID);
-                    setSelectedEndStop(stop);
-                  } else if (stopType === 'between' && selectedStopIndex !== null) {
-                    const updatedStops = [...stopsBetween];
-                    updatedStops[selectedStopIndex] = {
-                      StopID: stop.StopID,
-                      StopName: stop.StopName,
-                      IsDeleted: false,
-                      latitude: '',
-                      longitude: ''
-                    };
-                    setStopsBetween(updatedStops);
-                  }
-                }
-                setStopType(null);
-                setSelectedStopIndex(null);
-                setShowStopsModal(false);
-              }}
-            />
-          )}
-          {showAssignBusModal && (
-            <AssignBusModal 
-              onClose={() => setShowAssignBusModal(false) } 
-              onAssign={(bus) => {
-                alert(`Assigned Bus: ${bus.busId}`);
-                setShowAssignBusModal(false); // close modal
-              }}
-            />
-          )}
-          <EditRouteModal
-            show={showEditRouteModal}
-            onClose={() => setShowEditRouteModal(false)}
-            route={routeToEdit}
-            routeName={editRouteName}
-            setRouteName={setEditRouteName}
-            startStop={editStartStop}
-            setStartStop={setEditStartStop}
-            endStop={editEndStop}
-            setEndStop={setEditEndStop}
-            stopsBetween={editStopsBetween}
-            setStopsBetween={setEditStopsBetween}
-            onSave={handleSaveEditedRoute}
+          <AddRouteModal
+            show={showAddRouteModal}
+            onClose={() => setShowAddRouteModal(false)}
+            onCreate={handleAddRoute}
+            routeName={routeName}
+            setRouteName={setRouteName}
+            startStop={startStop}
+            setStartStop={setStartStop}
+            endStop={endStop}
+            setEndStop={setEndStop}
+            stopsBetween={stopsBetween}
+            setStopsBetween={setStopsBetween}
             onStartStopClick={() => {
               setStopType('start');
               setShowStopsModal(true);
@@ -552,9 +446,177 @@ const CreateRoutePage: React.FC = () => {
             }}
           />
         </div>
+
+        {/* Loading */}
+          {loading ? (
+            <div className="text-center my-4">
+              <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
+            </div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr className={styles.tableHeadRow}>
+                <th>Route Name</th>
+                <th>Start Stop</th>
+                <th>End Stop</th>
+                <th>No. of Stops Between</th>
+                <th className={styles.actions}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedroutes.length > 0 ? (
+                currentRoutes.map((route) => (
+                  <tr key={route.RouteID} className={styles.tableRow}>
+                    <td>{route.RouteName}</td>
+                    <td>{route.StartStop?.StopName}</td>
+                    <td>{route.EndStop?.StopName}</td>
+                    <td>{route.RouteStops?.length ?? 0}</td>
+                    <td className={styles.actions}>
+                      <button
+                        className={styles.editBtn}
+                        onClick={() => handleEditRoute(route)}
+                      >
+                        <Image
+                          src="/assets/images/edit-white.png"
+                          alt="Edit"
+                          width={25}
+                          height={25}
+                        />
+                      </button>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDeleteRoute(route.RouteID)}
+                      >
+                        <Image
+                          src="/assets/images/delete-white.png"
+                          alt="Delete"
+                          width={25}
+                          height={25}
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className={styles.noRecords}>
+                    No routes found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+
+        {/* Pagination */}
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+
+        {/* Modals */}
+        {showStopsModal && (
+          <AssignStopsModal
+            onClose={() => setShowStopsModal(false)}
+            onAssign={(stop) => {
+              if (showEditRouteModal) {
+                if (stopType === 'start') {
+                  setEditStartStop(stop.StopName);
+                  setEditSelectedStartStop(stop);
+                  setStartStopID(stop.StopID);
+                } else if (stopType === 'end') {
+                  setEditEndStop(stop.StopName);
+                  setEditSelectedEndStop(stop);
+                  setEndStopID(stop.StopID);
+                } else if (stopType === 'between' && selectedStopIndex !== null) {
+                  const updatedStops = [...editStopsBetween];
+                  updatedStops[selectedStopIndex] = {
+                    StopID: stop.StopID,
+                    StopName: stop.StopName,
+                    IsDeleted: false,
+                    latitude: '',
+                    longitude: '',
+                  };
+                  setEditStopsBetween(updatedStops);
+                }
+              } else {
+                if (stopType === 'start') {
+                  setStartStop(stop.StopName);
+                  setStartStopID(stop.StopID);
+                  setSelectedStartStop(stop);
+                } else if (stopType === 'end') {
+                  setEndStop(stop.StopName);
+                  setEndStopID(stop.StopID);
+                  setSelectedEndStop(stop);
+                } else if (stopType === 'between' && selectedStopIndex !== null) {
+                  const updatedStops = [...stopsBetween];
+                  updatedStops[selectedStopIndex] = {
+                    StopID: stop.StopID,
+                    StopName: stop.StopName,
+                    IsDeleted: false,
+                    latitude: '',
+                    longitude: '',
+                  };
+                  setStopsBetween(updatedStops);
+                }
+              }
+              setStopType(null);
+              setSelectedStopIndex(null);
+              setShowStopsModal(false);
+            }}
+          />
+        )}
+
+        {showAssignBusModal && (
+          <AssignBusModal
+            onClose={() => setShowAssignBusModal(false)}
+            onAssign={async (bus) => {
+              await Swal.fire({
+                icon: 'success',
+                title: 'Bus Assigned',
+                text: `Assigned Bus: ${bus.busId}`,
+              });
+              setShowAssignBusModal(false);
+            }}
+          />
+        )}
+
+        <EditRouteModal
+          show={showEditRouteModal}
+          onClose={() => setShowEditRouteModal(false)}
+          route={routeToEdit}
+          routeName={editRouteName}
+          setRouteName={setEditRouteName}
+          startStop={editStartStop}
+          setStartStop={setEditStartStop}
+          endStop={editEndStop}
+          setEndStop={setEditEndStop}
+          stopsBetween={editStopsBetween}
+          setStopsBetween={setEditStopsBetween}
+          onSave={handleSaveEditedRoute}
+          onStartStopClick={() => {
+            setStopType('start');
+            setShowStopsModal(true);
+          }}
+          onEndStopClick={() => {
+            setStopType('end');
+            setShowStopsModal(true);
+          }}
+          onBetweenStopClick={(idx) => {
+            setStopType('between');
+            setSelectedStopIndex(idx);
+            setShowStopsModal(true);
+          }}
+        />
       </div>
     </div>
-  );
-};
-
+  </div>
+);
+}
 export default CreateRoutePage;
