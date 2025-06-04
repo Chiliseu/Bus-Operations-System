@@ -1,4 +1,5 @@
 import React from "react";
+import Swal from 'sweetalert2';
 import Image from "next/image";
 import { Stop } from "@/app/interface";
 import {
@@ -75,19 +76,27 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
     setStopsBetween(reordered);
   };
 
-  const handleCreate = () => {
+    const handleCreate = async () => {
     if (!routeName || !startStop || !endStop) {
-      alert("Please fill in all required fields.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      });
       return;
     }
     if (stopsBetween.some((stop) => !stop.StopName.trim())) {
-      alert("All 'Stops Between' must have a stop selected.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Stops',
+        text: "All 'Stops Between' must have a stop selected.",
+      });
       return;
     }
     onCreate({ routeName, startStop, endStop, stopsBetween });
-    setRouteName("");
-    setStartStop("");
-    setEndStop("");
+    setRouteName('');
+    setStartStop('');
+    setEndStop('');
     setStopsBetween([]);
     onClose();
   };
@@ -215,11 +224,8 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.btnCancel} onClick={onClose}>
-            Cancel
-          </button>
           <button
-            className={styles.btnCreate}
+            className={styles.createRouteBtn}
             onClick={handleCreate}
             disabled={!routeName || !startStop || !endStop}
           >

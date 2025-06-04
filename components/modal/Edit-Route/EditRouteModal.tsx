@@ -1,4 +1,5 @@
 import React from "react";
+import Swal from 'sweetalert2';
 import Image from "next/image";
 import { Stop, Route } from "@/app/interface";
 import {
@@ -81,25 +82,37 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
     setStopsBetween(reordered);
   };
 
-  const handleSave = () => {
-    if (!routeName || !startStop || !endStop) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-    if (stopsBetween.some(stop => !stop.StopName.trim())) {
-      alert("All 'Stops Between' must have a stop selected.");
-      return;
-    }
-    if (!route) return;
-    onSave({
-      RouteID: route.RouteID,
-      RouteName: routeName,
-      StartStop: startStop,
-      EndStop: endStop,
-      stopsBetween,
-    });
-    onClose();
-  };
+    const handleSave = async () => {
+      if (!routeName || !startStop || !endStop) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Missing Fields',
+          text: 'Please fill in all required fields.',
+        });
+        return;
+      }
+
+      if (stopsBetween.some(stop => !stop.StopName.trim())) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Invalid Stops',
+          text: "All 'Stops Between' must have a stop selected.",
+        });
+        return;
+      }
+
+      if (!route) return;
+
+      onSave({
+        RouteID: route.RouteID,
+        RouteName: routeName,
+        StartStop: startStop,
+        EndStop: endStop,
+        stopsBetween,
+      });
+
+      onClose();
+    };
 
   if (!show || !route) return null;
 
@@ -222,18 +235,11 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
           <div className={styles.modalFooter}>
             <button
               type="button"
-              className={`${styles.btn} ${styles.btnCancel}`}
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnSave}`}
+              className={`${styles.btn} ${styles.saveRouteBtn}`}
               onClick={handleSave}
               disabled={!routeName || !startStop || !endStop}
             >
-              Save Changes
+              Save Route
             </button>
           </div>
         </div>

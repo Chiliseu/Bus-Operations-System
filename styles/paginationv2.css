@@ -38,6 +38,8 @@
 /* Dropdown for page size */
 .pagination-dropdown {
   max-width: max-content;
+  border: 1px solid #ccc;       /* light gray border to show box */
+  background-color: #fff;       /* white background */
   padding: var(--pagination-padding) !important;
   border-radius: var(--pagination-radius) !important;
   font-size: var(--pagination-font-size);

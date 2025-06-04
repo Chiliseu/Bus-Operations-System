@@ -5,6 +5,9 @@ import { Conductor } from "@/app/interface/conductor";
 import { Route } from "@/app/interface/route";
 import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./add-regular-bus-assignment.module.css";
+import Swal from 'sweetalert2';
+
+
 
 interface QuotaPolicy {
   startDate: string;
@@ -243,7 +246,11 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
           p.quotaValue <= 0
       )
     ) {
-      alert("Please complete all fields and ensure quota values are valid.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Form',
+        text: 'Please complete all fields and ensure quota values are valid.',
+      });
       return;
     }
 
@@ -252,11 +259,11 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
       if (
         addDays(quotaPolicies[i].endDate, 1) !== quotaPolicies[i + 1].startDate
       ) {
-        alert(
-          `Date ranges must be continuous and non-overlapping. Check policies #${
-            i + 1
-          } and #${i + 2}.`
-        );
+        Swal.fire({
+          icon: 'error',
+          title: 'Date Range Error',
+          text: `Date ranges must be continuous and non-overlapping. Check policies #${i + 1} and #${i + 2}.`,
+        });
         return;
       }
     }
@@ -465,20 +472,14 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
           </div>
 
           <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn btn-success"
-              onClick={handleCreate}
-            >
-              Create Assignment
-            </button>
+          <button
+            type="button"
+            className={styles.createAssignmentBtn}
+            onClick={handleCreate}
+          >
+            Create Assignment
+          </button>
+
           </div>
         </div>
       </div>
