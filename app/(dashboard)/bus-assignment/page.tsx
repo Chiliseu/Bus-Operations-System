@@ -9,12 +9,11 @@ import AssignConductorModal from '@/components/modal/Assign-Conductor/AssignCond
 import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
 import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
 import styles from './bus-assignment.module.css';
-import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 import Image from 'next/image';
 import PaginationComponent from '@/components/ui/PaginationV2';
-import { Bus, Driver, Conductor, RegularBusAssignment, Quota_Policy } from '@/app/interface';
+import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
 import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
 
 
@@ -59,6 +58,7 @@ const BusAssignmentPage: React.FC = () => {
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [selectedConductor, setSelectedConductor] = useState<Conductor | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [selectedQuotaPolicy, setSelectedQuotaPolicy] = useState<Quota_Policy[] | null>(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -158,6 +158,7 @@ const BusAssignmentPage: React.FC = () => {
       image: null,
     });
     setSelectedRoute(assignment.BusAssignment.Route);
+    setSelectedQuotaPolicy(assignment.quota_Policy);
     setShowEditModal(true);
   };
 
@@ -227,23 +228,49 @@ const BusAssignmentPage: React.FC = () => {
     driver,
     conductor,
     route,
+    quotaPolicies,
   }: {
     bus: Bus;
     driver: Driver;
     conductor: Conductor;
     route: Route;
+    quotaPolicies: Quota_Policy[];
   }) {
-
     try {
       if (!bus || !driver || !conductor || !route) {
         throw new Error("Missing required fields");
       }
 
+      // Transform quotaPolicies into minimal DTO format expected by API
+      const transformedQuotaPolicies = quotaPolicies.map((policy) => {
+        if (policy.Fixed) {
+          return {
+            QuotaPolicyID: policy.QuotaPolicyID,
+            type: "Fixed",
+            value: policy.Fixed.Quota,
+            StartDate: policy.StartDate.toISOString().split("T")[0],
+            EndDate: policy.EndDate.toISOString().split("T")[0],
+          };
+        } else if (policy.Percentage) {
+          return {
+            QuotaPolicyID: policy.QuotaPolicyID,
+            type: "Percentage",
+            value: policy.Percentage.Percentage,
+            StartDate: policy.StartDate.toISOString().split("T")[0],
+            EndDate: policy.EndDate.toISOString().split("T")[0],
+          };
+        } else {
+          // Optionally handle cases with neither Fixed nor Percentage
+          throw new Error(`Quota policy ${policy.QuotaPolicyID} missing Fixed or Percentage data`);
+        }
+      });
+
       const data = {
-        BusID: bus.busId, // Or `bus.id`, depending on your model
+        BusID: bus.busId, // or bus.id
         RouteID: route.RouteID,
         DriverID: driver.driver_id,
         ConductorID: conductor.conductor_id,
+        quotaPolicies: transformedQuotaPolicies,
       };
 
       const updated = await updateBusAssignment(selectedAssignment, data);
@@ -251,11 +278,9 @@ const BusAssignmentPage: React.FC = () => {
       alert("Bus assignment successfully updated!");
       fetchAssignments();
     } catch (error) {
-      alert("Failed to save bus assignment");
+      alert("Failed to save bus assignment: " + (error instanceof Error ? error.message : error));
     }
   }
-
-
 
   const paginatedAssignments = displayedBusAssignments.slice(
         (currentPage - 1) * pageSize,
@@ -384,6 +409,7 @@ const BusAssignmentPage: React.FC = () => {
         <EditRegularBusAssignmentModal
           show={showEditModal}
           onClose={() => setShowEditModal(false)}
+          quotaPolicy={selectedQuotaPolicy}
           selectedBus={selectedBus}
           selectedDriver={selectedDriver}
           selectedConductor={selectedConductor}
