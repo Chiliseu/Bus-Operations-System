@@ -6,7 +6,6 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
 import { Bus } from "@/app/interface";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignBusModal = ({ 
   onClose,
@@ -30,6 +29,11 @@ const AssignBusModal = ({
     };
 
     loadBuses();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
   const [filteredBuses, setFilteredBuses] = useState(buses);

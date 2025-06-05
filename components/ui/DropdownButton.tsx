@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type DropdownItem = {
   name: string;
@@ -12,6 +12,12 @@ interface DropdownButtonProps {
 
 const DropdownButton: React.FC<DropdownButtonProps> = ({ dropdownItems = [] }) => {
   const [selectedLabel, setSelectedLabel] = useState("Options");
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
+
 
   return (
     <div className="dropdown">

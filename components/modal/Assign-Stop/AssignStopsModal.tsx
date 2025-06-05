@@ -6,7 +6,6 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignStopsModal = ({ 
   onClose,
@@ -30,6 +29,11 @@ const AssignStopsModal = ({
     };
 
     loadStops();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
   const [filteredStops, setFilteredStops] = useState(stops);

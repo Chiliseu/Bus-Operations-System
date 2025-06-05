@@ -7,7 +7,6 @@ import DropdownButton from '../../ui/DropdownButton';
 import { useEffect} from 'react';
 import { fetchDriversWithToken } from '@/lib/apiCalls/external';
 import { Driver } from "@/app/interface";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignDriverModal = ({ 
   onClose,
@@ -32,6 +31,11 @@ const AssignDriverModal = ({
     };
 
     loadDrivers();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
 

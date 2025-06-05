@@ -6,7 +6,6 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
 import { Conductor } from "@/app/interface"; // Conductor interface
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignConductorModal = ({ 
   onClose,
@@ -32,6 +31,11 @@ const AssignConductorModal = ({
     };
 
     loadConductors();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
   const [filteredConductors, setFilteredConductors] = useState(conductors);

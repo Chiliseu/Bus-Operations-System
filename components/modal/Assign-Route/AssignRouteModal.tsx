@@ -6,7 +6,6 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignRouteModal = ({ 
   onClose,
@@ -32,6 +31,11 @@ const AssignRouteModal = ({
     };
 
     fetchRoutes();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
   const dropdownItems = [
