@@ -10,5 +10,5 @@ export interface RegularBusAssignment {
   Change: number;
   TripRevenue: number;
   BusAssignment: BusAssignment;
-  quota_Policy: Quota_Policy[];
+  QuotaPolicies: Quota_Policy[];
 }
