@@ -6,6 +6,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignRouteModal = ({ 
   onClose,
@@ -75,7 +76,7 @@ const AssignRouteModal = ({
         {/* Title and Filter section */}
         <nav className='px-3 flex justify-between items-center mb-2'>
           <div className='font-medium text-lg'>Routes</div>
-          <div className='flex items-center'>
+          <div className='flex items-center gap-3'>
             <div className='font-medium mr-3'>Filter</div>
             <DropdownButton dropdownItems={dropdownItems}></DropdownButton>
           </div>
@@ -115,7 +116,7 @@ const AssignRouteModal = ({
 
         {/* Cancel button */}
         <footer className='flex justify-end'>
-          <Button onClick={onClose} text='Cancel' bgColor='bg-gray-200' textColor='text-gray-700'></Button>
+          <Button onClick={onClose} text='Cancel' bgColor='btn-secondary'></Button>
         </footer>
       </main>
     </div>

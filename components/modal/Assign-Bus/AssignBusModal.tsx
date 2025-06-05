@@ -6,6 +6,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
 import { Bus } from "@/app/interface";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignBusModal = ({ 
   onClose,
@@ -62,13 +63,6 @@ const AssignBusModal = ({
         setFilteredBuses(nonAirconOnly);
       },
     },
-
-    {
-      name: 'All',
-      action: () => {
-        setFilteredBuses(buses);
-      },
-    },
   ];
 
   return (
@@ -95,7 +89,7 @@ const AssignBusModal = ({
         {/* Title and Filter section */}
         <nav className="px-3 flex justify-between items-center mb-2">
           <div className="font-medium text-lg">Available Buses</div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <div className="font-medium mr-3">Filter</div>
             <DropdownButton dropdownItems={dropdownItems} />
           </div>
@@ -143,8 +137,7 @@ const AssignBusModal = ({
           <Button
             onClick={onClose}
             text="Cancel"
-            bgColor="bg-gray-200"
-            textColor="text-gray-700"
+            bgColor="btn-secondary"
           />
         </footer>
       </main>

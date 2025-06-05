@@ -6,6 +6,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const AssignStopsModal = ({ 
   onClose,
@@ -75,7 +76,7 @@ const AssignStopsModal = ({
         {/* Title and Filter section */}
         <nav className="px-3 flex justify-between items-center mb-2">
           <div className="font-medium text-lg">Available Stops</div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <div className="font-medium mr-3">Filter</div>
             <DropdownButton dropdownItems={dropdownItems} />
           </div>
@@ -123,8 +124,7 @@ const AssignStopsModal = ({
           <Button
             onClick={onClose}
             text="Cancel"
-            bgColor="bg-gray-200"
-            textColor="text-gray-700"
+            bgColor="btn-secondary"
           />
         </footer>
       </main>
