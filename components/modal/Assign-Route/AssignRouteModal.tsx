@@ -34,7 +34,7 @@ const AssignRouteModal = ({
   }, []);
 
   useEffect(() => {
-    // @ts-expect-error
+    // @ts-expect-error: bootstrap has no type declarations
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 

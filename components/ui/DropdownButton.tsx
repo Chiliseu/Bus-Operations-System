@@ -14,7 +14,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ dropdownItems = [] }) =
   const [selectedLabel, setSelectedLabel] = useState("Options");
 
   useEffect(() => {
-    // @ts-expect-error
+    // @ts-expect-error: bootstrap has no type declarations
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
