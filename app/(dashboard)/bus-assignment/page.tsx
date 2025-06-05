@@ -160,10 +160,9 @@ const BusAssignmentPage: React.FC = () => {
       image: null,
     });
     setSelectedRoute(assignment.BusAssignment.Route);
-    setSelectedQuotaPolicy(assignment.quota_Policy);
+    setSelectedQuotaPolicy(assignment.QuotaPolicies);
     setShowEditModal(true);
   };
-
 
   const handleCreateBusAssignment = async (assignment: {
     BusID: string;
