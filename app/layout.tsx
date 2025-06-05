@@ -4,6 +4,7 @@ import '@/styles/globals.css';
 import '@/styles/style.css';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import Topbar from '@/components/Topbar/Topbar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Token_Generation from './Token_Generation';
 

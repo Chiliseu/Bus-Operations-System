@@ -33,6 +33,11 @@ const AssignConductorModal = ({
     loadConductors();
   }, []);
 
+  useEffect(() => {
+    // @ts-expect-error: bootstrap has no type declarations
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
+
   const [filteredConductors, setFilteredConductors] = useState(conductors);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -60,7 +65,6 @@ const AssignConductorModal = ({
 
               const filtered = conductors.filter((conductor) =>
                 conductor.name.toLowerCase().includes(text.toLowerCase()) ||
-                conductor.job.toLowerCase().includes(text.toLowerCase()) ||
                 conductor.contactNo.toLowerCase().includes(text.toLowerCase()) ||
                 conductor.address.toLowerCase().includes(text.toLowerCase())
               );
@@ -72,7 +76,7 @@ const AssignConductorModal = ({
         {/* Title and Filter */}
         <nav className="px-3 flex justify-between items-center mb-2">
           <div className="font-medium text-lg">Available Conductors</div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <div className="font-medium mr-3">Filter</div>
             <DropdownButton dropdownItems={dropdownItems} />
           </div>
@@ -114,8 +118,7 @@ const AssignConductorModal = ({
           <Button
             onClick={onClose}
             text="Cancel"
-            bgColor="bg-gray-200"
-            textColor="text-gray-700"
+            bgColor="btn-secondary"
           />
         </footer>
       </main>

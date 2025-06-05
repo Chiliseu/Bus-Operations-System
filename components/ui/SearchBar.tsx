@@ -1,6 +1,6 @@
-'use client';
-import React from 'react';
-import Image from 'next/image';
+"use client";
+import React from "react";
+import Image from "next/image";
 
 type SearchBarProps = {
   placeholder?: string;
@@ -9,27 +9,22 @@ type SearchBarProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-
-const SearchBar = ({placeholder='Search',className='', value = '', onChange} :SearchBarProps) => {
+const SearchBar = ({ placeholder = "Search", className = "", value = "", onChange }: SearchBarProps) => {
   return (
-    <div className={`${className} relative`}>
-      {/* Search Bar */}
+    <div className={`position-relative ${className}`}>
+      {/* Search Input */}
       <input
-        type="text"
-        value={value} // ✅ this line makes `value` used
-        className="w-full pr-10 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="search"
+        value={value}
+        className="form-control rounded border border-gray-300 shadow-sm pe-4" // ✅ Adds right padding for icon space
         placeholder={placeholder}
         onChange={onChange}
+        aria-label="Search"
       />
 
-      {/* Search Icon */}
-      <div className='absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none'>
-        <Image
-          src="/icons/search-icon.svg" 
-          alt="Search"
-          width={16}
-          height={16}
-        />
+      {/* Search Icon (Inside Input, at the Right) */}
+      <div className="position-absolute end-0 top-50 translate-middle-y pe-2">
+        <Image src="/icons/search-icon.svg" alt="Search" width={16} height={16} />
       </div>
     </div>
   );

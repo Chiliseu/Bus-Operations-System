@@ -33,6 +33,12 @@ const AssignDriverModal = ({
     loadDrivers();
   }, []);
 
+  useEffect(() => {
+    // @ts-expect-error: bootstrap has no type declarations
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
+
+
   const [filteredDrivers, setFilteredDrivers] = useState(drivers);
   const [searchTerm, setSearchTerm] = useState(''); // use state for search function
 
@@ -61,7 +67,6 @@ const AssignDriverModal = ({
               // Filter drivers
               const filtered = drivers.filter((driver) =>
                 driver.name.toLowerCase().includes(text.toLowerCase()) ||
-                driver.job.toLowerCase().includes(text.toLowerCase()) ||
                 driver.contactNo.toLowerCase().includes(text.toLowerCase()) ||
                 driver.address.toLowerCase().includes(text.toLowerCase())
               );
@@ -74,7 +79,7 @@ const AssignDriverModal = ({
         <nav className='px-3 flex justify-between items-center mb-2'>
           <div className='font-medium text-lg'>Available Drivers</div>
           {/* Filter */}
-          <div className='flex items-center'>
+          <div className='flex items-center gap-3'>
             <div className='font-medium mr-3'>Filter</div>
             <DropdownButton dropdownItems={dropdownItems} />
           </div>
@@ -118,7 +123,7 @@ const AssignDriverModal = ({
 
         {/* Cancel button */}
         <footer className='flex justify-end'>
-          <Button onClick={onClose} text='Cancel' bgColor='bg-gray-200' textColor='text-gray-700' />
+          <Button onClick={onClose} text='Cancel' bgColor='btn-secondary' />
         </footer>
       </main>
     </div>
