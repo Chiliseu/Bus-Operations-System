@@ -34,7 +34,7 @@ const AssignConductorModal = ({
   }, []);
 
   useEffect(() => {
-    // @ts-ignore
+    // @ts-expect-error
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 

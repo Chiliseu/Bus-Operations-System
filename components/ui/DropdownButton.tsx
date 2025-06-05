@@ -14,7 +14,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ dropdownItems = [] }) =
   const [selectedLabel, setSelectedLabel] = useState("Options");
 
   useEffect(() => {
-    // @ts-ignore
+    // @ts-expect-error
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
