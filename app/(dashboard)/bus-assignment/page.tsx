@@ -95,29 +95,68 @@ const BusAssignmentPage: React.FC = () => {
   const [assignmentDate, setAssignmentDate] = useState<string | null>(null);
 
   useEffect(() => {
-      const sortedAssignments = [...busAssignments];
-  
-      const filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
-        busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-  
-      setDisplayedBusAssignments(filteredBusAssignments);
-  
-      // Reset currentPage if out of range
-      const totalPages = Math.ceil(filteredBusAssignments.length / pageSize);
-      if (currentPage > totalPages && totalPages > 0) {
-        setCurrentPage(1);
-      }
-    }, [busAssignments, searchQuery, sortOrder, pageSize]);
+    let sortedAssignments = [...busAssignments];
 
-  // Fetch from Database
-  useEffect(() => {
-    if (showAddAssignmentModal) {
-      setAssignmentDate(new Date().toISOString());
+    switch (sortOrder) {
+      case "bus_az":
+        sortedAssignments.sort((a, b) =>
+          (a.busLicensePlate || "").localeCompare(b.busLicensePlate || "")
+        );
+        break;
+      case "bus_za":
+        sortedAssignments.sort((a, b) =>
+          (b.busLicensePlate || "").localeCompare(a.busLicensePlate || "")
+        );
+        break;
+      case "driver_az":
+        sortedAssignments.sort((a, b) =>
+          (a.driverName || "").localeCompare(b.driverName || "")
+        );
+        break;
+      case "driver_za":
+        sortedAssignments.sort((a, b) =>
+          (b.driverName || "").localeCompare(a.driverName || "")
+        );
+        break;
+      case "conductor_az":
+        sortedAssignments.sort((a, b) =>
+          (a.conductorName || "").localeCompare(b.conductorName || "")
+        );
+        break;
+      case "conductor_za":
+        sortedAssignments.sort((a, b) =>
+          (b.conductorName || "").localeCompare(a.conductorName || "")
+        );
+        break;
+      case "route_az":
+        sortedAssignments.sort((a, b) =>
+          (a.BusAssignment?.Route?.RouteName || "").localeCompare(b.BusAssignment?.Route?.RouteName || "")
+        );
+        break;
+      case "route_za":
+        sortedAssignments.sort((a, b) =>
+          (b.BusAssignment?.Route?.RouteName || "").localeCompare(a.BusAssignment?.Route?.RouteName || "")
+        );
+        break;
+      default:
+        // Optionally, set a default sort
+        break;
     }
-  }, [showAddAssignmentModal]);
+
+    const filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
+      busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    setDisplayedBusAssignments(filteredBusAssignments);
+
+    // Reset currentPage if out of range
+    const totalPages = Math.ceil(filteredBusAssignments.length / pageSize);
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [busAssignments, searchQuery, sortOrder, pageSize]);
 
   const fetchAssignments = async () => {
     setLoading(true); // Start loading
@@ -142,55 +181,7 @@ const BusAssignmentPage: React.FC = () => {
 
   // Filter
   const handleApplyFilters = (filterValues: Record<string, any>) => {
-    let newData = [...busAssignments];
-
-    switch (filterValues.sortBy) {
-      case "bus_az":
-        newData.sort((a, b) =>
-          (a.busLicensePlate || "").localeCompare(b.busLicensePlate || "")
-        );
-        break;
-      case "bus_za":
-        newData.sort((a, b) =>
-          (b.busLicensePlate || "").localeCompare(a.busLicensePlate || "")
-        );
-        break;
-      case "driver_az":
-        newData.sort((a, b) =>
-          (a.driverName || "").localeCompare(b.driverName || "")
-        );
-        break;
-      case "driver_za":
-        newData.sort((a, b) =>
-          (b.driverName || "").localeCompare(a.driverName || "")
-        );
-        break;
-      case "conductor_az":
-        newData.sort((a, b) =>
-          (a.conductorName || "").localeCompare(b.conductorName || "")
-        );
-        break;
-      case "conductor_za":
-        newData.sort((a, b) =>
-          (b.conductorName || "").localeCompare(a.conductorName || "")
-        );
-        break;
-      case "route_az":
-        newData.sort((a, b) =>
-          (a.BusAssignment?.Route?.RouteName || "").localeCompare(b.BusAssignment?.Route?.RouteName || "")
-        );
-        break;
-      case "route_za":
-        newData.sort((a, b) =>
-          (b.BusAssignment?.Route?.RouteName || "").localeCompare(a.BusAssignment?.Route?.RouteName || "")
-        );
-        break;
-      default:
-        break;
-    }
-
-    setDisplayedBusAssignments(newData);
-    setCurrentPage(1);
+    setSortOrder(filterValues.sortBy);
   };
 
   const handleEdit = (assignment: typeof displayedBusAssignments[number]) => {
