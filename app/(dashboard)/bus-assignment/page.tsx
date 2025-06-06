@@ -92,11 +92,8 @@ const BusAssignmentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
 
-
-  const [assignmentDate, setAssignmentDate] = useState<string | null>(null);
-
   useEffect(() => {
-    let sortedAssignments = [...busAssignments];
+    const sortedAssignments = [...busAssignments];
 
     switch (sortOrder) {
       case "bus_az":
