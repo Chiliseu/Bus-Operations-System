@@ -4,17 +4,27 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
-import Image from 'next/image';
-import PaginationComponent from '@/components/ui/PaginationV2';
 import { fetchReadyBusAssignments } from '@/lib/apiCalls/bus-operation';
+
+// --- Shared imports ---
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
+import type { FilterSection } from '@/shared/imports';
 
 // Import interfaces
 import { BusAssignment } from '@/app/interface/bus-assignment';
 
 const BusOperationPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [assignments, setAssignments] = useState<BusAssignment[]>([]);
-  const [displayedAssignments, setDisplayedAssignments] = useState<BusAssignment[]>([]);
+  const [assignments, setAssignments] = useState<(BusAssignment & {
+        driverName?: string;
+        conductorName?: string;
+        busLicensePlate?: string;
+      })[]>([]);
+  const [displayedAssignments, setDisplayedAssignments] = useState<(BusAssignment & {
+        driverName?: string;
+        conductorName?: string;
+        busLicensePlate?: string;
+      })[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('');
@@ -26,7 +36,6 @@ const BusOperationPage: React.FC = () => {
         setLoading(true);
         const data = await fetchReadyBusAssignments();
         setAssignments(data);
-        console.log(data);
       } catch (error) {
         console.error("Error fetching stops:", error);
       } finally {
@@ -112,9 +121,7 @@ const BusOperationPage: React.FC = () => {
 
         {/* Loading centered in the card */}
         {loading ? (
-          <div className={styles.loadingWrapper}>
-            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
-          </div>
+          <Loading/>
         ) : (
           <div className={styles.styledTableWrapper}>
             <table className={styles.styledTable}>
@@ -123,6 +130,7 @@ const BusOperationPage: React.FC = () => {
                   <th>Bus</th>
                   <th>Driver</th>
                   <th>Conductor</th>
+                  <th>Route</th>
                   <th className={styles.centeredColumn}>Actions</th>
                 </tr>
               </thead>
@@ -130,9 +138,10 @@ const BusOperationPage: React.FC = () => {
                 {displayedAssignments.length > 0 ? (
                   displayedAssignments.map((assignment) => (
                     <tr key={assignment.BusAssignmentID}>
-                      <td>{assignment.BusID}</td>
-                      <td>{assignment.RegularBusAssignment?.DriverID}</td>
-                      <td>{assignment.RegularBusAssignment?.ConductorID}</td>
+                      <td>{assignment.busLicensePlate}</td>
+                      <td>{assignment.driverName}</td>
+                      <td>{assignment.conductorName}</td>
+                      <td>{assignment.Route.RouteName}</td>
                       <td className={styles.centeredColumn}>
                         <button className={styles.editBtn}>
                           <img
