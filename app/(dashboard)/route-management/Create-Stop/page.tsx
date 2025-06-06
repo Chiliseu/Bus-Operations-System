@@ -192,146 +192,148 @@ const RouteManagementPage: React.FC = () => {
   };
 
   return (
-    <div className={`card mx-auto ${styles.wideCard}`}>
-      <div style={{ display: 'none' }}>
-        <PrintTable
-          title="Stop List"
-          subtitle=""
-          data={currentStops}
-          filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
-          columns={[
-            { header: 'Stop Name', accessor: (row) => row.StopName },
-            { header: 'Longitude', accessor: (row) => row.longitude },
-            { header: 'Latitude', accessor: (row) => row.latitude },
-          ]}
-        />
-      </div>
-      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-        <div className="card-body">
-
-            {/* Stops Table Section */}
-            <h2 className={styles.stopTitle}>Create Stop</h2>
-
-            {/* Search & Sort Inputs */}
-            <div className={styles.toolbar}>
-              <div className={styles.searchWrapper}>
-                <i className="ri-search-2-line"></i>
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-
-              <select
-                className={styles.sortSelect}
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="A-Z">Name: A-Z</option>
-                <option value="Z-A">Name: Z-A</option>
-              </select>
-
-              <button
-                className={styles.addButton}
-                onClick={() => setShowAddStopModal(true)}
-              >
-                <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
-                Add Stop
-              </button>
-
-              <AddStopModal
-                show={showAddStopModal}
-                onClose={() => setShowAddStopModal(false)}
-                onCreate={handleCreateStop}
-              />
-            </div>
-
-
-              {/* Loading Spinner */}
-              {loading ? (
-                <div className="text-center my-4">
-                  <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
-                </div>
-              ) : (
-                <table className={styles.table}>
-                  <thead>
-                    <tr className={styles.tableHeadRow}>
-                      <th>Stop Name</th>
-                      <th>Longitude</th>
-                      <th>Latitude</th>
-                      <th className={styles.actions}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentStops.length > 0 ? (
-                      currentStops.map((stop) => (
-                        <tr key={stop.StopID} className={styles.tableRow}>
-                          <td>{stop.StopName}</td>
-                          <td>{stop.longitude}</td>
-                          <td>{stop.latitude}</td>
-                          <td className={styles.actions}>
-                            <button
-                              className={styles.editBtn}
-                              onClick={() => {
-                                setSelectedStop(stop);
-                                setShowEditModal(true);
-                              }}
-                            >
-                              <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
-                            </button>
-                            <EditStopModal
-                              show={showEditModal}
-                              onClose={() => setShowEditModal(false)}
-                              stop={
-                                selectedStop
-                                  ? {
-                                      id: selectedStop.StopID,
-                                      name: selectedStop.StopName,
-                                      latitude: selectedStop.latitude,
-                                      longitude: selectedStop.longitude,
-                                    }
-                                  : null
-                              }
-                              onSave={handleSave}
-                            />
-                            <button
-                              className={styles.deleteBtn}
-                              onClick={() => handleDelete(stop.StopID)}
-                            >
-                              <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className={styles.noRecords}>
-                          No records found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
-
-              {/* Pagination */}
-              <PaginationComponent
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
+    <div className={styles.wideCard}>
+      <div className={styles.cardBody}>
+        {/* Hidden PrintTable (unchanged) */}
+        <div style={{ display: 'none' }}>
+          <PrintTable
+            title="Stop List"
+            subtitle=""
+            data={currentStops}
+            filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
+            columns={[
+              { header: 'Stop Name', accessor: (row) => row.StopName },
+              { header: 'Longitude', accessor: (row) => row.longitude },
+              { header: 'Latitude', accessor: (row) => row.latitude },
+            ]}
+          />
         </div>
+
+        <h2 className={styles.stopTitle}>Create Stop</h2>
+
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+
+          <select
+            className={styles.sortSelect}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="A-Z">Name: A-Z</option>
+            <option value="Z-A">Name: Z-A</option>
+          </select>
+
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddStopModal(true)}
+          >
+            <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+            Add Stop
+          </button>
+
+          {/* Add Modal */}
+          <AddStopModal
+            show={showAddStopModal}
+            onClose={() => setShowAddStopModal(false)}
+            onCreate={handleCreateStop}
+          />
+        </div>
+
+        {/* Loading Spinner or Table */}
+        {loading ? (
+          <div className={styles.loadingWrapper}>
+            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
+          </div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr className={styles.tableHeadRow}>
+                <th>Stop Name</th>
+                <th>Longitude</th>
+                <th>Latitude</th>
+                <th className={styles.actions}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentStops.length > 0 ? (
+                currentStops.map((stop) => (
+                  <tr key={stop.StopID} className={styles.tableRow}>
+                    <td>{stop.StopName}</td>
+                    <td>{stop.longitude}</td>
+                    <td>{stop.latitude}</td>
+                    <td className={styles.actions}>
+                      <button
+                        className={styles.editBtn}
+                        onClick={() => {
+                          setSelectedStop(stop);
+                          setShowEditModal(true);
+                        }}
+                      >
+                        <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                      </button>
+
+                      {/* Edit Modal */}
+                      <EditStopModal
+                        show={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        stop={
+                          selectedStop
+                            ? {
+                                id: selectedStop.StopID,
+                                name: selectedStop.StopName,
+                                latitude: selectedStop.latitude,
+                                longitude: selectedStop.longitude,
+                              }
+                            : null
+                        }
+                        onSave={handleSave}
+                      />
+
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(stop.StopID)}
+                      >
+                        <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className={styles.noRecords}>
+                    No records found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+
+        {/* Pagination */}
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
     </div>
   );
+
 };
 
 export default RouteManagementPage;

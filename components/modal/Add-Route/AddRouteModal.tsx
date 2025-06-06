@@ -13,7 +13,12 @@ import styles from "./add-route.module.css";
 interface AddRouteModalProps {
   show: boolean;
   onClose: () => void;
-  onCreate: (route: { routeName: string; startStop: string; endStop: string; stopsBetween: { StopID: string; StopName: string }[] }) => void;
+  onCreate: (route: {
+    routeName: string;
+    startStop: string;
+    endStop: string;
+    stopsBetween: { StopID: string; StopName: string }[];
+  }) => void;
   routeName: string;
   setRouteName: (name: string) => void;
   startStop: string;
@@ -76,27 +81,29 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
     setStopsBetween(reordered);
   };
 
-    const handleCreate = async () => {
-    if (!routeName || !startStop || !endStop) {
+  const handleCreate = async () => {
+    if (!routeName.trim() || !startStop.trim() || !endStop.trim()) {
       await Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill in all required fields.',
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
       });
       return;
     }
+
     if (stopsBetween.some((stop) => !stop.StopName.trim())) {
       await Swal.fire({
-        icon: 'warning',
-        title: 'Incomplete Stops',
+        icon: "warning",
+        title: "Incomplete Stops",
         text: "All 'Stops Between' must have a stop selected.",
       });
       return;
     }
+
     onCreate({ routeName, startStop, endStop, stopsBetween });
-    setRouteName('');
-    setStartStop('');
-    setEndStop('');
+    setRouteName("");
+    setStartStop("");
+    setEndStop("");
     setStopsBetween([]);
     onClose();
   };
@@ -106,7 +113,7 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2 className={styles.title}>Add Route</h2>
-          <button className={styles.closeBtn} onClick={onClose}>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
             ×
           </button>
         </div>
@@ -227,7 +234,6 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
           <button
             className={styles.createRouteBtn}
             onClick={handleCreate}
-            disabled={!routeName || !startStop || !endStop}
           >
             Create Route
           </button>

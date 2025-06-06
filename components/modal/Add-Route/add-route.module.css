@@ -171,16 +171,24 @@
 }
 
 .btnAdd {
-  background: #28a745;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
+  width: 160px;
+  height: 35px;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
-  border: none;
+  border-radius: 8px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
-  margin-top: 10px;
+  border: none;
+  margin-top: 20px;
+}
+
+.btnAdd:hover {
+  background-color: #7e191b; /* optional hover effect */
 }
 
 .footer {

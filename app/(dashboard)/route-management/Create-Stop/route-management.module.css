@@ -1,10 +1,14 @@
 /* === Container Styling === */
 .wideCard {
-  max-width: 95%;            /* Maximum width relative to viewport */
-  width: 100%;              /* Full width within max-width */
-  margin-top: 0px;
-  margin-left: auto;         /* Center horizontally */
-  margin-right: auto;        /* Center horizontally */
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
 }
 
 /* === Assignment Title Styling === */
@@ -185,6 +189,22 @@
   overflow: hidden;           /* Hide overflow */
   white-space: nowrap;        /* Prevent wrapping */
 }
+
+/* === Loading Spinner Container === */
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.loadingImage {
+  width: 96px;
+  height: 96px;
+}
+
 
 /* === Buttons === */
 .addButton {
