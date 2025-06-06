@@ -12,7 +12,7 @@ import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal, Image } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
 const CreateRoutePage: React.FC = () => {
@@ -28,6 +28,7 @@ const CreateRoutePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
+  const [modalLoading, setModalLoading] = useState(false);
 
   // Use State for modal
   const [showStopsModal, setShowStopsModal] = useState(false);
@@ -149,26 +150,6 @@ const CreateRoutePage: React.FC = () => {
     }
   }, [routes, searchQuery, sortOrder, pageSize]);
 
-  const handleAddStop = () => {
-    setStopsBetween([...stopsBetween, { 
-          StopID: '',
-          StopName: '',
-          IsDeleted: false,
-          latitude: '',
-          longitude: ''
-     }]);
-  };
-
-  const handleRemoveStop = (index: number) => {
-    setStopsBetween(stopsBetween.filter((_, i) => i !== index));
-  };
-
-  const handleStopChange = (value: string, index: number) => {
-    const updatedStops = [...stopsBetween];
-    updatedStops[index] = { ...updatedStops[index], StopName: value }; // Update only the StopName
-    setStopsBetween(updatedStops);
-  };
-
   const handleEditRoute = (route: Route) => {
     setRouteToEdit(route);
     setEditRouteName(route.RouteName || '');
@@ -216,20 +197,22 @@ const CreateRoutePage: React.FC = () => {
       RouteStops: routeStops,
     };
 
-
     try {
+      setModalLoading(true);
       await createRouteWithToken(newRoute);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Route added successfully!',
-        });
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Route added successfully!',
+      });
       setRouteName('');
       setStartStop('');
       setEndStop('');
       setStopsBetween([]);
       fetchRoutes();
     } catch (error) {
+      setModalLoading(false);
       console.error('Error adding route:', error);
       await Swal.fire({
         icon: 'error',
@@ -253,14 +236,17 @@ const CreateRoutePage: React.FC = () => {
   if (!result.isConfirmed) return;
 
     try {
+      setModalLoading(true);
       await deleteRouteWithToken(routeID);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Route deleted successfully!',
-        });
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Route deleted successfully!',
+      });
       fetchRoutes(); // Refresh the route list
     } catch (error) {
+      setModalLoading(false);
       console.error('Error deleting route:', error);
       await Swal.fire({
         icon: 'error',
@@ -295,8 +281,10 @@ const CreateRoutePage: React.FC = () => {
     };
 
     try {
+      setModalLoading(true);
       await updateRouteWithToken(updatedRoute); // Your API call to update route
-       await Swal.fire({
+      setModalLoading(false);
+      await Swal.fire({
         icon: 'success',
         title: 'Success',
         text: 'Route updated successfully!',
@@ -313,79 +301,12 @@ const CreateRoutePage: React.FC = () => {
       setEndStopID(null);
       setEditStopsBetween([]);
     } catch (error) {
+      setModalLoading(false);
       console.error('Error updating route:', error);
       await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: error instanceof Error ? error.message : 'Failed to update route. Please try again.',
-      });
-    }
-  };
-
-  const handleSaveRoute = async () => {
-    if (!routeName || !startStop || !endStop) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill in all fields with valid values.',
-      });
-      return;
-    }
-
-    // Prepare the RouteStops array with StopID and StopOrder
-    const routeStops = stopsBetween.map((stop, index) => ({
-      StopID: stop.StopID, 
-      StopOrder: index + 1, 
-    }));
-    
-    const updatedRoute = {
-      RouteID: editingRouteID, // Ensure this matches the backend's expected field name
-      RouteName: routeName,
-      StartStopID: startStopID, // Send StartStopID
-      EndStopID: endStopID, // Send EndStopID
-      RouteStops: routeStops, // Send RouteStops
-    };
-
-    console.log('Request body:', updatedRoute); // Debugging
-
-      try {
-        const response = await fetch(`/api/route-management/${editingRouteID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedRoute),
-        });
-
-      if (!response.ok) {
-        // Try to get error message from response JSON
-        let errorMsg = `Failed to update route: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch {
-          // ignore JSON parsing errors, fallback to statusText
-        }
-        throw new Error(errorMsg);
-      }
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Route updated successfully!',
-        });
-      setEditingRouteID(null);
-      fetchRoutes();
-    } catch (error) {
-      console.error('Error updating route:', error);
-      // Safe error message extraction
-      const message = error instanceof Error ? error.message : 'Failed to update route. Please try again.';
-        await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: message,
       });
     }
   };
@@ -616,6 +537,8 @@ const CreateRoutePage: React.FC = () => {
             setShowStopsModal(true);
           }}
         />
+
+        {modalLoading && <LoadingModal />}
       </div>
     </div>
   );

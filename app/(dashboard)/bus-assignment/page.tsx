@@ -26,7 +26,7 @@ import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, up
 import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal, Image } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
 //=====================================
@@ -90,6 +90,7 @@ const BusAssignmentPage: React.FC = () => {
 
   // Loading State
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
 
 
   const [assignmentDate, setAssignmentDate] = useState<string | null>(null);
@@ -252,7 +253,9 @@ const BusAssignmentPage: React.FC = () => {
     }
 
     try {
+      setModalLoading(true);
       await createBusAssignment(assignment);
+      setModalLoading(false);
 
       await Swal.fire({
       icon: 'success',
@@ -263,6 +266,7 @@ const BusAssignmentPage: React.FC = () => {
       setShowAddAssignmentModal(false);
       return true;
     } catch (error) {
+      setModalLoading(false);
       console.error('Error creating bus assignment:', error);
       await Swal.fire({
       icon: 'error',
@@ -288,12 +292,15 @@ const BusAssignmentPage: React.FC = () => {
     if (!result.isConfirmed) return;
 
     try {
+      setModalLoading(true);
       await sofDeleteBusAssignment(BusAssignmentID, IsDeleted);
+      setModalLoading(false);
       
       await Swal.fire('Deleted!', 'Assignment deleted successfully!', 'success'); // ✅ Await this
       
       fetchAssignments();
     } catch (error) {
+      setModalLoading(false);
       console.error('Error deleting assignment:', error);
       await Swal.fire('Error', 'Failed to delete assignment. Please try again.', 'error'); // ✅ Replace alert with Swal
     }
@@ -349,7 +356,9 @@ const BusAssignmentPage: React.FC = () => {
         quotaPolicies: transformedQuotaPolicies,
       };
 
+      setModalLoading(true);
       const updated = await updateBusAssignment(selectedAssignment, data);
+      setModalLoading(false);
       setShowEditModal(false);
       await Swal.fire({
       icon: 'success',
@@ -358,11 +367,12 @@ const BusAssignmentPage: React.FC = () => {
     });
       fetchAssignments();
     } catch (error) {
+      setModalLoading(false);
       await Swal.fire({
-      icon: 'error',
-      title: 'Save Failed',
-      text: "Failed to save bus assignment: " + (error instanceof Error ? error.message : error),
-    });
+        icon: 'error',
+        title: 'Save Failed',
+        text: "Failed to save bus assignment: " + (error instanceof Error ? error.message : error),
+      });
     }
   }
 
@@ -559,6 +569,8 @@ const BusAssignmentPage: React.FC = () => {
           }}
         />
       )}
+
+      {modalLoading && <LoadingModal/>}
     </div>
   );
 
