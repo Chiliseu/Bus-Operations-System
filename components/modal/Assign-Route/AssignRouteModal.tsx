@@ -6,6 +6,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Route } from '@/app/interface'; // Importing the Route interface
 import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
+import Loading from "@/components/ui/Loading/Loading";
 
 const AssignRouteModal = ({ 
   onClose,
@@ -17,16 +18,20 @@ const AssignRouteModal = ({
   const [routes, setRoutes] = useState<Route[]>([]); // State for all routes
   const [filteredRoutes, setFilteredRoutes] = useState<Route[]>([]); // State for filtered routes
   const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [loading, setLoading] = useState(true); // Add loading state
 
   // Fetch routes from the database
   useEffect(() => {
     const fetchRoutes = async () => {
+      setLoading(true);
       try {
         const data: Route[] = await fetchRoutesModalWithToken();
         setRoutes(data); // Set the fetched routes
         setFilteredRoutes(data); // Initialize filtered routes
       } catch (error) {
         console.error('Error fetching routes:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -88,34 +93,40 @@ const AssignRouteModal = ({
 
         {/* Route List Section */}
         <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {filteredRoutes.map((route, index) => (
-            <article key={index} className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between">
-              {/* Route Info */}
-              <div className="flex items-center gap-3">
-                <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                  <Image
-                    src={'/assets/images/bus-fallback.png'}
-                    alt="Bus"
-                    className="object-cover"
-                    fill
-                  />
-                </div>
-                <div className='flex flex-col items-start'>
-                  <div className="flex gap-2 items-center">
-                    <div>{route.RouteName}</div>
+          {loading? (
+            <div className="flex justify-center items-center h-full w-full">
+              <Loading />
+            </div>
+          ):(
+            filteredRoutes.map((route, index) => (
+              <article key={index} className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between">
+                {/* Route Info */}
+                <div className="flex items-center gap-3">
+                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
+                    <Image
+                      src={'/assets/images/bus-fallback.png'}
+                      alt="Bus"
+                      className="object-cover"
+                      fill
+                    />
                   </div>
-                  <div className="text-sm text-gray-400">{`Start: ${route.StartStop?.StopName}`}</div>
-                  <div className="text-sm text-gray-400">{`End: ${route.EndStop?.StopName}`}</div>
+                  <div className='flex flex-col items-start'>
+                    <div className="flex gap-2 items-center">
+                      <div>{route.RouteName}</div>
+                    </div>
+                    <div className="text-sm text-gray-400">{`Start: ${route.StartStop?.StopName}`}</div>
+                    <div className="text-sm text-gray-400">{`End: ${route.EndStop?.StopName}`}</div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Assign Button */}
-              <Button
-                text='Assign'
-                onClick={() => onAssign(route)}
-              ></Button>
-            </article>
-          ))}
+                {/* Assign Button */}
+                <Button
+                  text='Assign'
+                  onClick={() => onAssign(route)}
+                ></Button>
+              </article>
+            ))
+          )}
         </section>
 
         {/* Cancel button */}

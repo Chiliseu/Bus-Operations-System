@@ -417,9 +417,7 @@ const BusAssignmentPage: React.FC = () => {
 
         {/* Loading or Table */}
         {loading ? (
-          <div className={styles.loadingWrapper}>
-            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
-          </div>
+          <Loading />
         ) : (
           <div className={styles.dataTable}>
             <table className={styles.table}>

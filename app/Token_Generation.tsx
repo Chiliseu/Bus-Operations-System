@@ -7,7 +7,7 @@ export default function Token_Generation() {
   useEffect(() => {
     fetchBackendToken().then(token => {
       if (token) {
-        console.log("Token:"+ token); // logs
+        // console.log("Token:"+ token); // logs
         localStorage.setItem("backend_token", token);
       } else {
         console.warn("[Token_Generation] Token is null or undefined");

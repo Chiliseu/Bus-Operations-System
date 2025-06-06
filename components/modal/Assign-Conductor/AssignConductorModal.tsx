@@ -6,6 +6,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
 import { Conductor } from "@/app/interface"; // Conductor interface
+import Loading from "@/components/ui/Loading/Loading";
 
 const AssignConductorModal = ({ 
   onClose,
@@ -18,15 +19,19 @@ const AssignConductorModal = ({
 ) => {
 
   const [conductors, setConductors] = useState<Conductor[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadConductors = async () => {
+      setLoading(true);
       try {
         const conductors = await fetchConductorsWithToken();
         setConductors(conductors);
         setFilteredConductors(conductors);
       } catch (error) {
         console.error('Error fetching conductors from API:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -84,33 +89,39 @@ const AssignConductorModal = ({
 
         {/* Conductor List */}
         <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {filteredConductors.map((conductor, index) => (
-            <article
-              key={index}
-              className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                  <Image
-                    src={conductor.image || '/assets/images/bus-fallback.png'}
-                    alt="Conductor"
-                    className="object-cover"
-                    fill
-                  />
-                </div>
-                <div className='flex flex-col items-start'>
-                  <div className="flex gap-2 items-center">
-                    <div>{conductor.name}</div>
-                    <div className="text-sm text-gray-400">{conductor.job}</div>
+          {loading ? (
+            <div className="flex justify-center items-center h-full w-full">
+              <Loading />
+            </div>
+          ):(
+            filteredConductors.map((conductor, index) => (
+              <article
+                key={index}
+                className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
+                    <Image
+                      src={conductor.image || '/assets/images/bus-fallback.png'}
+                      alt="Conductor"
+                      className="object-cover"
+                      fill
+                    />
                   </div>
-                  <div className="text-sm text-gray-400">{conductor.contactNo}</div>
-                  <div className="text-sm text-gray-400">{conductor.address}</div>
+                  <div className='flex flex-col items-start'>
+                    <div className="flex gap-2 items-center">
+                      <div>{conductor.name}</div>
+                      <div className="text-sm text-gray-400">{conductor.job}</div>
+                    </div>
+                    <div className="text-sm text-gray-400">{conductor.contactNo}</div>
+                    <div className="text-sm text-gray-400">{conductor.address}</div>
+                  </div>
                 </div>
-              </div>
-              <Button text="Assign" 
-              onClick={() => onAssign(conductor)}/>
-            </article>
-          ))}
+                <Button text="Assign" 
+                onClick={() => onAssign(conductor)}/>
+              </article>
+            ))
+          )}
         </section>
 
         {/* Cancel button */}
