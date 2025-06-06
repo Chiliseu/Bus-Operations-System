@@ -271,7 +271,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                     <input
                       type="date"
                       className="form-control"
-                      value={policy.StartDate}
+                      value={policy.StartDate || ""}
                       onChange={(e) =>
                         handleDateChange(index, "StartDate", e.target.value)
                       }
@@ -284,7 +284,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                     <input
                       type="date"
                       className="form-control"
-                      value={policy.EndDate}
+                      value={policy.EndDate || ""}
                       onChange={(e) =>
                         handleDateChange(index, "EndDate", e.target.value)
                       }
@@ -296,7 +296,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                     <label className={styles.formLabel}>Type</label>
                     <select
                       className="form-select"
-                      value={policy.quotaType}
+                      value={policy.quotaType || ""}
                       onChange={(e) =>
                         updateQuotaPolicyValue(index, {
                           quotaType: e.target.value as "Fixed" | "Percentage",
@@ -313,11 +313,11 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                     <input
                       type="number"
                       className="form-control"
-                      value={policy.quotaValue}
+                      value={policy.quotaValue === undefined || policy.quotaValue === null ? "" : policy.quotaValue}
                       min={policy.quotaType === "Percentage" ? 1 : 0}
                       max={policy.quotaType === "Percentage" ? 99 : undefined}
                       onChange={(e) => {
-                        let val = Number(e.target.value);
+                        let val = e.target.value === "" ? (policy.quotaType === "Percentage" ? 1 : 0) : Number(e.target.value);
 
                         if (policy.quotaType === "Percentage") {
                           if (val < 1) val = 1;

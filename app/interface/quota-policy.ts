@@ -1,7 +1,6 @@
 //Use Fixed, Percentage, and Refular bus assignment
 import { Fixed } from "./fixed";
 import { Percentage } from "./percentage";
-import { RegularBusAssignment } from "./regular-bus-assignment";
 
 // Quota policy Interface
 export interface Quota_Policy {
@@ -11,5 +10,4 @@ export interface Quota_Policy {
   RegularBusAssignmentID: string;
   Fixed?: Fixed;
   Percentage?: Percentage;
-  regularBusAssignment?: RegularBusAssignment;
 }

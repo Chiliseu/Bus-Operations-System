@@ -6,6 +6,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
 import { Bus } from "@/app/interface";
+import Loading from "@/components/ui/Loading/Loading";
 
 const AssignBusModal = ({ 
   onClose,
@@ -16,15 +17,19 @@ const AssignBusModal = ({
 }) => {
 
   const [buses, setBuses] = useState<Bus[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadBuses = async () => {
+      setLoading(true);
       try {
         const buses = await fetchBusesWithToken();
         setBuses(buses);
         setFilteredBuses(buses);
       } catch (error) {
         console.error('Error fetching buses from API:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -101,39 +106,45 @@ const AssignBusModal = ({
 
         {/* Bus List Section */}
         <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {filteredBuses.map((bus, index) => (
-            <article
-              key={index}
-              className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
-            >
-              <div className="flex items-center gap-3">
-                {/* Bus Icon */}
-                <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                  <Image
-                    src={bus.image || '/assets/images/bus-fallback.png'}
-                    alt="Bus"
-                    className="object-cover"
-                    fill
-                  />
-                </div>
-                {/* Bus Details */}
-                <div className='flex flex-col items-start'>
-                  <div className="flex gap-2 items-center">
-                    <div>{bus.busId}</div>
-                    <div className="text-sm text-gray-400">{bus.route}</div>
+          {loading? (
+            <div className="flex justify-center items-center h-full w-full">
+              <Loading />
+            </div>
+          ):(
+            filteredBuses.map((bus, index) => (
+              <article
+                key={index}
+                className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  {/* Bus Icon */}
+                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
+                    <Image
+                      src={bus.image || '/assets/images/bus-fallback.png'}
+                      alt="Bus"
+                      className="object-cover"
+                      fill
+                    />
                   </div>
-                  <div className="text-sm text-gray-400">{bus.type}</div>
-                  <div className="text-sm text-gray-400">{`${bus.capacity} seats`}</div>
+                  {/* Bus Details */}
+                  <div className='flex flex-col items-start'>
+                    <div className="flex gap-2 items-center">
+                      <div>{bus.busId}</div>
+                      <div className="text-sm text-gray-400">{bus.route}</div>
+                    </div>
+                    <div className="text-sm text-gray-400">{bus.type}</div>
+                    <div className="text-sm text-gray-400">{`${bus.capacity} seats`}</div>
+                  </div>
                 </div>
-              </div>
-              {/* Assign Button */}
-              <Button 
-                text="Assign"
-                onClick={() => onAssign(bus)}
-              />
-              
-            </article>
-          ))}
+                {/* Assign Button */}
+                <Button 
+                  text="Assign"
+                  onClick={() => onAssign(bus)}
+                />
+              </article>
+            ))
+          )}
+          
         </section>
 
         {/* Cancel button */}

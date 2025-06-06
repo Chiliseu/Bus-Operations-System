@@ -1,14 +1,14 @@
 //Use bus assignment and quota policy
 import { BusAssignment } from './bus-assignment';
 import { Quota_Policy } from './quota-policy';
+import { BusTrip } from './bus-trip';
 
 // Regular bus assignment interface
 export interface RegularBusAssignment {
   RegularBusAssignmentID: string;
   DriverID: string;
   ConductorID: string;
-  Change: number;
-  TripRevenue: number;
   BusAssignment: BusAssignment;
   QuotaPolicies: Quota_Policy[];
+  BusTrips?: BusTrip[]; // Add this if you use BusTrip in your app
 }

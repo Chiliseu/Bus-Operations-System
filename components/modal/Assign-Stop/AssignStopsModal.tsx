@@ -6,6 +6,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import DropdownButton from '@/components/ui/DropdownButton';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
 import { fetchStopsWithToken } from '@/lib/apiCalls/stops';
+import Loading from "@/components/ui/Loading/Loading";
 
 const AssignStopsModal = ({ 
   onClose,
@@ -16,15 +17,19 @@ const AssignStopsModal = ({
 }) => {
 
   const [stops, setStops] = useState<Stop[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadStops = async () => {
+      setLoading(true);
       try {
         const data = await fetchStopsWithToken();
         setStops(data);
         setFilteredStops(data);
       } catch (error) {
         console.error('Error fetching stops:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -88,39 +93,45 @@ const AssignStopsModal = ({
 
         {/* Stop List Section */}
         <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {filteredStops.map((stop, index) => (
-            <article
-              key={index}
-              className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
-            >
-              <div className="flex items-center gap-3">
-                {/* Stop Icon */}
-                <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                  <Image
-                    src={'/assets/images/bus-fallback.png'}
-                    alt="Bus"
-                    className="object-cover"
-                    fill
-                  />
-                </div>
-                {/* Stop Details */}
-                <div className='flex flex-col items-start'>
-                  <div className="flex gap-2 items-center">
-                    <div>{stop.StopName}</div>
-                    <div className="text-sm text-gray-400">Stop</div>
+          {loading?(
+            <div className="flex justify-center items-center h-full w-full">
+              <Loading />
+            </div>
+          ):(
+            filteredStops.map((stop, index) => (
+              <article
+                key={index}
+                className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  {/* Stop Icon */}
+                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
+                    <Image
+                      src={'/assets/images/bus-fallback.png'}
+                      alt="Bus"
+                      className="object-cover"
+                      fill
+                    />
                   </div>
-                  <div className="text-sm text-gray-400">{`ID: ${stop.StopID}`}</div>
-                  <div className="text-sm text-gray-400">{`${stop.latitude} , ${stop.longitude}`}</div>
+                  {/* Stop Details */}
+                  <div className='flex flex-col items-start'>
+                    <div className="flex gap-2 items-center">
+                      <div>{stop.StopName}</div>
+                      <div className="text-sm text-gray-400">Stop</div>
+                    </div>
+                    <div className="text-sm text-gray-400">{`ID: ${stop.StopID}`}</div>
+                    <div className="text-sm text-gray-400">{`${stop.latitude} , ${stop.longitude}`}</div>
+                  </div>
                 </div>
-              </div>
-              {/* Assign Button */}
-              <Button 
-                text="Assign"
-                onClick={() => onAssign(stop)}
-              />
-              
-            </article>
-          ))}
+                {/* Assign Button */}
+                <Button 
+                  text="Assign"
+                  onClick={() => onAssign(stop)}
+                />
+              </article>
+            ))
+          )}
+          
         </section>
 
         {/* Cancel button */}

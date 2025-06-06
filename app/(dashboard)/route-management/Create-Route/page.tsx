@@ -1,27 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import cuid from 'cuid'; // Install cuid if not already installed: npm install cuid
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '@/styles/globals.css';
 import styles from './route-management.module.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import AssignStopsModal from '@/components/modal/Assign-Stop/AssignStopsModal';
 import AssignBusModal from '@/components/modal/Assign-Bus/AssignBusModal';
 import AddRouteModal from "@/components/modal/Add-Route/AddRouteModal";
-import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
-import Image from 'next/image';
-import PaginationComponent from '@/components/ui/PaginationV2';
 import EditRouteModal from '@/components/modal/Edit-Route/EditRouteModal';
-import Swal from 'sweetalert2';
-
-import '@/styles/globals.css';
+import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
 
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from '@hello-pangea/dnd';
+// --- Shared imports ---
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
+import type { FilterSection } from '@/shared/imports';
 
 const CreateRoutePage: React.FC = () => {
   const [displayedroutes, setDisplayedRoutes] = useState<Route[]>([]);
@@ -36,6 +28,7 @@ const CreateRoutePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
+  const [modalLoading, setModalLoading] = useState(false);
 
   // Use State for modal
   const [showStopsModal, setShowStopsModal] = useState(false);
@@ -53,9 +46,33 @@ const CreateRoutePage: React.FC = () => {
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
   const [selectedEndStop, setSelectedEndStop] = useState<Stop | null>(null);
-  const [selectedStopBetween, setSelectedStopBetween] = useState<Stop | null>(null);
   const [stopType, setStopType] = useState<'start' | 'end' | 'between' | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(null); // for between stops
+
+  // FilterDropdown sections for sorting
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "route_az", label: "Route Name: A-Z" },
+        { id: "route_za", label: "Route Name: Z-A" },
+        { id: "start_az", label: "Start Stop: A-Z" },
+        { id: "start_za", label: "Start Stop: Z-A" },
+        { id: "end_az", label: "End Stop: A-Z" },
+        { id: "end_za", label: "End Stop: Z-A" },
+        { id: "stops_low", label: "Stops Between: Lowest to Highest" },
+        { id: "stops_high", label: "Stops Between: Highest to Lowest" },
+      ],
+      defaultValue: "route_az"
+    }
+  ];
+
+  // --- FilterDropdown sort handler ---
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setSortOrder(filterValues.sortBy);
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default page size
@@ -64,16 +81,6 @@ const CreateRoutePage: React.FC = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
-  // const TotalPages = Math.ceil(displayedroutes.length / ITEMS_PER_PAGE);
-  // const currentRoutes = displayedroutes.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
-  // );
-  // const handlePageChange = (page: number) => {
-  //   if (page >= 1 && page <= TotalPages) {
-  //     setCurrentPage(page);
-  //   }
-  // };
 
   // Fetch routes from the backend
   const fetchRoutes = async () => {
@@ -97,10 +104,35 @@ const CreateRoutePage: React.FC = () => {
   useEffect(() => {
     const sortedRoutes = [...routes];
 
-    if (sortOrder === 'A-Z') {
-      sortedRoutes.sort((a, b) => a.RouteName.localeCompare(b.RouteName));
-    } else if (sortOrder === 'Z-A') {
-      sortedRoutes.sort((a, b) => b.RouteName.localeCompare(a.RouteName));
+    switch (sortOrder) {
+      case "route_az":
+        sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
+        break;
+      case "route_za":
+        sortedRoutes.sort((a, b) => (b.RouteName || '').localeCompare(a.RouteName || ''));
+        break;
+      case "start_az":
+        sortedRoutes.sort((a, b) => (a.StartStop?.StopName || '').localeCompare(b.StartStop?.StopName || ''));
+        break;
+      case "start_za":
+        sortedRoutes.sort((a, b) => (b.StartStop?.StopName || '').localeCompare(a.StartStop?.StopName || ''));
+        break;
+      case "end_az":
+        sortedRoutes.sort((a, b) => (a.EndStop?.StopName || '').localeCompare(b.EndStop?.StopName || ''));
+        break;
+      case "end_za":
+        sortedRoutes.sort((a, b) => (b.EndStop?.StopName || '').localeCompare(a.EndStop?.StopName || ''));
+        break;
+      case "stops_low":
+        sortedRoutes.sort((a, b) => (a.RouteStops?.length ?? 0) - (b.RouteStops?.length ?? 0));
+        break;
+      case "stops_high":
+        sortedRoutes.sort((a, b) => (b.RouteStops?.length ?? 0) - (a.RouteStops?.length ?? 0));
+        break;
+      default:
+        // Default to Route Name A-Z
+        sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
+        break;
     }
 
     const filteredRoutes = sortedRoutes.filter((route) =>
@@ -117,36 +149,6 @@ const CreateRoutePage: React.FC = () => {
       setCurrentPage(1);
     }
   }, [routes, searchQuery, sortOrder, pageSize]);
-
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-
-    const reordered = Array.from(stopsBetween);
-    const [removed] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, removed);
-
-    setStopsBetween(reordered);
-  };
-
-  const handleAddStop = () => {
-    setStopsBetween([...stopsBetween, { 
-          StopID: '',
-          StopName: '',
-          IsDeleted: false,
-          latitude: '',
-          longitude: ''
-     }]);
-  };
-
-  const handleRemoveStop = (index: number) => {
-    setStopsBetween(stopsBetween.filter((_, i) => i !== index));
-  };
-
-  const handleStopChange = (value: string, index: number) => {
-    const updatedStops = [...stopsBetween];
-    updatedStops[index] = { ...updatedStops[index], StopName: value }; // Update only the StopName
-    setStopsBetween(updatedStops);
-  };
 
   const handleEditRoute = (route: Route) => {
     setRouteToEdit(route);
@@ -195,20 +197,22 @@ const CreateRoutePage: React.FC = () => {
       RouteStops: routeStops,
     };
 
-
     try {
+      setModalLoading(true);
       await createRouteWithToken(newRoute);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Route added successfully!',
-        });
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Route added successfully!',
+      });
       setRouteName('');
       setStartStop('');
       setEndStop('');
       setStopsBetween([]);
       fetchRoutes();
     } catch (error) {
+      setModalLoading(false);
       console.error('Error adding route:', error);
       await Swal.fire({
         icon: 'error',
@@ -232,14 +236,17 @@ const CreateRoutePage: React.FC = () => {
   if (!result.isConfirmed) return;
 
     try {
+      setModalLoading(true);
       await deleteRouteWithToken(routeID);
-        await Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Route deleted successfully!',
-        });
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Route deleted successfully!',
+      });
       fetchRoutes(); // Refresh the route list
     } catch (error) {
+      setModalLoading(false);
       console.error('Error deleting route:', error);
       await Swal.fire({
         icon: 'error',
@@ -274,8 +281,10 @@ const CreateRoutePage: React.FC = () => {
     };
 
     try {
+      setModalLoading(true);
       await updateRouteWithToken(updatedRoute); // Your API call to update route
-       await Swal.fire({
+      setModalLoading(false);
+      await Swal.fire({
         icon: 'success',
         title: 'Success',
         text: 'Route updated successfully!',
@@ -292,6 +301,7 @@ const CreateRoutePage: React.FC = () => {
       setEndStopID(null);
       setEditStopsBetween([]);
     } catch (error) {
+      setModalLoading(false);
       console.error('Error updating route:', error);
       await Swal.fire({
         icon: 'error',
@@ -299,87 +309,6 @@ const CreateRoutePage: React.FC = () => {
         text: error instanceof Error ? error.message : 'Failed to update route. Please try again.',
       });
     }
-  };
-
-  const handleSaveRoute = async () => {
-    if (!routeName || !startStop || !endStop) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill in all fields with valid values.',
-      });
-      return;
-    }
-
-    // Prepare the RouteStops array with StopID and StopOrder
-    const routeStops = stopsBetween.map((stop, index) => ({
-      StopID: stop.StopID, 
-      StopOrder: index + 1, 
-    }));
-    
-    const updatedRoute = {
-      RouteID: editingRouteID, // Ensure this matches the backend's expected field name
-      RouteName: routeName,
-      StartStopID: startStopID, // Send StartStopID
-      EndStopID: endStopID, // Send EndStopID
-      RouteStops: routeStops, // Send RouteStops
-    };
-
-    console.log('Request body:', updatedRoute); // Debugging
-
-      try {
-        const response = await fetch(`/api/route-management/${editingRouteID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedRoute),
-        });
-
-      if (!response.ok) {
-        // Try to get error message from response JSON
-        let errorMsg = `Failed to update route: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMsg = errorData.error;
-          }
-        } catch {
-          // ignore JSON parsing errors, fallback to statusText
-        }
-        throw new Error(errorMsg);
-      }
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Route updated successfully!',
-        });
-      setEditingRouteID(null);
-      handleClear();
-      fetchRoutes();
-    } catch (error) {
-      console.error('Error updating route:', error);
-      // Safe error message extraction
-      const message = error instanceof Error ? error.message : 'Failed to update route. Please try again.';
-        await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: message,
-      });
-    }
-  };
-  
-  const handleClear = () => {
-    setRouteName('');
-    setStartStop('');
-    setEndStop('');
-    setStopsBetween([]);
-    setSelectedStartStop(null);
-    setSelectedEndStop(null);
-    setSelectedStopBetween(null);
-    setStopType(null);
-    setSelectedStopIndex(null);
   };
 
   return (
@@ -401,14 +330,11 @@ const CreateRoutePage: React.FC = () => {
             />
           </div>
 
-          <select
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="A-Z">Name: A-Z</option>
-            <option value="Z-A">Name: Z-A</option>
-          </select>
+          {/* FilterDropdown for sorting */}
+            <FilterDropdown
+              sections={filterSections}
+              onApply={handleApplyFilters}
+          />
 
           <button
             className={styles.addButton}
@@ -446,11 +372,9 @@ const CreateRoutePage: React.FC = () => {
           />
         </div>
 
-        {/* Loading or Table */}
-        {loading ? (
-          <div className="text-center my-4">
-            <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
-          </div>
+        {/* Loading */}
+          {loading ? (
+            <Loading />
         ) : (
           <table className={styles.table}>
             <thead>
@@ -613,6 +537,8 @@ const CreateRoutePage: React.FC = () => {
             setShowStopsModal(true);
           }}
         />
+
+        {modalLoading && <LoadingModal />}
       </div>
     </div>
   );

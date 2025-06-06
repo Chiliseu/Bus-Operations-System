@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
-import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
 import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
 import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
-import Pagination from '@/components/ui/Pagination';
-import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
+
+// --- Shared imports ---
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
+import type { FilterSection } from '@/shared/imports';
+
 
 const RouteManagementPage: React.FC = () => {
   const [stops, setStops] = useState<Stop[]>([]); // All stops
@@ -21,7 +22,8 @@ const RouteManagementPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
-  const [showRegularBusAssignmentModal, setShowRegularBusAssignmentModal] = useState(false);// Shows Add Stop Modal
+
+  const [modalLoading, setModalLoading] = useState(false);
 
   // For editing stops
   const [showEditModal, setShowEditModal] = useState(false);
@@ -36,14 +38,26 @@ const RouteManagementPage: React.FC = () => {
     currentPage * pageSize
   );
 
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "az", label: "Stop Name: A-Z" },
+        { id: "za", label: "Stop Name: Z-A" },
+      ],
+      defaultValue: "az"
+    }
+  ];
+
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
 
-    // Sort stops based on the selected sortOrder
-    if (sortOrder === 'A-Z') {
+    if (sortOrder === 'az') {
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
-    } else if (sortOrder === 'Z-A') {
+    } else if (sortOrder === 'za') {
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
     }
 
@@ -53,9 +67,8 @@ const RouteManagementPage: React.FC = () => {
       stop.latitude?.toString().includes(searchQuery)
     );
 
-    setDisplayedStops(filteredStops); // <-- Store ALL filtered stops, not paginated
+    setDisplayedStops(filteredStops);
 
-    // Reset currentPage to 1 if the search query or sort changes and currentPage is out of range
     const totalPages = Math.ceil(filteredStops.length / pageSize);
     if (currentPage > totalPages) {
       setCurrentPage(1);
@@ -79,7 +92,11 @@ const RouteManagementPage: React.FC = () => {
     fetchStops();
   }, []);
 
- const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setSortOrder(filterValues.sortBy);
+  };
+
+   const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
     if (!stop.name || !stop.longitude || !stop.latitude) {
           await Swal.fire({
             icon: 'warning',
@@ -90,7 +107,9 @@ const RouteManagementPage: React.FC = () => {
     }
 
     try {
+      setModalLoading(true);
       await createStopWithToken(stop);
+      setModalLoading(false);
 
       await Swal.fire({
           icon: 'success',
@@ -101,6 +120,7 @@ const RouteManagementPage: React.FC = () => {
       setShowAddStopModal(false); // Close the modal
       return true;
     } catch (error) {
+      setModalLoading(false);
       console.error('Error adding stop:', error);
           await Swal.fire({
             icon: 'error',
@@ -112,38 +132,40 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
-    const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
-        if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
-              await Swal.fire({
-                icon: 'warning',
-                title: 'Missing Fields',
-                text: 'Please fill in all fields with valid values.',
-              });
-          return false;
-        }
+  const handleSave = async (editedStop: { id: string; name: string; latitude: string; longitude: string }) => {
+    if (!editedStop.name || !editedStop.latitude || !editedStop.longitude) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all fields with valid values.',
+      });
+      return false;
+    }
 
-        try {
-          await updateStopWithToken(editedStop);
-
-          await Swal.fire({
-              icon: 'success',
-              title: 'Stop Updated',
-              text: 'Stop updated successfully!',
-            });
-          fetchStops(); // Refresh the stops list
-          setShowEditModal(false); // Close the modal
-          setSelectedStop(null);   // Clear selection
-          return true;
-        } catch (error) {
-          console.error('Error updating stop:', error);
-          await Swal.fire({
-              icon: 'error',
-              title: 'Update Failed',
-              text: error instanceof Error ? error.message : 'Failed to update stop. Please try again.',
-            });
-          return false;
-        }
-      };
+    try {
+      setModalLoading(true);
+      await updateStopWithToken(editedStop);
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Stop Updated',
+        text: 'Stop updated successfully!',
+      });
+      fetchStops();
+      setShowEditModal(false);
+      setSelectedStop(null);
+      return true;
+    } catch (error) {
+      console.error('Error updating stop:', error);
+      setModalLoading(false);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: error instanceof Error ? error.message : 'Failed to update stop. Please try again.',
+      });
+      return false;
+    }
+  };
 
   const handleDelete = async (stopID: string) => {
   const result = await Swal.fire({
@@ -159,7 +181,9 @@ const RouteManagementPage: React.FC = () => {
   if (!result.isConfirmed) return;
 
     try {
+      setModalLoading(true);
       await softDeleteStopWithToken(stopID);
+      setModalLoading(false);
 
       await Swal.fire({
           icon: 'success',
@@ -168,6 +192,7 @@ const RouteManagementPage: React.FC = () => {
         });
       fetchStops();
     } catch (error) {
+      setModalLoading(false);
       console.error('Error deleting stop:', error);
       await Swal.fire({
           icon: 'error',
@@ -175,20 +200,6 @@ const RouteManagementPage: React.FC = () => {
           text: 'Failed to delete stop. Please try again.',
         });
     }
-  };
-
-  const handlePrint = () => {
-    const printContents = document.getElementById('print-section')?.innerHTML;
-    if (!printContents) return;
-    const printWindow = window.open('', '', 'height=600,width=800');
-    if (!printWindow) return;
-    printWindow.document.write('<html><head><title>Print</title></head><body>');
-    printWindow.document.write(printContents);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
   };
 
   return (
@@ -224,14 +235,10 @@ const RouteManagementPage: React.FC = () => {
             />
           </div>
 
-          <select
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="A-Z">Name: A-Z</option>
-            <option value="Z-A">Name: Z-A</option>
-          </select>
+              <FilterDropdown
+                sections={filterSections}
+                onApply={handleApplyFilters}
+              />
 
           <button
             className={styles.addButton}
@@ -249,75 +256,71 @@ const RouteManagementPage: React.FC = () => {
           />
         </div>
 
-        {/* Loading Spinner or Table */}
-        {loading ? (
-          <div className={styles.loadingWrapper}>
-            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
-          </div>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr className={styles.tableHeadRow}>
-                <th>Stop Name</th>
-                <th>Longitude</th>
-                <th>Latitude</th>
-                <th className={styles.actions}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentStops.length > 0 ? (
-                currentStops.map((stop) => (
-                  <tr key={stop.StopID} className={styles.tableRow}>
-                    <td>{stop.StopName}</td>
-                    <td>{stop.longitude}</td>
-                    <td>{stop.latitude}</td>
-                    <td className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => {
-                          setSelectedStop(stop);
-                          setShowEditModal(true);
-                        }}
-                      >
-                        <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
-                      </button>
 
-                      {/* Edit Modal */}
-                      <EditStopModal
-                        show={showEditModal}
-                        onClose={() => setShowEditModal(false)}
-                        stop={
-                          selectedStop
-                            ? {
-                                id: selectedStop.StopID,
-                                name: selectedStop.StopName,
-                                latitude: selectedStop.latitude,
-                                longitude: selectedStop.longitude,
-                              }
-                            : null
-                        }
-                        onSave={handleSave}
-                      />
-
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDelete(stop.StopID)}
-                      >
-                        <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+              {/* Loading Spinner */}
+              {loading ? (
+                <Loading />
               ) : (
-                <tr>
-                  <td colSpan={4} className={styles.noRecords}>
-                    No records found.
-                  </td>
-                </tr>
+                <table className={styles.table}>
+                  <thead>
+                    <tr className={styles.tableHeadRow}>
+                      <th>Stop Name</th>
+                      <th>Longitude</th>
+                      <th>Latitude</th>
+                      <th className={styles.actions}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentStops.length > 0 ? (
+                      currentStops.map((stop) => (
+                        <tr key={stop.StopID} className={styles.tableRow}>
+                          <td>{stop.StopName}</td>
+                          <td>{stop.longitude}</td>
+                          <td>{stop.latitude}</td>
+                          <td className={styles.actions}>
+                            <button
+                              className={styles.editBtn}
+                              onClick={() => {
+                                setSelectedStop(stop);
+                                setShowEditModal(true);
+                              }}
+                            >
+                              <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                            </button>
+                            <EditStopModal
+                              show={showEditModal}
+                              onClose={() => setShowEditModal(false)}
+                              stop={
+                                selectedStop
+                                  ? {
+                                      id: selectedStop.StopID,
+                                      name: selectedStop.StopName,
+                                      latitude: selectedStop.latitude,
+                                      longitude: selectedStop.longitude,
+                                    }
+                                  : null
+                              }
+                              onSave={handleSave}
+                            />
+                            <button
+                              className={styles.deleteBtn}
+                              onClick={() => handleDelete(stop.StopID)}
+                            >
+                              <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className={styles.noRecords}>
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               )}
-            </tbody>
-          </table>
-        )}
 
         {/* Pagination */}
         <PaginationComponent
@@ -330,6 +333,8 @@ const RouteManagementPage: React.FC = () => {
             setCurrentPage(1);
           }}
         />
+
+        {modalLoading && <LoadingModal />}
       </div>
     </div>
   );
