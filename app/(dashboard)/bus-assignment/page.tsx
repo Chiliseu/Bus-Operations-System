@@ -2,39 +2,38 @@
  
 'use client';
 
+//=====================================
+//  IMPORTS START
+// ====================================
+
 import React, { useEffect, useState } from 'react';
+
+// Style Imports
+import styles from './bus-assignment.module.css';
+
+// Modal Imports
 import AssignBusModal from '@/components/modal/Assign-Bus/AssignBusModal';
 import AssignDriverModal from '@/components/modal/Assign-Driver/AssignDriverModal';
 import AssignConductorModal from '@/components/modal/Assign-Conductor/AssignConductorModal';
 import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
 import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
-import styles from './bus-assignment.module.css';
-import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
-import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
-import Image from 'next/image';
-import PaginationComponent from '@/components/ui/PaginationV2';
-import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
 import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
-import Swal from 'sweetalert2';
 
+// API calls Imports
+import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
 
+// Interface Imports
+import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
+
+// --- Shared imports ---
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image } from '@/shared/imports';
+import type { FilterSection } from '@/shared/imports';
+
+//=====================================
+//  IMPORTS END
+// ====================================
 
 const BusAssignmentPage: React.FC = () => {
-  interface QuotaPolicy {
-    startDate: string;
-    endDate: string;
-    quotaType: "Fixed" | "Percentage";
-    quotaValue: number;
-  }
-
-  interface BusAssignment {
-    BusAssignmentID: string;
-    BusID: string;
-    RouteID: string;
-    DriverID: string;
-    ConductorID: string;
-    QuotaPolicy: QuotaPolicy[];
-  }
 
   // Flags for modal
   const [busAssignments, setAssignments] = useState<(RegularBusAssignment & {
@@ -66,45 +65,34 @@ const BusAssignmentPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default page size
   const totalPages = Math.ceil(displayedBusAssignments.length / pageSize);
-  const currentStops = busAssignments.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState('A-Z'); // State for sorting order
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "bus_az", label: "Bus A-Z" },
+        { id: "bus_za", label: "Bus Z-A" },
+        { id: "driver_az", label: "Driver A-Z" },
+        { id: "driver_za", label: "Driver Z-A" },
+        { id: "conductor_az", label: "Conductor A-Z" },
+        { id: "conductor_za", label: "Conductor Z-A" },
+        { id: "route_az", label: "Route A-Z" },
+        { id: "route_za", label: "Route Z-A" },
+      ],
+      defaultValue: "bus_az"
+    }
+  ];
 
   // Loading State
   const [loading, setLoading] = useState(false);
 
-  const [quotaType, setQuotaType] = useState('Fixed'); // Default to 'Fixed'
-  const [quotaValue, setQuotaValue] = useState<number>(0); // Default to 0 or any sensible default
 
   const [assignmentDate, setAssignmentDate] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (showAddAssignmentModal) {
-      setAssignmentDate(new Date().toISOString());
-    }
-  }, [showAddAssignmentModal]);
-
-  const fetchAssignments = async () => {
-    setLoading(true); // Start loading
-    try {
-        const assignments = await fetchAssignmentDetails();
-        setAssignments(assignments);
-      } catch (error) {
-        alert('Error loading assignments');
-      } finally{
-        setLoading(false); // Start loading
-      }
-  };
-
-  // **Initial data fetch on component mount**
-  useEffect(() => {
-    fetchAssignments();
-  }, []);
 
   useEffect(() => {
       const sortedAssignments = [...busAssignments];
@@ -124,13 +112,85 @@ const BusAssignmentPage: React.FC = () => {
       }
     }, [busAssignments, searchQuery, sortOrder, pageSize]);
 
-  const handleClear = () => {
-    // Clear logic for resetting form values or handling state
-    setSelectedBus(null);
-    setSelectedDriver(null);
-    setSelectedConductor(null);
-    setSelectedRoute(null);
-    setQuotaValue(0);
+  // Fetch from Database
+  useEffect(() => {
+    if (showAddAssignmentModal) {
+      setAssignmentDate(new Date().toISOString());
+    }
+  }, [showAddAssignmentModal]);
+
+  const fetchAssignments = async () => {
+    setLoading(true); // Start loading
+    try {
+        const assignments = await fetchAssignmentDetails();
+        setAssignments(assignments);
+      } catch (error) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error loading assignments',
+        });
+      } finally{
+        setLoading(false); // Start loading
+      }
+  };
+
+  // **Initial data fetch on component mount**
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  // Filter
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    let newData = [...busAssignments];
+
+    switch (filterValues.sortBy) {
+      case "bus_az":
+        newData.sort((a, b) =>
+          (a.busLicensePlate || "").localeCompare(b.busLicensePlate || "")
+        );
+        break;
+      case "bus_za":
+        newData.sort((a, b) =>
+          (b.busLicensePlate || "").localeCompare(a.busLicensePlate || "")
+        );
+        break;
+      case "driver_az":
+        newData.sort((a, b) =>
+          (a.driverName || "").localeCompare(b.driverName || "")
+        );
+        break;
+      case "driver_za":
+        newData.sort((a, b) =>
+          (b.driverName || "").localeCompare(a.driverName || "")
+        );
+        break;
+      case "conductor_az":
+        newData.sort((a, b) =>
+          (a.conductorName || "").localeCompare(b.conductorName || "")
+        );
+        break;
+      case "conductor_za":
+        newData.sort((a, b) =>
+          (b.conductorName || "").localeCompare(a.conductorName || "")
+        );
+        break;
+      case "route_az":
+        newData.sort((a, b) =>
+          (a.BusAssignment?.Route?.RouteName || "").localeCompare(b.BusAssignment?.Route?.RouteName || "")
+        );
+        break;
+      case "route_za":
+        newData.sort((a, b) =>
+          (b.BusAssignment?.Route?.RouteName || "").localeCompare(a.BusAssignment?.Route?.RouteName || "")
+        );
+        break;
+      default:
+        break;
+    }
+
+    setDisplayedBusAssignments(newData);
+    setCurrentPage(1);
   };
 
   const handleEdit = (assignment: typeof displayedBusAssignments[number]) => {
@@ -223,7 +283,7 @@ const BusAssignmentPage: React.FC = () => {
     }
   };
 
-    const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
+  const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -339,15 +399,12 @@ const BusAssignmentPage: React.FC = () => {
             />
           </div>
 
-          {/* Dropdown */}
-          <select
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="A-Z">Name: A-Z</option>
-            <option value="Z-A">Name: Z-A</option>
-          </select>
+          <div className="filter">
+            <FilterDropdown
+                sections={filterSections}
+                onApply={handleApplyFilters}
+            />
+          </div>
 
           {/* Add Button */}
           <button
@@ -361,9 +418,7 @@ const BusAssignmentPage: React.FC = () => {
 
           {/* Loading Spinner */}
           {loading ? (
-            <div className="text-center my-4">
-              <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
-            </div>
+            <Loading />
           ) : (
             <>
               {/* Data Table */}
@@ -435,7 +490,6 @@ const BusAssignmentPage: React.FC = () => {
       </div>
 
       {/* Modals */}
-
       {showEditModal && selectedAssignment && (
         <EditRegularBusAssignmentModal
           show={showEditModal}
@@ -456,9 +510,6 @@ const BusAssignmentPage: React.FC = () => {
           onSave={handleSave}
         />
       )}
-
-
-
 
       {showAddAssignmentModal && (
         <AddRegularBusAssignmentModal

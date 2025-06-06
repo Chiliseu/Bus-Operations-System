@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './route-management.module.css';
 import '../../../../styles/globals.css';
 import { Stop } from '@/app/interface'; // Importing the Stop interface
-import Image from 'next/image';
 import PrintTable from '@/components/printtable/PrintTable'; // Importing the PrintTable component
 import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
 import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
-import Pagination from '@/components/ui/Pagination';
-import PaginationComponent from '@/components/ui/PaginationV2'; //Kay Brian na pagination
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
+
+// --- Shared imports ---
+import { Loading, FilterDropdown, PaginationComponent, Swal, Image } from '@/shared/imports';
+import type { FilterSection } from '@/shared/imports';
+
 
 const RouteManagementPage: React.FC = () => {
   const [stops, setStops] = useState<Stop[]>([]); // All stops
@@ -21,7 +22,6 @@ const RouteManagementPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(''); // State for sorting order
   const [loading, setLoading] = useState(false); // Track loading state
   const [showAddStopModal, setShowAddStopModal] = useState(false);// Shows Add Stop Modal
-  const [showRegularBusAssignmentModal, setShowRegularBusAssignmentModal] = useState(false);// Shows Add Stop Modal
 
   // For editing stops
   const [showEditModal, setShowEditModal] = useState(false);
@@ -36,14 +36,26 @@ const RouteManagementPage: React.FC = () => {
     currentPage * pageSize
   );
 
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "az", label: "Stop Name: A-Z" },
+        { id: "za", label: "Stop Name: Z-A" },
+      ],
+      defaultValue: "az"
+    }
+  ];
+
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
     const sortedStops = [...stops];
 
-    // Sort stops based on the selected sortOrder
-    if (sortOrder === 'A-Z') {
+    if (sortOrder === 'az') {
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
-    } else if (sortOrder === 'Z-A') {
+    } else if (sortOrder === 'za') {
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
     }
 
@@ -53,9 +65,8 @@ const RouteManagementPage: React.FC = () => {
       stop.latitude?.toString().includes(searchQuery)
     );
 
-    setDisplayedStops(filteredStops); // <-- Store ALL filtered stops, not paginated
+    setDisplayedStops(filteredStops);
 
-    // Reset currentPage to 1 if the search query or sort changes and currentPage is out of range
     const totalPages = Math.ceil(filteredStops.length / pageSize);
     if (currentPage > totalPages) {
       setCurrentPage(1);
@@ -79,7 +90,11 @@ const RouteManagementPage: React.FC = () => {
     fetchStops();
   }, []);
 
- const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setSortOrder(filterValues.sortBy);
+  };
+
+   const handleCreateStop = async (stop: { name: string; latitude: string; longitude: string }) => {
     if (!stop.name || !stop.longitude || !stop.latitude) {
           await Swal.fire({
             icon: 'warning',
@@ -225,14 +240,10 @@ const RouteManagementPage: React.FC = () => {
                 />
               </div>
 
-              <select
-                className={styles.sortSelect}
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="A-Z">Name: A-Z</option>
-                <option value="Z-A">Name: Z-A</option>
-              </select>
+              <FilterDropdown
+                sections={filterSections}
+                onApply={handleApplyFilters}
+              />
 
               <button
                 className={styles.addButton}
@@ -252,9 +263,7 @@ const RouteManagementPage: React.FC = () => {
 
               {/* Loading Spinner */}
               {loading ? (
-                <div className="text-center my-4">
-                  <img src="/loadingbus.gif" alt="Loading..." className="mx-auto w-24 h-24" />
-                </div>
+                <Loading />
               ) : (
                 <table className={styles.table}>
                   <thead>
