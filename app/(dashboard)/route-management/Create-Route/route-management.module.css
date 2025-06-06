@@ -118,9 +118,15 @@
 
 /* === Main Container Width Control === */
 .wideCard {
-  max-width: 95%;               /* Responsive max width */
-  width: 100%;                 /* Full width within max */
-  margin-top: 0px;
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
 }
 
 /* === Table Base Styling === */

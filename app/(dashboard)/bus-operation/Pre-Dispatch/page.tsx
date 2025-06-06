@@ -107,120 +107,113 @@ const BusOperationPage: React.FC = () => {
   // };
 
   return (
-    <div className={`card mx-auto ${styles.wideCard}`}>
-      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-        <div className="card-body">
-          {/* Page title */}
-          <h2 className={styles.stopTitle}>PRE-DISPATCH BUS OPERATION</h2>
-          <h2 className="card-title mb-3">Bus Assignments</h2>
+    <div className={styles.wideCard}>
+      <div className={styles.cardBody}>
+        {/* Page title */}
+        <h2 className={styles.stopTitle}>Pre-Dispatch Bus Operation</h2>
 
-          {/* Search and Sort inputs */}
-          <div className="row g-2 mb-3">
-            <div className="col-md-4">
-              {/* Search input */}
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by bus, driver, or conductor..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="col-md-3">
-              {/* Sort dropdown */}
-              <select
-                className="form-select"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="">Sort by...</option>
-                <option value="Bus A-Z">Bus A-Z</option>
-                <option value="Bus Z-A">Bus Z-A</option>
-                <option value="Driver A-Z">Driver A-Z</option>
-                <option value="Driver Z-A">Driver Z-A</option>
-              </select>
-            </div>
+        {/* Search and Sort inputs */}
+        <div className={styles.toolbar}>
+          {/* Search Input */}
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
-          {/* Description */}
-          <p className="text-muted ms-1">Check buses that are not ready for dispatch</p>
+          {/* Sort Dropdown */}
+          <select
+            className={styles.sortSelect}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="">Sort by...</option>
+            <option value="Bus A-Z">Bus A-Z</option>
+            <option value="Bus Z-A">Bus Z-A</option>
+            <option value="Driver A-Z">Driver A-Z</option>
+            <option value="Driver Z-A">Driver Z-A</option>
+          </select>
+        </div>
 
-          {/* Table wrapper with custom styles */}
+        {/* Description */}
+        <p className={styles.description}>Check buses that are not ready for dispatch</p>
+
+        {/* Loading centered in the card */}
+        {loading ? (
+          <div className={styles.loadingWrapper}>
+            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
+          </div>
+        ) : (
           <div className={styles.styledTableWrapper}>
-            {loading?(
-              <div className="text-center my-4">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            ):(
-              <table className={styles.styledTable}>
-                <thead>
-                  <tr>
-                    <th>Bus</th>
-                    <th>Driver</th>
-                    <th>Conductor</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayedAssignments.length > 0 ? (
-                    displayedAssignments.map((assignment) => (
-                      <tr key={assignment.BusAssignmentID}>
-                        <td>{assignment.BusID}</td>
-                        <td>{assignment.RegularBusAssignment?.DriverID}</td>
-                        <td>{assignment.RegularBusAssignment?.ConductorID}</td>
-                        <td className="text-center">
-                          <button className="btn btn-sm btn-primary p-1">
-                            <Image
-                              src="/assets/images/edit-white.png"
-                              alt="Edit"
-                              width={25}
-                              height={25}
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="text-center py-4">
-                        No records found.
+            <table className={styles.styledTable}>
+              <thead>
+                <tr>
+                  <th>Bus</th>
+                  <th>Driver</th>
+                  <th>Conductor</th>
+                  <th className={styles.centeredColumn}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayedAssignments.length > 0 ? (
+                  displayedAssignments.map((assignment) => (
+                    <tr key={assignment.BusAssignmentID}>
+                      <td>{assignment.BusID}</td>
+                      <td>{assignment.RegularBusAssignment?.DriverID}</td>
+                      <td>{assignment.RegularBusAssignment?.ConductorID}</td>
+                      <td className={styles.centeredColumn}>
+                        <button className={styles.editBtn}>
+                          <img
+                            src="/assets/images/edit-white.png"
+                            alt="Edit"
+                            width={25}
+                            height={25}
+                          />
+                        </button>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className={styles.noRecords}>
+                      No records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          
-          {/* Pagination controls */}
-          {displayedAssignments.length > 0 && (
-            <PaginationComponent
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={(size: number) => {
-                setPageSize(size);
-                setCurrentPage(1); // Reset to first page when page size changes
-              }}
-            />
-          )}
+        )}
 
-          {/* Bus Readiness Modal */}
-          {/* {selectedBusInfo && (
-            // <BusReadinessModal
-            //   show={showBusReadinessModal}
-            //   onClose={() => {
-            //     setShowBusReadinessModal(false);
-            //     setSelectedBusInfo(null);
-            //   }}
-            //   busInfo={selectedBusInfo}
-            //   onSave={handleSaveReadiness}
-            // />
-          )} */}
-        </div>
+        {/* Pagination controls */}
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={(size: number) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+
+        {/* Bus Readiness Modal (commented out) */}
+        {/* {selectedBusInfo && (
+          <BusReadinessModal
+            show={showBusReadinessModal}
+            onClose={() => {
+              setShowBusReadinessModal(false);
+              setSelectedBusInfo(null);
+            }}
+            busInfo={selectedBusInfo}
+            onSave={handleSaveReadiness}
+          />
+        )} */}
       </div>
     </div>
   );

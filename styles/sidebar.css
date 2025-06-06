@@ -12,13 +12,13 @@
 
 .sidebar {
     position: relative;
-    width: calc(100% * 8 / 34);
+    width: calc(100% * 6 / 34);
     background-color: var(--foreground-color);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.3s ease-in-out;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 .sidebar-content {
@@ -171,7 +171,7 @@
 .sub-menu {
     display: none;
     margin: 0 10px;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .sub-menu.active {

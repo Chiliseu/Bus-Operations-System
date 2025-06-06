@@ -428,22 +428,28 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                     <input
                       type="number"
                       className="form-control"
-                      value={policy.quotaValue}
+                      value={policy.quotaValue.toString()}
                       min={policy.quotaType === "Percentage" ? 1 : 0}
                       max={policy.quotaType === "Percentage" ? 99 : undefined}
+                      onFocus={(e) => {
+                        if (e.target.value === '0') e.target.value = '';
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') updateQuotaPolicyValue(index, { quotaValue: 0 });
+                      }}
                       onChange={(e) => {
-                        let val = Number(e.target.value);
+                        const raw = e.target.value.replace(/^0+(?!$)/, '');
+                        const val = Number(raw);
 
-                        if (policy.quotaType === "Percentage") {
-                          // Clamp between 1 and 99
-                          if (val < 1) val = 1;
-                          if (val > 99) val = 99;
+                        let normalized = val;
+                        if (policy.quotaType === 'Percentage') {
+                          if (val < 1) normalized = 1;
+                          if (val > 99) normalized = 99;
                         } else {
-                          // For Fixed, only min=0 enforced
-                          if (val < 0) val = 0;
+                          if (val < 0) normalized = 0;
                         }
 
-                        updateQuotaPolicyValue(index, { quotaValue: val });
+                        updateQuotaPolicyValue(index, { quotaValue: normalized });
                       }}
                     />
                   </div>
@@ -461,13 +467,13 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                   </div>
                 </div>
               ))}
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={addQuotaPolicy}
-              >
-                + Add Quota Policy
-              </button>
+            <button
+              type="button"
+              className={styles.addQuotaBtn}
+              onClick={addQuotaPolicy}
+            >
+              + Add Quota Policy
+            </button>
             </div>
           </div>
 

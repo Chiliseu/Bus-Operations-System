@@ -231,16 +231,24 @@
 }
 
 .btnAddStop {
-  background: #28a745;
-  border: 1px solid #28a745;
-  color: white;
-  margin-top: 12px;
+  width: 160px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  margin-top: 20px;
 }
 
 .btnAddStop:hover {
-  background: #218838;
-  border-color: #218838;
-  color: white;
+  background-color: #7e191b; /* optional hover effect */
 }
 
 .btnRemoveStop {
