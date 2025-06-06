@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from 'sweetalert2';
 import styles from './edit-stop.module.css';
 
 interface EditStopModalProps {
@@ -24,12 +25,23 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
 
   const handleSave = async () => {
     if (!stop) return;
+
+    if (!name.trim() || !latitude.trim() || !longitude.trim()) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all fields before saving.',
+      });
+      return;
+    }
+
     const success = await onSave({ id: stop.id, name, latitude, longitude });
     if (success) {
       onClose();
     }
   };
 
+  // ✅ Ensure modal is hidden when not shown
   if (!show || !stop) return null;
 
   return (
@@ -47,11 +59,11 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
               ×
             </button>
           </div>
-          
+
           <div className={styles.modalBody}>
             <div className={styles.formSection}>
               <h6 className={styles.sectionTitle}>Stop Information</h6>
-              
+
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Stop Name</label>
                 <input
@@ -62,7 +74,7 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Latitude</label>
                 <input
@@ -73,7 +85,7 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
                   onChange={(e) => setLatitude(e.target.value)}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Longitude</label>
                 <input
@@ -86,13 +98,12 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
               </div>
             </div>
           </div>
-          
+
           <div className={styles.modalFooter}>
             <button
               type="button"
               className={`${styles.btn} ${styles.saveStopBtn}`}
               onClick={handleSave}
-              disabled={!name.trim() || !latitude.trim() || !longitude.trim()}
             >
               Save Stop
             </button>

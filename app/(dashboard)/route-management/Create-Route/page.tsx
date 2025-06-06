@@ -390,14 +390,13 @@ const CreateRoutePage: React.FC = () => {
     }
   };
 
-return (
-  <div className={`card mx-auto ${styles.wideCard}`}>
-    <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-      <div className="card-body">
+  return (
+    <div className={styles.wideCard}>
+      <div className={styles.cardBody}>
         {/* Title */}
         <h2 className={styles.stopTitle}>Create Route</h2>
 
-        {/* Toolbar container */}
+        {/* Toolbar */}
         <div className={styles.toolbar}>
           <div className={styles.searchWrapper}>
             <i className="ri-search-2-line"></i>
@@ -619,7 +618,9 @@ return (
         />
       </div>
     </div>
-  </div>
-);
-}
+  );
+
+};
+
 export default CreateRoutePage;
+

@@ -14,14 +14,13 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
   const [longitude, setLongitude] = useState("");
 
   const handleCreate = async () => {
-    if (!name || !latitude || !longitude) {
-          await Swal.fire({
-            icon: 'warning',
-            title: 'Missing Fields',
-            text: 'Please fill in all fields.',
-          });
-      return;
-    }
+  if (!name || !latitude || !longitude) {
+    return await Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Please fill in all fields.',
+    });
+  }
 
     const success = await onCreate({ name, latitude, longitude });
     if (success) {
@@ -86,9 +85,9 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
 
         <div className={styles.footer}>
           <button
+            type="button"
             className={styles.createStopBtn}
             onClick={handleCreate}
-            disabled={!name || !latitude || !longitude}
           >
             Create Stop
           </button>

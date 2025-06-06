@@ -344,13 +344,13 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                   </div>
                 </div>
               ))}
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={addQuotaPolicy}
-              >
-                + Add Quota Policy
-              </button>
+            <button
+              type="button"
+              className={styles.addQuotaBtn}
+              onClick={addQuotaPolicy}
+            >
+              + Add Quota Policy
+            </button>
             </div>
           </div>
 

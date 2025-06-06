@@ -207,58 +207,58 @@ const RouteManagementPage: React.FC = () => {
   };
 
   return (
-    <div className={`card mx-auto ${styles.wideCard}`}>
-      <div style={{ display: 'none' }}>
-        <PrintTable
-          title="Stop List"
-          subtitle=""
-          data={currentStops}
-          filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
-          columns={[
-            { header: 'Stop Name', accessor: (row) => row.StopName },
-            { header: 'Longitude', accessor: (row) => row.longitude },
-            { header: 'Latitude', accessor: (row) => row.latitude },
-          ]}
-        />
-      </div>
-      <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-        <div className="card-body">
+    <div className={styles.wideCard}>
+      <div className={styles.cardBody}>
+        {/* Hidden PrintTable (unchanged) */}
+        <div style={{ display: 'none' }}>
+          <PrintTable
+            title="Stop List"
+            subtitle=""
+            data={currentStops}
+            filterInfo={`Search: ${searchQuery || 'None'} | Sort: ${sortOrder || 'None'}`}
+            columns={[
+              { header: 'Stop Name', accessor: (row) => row.StopName },
+              { header: 'Longitude', accessor: (row) => row.longitude },
+              { header: 'Latitude', accessor: (row) => row.latitude },
+            ]}
+          />
+        </div>
 
-            {/* Stops Table Section */}
-            <h2 className={styles.stopTitle}>Create Stop</h2>
+        <h2 className={styles.stopTitle}>Create Stop</h2>
 
-            {/* Search & Sort Inputs */}
-            <div className={styles.toolbar}>
-              <div className={styles.searchWrapper}>
-                <i className="ri-search-2-line"></i>
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
 
               <FilterDropdown
                 sections={filterSections}
                 onApply={handleApplyFilters}
               />
 
-              <button
-                className={styles.addButton}
-                onClick={() => setShowAddStopModal(true)}
-              >
-                <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
-                Add Stop
-              </button>
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddStopModal(true)}
+          >
+            <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
+            Add Stop
+          </button>
 
-              <AddStopModal
-                show={showAddStopModal}
-                onClose={() => setShowAddStopModal(false)}
-                onCreate={handleCreateStop}
-              />
-            </div>
+          {/* Add Modal */}
+          <AddStopModal
+            show={showAddStopModal}
+            onClose={() => setShowAddStopModal(false)}
+            onCreate={handleCreateStop}
+          />
+        </div>
 
 
               {/* Loading Spinner */}
@@ -326,21 +326,21 @@ const RouteManagementPage: React.FC = () => {
                 </table>
               )}
 
-              {/* Pagination */}
-              <PaginationComponent
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-        </div>
+        {/* Pagination */}
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
     </div>
   );
+
 };
 
 export default RouteManagementPage;

@@ -1,5 +1,5 @@
 import React from "react";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import Image from "next/image";
 import { Stop, Route } from "@/app/interface";
 import {
@@ -8,7 +8,7 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import styles from './edit-route.module.css';
+import styles from "./edit-route.module.css";
 
 interface EditRouteModalProps {
   show: boolean;
@@ -51,6 +51,8 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
   onEndStopClick,
   onBetweenStopClick,
 }) => {
+  if (!show || !route) return null;
+
   const handleAddStop = () => {
     setStopsBetween([
       ...stopsBetween,
@@ -65,13 +67,7 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
   };
 
   const handleRemoveStop = (index: number) => {
-    setStopsBetween(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleStopChange = (value: string, index: number) => {
-    const updatedStops = [...stopsBetween];
-    updatedStops[index] = { ...updatedStops[index], StopName: value };
-    setStopsBetween(updatedStops);
+    setStopsBetween(stopsBetween.filter((_, i) => i !== index));
   };
 
   const handleDragEnd = (result: DropResult) => {
@@ -82,166 +78,170 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
     setStopsBetween(reordered);
   };
 
-    const handleSave = async () => {
-      if (!routeName || !startStop || !endStop) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Missing Fields',
-          text: 'Please fill in all required fields.',
-        });
-        return;
-      }
-
-      if (stopsBetween.some(stop => !stop.StopName.trim())) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Invalid Stops',
-          text: "All 'Stops Between' must have a stop selected.",
-        });
-        return;
-      }
-
-      if (!route) return;
-
-      onSave({
-        RouteID: route.RouteID,
-        RouteName: routeName,
-        StartStop: startStop,
-        EndStop: endStop,
-        stopsBetween,
+  const handleSave = async () => {
+    if (!routeName || !startStop || !endStop) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Incomplete Fields",
+        text: "Please fill in the incomplete fields.",
       });
+      return;
+    }
 
-      onClose();
-    };
+    if (stopsBetween.some((stop) => !stop.StopName.trim())) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Invalid Stops",
+        text: "All 'Stops Between' must have a stop selected.",
+      });
+      return;
+    }
 
-  if (!show || !route) return null;
+    onSave({
+      RouteID: route.RouteID,
+      RouteName: routeName,
+      StartStop: startStop,
+      EndStop: endStop,
+      stopsBetween,
+    });
+
+    onClose();
+  };
 
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalDialog}>
-        <div className={styles.modalContent}>
-          <div className={styles.modalHeader}>
-            <h5 className={styles.modalTitle}>Edit Route</h5>
-            <button
-              type="button"
-              className={styles.closeBtn}
-              onClick={onClose}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
-          
-          <div className={styles.modalBody}>
-            {/* Route Information Section */}
-            <div className={styles.formSection}>
-              <h6 className={styles.sectionTitle}>Route Information</h6>
-              <div className={styles.row}>
-                <div className={styles.col}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Route Name</label>
-                    <input
-                      type="text"
-                      className={`${styles.formControl} ${styles.regularInput}`}
-                      placeholder="Enter route name"
-                      value={routeName}
-                      onChange={(e) => setRouteName(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className={styles.col}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Start Stop</label>
-                    <input
-                      type="text"
-                      className={`${styles.formControl} ${styles.selectionInput} ${startStop ? styles.filled : ''}`}
-                      placeholder="Click to select start stop"
-                      value={startStop}
-                      onClick={onStartStopClick}
-                      readOnly
-                    />
-                  </div>
-                </div>
-                <div className={styles.col}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>End Stop</label>
-                    <input
-                      type="text"
-                      className={`${styles.formControl} ${styles.selectionInput} ${endStop ? styles.filled : ''}`}
-                      placeholder="Click to select end stop"
-                      value={endStop}
-                      onClick={onEndStopClick}
-                      readOnly
-                    />
-                  </div>
-                </div>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Edit Route</h2>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          {/* Route Information */}
+          <div className={styles.formSection}>
+            <h4 className={styles.sectionTitle}>Route Information</h4>
+            <div className={styles.row}>
+              <div className={styles.col}>
+                <label className={styles.formLabel}>Route Name</label>
+                <input
+                  type="text"
+                  className={styles.formControl}
+                  placeholder="Enter route name"
+                  value={routeName}
+                  onChange={(e) => setRouteName(e.target.value)}
+                />
+              </div>
+              <div className={styles.col}>
+                <label className={styles.formLabel}>Start Stop</label>
+                <input
+                  type="text"
+                  className={`${styles.formControl} ${startStop ? styles.filled : ""}`}
+                  placeholder="Click to select start stop"
+                  value={startStop}
+                  onClick={onStartStopClick}
+                  readOnly
+                />
+              </div>
+              <div className={styles.col}>
+                <label className={styles.formLabel}>End Stop</label>
+                <input
+                  type="text"
+                  className={`${styles.formControl} ${endStop ? styles.filled : ""}`}
+                  placeholder="Click to select end stop"
+                  value={endStop}
+                  onClick={onEndStopClick}
+                  readOnly
+                />
               </div>
             </div>
+          </div>
 
-            {/* Stops Between Section */}
-            <div className={styles.formSection}>
-              <h6 className={styles.sectionTitle}>Stops Between</h6>
-              <div className={styles.stopsScrollContainer}>
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="stops">
-                    {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef}>
-                        {stopsBetween.map((stop, index) => (
-                          <Draggable key={stop.StopID || index.toString()} draggableId={stop.StopID || index.toString()} index={index}>
+          {/* Stops Between */}
+          <div className={styles.formSection}>
+            <h4 className={styles.sectionTitle}>Stops Between</h4>
+            <div className={styles.stopsScrollContainer}>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="stops">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {stopsBetween.length === 0 ? (
+                        <div className={styles.emptyStopsMessage}>
+                          Click the + button below to add stops between start and end points.
+                        </div>
+                      ) : (
+                        stopsBetween.map((stop, index) => (
+                          <Draggable
+                            key={stop.StopID || index.toString()}
+                            draggableId={stop.StopID || index.toString()}
+                            index={index}
+                          >
                             {(provided) => (
                               <div
                                 className={styles.stopItem}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                               >
-                                <span {...provided.dragHandleProps} className={styles.dragHandle}>⋮⋮</span>
+                                <span
+                                  className={styles.dragHandle}
+                                  {...provided.dragHandleProps}
+                                >
+                                  ⋮⋮
+                                </span>
                                 <input
                                   type="text"
-                                  className={`${styles.formControl} ${styles.selectionInput} ${styles.stopInput} ${stop.StopName ? styles.filled : ''}`}
+                                  className={`${styles.formControl} ${styles.stopInput} ${stop.StopName ? styles.filled : ""}`}
                                   placeholder={`Stop ${index + 1}`}
                                   value={stop.StopName}
                                   onClick={() => onBetweenStopClick(index)}
                                   readOnly
                                 />
-                                <button 
-                                  className={`${styles.btn} ${styles.btnRemoveStop}`}
+                                <button
+                                  className={styles.btnRemoveStop}
                                   onClick={() => handleRemoveStop(index)}
-                                  type="button"
                                 >
-                                  <Image src="/assets/images/close-line.png" alt="Remove Stop" className={styles.iconSmall} width={16} height={16} />
+                                  <Image
+                                    src="/assets/images/close-line.png"
+                                    alt="Remove Stop"
+                                    width={16}
+                                    height={16}
+                                  />
                                 </button>
                               </div>
                             )}
                           </Draggable>
-                        ))}
-                        {stopsBetween.length === 0 && (
-                          <div className={styles.emptyStopsMessage}>
-                            Click the + button below to add stops between start and end points.
-                          </div>
-                        )}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-              <button className={`${styles.btn} ${styles.btnAddStop}`} onClick={handleAddStop} type="button">
-                <Image src="/assets/images/add-line.png" alt="Add Stop" className={styles.iconSmall} width={16} height={16} />
-                Add Stop
-              </button>
+                        ))
+                      )}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             </div>
-          </div>
-          
-          <div className={styles.modalFooter}>
             <button
+              className={styles.btnAddStop}
+              onClick={handleAddStop}
               type="button"
-              className={`${styles.btn} ${styles.saveRouteBtn}`}
-              onClick={handleSave}
-              disabled={!routeName || !startStop || !endStop}
             >
-              Save Route
+              <Image
+                src="/assets/images/add-line.png"
+                alt="Add Stop"
+                width={16}
+                height={16}
+              />
+              Add Stop
             </button>
           </div>
+        </div>
+
+        <div className={styles.modalFooter}>
+          <button
+            className={styles.saveRouteBtn}
+            onClick={handleSave}
+          >
+            Save Route
+          </button>
         </div>
       </div>
     </div>

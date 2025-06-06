@@ -204,3 +204,23 @@
     transform: translateY(0);
   }
 }
+
+.addQuotaBtn {
+  width: 160px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+}
+
+.addQuotaBtn:hover {
+  background-color: #7e191b; /* optional hover effect */
+}

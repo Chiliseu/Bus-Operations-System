@@ -381,9 +381,8 @@ const BusAssignmentPage: React.FC = () => {
       );
 
   return (
-  <div className={`card mx-auto ${styles.wideCard}`}>
-    <div className="card mx-auto w-100" style={{ maxWidth: '1700px' }}>
-      <div className="card-body">
+    <div className={styles.wideCard}>
+      <div className={styles.cardBody}>
         <h2 className={styles.assignmentTitle}>Bus Assignments</h2>
 
         {/* Toolbar container */}
@@ -416,77 +415,78 @@ const BusAssignmentPage: React.FC = () => {
           </button>
         </div>
 
-          {/* Loading Spinner */}
-          {loading ? (
-            <Loading />
-          ) : (
-            <>
-              {/* Data Table */}
-              <div className={styles.dataTable}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr className={styles.tableHeadRow}>
-                      <th>Bus</th>
-                      <th>Driver</th>
-                      <th>Conductor</th>
-                      <th>Route</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedAssignments.length > 0 ? (
-                      paginatedAssignments.map((assignment) => (
-                        <tr
-                          key={assignment.RegularBusAssignmentID}
-                          className={styles.tableRow}
+        {/* Loading or Table */}
+        {loading ? (
+          <div className={styles.loadingWrapper}>
+            <img src="/loadingbus.gif" alt="Loading..." className={styles.loadingImage} />
+          </div>
+        ) : (
+          <div className={styles.dataTable}>
+            <table className={styles.table}>
+              <thead>
+                <tr className={styles.tableHeadRow}>
+                  <th>Bus</th>
+                  <th>Driver</th>
+                  <th>Conductor</th>
+                  <th>Route</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedAssignments.length > 0 ? (
+                  paginatedAssignments.map((assignment) => (
+                    <tr
+                      key={assignment.RegularBusAssignmentID}
+                      className={styles.tableRow}
+                    >
+                      <td>{assignment.busLicensePlate}</td>
+                      <td>{assignment.driverName || assignment.DriverID}</td>
+                      <td>{assignment.conductorName || assignment.ConductorID}</td>
+                      <td>{assignment.BusAssignment?.Route?.RouteName}</td>
+                      <td>
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => handleEdit(assignment)}
                         >
-                          <td>{assignment.busLicensePlate}</td>
-                          <td>{assignment.driverName || assignment.DriverID}</td>
-                          <td>{assignment.conductorName || assignment.ConductorID}</td>
-                          <td>{assignment.BusAssignment?.Route?.RouteName}</td>
-                          <td>
-                            <button
-                              className={styles.editBtn}
-                              onClick={() => {
-                                handleEdit(assignment);}}
-                            >
-                              <img src="/assets/images/edit-white.png" alt="Edit" />
-                            </button>
-                            <button className={styles.deleteBtn}
-                              onClick={() => {
-                                handleDelete(assignment.RegularBusAssignmentID, assignment.BusAssignment?.IsDeleted);
-                              }}
-                            >
-                              <img src="/assets/images/delete-white.png" alt="Delete" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className={styles.noRecords}>
-                          No records found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                          <img src="/assets/images/edit-white.png" alt="Edit" />
+                        </button>
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() =>
+                            handleDelete(
+                              assignment.RegularBusAssignmentID,
+                              assignment.BusAssignment?.IsDeleted
+                            )
+                          }
+                        >
+                          <img src="/assets/images/delete-white.png" alt="Delete" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className={styles.noRecords}>
+                      No records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-              {/* Pagination */}
-              <PaginationComponent
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-            </>
-          )}
-        </div>
+        {/* ✅ Pagination always visible */}
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
       </div>
 
       {/* Modals */}
@@ -540,6 +540,7 @@ const BusAssignmentPage: React.FC = () => {
           }}
         />
       )}
+
       {showAssignDriverModal && (
         <AssignDriverModal
           onClose={() => setShowAssignDriverModal(false)}
@@ -549,6 +550,7 @@ const BusAssignmentPage: React.FC = () => {
           }}
         />
       )}
+
       {showAssignConductorModal && (
         <AssignConductorModal
           onClose={() => setShowAssignConductorModal(false)}
@@ -558,6 +560,7 @@ const BusAssignmentPage: React.FC = () => {
           }}
         />
       )}
+
       {showAssignRouteModal && (
         <AssignRouteModal
           onClose={() => setShowAssignRouteModal(false)}

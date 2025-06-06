@@ -1,8 +1,14 @@
 /* === Main Container Width Control === */
 .wideCard {
-  max-width: 95%;               /* Responsive max width */
-  width: 100%;                 /* Full width within max */
-  margin-top: 0px;
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
 }
 
 /* === Assignment Title Styling === */
@@ -161,11 +167,27 @@
   background-color: #fafafa;       /* Very light background on even rows */
 }
 
+
 /* === Actions Container for Buttons === */
 .actions {
   display: flex;                   /* Flex container */
   justify-content: center;         /* Center buttons */
   gap: 0.5rem;                    /* Space between buttons */
+}
+
+/* === Loading Bus  === */
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px; /* or match table height */
+  width: 100%;
+}
+
+.loadingImage {
+  width: 96px; /* same as Tailwind w-24 */
+  height: 96px; /* same as Tailwind h-24 */
 }
 
 
@@ -354,7 +376,7 @@
   flex-direction: row;
   align-items: baseline; /* align all items to baseline instead of center */
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.10rem;
 }
 
 .searchWrapper {
