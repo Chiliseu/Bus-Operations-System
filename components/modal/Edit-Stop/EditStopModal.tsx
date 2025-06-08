@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import styles from './edit-stop.module.css';
+import dynamic from "next/dynamic";
+const StopMapPicker = dynamic(() => import('@/components/ui/MapPicker'), { ssr: false });
 
 interface EditStopModalProps {
   show: boolean;
   onClose: () => void;
   stop: { id: string; name: string; latitude: string; longitude: string } | null;
   onSave: (stop: { id: string; name: string; latitude: string; longitude: string }) => Promise<boolean>;
+}
+
+// Utility function to validate coordinates
+function isValidLatLng(lat: string, lng: string) {
+  const latNum = parseFloat(lat);
+  const lngNum = parseFloat(lng);
+  return (
+    !isNaN(latNum) &&
+    !isNaN(lngNum) &&
+    latNum >= -90 && latNum <= 90 &&
+    lngNum >= -180 && lngNum <= 180
+  );
 }
 
 const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSave }) => {
@@ -18,8 +32,15 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
   useEffect(() => {
     if (stop) {
       setName(stop.name);
-      setLatitude(stop.latitude);
-      setLongitude(stop.longitude);
+
+      // Validate coordinates, fallback to Manila if invalid
+      if (isValidLatLng(stop.latitude, stop.longitude)) {
+        setLatitude(stop.latitude);
+        setLongitude(stop.longitude);
+      } else {
+        setLatitude("14.5995");
+        setLongitude("120.9842");
+      }
     }
   }, [stop]);
 
@@ -76,6 +97,39 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
               </div>
 
               <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Pick Location on Map</label>
+                <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
+                  <StopMapPicker
+                    latitude={latitude}
+                    longitude={longitude}
+                    setLatitude={setLatitude}
+                    setLongitude={setLongitude}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.coords}>
+                <div>
+                  <label className={styles.label}>Latitude</label>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={latitude}
+                    readOnly  
+                  />
+                </div>
+                <div>
+                  <label className={styles.label}>Longitude</label>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={longitude}
+                    readOnly
+                  />
+                </div>
+              </div>
+
+              {/* <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Latitude</label>
                 <input
                   type="text"
@@ -95,7 +149,7 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
                   value={longitude}
                   onChange={(e) => setLongitude(e.target.value)}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 

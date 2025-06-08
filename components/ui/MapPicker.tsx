@@ -1,5 +1,12 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+L.Icon.Default.mergeOptions({
+  iconUrl: "/assets/images/marker-icon.png",
+  shadowUrl: "/assets/images/marker-shadow.png",
+});
 
 interface StopMapPickerProps {
   latitude: string;

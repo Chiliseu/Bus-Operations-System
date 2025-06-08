@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Swal from 'sweetalert2';
 import styles from "./add-stop.module.css";
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import dynamic from "next/dynamic";
 
 interface AddStopModalProps {
@@ -19,19 +18,6 @@ interface LocationPickerProps {
 }
 
 const StopMapPicker = dynamic(() => import("@/components/ui/MapPicker"), { ssr: false });
-
-const LocationPicker: React.FC<LocationPickerProps> = ({ latitude, longitude, setLatitude, setLongitude }) => {
-  useMapEvents({
-    click(e) {
-      setLatitude(e.latlng.lat.toString());
-      setLongitude(e.latlng.lng.toString());
-    },
-  });
-
-  return latitude && longitude ? (
-    <Marker position={[parseFloat(latitude), parseFloat(longitude)]} />
-  ) : null;
-};
 
 const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) => {
   const [name, setName] = useState("");
@@ -81,77 +67,6 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
             />
           </div>
 
-          {/* <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>Location Coordinates</h4>
-            <div className={styles.coords}>
-              <div>
-                <label className={styles.label}>Latitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                  placeholder="Enter latitude"
-                />
-              </div>
-              <div>
-                <label className={styles.label}>Longitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  placeholder="Enter longitude"
-                />
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>Pick Location on Map</h4>
-            <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
-              <MapContainer
-                center={[
-                  latitude ? parseFloat(latitude) : 14.5995,
-                  longitude ? parseFloat(longitude) : 120.9842,
-                ]}
-                zoom={12}
-                style={{ height: "100%", width: "100%" }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; OpenStreetMap contributors"
-                />
-                <LocationPicker
-                  latitude={latitude}
-                  longitude={longitude}
-                  setLatitude={setLatitude}
-                  setLongitude={setLongitude}
-                />
-              </MapContainer>
-            </div>
-            <div className={styles.coords}>
-              <div>
-                <label className={styles.label}>Latitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={latitude}
-                  readOnly
-                />
-              </div>
-              <div>
-                <label className={styles.label}>Longitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={longitude}
-                  readOnly
-                />
-              </div>
-            </div>
-          </div> */}
           <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
             <StopMapPicker
               latitude={latitude}
@@ -181,7 +96,6 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
               />
             </div>
           </div>
-
         </div>
 
         <div className={styles.footer}>
