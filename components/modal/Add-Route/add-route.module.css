@@ -104,6 +104,14 @@
   cursor: pointer;
 }
 
+.hint {
+  color: #888;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+}
+
+
 .filled {
   background-color: #e6f0ff;
   border-color: #0056b3;

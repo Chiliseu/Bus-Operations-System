@@ -41,7 +41,6 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
     }
   };
 
-  // ✅ Ensure modal is hidden when not shown
   if (!show || !stop) return null;
 
   return (
@@ -71,8 +70,17 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
                   className={styles.formControl}
                   placeholder="Enter stop name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    const filtered = e.target.value.replace(
+                      /[^a-zA-Z0-9 .,\-'/&#]/g,
+                      ""
+                    );
+                    if (filtered.length <= 30) setName(filtered);
+                  }}
                 />
+                <small className={styles.hint}>
+                  * Max 30 characters and only . , - &apos; &amp; / # allowed.
+                </small>
               </div>
 
               <div className={styles.formGroup}>
