@@ -10,5 +10,7 @@ export interface RegularBusAssignment {
   ConductorID: string;
   BusAssignment: BusAssignment;
   QuotaPolicies: Quota_Policy[];
-  BusTrips?: BusTrip[]; // Add this if you use BusTrip in your app
+  BusTrips: BusTrip[];
+  LatestBusTripID?: string | null;
+  LatestBusTrip?: BusTrip | null;
 }

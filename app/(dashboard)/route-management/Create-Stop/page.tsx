@@ -287,21 +287,6 @@ const RouteManagementPage: React.FC = () => {
                             >
                               <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
                             </button>
-                            <EditStopModal
-                              show={showEditModal}
-                              onClose={() => setShowEditModal(false)}
-                              stop={
-                                selectedStop
-                                  ? {
-                                      id: selectedStop.StopID,
-                                      name: selectedStop.StopName,
-                                      latitude: selectedStop.latitude,
-                                      longitude: selectedStop.longitude,
-                                    }
-                                  : null
-                              }
-                              onSave={handleSave}
-                            />
                             <button
                               className={styles.deleteBtn}
                               onClick={() => handleDelete(stop.StopID)}
@@ -332,6 +317,22 @@ const RouteManagementPage: React.FC = () => {
             setPageSize(size);
             setCurrentPage(1);
           }}
+        />
+
+        <EditStopModal
+          show={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          stop={
+            selectedStop
+              ? {
+                  id: selectedStop.StopID,
+                  name: selectedStop.StopName,
+                  latitude: selectedStop.latitude,
+                  longitude: selectedStop.longitude,
+                }
+              : null
+          }
+          onSave={handleSave}
         />
 
         {modalLoading && <LoadingModal />}

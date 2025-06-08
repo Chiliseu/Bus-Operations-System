@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import { fetchAllTicketTypes } from "@/lib/apiCalls/ticket-types"; // adjust path if needed
+
 
 interface Ticket {
   type: string;
   id: string;
 }
 
-interface BusReadinessModalProps {
+interface BusReadinessModalProps  {
   show: boolean;
   onClose: () => void;
   busInfo: {
@@ -22,6 +24,12 @@ interface BusReadinessModalProps {
     changeDetails: string;
     tickets: Ticket[];
   }) => Promise<boolean>;
+  readiness?: {
+    vehicleCondition: Record<string, boolean>;
+    personnelCondition: { driverReady: boolean; conductorReady: boolean };
+    changeDetails: string;
+    tickets: Ticket[];
+  };
 }
 
 const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
@@ -29,6 +37,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   onClose,
   busInfo,
   onSave,
+  readiness,
 }) => {
   // Vehicle condition checkboxes state
   const conditionItems = [
@@ -41,6 +50,8 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     "Engine",
     "Tire",
   ];
+
+  const [ticketTypes, setTicketTypes] = useState<{ TicketTypeID: string; Value: number }[]>([]);
 
   const [vehicleCondition, setVehicleCondition] = useState<Record<string, boolean>>(
     {}
@@ -57,14 +68,26 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   useEffect(() => {
     if (show) {
       setVehicleCondition(
+        readiness?.vehicleCondition ??
         conditionItems.reduce((acc, item) => ({ ...acc, [item]: false }), {})
       );
-      setPersonnelCondition({ driverReady: false, conductorReady: false });
-      setShowChangeInput(false);
-      setChangeDetails("");
-      setTickets([{ type: "", id: "" }]);
+      setPersonnelCondition(readiness?.personnelCondition ?? { driverReady: false, conductorReady: false });
+      setShowChangeInput(!!readiness?.changeDetails);
+      setChangeDetails(readiness?.changeDetails ?? "");
+      fetchAllTicketTypes()
+        .then((types) => {
+          setTicketTypes(types);
+          setTickets(readiness?.tickets && readiness.tickets.length > 0
+            ? readiness.tickets
+            : (types.length > 0 ? [{ type: types[0].TicketTypeID, id: "" }] : [])
+          );
+        })
+        .catch(() => {
+          setTicketTypes([]);
+          setTickets([]);
+        });
     }
-  }, [show]);
+  }, [show, readiness]);
 
   const toggleVehicleCondition = (item: string) => {
     setVehicleCondition((prev) => ({ ...prev, [item]: !prev[item] }));
@@ -74,7 +97,17 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     setPersonnelCondition((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const addTicket = () => setTickets((prev) => [...prev, { type: "", id: "" }]);
+  const addTicket = () => {
+    // Find the first ticket type that is not already selected
+    const selectedTypes = tickets.map(t => t.type);
+    const unselected = ticketTypes.find(tt => !selectedTypes.includes(tt.TicketTypeID));
+    if (unselected) {
+      setTickets(prev => [
+        ...prev,
+        { type: unselected.TicketTypeID, id: "" }
+      ]);
+    }
+  };
 
   const removeTicket = (index: number) => {
     setTickets((prev) => prev.filter((_, i) => i !== index));
@@ -198,9 +231,17 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                     value={ticket.type}
                     onChange={(e) => updateTicket(index, "type", e.target.value)}
                   >
-                    <option value="">Ticket Type</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
+                    {ticketTypes
+                      .filter(
+                        (tt) =>
+                          ticket.type === tt.TicketTypeID ||
+                          !tickets.some((t, i) => t.type === tt.TicketTypeID && i !== index)
+                      )
+                      .map((tt) => (
+                        <option key={tt.TicketTypeID} value={tt.TicketTypeID}>
+                          ₱{tt.Value}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div className="col-5">
@@ -229,6 +270,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
               type="button"
               className="btn btn-outline-primary btn-sm"
               onClick={addTicket}
+              disabled={tickets.length >= ticketTypes.length}
             >
               + Add Ticket
             </button>

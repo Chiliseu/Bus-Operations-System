@@ -32,6 +32,9 @@ const BusOperationPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+
+  const [selectedReadiness, setSelectedReadiness] = useState<any>(null);
+
   const filterSections: FilterSection[] = [
   {
     id: "sortBy",
@@ -135,6 +138,57 @@ const BusOperationPage: React.FC = () => {
     }
   };
 
+  const handleEdit = async (assignment: any) => {
+    const bus = await fetchBusById(assignment.BusID);
+    const driver = await fetchDriverById(assignment.RegularBusAssignment?.DriverID || "");
+    const conductor = await fetchConductorById(assignment.RegularBusAssignment?.ConductorID || "");
+
+    setSelectedBusInfo({
+      regularBusAssignmentID: assignment.RegularBusAssignment?.RegularBusAssignmentID ?? "",
+      busNumber: bus?.license_plate || "Unknown",
+      driver: driver?.name || "Unknown",
+      conductor: conductor?.name || "Unknown",
+    });
+
+    // Prefill readiness info from assignment
+    setSelectedReadiness({
+      vehicleCondition: {
+        Battery: assignment.Battery,
+        Lights: assignment.Lights,
+        Oil: assignment.Oil,
+        Water: assignment.Water,
+        Brake: assignment.Break,
+        Air: assignment.Air,
+        Engine: assignment.Engine,
+        Tire: assignment.TireCondition,
+        Gas: assignment.Gas,
+      },
+      personnelCondition: {
+        driverReady: assignment.Self_Driver,
+        conductorReady: assignment.Self_Conductor,
+      },
+      changeDetails: "", // Fill if you have this info
+      tickets: [],       // Fill if you have this info
+    });
+
+    setShowBusReadinessModal(true);
+  };
+
+
+  // Example: adjust the function to accept the expected data and return a Promise<boolean>
+  const handleSaveReadiness = async (data: {
+    vehicleCondition: Record<string, boolean>;
+    personnelCondition: { driverReady: boolean; conductorReady: boolean; };
+    changeDetails: string;
+    // tickets: Ticket[];
+  }): Promise<boolean> => {
+    // Implement your save logic here, e.g., call an API
+    // For now, just log and return true
+    console.log("Saving readiness:", data);
+    // Return true if save was successful, false otherwise
+    return true;
+  };
+
   // const handleOpenBusReadinessModal = async (assignment: BusAssignment) => {
   //   const bus = await fetchBusById(assignment.BusID);
   //   const driver = await fetchDriverById(assignment.RegularBusAssignment.DriverID);
@@ -204,7 +258,10 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.conductorName}</td>
                       <td>{assignment.Route.RouteName}</td>
                       <td className={styles.centeredColumn}>
-                        <button className={styles.editBtn}>
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => handleEdit(assignment)}
+                        >
                           <img
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -240,17 +297,19 @@ const BusOperationPage: React.FC = () => {
         />
 
         {/* Bus Readiness Modal (commented out) */}
-        {/* {selectedBusInfo && (
+        {selectedBusInfo && (
           <BusReadinessModal
             show={showBusReadinessModal}
             onClose={() => {
               setShowBusReadinessModal(false);
               setSelectedBusInfo(null);
+              setSelectedReadiness(null);
             }}
             busInfo={selectedBusInfo}
+            readiness={selectedReadiness}
             onSave={handleSaveReadiness}
           />
-        )} */}
+        )}
       </div>
     </div>
   );

@@ -42,6 +42,7 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
     })
   );
 
+  console.log(assignmentsWithDetails);
   return assignmentsWithDetails;
 }
 
