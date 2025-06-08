@@ -78,8 +78,8 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
                     if (filtered.length <= 30) setName(filtered);
                   }}
                 />
-                <small className={styles.inputHint}>
-                  * Max 30 characters and only . , - ' & / # allowed.
+                <small className={styles.hint}>
+                  * Max 30 characters and only . , - &apos; &amp; / # allowed.
                 </small>
               </div>
 

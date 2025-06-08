@@ -133,11 +133,10 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
                 onChange={(e) => setRouteName(e.target.value)}
                 maxLength={30}
               />
-              <small className={styles.hint}>
-                * Max 30 characters and only . , - ' & / # allowed.
-              </small>
+            <small className={styles.hint}>
+              * Max 30 characters and only . , - &apos; &amp; / # allowed.
+            </small>
             </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>Start Stop</label>
                 <input

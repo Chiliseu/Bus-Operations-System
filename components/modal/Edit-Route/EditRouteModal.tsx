@@ -138,8 +138,8 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                     }
                   }}
                 />
-                <small className={styles.inputHint}>
-                  * Max 30 characters and only . , - ' & / # allowed.
+                <small className={styles.hint}>
+                  * Max 30 characters and only . , - &apos; &amp; / # allowed.
                 </small>
               </div>
               <div className={styles.col}>
