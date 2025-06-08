@@ -58,13 +58,19 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Stop Information</h4>
             <label className={styles.label}>Stop Name</label>
-            <input
-              className={styles.input}
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter stop name"
-            />
+              <input
+                className={styles.input}
+                type="text"
+                value={name}
+                onChange={(e) => {
+                  const filtered = e.target.value.replace(/[^a-zA-Z0-9 .,\-'/&#]/g, "");
+                  if (filtered.length <= 30) setName(filtered);
+                }}
+                placeholder="Enter stop name"
+              />
+            <small className={styles.hint}>
+              * Max 30 characters and only . , - &apos; &amp; / # allowed.
+            </small>
           </div>
 
           <div style={{ height: 300, width: "100%", marginBottom: 12 }}>

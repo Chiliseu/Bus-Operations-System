@@ -130,8 +130,17 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                   className={styles.formControl}
                   placeholder="Enter route name"
                   value={routeName}
-                  onChange={(e) => setRouteName(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const filtered = value.replace(/[^a-zA-Z0-9 .,\-'/&#]/g, ""); // allowed: letters, numbers, space, . , - ' & / #
+                    if (filtered.length <= 30) {
+                      setRouteName(filtered);
+                    }
+                  }}
                 />
+                <small className={styles.hint}>
+                  * Max 30 characters and only . , - &apos; &amp; / # allowed.
+                </small>
               </div>
               <div className={styles.col}>
                 <label className={styles.formLabel}>Start Stop</label>

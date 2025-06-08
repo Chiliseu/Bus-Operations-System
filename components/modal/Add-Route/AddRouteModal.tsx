@@ -123,17 +123,20 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Route Information</h4>
             <div className={styles.grid3}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Route Name</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="Enter route name"
-                  value={routeName}
-                  onChange={(e) => setRouteName(e.target.value)}
-                />
-              </div>
-
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Route Name</label>
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="Enter route name"
+                value={routeName}
+                onChange={(e) => setRouteName(e.target.value)}
+                maxLength={30}
+              />
+            <small className={styles.hint}>
+              * Max 30 characters and only . , - &apos; &amp; / # allowed.
+            </small>
+            </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Start Stop</label>
                 <input
