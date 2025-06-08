@@ -1,5 +1,6 @@
 /* === Import Google Fonts === */
 @import "tailwindcss";
+@import 'leaflet/dist/leaflet.css';
 
 
 /* Reset and box-sizing */

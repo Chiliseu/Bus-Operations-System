@@ -1,19 +1,18 @@
-/* Modal Overlay and Base */
-.modalOverlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1050;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
-.modalTitle{
+.title{
   display: flex;                  /* Flex container */
   align-items: center;            /* Center vertically */
   gap: 0.5rem;                   /* Space between icon/text */
@@ -23,73 +22,93 @@
   justify-content: center;       /* Center horizontally */
   color: #ffffff;                /* White text */
   background-color: #961c1e;     /* Dark red background */
-  padding: 0.0rem 1.0rem;       /* Padding inside */
+  padding: 0.3rem 1.0rem;       /* Padding inside */
   font-family: 'Open Sans', sans-serif; /* Bold font */
   margin-top: 10px; /* Space above title */
 }
 
-.modalDialog {
-  width: 90%;
-  max-width: 500px;
-}
-
-.modalContent {
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+.modal {
   background: white;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
   display: flex;
   flex-direction: column;
 }
 
-/* Modal Header */
-.modalHeader {
+.header {
   background: #961c1e;
   color: white;
-  border: none;
-  padding: 20px 25px;
-  border-radius: 8px 8px 0 0;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 8px 8px 0 0;
 }
 
 .closeBtn {
   background: none;
   border: none;
-  color: white;
   font-size: 1.5rem;
-  line-height: 1;
+  color: white;
   opacity: 0.8;
-  transition: opacity 0.2s ease;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
+  transition: opacity 0.2s ease;
 }
-
 .closeBtn:hover {
   opacity: 1;
-  color: white;
 }
 
-/* Modal Body */
-.modalBody {
-  padding: 25px;
-  background: white;
-  flex: 1;
-}
-
-.formSection {
-  background: #f8f9fa;
-  border-radius: 6px;
+.body {
   padding: 20px;
-  margin-bottom: 20px;
+  background: white;
+}
+
+.section {
+  background: #f8f9fa;
   border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 2px;
+  text-align: left;
+}
+
+.label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.input:hover {
+  border-color: #961c1e;
+}
+
+.input:focus {
+  border-color: #961c1e;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
 }
 
 .inputHint {
@@ -97,71 +116,34 @@
   color: #888;
   margin-top: 4px;
   display: block;
-  text-align: left;
 }
 
-
-.sectionTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #dee2e6;
+.coords {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
-/* Form Elements */
-.formGroup {
-  margin-bottom: 20px;
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
 }
 
-.formLabel {
-  font-weight: 500;
-  color: #495057;
-  font-size: 0.9rem;
-  margin-bottom: 6px;
-  display: block;
-  text-align: left;
-}
-
-.formControl {
-  width: 100%;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease;
-  box-sizing: border-box;
-  background: white;
-}
-
-.formControl:focus {
-  border-color: #961c1e;
-  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
-  outline: none;
-}
-
-.formControl::placeholder {
-  color: #6c757d;
-  opacity: 1;
-}
-
-/* Buttons */
-.btn {
+.cancelBtn,
+.createBtn {
   padding: 8px 20px;
-  border-radius: 4px;
   font-weight: 500;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid transparent;
   cursor: pointer;
-  border: none;
-  text-decoration: none;
-  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
-.btnCancel {
+.cancelBtn {
   background: #961C1E;
   border: 1px solid #FFB71F;
   padding: 8px 20px;
@@ -170,14 +152,13 @@
   color: white;
   transition: background-color 0.2s ease;
 }
-
-.btnCancel:hover {
+.cancelBtn:hover {
   background: #db1212;
   border-color: #5a6268;
   color: white;
 }
 
-.saveStopBtn {
+.createStopBtn {
   width: 160px;
   height: 35px;
   display: flex;
@@ -185,7 +166,7 @@
   align-items: center;
   gap: 8px;
   border-radius: 8px;
-  background-color: #961C1E; /* Same red color */
+  background-color: #961C1E;
   color: #FFFFFF;
   font-size: 14px;
   transition: all 0.3s ease-in-out;
@@ -193,56 +174,26 @@
   border: none;
 }
 
-.saveStopBtn:hover {
+.createStopBtn:hover {
   background-color: #7e191b; /* optional hover effect */
 }
 
-/* Modal Footer */
-.modalFooter {
-  background: #f8f9fa;
-  border: none;
-  padding: 15px 25px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  border-radius: 0 0 8px 8px;
-}
-
-/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .modalDialog {
-    width: 95%;
-    margin: 20px;
-  }
-  
-  .modalHeader,
-  .modalBody,
-  .modalFooter {
-    padding: 15px;
-  }
-  
-  .modalFooter {
-    flex-direction: column;
-  }
-  
-  .modalFooter .btn {
-    width: 100%;
   }
 }

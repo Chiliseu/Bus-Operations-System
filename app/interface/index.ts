@@ -12,5 +12,5 @@ export * from './driver';
 export * from './bus';
 export * from './conductor';
 export * from './ticket-type';
-export * from './ticket-bus-assignment';
+export * from './ticket-bus-trip';
 export * from './bus-trip';

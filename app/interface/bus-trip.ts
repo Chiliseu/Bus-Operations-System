@@ -1,11 +1,14 @@
 import { RegularBusAssignment } from "./regular-bus-assignment";
+import { TicketBusTrip } from './ticket-bus-trip';
 
 export interface BusTrip {
   BusTripID: string;
   RegularBusAssignmentID: string;
-  DispatchedAt?: string; // or Date, depending on your usage
-  CompletedAt?: string;  // or Date
-  Sales?: number;
-  ChangeFund?: number;
+  DispatchedAt?: string | null;
+  CompletedAt?: string | null;
+  Sales?: number | null;
+  ChangeFund?: number | null;
   regularBusAssignment: RegularBusAssignment;
+  TicketBusTrips: TicketBusTrip[];
+  LatestForAssignment?: RegularBusAssignment | null;
 }

@@ -141,7 +141,7 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.busLicensePlate}</td>
                       <td>{assignment.driverName}</td>
                       <td>{assignment.conductorName}</td>
-                      <td>{assignment.Route.RouteName}</td>
+                      <td>{assignment.Route?.RouteName ?? "No Route"}</td>
                       <td className={styles.centeredColumn}>
                         <button className={styles.editBtn}>
                           <img

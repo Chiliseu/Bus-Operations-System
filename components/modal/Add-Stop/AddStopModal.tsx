@@ -1,12 +1,23 @@
 import React, { useState } from "react";
 import Swal from 'sweetalert2';
 import styles from "./add-stop.module.css";
+import dynamic from "next/dynamic";
 
 interface AddStopModalProps {
   show: boolean;
   onClose: () => void;
   onCreate: (stop: { name: string; latitude: string; longitude: string }) => Promise<boolean>;
 }
+
+// Add types for LocationPicker props
+interface LocationPickerProps {
+  latitude: string;
+  longitude: string;
+  setLatitude: (lat: string) => void;
+  setLongitude: (lng: string) => void;
+}
+
+const StopMapPicker = dynamic(() => import("@/components/ui/MapPicker"), { ssr: false });
 
 const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) => {
   const [name, setName] = useState("");
@@ -62,29 +73,33 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
             </small>
           </div>
 
-          <div className={styles.section}>
-            <h4 className={styles.sectionTitle}>Location Coordinates</h4>
-            <div className={styles.coords}>
-              <div>
-                <label className={styles.label}>Latitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                  placeholder="Enter latitude"
-                />
-              </div>
-              <div>
-                <label className={styles.label}>Longitude</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                  placeholder="Enter longitude"
-                />
-              </div>
+          <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
+            <StopMapPicker
+              latitude={latitude}
+              longitude={longitude}
+              setLatitude={setLatitude}
+              setLongitude={setLongitude}
+            />
+          </div>
+
+          <div className={styles.coords}>
+            <div>
+              <label className={styles.label}>Latitude</label>
+              <input
+                className={styles.input}
+                type="text"
+                value={latitude}
+                readOnly  
+              />
+            </div>
+            <div>
+              <label className={styles.label}>Longitude</label>
+              <input
+                className={styles.input}
+                type="text"
+                value={longitude}
+                readOnly
+              />
             </div>
           </div>
         </div>
