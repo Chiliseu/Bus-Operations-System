@@ -6,7 +6,7 @@ import { fetchAllTicketTypes } from "@/lib/apiCalls/ticket-types"; // adjust pat
 
 interface Ticket {
   type: string;
-  id: string;
+  StartingIDNumber: number;
 }
 
 interface BusReadinessModalProps  {
@@ -19,15 +19,17 @@ interface BusReadinessModalProps  {
     conductor: string;
   };
   onSave: (data: {
+    regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean };
-    changeDetails: string;
+    changeFunds: number;
     tickets: Ticket[];
   }) => Promise<boolean>;
   readiness?: {
+    regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean };
-    changeDetails: string;
+    changeFunds: number;
     tickets: Ticket[];
   };
 }
@@ -61,8 +63,8 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     conductorReady: false,
   });
   const [showChangeInput, setShowChangeInput] = useState(false);
-  const [changeDetails, setChangeDetails] = useState("");
-  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", id: "" }]);
+  const [changeFunds, setChangeFunds] = useState(0);
+  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0 }]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -72,14 +74,14 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
         conditionItems.reduce((acc, item) => ({ ...acc, [item]: false }), {})
       );
       setPersonnelCondition(readiness?.personnelCondition ?? { driverReady: false, conductorReady: false });
-      setShowChangeInput(!!readiness?.changeDetails);
-      setChangeDetails(readiness?.changeDetails ?? "");
+      setShowChangeInput(!!readiness?.changeFunds);
+      setChangeFunds(readiness?.changeFunds ?? 0);
       fetchAllTicketTypes()
         .then((types) => {
           setTicketTypes(types);
           setTickets(readiness?.tickets && readiness.tickets.length > 0
             ? readiness.tickets
-            : (types.length > 0 ? [{ type: types[0].TicketTypeID, id: "" }] : [])
+            : (types.length > 0 ? [{ type: types[0].TicketTypeID, StartingIDNumber: 0 }] : [])
           );
         })
         .catch(() => {
@@ -104,7 +106,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     if (unselected) {
       setTickets(prev => [
         ...prev,
-        { type: unselected.TicketTypeID, id: "" }
+        { type: unselected.TicketTypeID, StartingIDNumber: 0 }
       ]);
     }
   };
@@ -123,9 +125,10 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
 
   const handleSave = async () => {
     const success = await onSave({
+      regularBusAssignmentID: busInfo.regularBusAssignmentID,
       vehicleCondition,
       personnelCondition,
-      changeDetails,
+      changeFunds: changeFunds,
       tickets,
     });
     if (success) {
@@ -214,11 +217,11 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             </div>
             {showChangeInput && (
               <input
-                type="text"
+                type="number"
                 className="form-control mb-2"
                 placeholder="Enter amount or details"
-                value={changeDetails}
-                onChange={(e) => setChangeDetails(e.target.value)}
+                value={changeFunds}
+                onChange={(e) => setChangeFunds(Number(e.target.value))}
               />
             )}
 
@@ -249,8 +252,8 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                     type="text"
                     className="form-control"
                     placeholder="Latest ID Number"
-                    value={ticket.id}
-                    onChange={(e) => updateTicket(index, "id", e.target.value)}
+                    value={ticket.StartingIDNumber}
+                    onChange={(e) => updateTicket(index, "StartingIDNumber", e.target.value)}
                   />
                 </div>
                 <div className="col-2 d-flex align-items-center">
