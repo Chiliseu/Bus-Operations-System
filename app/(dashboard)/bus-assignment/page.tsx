@@ -260,7 +260,8 @@ const BusAssignmentPage: React.FC = () => {
       text: 'Bus assignment created successfully!',
     });
       // Optional: Refresh list or reset form/modal
-      setShowAddAssignmentModal(false);
+      // setShowAddAssignmentModal(false);
+      fetchAssignments();
       return true;
     } catch (error) {
       setModalLoading(false);
@@ -270,7 +271,6 @@ const BusAssignmentPage: React.FC = () => {
       title: 'Error',
       text: error instanceof Error ? error.message : 'Failed to create bus assignment. Please try again.',
     });
-      setShowAddAssignmentModal(false);
       return false;
     }
   };

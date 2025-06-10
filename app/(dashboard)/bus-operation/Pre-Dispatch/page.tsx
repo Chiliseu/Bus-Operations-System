@@ -6,7 +6,7 @@ import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import BusReadinessModal from '@/components/modal/UpdateBusReadinessModal';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
-import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
+import { fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -32,6 +32,7 @@ const BusOperationPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
 
   const [selectedReadiness, setSelectedReadiness] = useState<any>(null);
 
@@ -68,9 +69,8 @@ const BusOperationPage: React.FC = () => {
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      const data = await fetchBusAssignmentsWithStatus('NotStarted');
+      const data = await fetchBusAssignmentsWithStatus('NotReady');
       setAssignments(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching stops:", error);
     } finally {
@@ -139,15 +139,11 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = async (assignment: any) => {
-    const bus = await fetchBusById(assignment.BusID);
-    const driver = await fetchDriverById(assignment.RegularBusAssignment?.DriverID || "");
-    const conductor = await fetchConductorById(assignment.RegularBusAssignment?.ConductorID || "");
-
     setSelectedBusInfo({
-      regularBusAssignmentID: assignment.RegularBusAssignment?.RegularBusAssignmentID ?? "",
-      busNumber: bus?.license_plate || "Unknown",
-      driver: driver?.name || "Unknown",
-      conductor: conductor?.name || "Unknown",
+      regularBusAssignmentID: assignment.BusAssignmentID,
+      busNumber: assignment.busLicensePlate,
+      driver: assignment.driverName,
+      conductor: assignment.conductorName,
     });
 
     // Prefill readiness info from assignment
@@ -167,42 +163,64 @@ const BusOperationPage: React.FC = () => {
         driverReady: assignment.Self_Driver,
         conductorReady: assignment.Self_Conductor,
       },
-      changeDetails: "", // Fill if you have this info
+      changeFunds: 0, // Fill if you have this info
       tickets: [],       // Fill if you have this info
     });
 
     setShowBusReadinessModal(true);
   };
 
-
   // Example: adjust the function to accept the expected data and return a Promise<boolean>
   const handleSaveReadiness = async (data: {
+    regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean; };
-    changeDetails: string;
+    changeFunds: number;
     // tickets: Ticket[];
   }): Promise<boolean> => {
-    // Implement your save logic here, e.g., call an API
-    // For now, just log and return true
-    console.log("Saving readiness:", data);
-    // Return true if save was successful, false otherwise
-    return true;
+    try {
+      setLoadingModal(true);
+
+      // Convert modal data to API format
+      const apiData = {
+        Battery: data.vehicleCondition.Battery ?? false,
+        Lights: data.vehicleCondition.Lights ?? false,
+        Oil: data.vehicleCondition.Oil ?? false,
+        Water: data.vehicleCondition.Water ?? false,
+        Break: data.vehicleCondition.Brake ?? false,
+        Air: data.vehicleCondition.Air ?? false,
+        Gas: data.vehicleCondition.Gas ?? false,
+        Engine: data.vehicleCondition.Engine ?? false,
+        TireCondition: data.vehicleCondition.Tire ?? false,
+        Self_Driver: data.personnelCondition.driverReady ?? false,
+        Self_Conductor: data.personnelCondition.conductorReady ?? false,
+        ResetCompleted: false,
+        // The following fields are placeholders; replace with real values if available
+        ChangeFund: data.changeFunds ?? 0,
+        //INSERT TICKET, WLA PA TICKET
+        DispatchedAt: null,
+        Sales: null,
+      };
+
+      await updateBusAssignmentData(data.regularBusAssignmentID, apiData);
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Bus readiness updated successfully!',
+      });
+      fetchAssignments();
+      return true;
+    } catch (error: any) {
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to update bus readiness.',
+      });
+      return false;
+    }
   };
-
-  // const handleOpenBusReadinessModal = async (assignment: BusAssignment) => {
-  //   const bus = await fetchBusById(assignment.BusID);
-  //   const driver = await fetchDriverById(assignment.RegularBusAssignment.DriverID);
-  //   const conductor = await fetchConductorById(assignment.RegularBusAssignment.ConductorID);
-
-  //   setSelectedBusInfo({
-  //     regularBusAssignmentID: assignment.RegularBusAssignment?.RegularBusAssignmentID??,
-  //     busNumber: bus?.license_plate || 'Unknown',
-  //     driver: driver?.name || 'Unknown',
-  //     conductor: conductor?.name || 'Unknown',
-  //   });
-
-  //   setShowBusReadinessModal(true);
-  // };
 
   return (
     <div className={styles.wideCard}>
@@ -310,6 +328,8 @@ const BusOperationPage: React.FC = () => {
             onSave={handleSaveReadiness}
           />
         )}
+
+        {loadingModal && <LoadingModal/>}
       </div>
     </div>
   );
