@@ -1,19 +1,12 @@
 export async function fetchRoutesWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/route-management/full`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -30,22 +23,17 @@ export async function createRouteWithToken(route: {
   RouteStops: { StopID: string; StopOrder: number }[];
 }): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const response = await fetch(`${baseUrl}/api/route-management`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify(route),
   });
 
@@ -65,26 +53,21 @@ export async function updateRouteWithToken(route: {
   RouteStops: { StopID: string; StopOrder: number }[];
 }): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const response = await fetch(`${baseUrl}/api/route-management/${route.RouteID}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify(route),
   });
 
-   if (!response.ok) {
+  if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.error || `Failed to update route: ${response.statusText}`);
   }
@@ -94,22 +77,17 @@ export async function updateRouteWithToken(route: {
 
 export async function deleteRouteWithToken(routeID: string): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const response = await fetch(`${baseUrl}/api/route-management/${routeID}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify({ IsDeleted: true }),
   });
 
@@ -127,20 +105,13 @@ export async function deleteRouteWithToken(routeID: string): Promise<boolean> {
 
 export async function fetchRoutesModalWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/route-management`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {

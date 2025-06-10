@@ -1,19 +1,12 @@
 export async function fetchStopsWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/stops`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -29,14 +22,9 @@ export async function createStopWithToken(stop: {
   longitude: string;
 }): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const newStop = {
@@ -49,8 +37,8 @@ export async function createStopWithToken(stop: {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify(newStop),
   });
 
@@ -70,14 +58,9 @@ export async function updateStopWithToken(stop: {
   longitude: string;
 }): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const updatedStop = {
@@ -90,8 +73,8 @@ export async function updateStopWithToken(stop: {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify(updatedStop),
   });
 
@@ -105,22 +88,17 @@ export async function updateStopWithToken(stop: {
 
 export async function softDeleteStopWithToken(stopID: string): Promise<boolean> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
   }
 
   const response = await fetch(`${baseUrl}/api/stops/${stopID}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify({ IsDeleted: true }),
   });
 

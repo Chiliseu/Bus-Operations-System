@@ -8,13 +8,13 @@ const backendToken: string | null = null;
 
 export const getBackendToken = () => backendToken;
 export const getBackendBaseURL = () => Backend_BaseURL;
-
 export const fetchBackendToken = async (): Promise<string | null> => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_Backend_BaseURL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role: "admin" }),
+      credentials: "include", // <-- Important: ensures cookie is set
     });
 
     if (!res.ok) {
@@ -23,6 +23,8 @@ export const fetchBackendToken = async (): Promise<string | null> => {
       return null;
     }
 
+    // You can still return the token if you want to use it for client-side logic,
+    // but you do NOT need to store it in localStorage or set a cookie manually.
     const data = await res.json();
 
     if (!data.token) {
