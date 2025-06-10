@@ -2,19 +2,15 @@ import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCall
 
 export async function fetchBusAssignmentsWithStatus(status?: string): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
-  if (!token) throw new Error("No backend token found in localStorage.");
 
   const query = status ? `?status=${encodeURIComponent(status)}` : '';
   const url = `${baseUrl}/api/bus-operations${query}`;
 
   const response = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -42,36 +38,22 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
     })
   );
 
-  console.log(assignmentsWithDetails);
   return assignmentsWithDetails;
 }
 
 export async function fetchReadyBusAssignments(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  console.log("Base URL:", baseUrl);
-
-  const token = localStorage.getItem("backend_token");
-  console.log("Token:", token);
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const url = `${baseUrl}/api/bus-operations/ready-assignments`;
-  console.log("Fetch URL:", url);
 
   const response = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
-
-  console.log("Response status:", response.status);
 
   if (!response.ok) {
     const errorBody = await response.json();
@@ -81,7 +63,7 @@ export async function fetchReadyBusAssignments(): Promise<any[]> {
   }
 
   const data = await response.json();
-   // Enrich assignments with driver, conductor, and bus info
+  // Enrich assignments with driver, conductor, and bus info
   const assignmentsWithDetails: any[] = await Promise.all(
     data.map(async (assignment: any) => {
       const [driver, conductor, bus] = await Promise.all([

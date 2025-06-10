@@ -1,19 +1,12 @@
 export async function fetchDriversWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/external/drivers`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -26,20 +19,13 @@ export async function fetchDriversWithToken(): Promise<any[]> {
 
 export async function fetchConductorsWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/external/conductors`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -52,20 +38,13 @@ export async function fetchConductorsWithToken(): Promise<any[]> {
 
 export async function fetchBusesWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  if (!token) {
-    throw new Error("No backend token found in localStorage.");
-  }
-
   const response = await fetch(`${baseUrl}/api/external/buses`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -78,15 +57,11 @@ export async function fetchBusesWithToken(): Promise<any[]> {
 
 export async function fetchDriverById(driverId: string): Promise<{ id: string; name: string } | null> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
-  if (!token) throw new Error("No backend token found in localStorage.");
 
   const response = await fetch(`${baseUrl}/api/external/drivers/${driverId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -100,15 +75,11 @@ export async function fetchDriverById(driverId: string): Promise<{ id: string; n
 
 export async function fetchConductorById(conductorId: string): Promise<{ id: string; name: string } | null> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
-  if (!token) throw new Error("No backend token found in localStorage.");
 
   const response = await fetch(`${baseUrl}/api/external/conductors/${conductorId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -122,15 +93,11 @@ export async function fetchConductorById(conductorId: string): Promise<{ id: str
 
 export async function fetchBusById(busId: string): Promise<{ busId: string; license_plate: string } | null> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-  const token = localStorage.getItem("backend_token");
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
-  if (!token) throw new Error("No backend token found in localStorage.");
 
   const response = await fetch(`${baseUrl}/api/external/buses/${busId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   if (!response.ok) {
