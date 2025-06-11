@@ -74,7 +74,6 @@ export async function middleware(request: NextRequest) {
   }
 
   const data = await res.json();
-  console.log(`[middleware] Verify response for "${pathname}":`, data);
 
   if (!data.valid) {
     console.warn(`[middleware] Token is invalid for "${pathname}".`);
