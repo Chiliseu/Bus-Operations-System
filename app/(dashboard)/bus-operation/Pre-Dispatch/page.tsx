@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
-import BusReadinessModal from '@/components/modal/UpdateBusReadinessModal';
+import BusReadinessModal from '@/components/modal/Update-Bus-Readiness-Modal/UpdateBusReadinessModal';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 import { fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
