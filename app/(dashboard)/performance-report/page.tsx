@@ -3,7 +3,6 @@
 import React from 'react';
 // Style Imports
 import styles from './performance-report.module.css';
-import AreaChart from '@/components/ui/AreaChart';
 
 const PerformanceReportPage: React.FC = () => {
   return (
