@@ -72,10 +72,14 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
       fetchAllTicketTypes()
         .then((types) => {
           setTicketTypes(types);
-          setTickets(readiness?.tickets && readiness.tickets.length > 0
-            ? readiness.tickets
-            : (types.length > 0 ? [{ type: types[0].TicketTypeID, StartingIDNumber: 0 }] : [])
+          setTickets(
+            readiness?.tickets && readiness.tickets.length > 0
+              ? readiness.tickets
+              : [{ type: "", StartingIDNumber: 0 }]
           );
+          // Debug
+          // console.log("TicketTypes:", types);
+          // console.log("Tickets:", readiness?.tickets);
         })
         .catch(() => {
           setTicketTypes([]);
@@ -110,7 +114,9 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   const updateTicket = (index: number, field: keyof Ticket, value: string) => {
     setTickets((prev) =>
       prev.map((ticket, i) =>
-        i === index ? { ...ticket, [field]: value } : ticket
+        i === index
+          ? { ...ticket, [field]: field === "StartingIDNumber" ? Number(value) : value }
+          : ticket
       )
     );
   };
@@ -188,7 +194,12 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                   type="checkbox"
                   id="changeCheck"
                   checked={showChangeInput}
-                  onChange={() => setShowChangeInput(!showChangeInput)}
+                  onChange={() => {
+                    setShowChangeInput((prev) => {
+                      if (prev) setChangeFunds(0); // If unchecking, set to zero
+                      return !prev;
+                    });
+                  }}
                 />
                 <label className="form-check-label" htmlFor="changeCheck">
                   Change / Money
@@ -233,6 +244,11 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             </div>
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>Tickets</h4>
+              {tickets.length === 0 && (
+                <div className="text-danger mb-2">
+                  Please add a ticket.
+                </div>
+              )}
               {tickets.map((ticket, index) => (
                 <div className="row g-2 mb-2" key={index}>
                   <div className="col-5">
@@ -241,6 +257,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                       value={ticket.type}
                       onChange={(e) => updateTicket(index, "type", e.target.value)}
                     >
+                      <option value="">Select Ticket Type</option>
                       {ticketTypes
                         .filter(
                           (tt) =>
@@ -264,7 +281,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                     />
                   </div>
                   <div className="col-2 d-flex align-items-center">
-                    {tickets.length > 1 && (
+                    {/* {tickets.length > 1 && ( */}
                       <button
                         type="button"
                         className="btn btn-danger btn-sm"
@@ -272,7 +289,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                       >
                         ×
                       </button>
-                    )}
+                    {/* )} */}
                   </div>
                 </div>
               ))}
