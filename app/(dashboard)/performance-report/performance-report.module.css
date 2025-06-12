@@ -12,12 +12,9 @@
   font-weight: 600;
   color: black;
   margin: 10px 0;
-  
-
 }
 
 .reportCard {
-  
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 24px;
@@ -33,14 +30,12 @@
 .amount {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #961C1E;
-  font-family: 'Inter', sans-serif;
+  color: #961c1e;
+  font-family: "Inter", sans-serif;
 }
 
 .trend {
   font-size: 14px;
   color: #828282;
   font-weight: 500;
-
 }
-
