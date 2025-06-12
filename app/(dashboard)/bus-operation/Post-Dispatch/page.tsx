@@ -31,6 +31,25 @@ const BusOperationPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
 
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "bus_az", label: "Bus A-Z" },
+        { id: "bus_za", label: "Bus Z-A" },
+        { id: "driver_az", label: "Driver A-Z" },
+        { id: "driver_za", label: "Driver Z-A" },
+        { id: "conductor_az", label: "Conductor A-Z" },
+        { id: "conductor_za", label: "Conductor Z-A" },
+        { id: "route_az", label: "Route A-Z" },
+        { id: "route_za", label: "Route Z-A" },
+      ],
+      defaultValue: "bus_az"
+    }
+  ];
+
   const fetchAssignments = async () => {
     try {
       setLoading(true);
@@ -62,15 +81,34 @@ const BusOperationPage: React.FC = () => {
       );
     }
 
-    // if (sortOrder === 'Bus A-Z') {
-    //   filtered.sort((a, b) => a.BusAssignment.BusID.localeCompare(b.BusAssignment.BusID));
-    // } else if (sortOrder === 'Bus Z-A') {
-    //   filtered.sort((a, b) => b.BusAssignment.BusID.localeCompare(a.BusAssignment.BusID));
-    // } else if (sortOrder === 'Driver A-Z') {
-    //   filtered.sort((a, b) => a.DriverID.localeCompare(b.DriverID));
-    // } else if (sortOrder === 'Driver Z-A') {
-    //   filtered.sort((a, b) => b.DriverID.localeCompare(a.DriverID));
-    // }
+    switch (sortOrder) {
+      case "bus_az":
+        filtered.sort((a, b) => (a.busLicensePlate || '').localeCompare(b.busLicensePlate || ''));
+        break;
+      case "bus_za":
+        filtered.sort((a, b) => (b.busLicensePlate || '').localeCompare(a.busLicensePlate || ''));
+        break;
+      case "driver_az":
+        filtered.sort((a, b) => (a.driverName || '').localeCompare(b.driverName || ''));
+        break;
+      case "driver_za":
+        filtered.sort((a, b) => (b.driverName || '').localeCompare(a.driverName || ''));
+        break;
+      case "conductor_az":
+        filtered.sort((a, b) => (a.conductorName || '').localeCompare(b.conductorName || ''));
+        break;
+      case "conductor_za":
+        filtered.sort((a, b) => (b.conductorName || '').localeCompare(a.conductorName || ''));
+        break;
+      case "route_az":
+        filtered.sort((a, b) => (a.Route?.RouteName || '').localeCompare(b.Route?.RouteName || ''));
+        break;
+      case "route_za":
+        filtered.sort((a, b) => (b.Route?.RouteName || '').localeCompare(a.Route?.RouteName || ''));
+        break;
+      default:
+        break;
+    }
 
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -105,17 +143,10 @@ const BusOperationPage: React.FC = () => {
           </div>
 
           {/* Sort Dropdown */}
-          <select
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="">Sort by...</option>
-            <option value="Bus A-Z">Bus A-Z</option>
-            <option value="Bus Z-A">Bus Z-A</option>
-            <option value="Driver A-Z">Driver A-Z</option>
-            <option value="Driver Z-A">Driver Z-A</option>
-          </select>
+          <FilterDropdown
+            sections={filterSections}
+            onApply={(values) => setSortOrder(values.sortBy)}
+          />
         </div>
 
         {/* Description */}

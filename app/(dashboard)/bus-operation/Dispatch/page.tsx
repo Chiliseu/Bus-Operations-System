@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
-import { fetchReadyBusAssignments } from '@/lib/apiCalls/bus-operation';
+import { fetchReadyBusAssignments, fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -31,10 +31,29 @@ const BusOperationPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
 
+  const filterSections: FilterSection[] = [
+    {
+      id: "sortBy",
+      title: "Sort By",
+      type: "radio",
+      options: [
+        { id: "bus_az", label: "Bus A-Z" },
+        { id: "bus_za", label: "Bus Z-A" },
+        { id: "driver_az", label: "Driver A-Z" },
+        { id: "driver_za", label: "Driver Z-A" },
+        { id: "conductor_az", label: "Conductor A-Z" },
+        { id: "conductor_za", label: "Conductor Z-A" },
+        { id: "route_az", label: "Route A-Z" },
+        { id: "route_za", label: "Route Z-A" },
+      ],
+      defaultValue: "bus_az"
+    }
+  ];
+
   const fetchAssignments = async () => {
       try {
         setLoading(true);
-        const data = await fetchReadyBusAssignments();
+        const data = await fetchBusAssignmentsWithStatus("NotStarted");
         setAssignments(data);
       } catch (error) {
         console.error("Error fetching stops:", error);
@@ -54,21 +73,41 @@ const BusOperationPage: React.FC = () => {
       const lower = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (a) =>
-          a.BusID.toLowerCase().includes(lower) ||
-          a.RegularBusAssignment?.DriverID.toLowerCase().includes(lower) ||
-          a.RegularBusAssignment?.ConductorID.toLowerCase().includes(lower)
+          a.busLicensePlate?.toLowerCase().includes(lower) ||
+          a.driverName?.toLowerCase().includes(lower) ||
+          a.conductorName?.toLowerCase().includes(lower) ||
+          a.Route?.RouteName?.toLowerCase().includes(lower)
       );
     }
 
-    // if (sortOrder === 'Bus A-Z') {
-    //   filtered.sort((a, b) => (a.BusAssignment?.BusID ?? '').localeCompare(b.BusAssignment?.BusID ?? ''));
-    // } else if (sortOrder === 'Bus Z-A') {
-    //   filtered.sort((a, b) => (b.BusAssignment?.BusID ?? '').localeCompare(a.BusAssignment?.BusID ?? ''));
-    // } else if (sortOrder === 'Driver A-Z') {
-    //   filtered.sort((a, b) => a.DriverID.localeCompare(b.DriverID));
-    // } else if (sortOrder === 'Driver Z-A') {
-    //   filtered.sort((a, b) => b.DriverID.localeCompare(a.DriverID));
-    // }
+    switch (sortOrder) {
+      case "bus_az":
+        filtered.sort((a, b) => (a.busLicensePlate || '').localeCompare(b.busLicensePlate || ''));
+        break;
+      case "bus_za":
+        filtered.sort((a, b) => (b.busLicensePlate || '').localeCompare(a.busLicensePlate || ''));
+        break;
+      case "driver_az":
+        filtered.sort((a, b) => (a.driverName || '').localeCompare(b.driverName || ''));
+        break;
+      case "driver_za":
+        filtered.sort((a, b) => (b.driverName || '').localeCompare(a.driverName || ''));
+        break;
+      case "conductor_az":
+        filtered.sort((a, b) => (a.conductorName || '').localeCompare(b.conductorName || ''));
+        break;
+      case "conductor_za":
+        filtered.sort((a, b) => (b.conductorName || '').localeCompare(a.conductorName || ''));
+        break;
+      case "route_az":
+        filtered.sort((a, b) => (a.Route?.RouteName || '').localeCompare(b.Route?.RouteName || ''));
+        break;
+      case "route_za":
+        filtered.sort((a, b) => (b.Route?.RouteName || '').localeCompare(a.Route?.RouteName || ''));
+        break;
+      default:
+        break;
+    }
 
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -79,6 +118,27 @@ const BusOperationPage: React.FC = () => {
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const handleDispatch = async (BusAssignmentID: string) => {
+    const result = await Swal.fire({
+      title: 'Confirm Dispatch',
+      text: 'Are you sure you want to dispatch this bus?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, dispatch',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await updateBusAssignmentData(BusAssignmentID, { Status: "InOperation" });
+        Swal.fire('Success', 'Bus dispatched successfully!', 'success');
+        fetchAssignments(); // Refresh the list
+      } catch (error: any) {
+        Swal.fire('Error', error.message || 'Failed to dispatch bus', 'error');
+      }
     }
   };
 
@@ -103,17 +163,10 @@ const BusOperationPage: React.FC = () => {
           </div>
 
           {/* Sort Dropdown */}
-          <select
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="">Sort by...</option>
-            <option value="Bus A-Z">Bus A-Z</option>
-            <option value="Bus Z-A">Bus Z-A</option>
-            <option value="Driver A-Z">Driver A-Z</option>
-            <option value="Driver Z-A">Driver Z-A</option>
-          </select>
+          <FilterDropdown
+            sections={filterSections}
+            onApply={(values) => setSortOrder(values.sortBy)}
+          />
         </div>
 
         {/* Description */}
@@ -143,7 +196,10 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.conductorName}</td>
                       <td>{assignment.Route?.RouteName ?? "No Route"}</td>
                       <td className={styles.centeredColumn}>
-                        <button className={styles.editBtn}>
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => {handleDispatch(assignment.BusAssignmentID)}}
+                        >
                           <img
                             src="/assets/images/edit-white.png"
                             alt="Edit"
