@@ -163,7 +163,7 @@ const BusOperationPage: React.FC = () => {
         driverReady: assignment.Self_Driver,
         conductorReady: assignment.Self_Conductor,
       },
-      changeFunds: assignment.RegularBusAssignment.LatestBusTrip.ChangeFund ?? 0, // <-- Prefill change fund
+      changeFunds: assignment.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0, // <-- Prefill change fund
       tickets: assignment.RegularBusAssignment.LatestBusTrip.TicketBusTrips
       ? assignment.RegularBusAssignment.LatestBusTrip.TicketBusTrips.map((t: any) => ({
           type: t.TicketType?.TicketTypeID ?? "", // <-- Correctly get the TicketTypeID
