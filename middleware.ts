@@ -36,7 +36,7 @@ export const getAllowedRolesForPage = (pathname: string): Role[] | undefined => 
 // --- JWT Extraction (from 'token' cookie) ---
 function extractTokenFromCookie(cookie: string | undefined): string | null {
   if (!cookie) return null;
-  const match = cookie.match(/token=([^;]+)/);
+  const match = cookie.match(/jwt=([^;]+)/);
   return match ? match[1] : null;
 }
 
