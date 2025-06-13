@@ -139,6 +139,7 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = async (assignment: any) => {
+    console.log(JSON.stringify(assignment));
     setSelectedBusInfo({
       regularBusAssignmentID: assignment.BusAssignmentID,
       busNumber: assignment.busLicensePlate,
@@ -163,13 +164,11 @@ const BusOperationPage: React.FC = () => {
         driverReady: assignment.Self_Driver,
         conductorReady: assignment.Self_Conductor,
       },
-      // changeFunds: assignment.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0, // <-- Prefill change fund
-      tickets: assignment.RegularBusAssignment.LatestBusTrip.TicketBusTrips
-      ? assignment.RegularBusAssignment.LatestBusTrip.TicketBusTrips.map((t: any) => ({
-          type: t.TicketType?.TicketTypeID ?? "", // <-- Correctly get the TicketTypeID
-          StartingIDNumber: t.StartingIDNumber,
-        }))
-      : [],
+      changeFunds: assignment.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0, // <-- Prefill change fund
+      tickets: assignment.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((t: any) => ({
+        type: t.TicketType?.TicketTypeID ?? "",
+        StartingIDNumber: t.StartingIDNumber,
+      })) ?? [],
     });
 
     setShowBusReadinessModal(true);
