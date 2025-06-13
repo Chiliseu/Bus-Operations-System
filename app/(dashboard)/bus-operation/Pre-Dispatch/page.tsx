@@ -139,7 +139,6 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = async (assignment: any) => {
-    console.log("dfg: "+JSON.stringify(assignment.RegularBusAssignment.LatestBusTrip.TicketBusTrips));
     setSelectedBusInfo({
       regularBusAssignmentID: assignment.BusAssignmentID,
       busNumber: assignment.busLicensePlate,
