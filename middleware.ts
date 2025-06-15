@@ -40,6 +40,7 @@ function extractTokenFromCookie(cookie: string | undefined): string | null {
   const tokenMatch = cookie.match(/(?:^|;\s*)token=([^;]+)/);
 
   return jwtMatch?.[1] || tokenMatch?.[1] || null;
+
 }
 
 // --- Middleware ---

@@ -1,0 +1,41 @@
+/* === Main Container Width Control === */
+.wideCard {
+  width: 100%;
+  padding: 40px 50px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
+  margin: 10px 0;
+}
+
+.reportCard {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 14px;
+  color: black;
+  font-weight: 500;
+}
+
+.amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #961c1e;
+  font-family: "Inter", sans-serif;
+}
+
+.trend {
+  font-size: 14px;
+  color: #828282;
+  font-weight: 500;
+}

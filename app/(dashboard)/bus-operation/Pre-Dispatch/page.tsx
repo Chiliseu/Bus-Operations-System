@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
-import BusReadinessModal from '@/components/modal/UpdateBusReadinessModal';
+import BusReadinessModal from '@/components/modal/Update-Bus-Readiness-Modal/UpdateBusReadinessModal';
 import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
 import { fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
@@ -139,6 +139,7 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = async (assignment: any) => {
+    console.log(JSON.stringify(assignment));
     setSelectedBusInfo({
       regularBusAssignmentID: assignment.BusAssignmentID,
       busNumber: assignment.busLicensePlate,
@@ -163,8 +164,11 @@ const BusOperationPage: React.FC = () => {
         driverReady: assignment.Self_Driver,
         conductorReady: assignment.Self_Conductor,
       },
-      changeFunds: 0, // Fill if you have this info
-      tickets: [],       // Fill if you have this info
+      changeFunds: assignment.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0, // <-- Prefill change fund
+      tickets: assignment.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((t: any) => ({
+        type: t.TicketType?.TicketTypeID ?? "",
+        StartingIDNumber: t.StartingIDNumber,
+      })) ?? [],
     });
 
     setShowBusReadinessModal(true);
@@ -176,10 +180,16 @@ const BusOperationPage: React.FC = () => {
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean; };
     changeFunds: number;
-    // tickets: Ticket[];
+    tickets: { type: string; StartingIDNumber: number }[];
   }): Promise<boolean> => {
     try {
       setLoadingModal(true);
+
+      // Convert tickets to TicketBusTrips format
+      const TicketBusTrips = data.tickets.map(ticket => ({
+        StartingIDNumber: Number(ticket.StartingIDNumber),
+        TicketTypeID: ticket.type,
+      }));
 
       // Convert modal data to API format
       const apiData = {
@@ -197,10 +207,12 @@ const BusOperationPage: React.FC = () => {
         ResetCompleted: false,
         // The following fields are placeholders; replace with real values if available
         ChangeFund: data.changeFunds ?? 0,
-        //INSERT TICKET, WLA PA TICKET
+        TicketBusTrips,
         DispatchedAt: null,
         Sales: null,
       };
+
+      console.log(apiData);
 
       await updateBusAssignmentData(data.regularBusAssignmentID, apiData);
       setLoadingModal(false);
