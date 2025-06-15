@@ -67,14 +67,14 @@ export async function middleware(request: NextRequest) {
     });
   } catch (err) {
     console.error(`[middleware] Error calling verify endpoint:`, err);
-    //return NextResponse.redirect(loginUrl);
-    return new NextResponse('[middleware] Error calling verify endpoint:', { status: 404 });
+    return NextResponse.redirect(loginUrl);
+    //return new NextResponse('[middleware] Error calling verify endpoint:', { status: 404 });
   }
 
   if (!res.ok) {
     console.warn(`[middleware] Verify endpoint error. Redirecting to login.`);
-    //return NextResponse.redirect(loginUrl);
-    return new NextResponse('[middleware] Verify endpoint error. Redirecting to login.', { status: 404 });
+    return NextResponse.redirect(loginUrl);
+    //return new NextResponse('[middleware] Verify endpoint error. Redirecting to login.', { status: 404 });
   }
 
   let data;
@@ -82,24 +82,24 @@ export async function middleware(request: NextRequest) {
     data = await res.json();
   } catch (err) {
     console.error(`[middleware] Error parsing verify response. Redirecting to login.`);
-    // return NextResponse.redirect(loginUrl);
-     return new NextResponse('[middleware] Error parsing verify response. Redirecting to login.', { status: 404 });
+    return NextResponse.redirect(loginUrl);
+    //return new NextResponse('[middleware] Error parsing verify response. Redirecting to login.', { status: 404 });
   }
 
   if (!data.valid) {
     console.warn(`[middleware] Invalid token. Redirecting to login.`);
-    //return NextResponse.redirect(loginUrl);
-     return new NextResponse('[middleware] Invalid token. Redirecting to login.', { status: 404 });
+    return NextResponse.redirect(loginUrl);
+    //return new NextResponse('[middleware] Invalid token. Redirecting to login.', { status: 404 });
   }
 
-  const userRole = data.user?.role;
-  if (!allowedRoles.includes(userRole)) {
-    console.warn(`[middleware] Role "${userRole}" not allowed for "${pathname}". Redirecting to login.`);
-    //return NextResponse.redirect(loginUrl);
-    return new NextResponse('[middleware] Role not Allowed', { status: 404 });
-  }
+  // const userRole = data.user?.role;
+  // if (!allowedRoles.includes(userRole)) {
+  //   console.warn(`[middleware] Role "${userRole}" not allowed for "${pathname}". Redirecting to login.`);
+  //   return NextResponse.redirect(loginUrl);
+  //   //return new NextResponse('[middleware] Role not Allowed', { status: 404 });
+  // }
 
-  console.log(`[middleware] Access granted to "${pathname}" for role "${userRole}".`);
+  // console.log(`[middleware] Access granted to "${pathname}" for role "${userRole}".`);
   return NextResponse.next();
 }
 
