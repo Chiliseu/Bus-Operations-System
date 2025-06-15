@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import '@/styles/sidebar.css';
+import {logoutUser} from '@/lib/apiCalls/logout'
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -51,6 +52,11 @@ const Sidebar: React.FC = () => {
 
   const toggleSubMenu = (id: string) => {
     setOpenSubMenu((prev) => (prev === id ? null : id));
+  };
+
+  const handleLogout = async () => {
+    console.log('Logging out...');
+    await logoutUser(); 
   };
 
   const isRouteManagementActive = routeManagementSubItems.includes(pathname);
@@ -209,7 +215,7 @@ const Sidebar: React.FC = () => {
         </div>
 
         <div className="logout">
-          <a href="#">
+          <a onClick={handleLogout}>
             <span>Logout</span>
           </a>
         </div>
