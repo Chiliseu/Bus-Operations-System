@@ -13,6 +13,7 @@ const Sidebar: React.FC = () => {
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
   const routeToItem: { [key: string]: string } = {
+    '/dashboard': 'dashboard',
     '/bus-assignment': 'assignment',
     '/gps': 'gps',
     '/bus-rental': 'bus-rental',
@@ -70,6 +71,21 @@ const Sidebar: React.FC = () => {
         </div>
 
         <div className="nav-links">
+          <Link
+            href="/dashboard"
+            className={`nav-item ${activeItem === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveItem('dashboard')}
+          >
+            <Image
+              src="/assets/images/dashboard.png"
+              alt="dashboard"
+              className="nav-icon"
+              width={24}
+              height={24}
+            />
+            <span>Dashboard</span>
+          </Link>
+
           <Link
             href="/bus-assignment"
             className={`nav-item ${activeItem === 'assignment' ? 'active' : ''}`}
