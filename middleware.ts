@@ -33,15 +33,14 @@ export const getAllowedRolesForPage = (pathname: string): Role[] | undefined => 
   return dynamicMatch?.[1];
 };
 
-// --- JWT Extraction (from 'token' cookie) ---
 function extractTokenFromCookie(cookie: string | undefined): string | null {
   if (!cookie) return null;
 
-  // SWITCH THE TWO, JWT for deployed, token for local
-  const match = cookie.match(/jwt=([^;]+)/);
-  // const match = cookie.match(/token=([^;]+)/);
+  const jwtMatch = cookie.match(/(?:^|;\s*)jwt=([^;]+)/);
+  const tokenMatch = cookie.match(/(?:^|;\s*)token=([^;]+)/);
 
-  return match ? match[1] : null;
+  return jwtMatch?.[1] || tokenMatch?.[1] || null;
+
 }
 
 // --- Middleware ---
