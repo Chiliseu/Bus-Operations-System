@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
+import PostDispatchModal from '@/components/modal/Post-Dispatch-Modal/PostDispatchModal';
 import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
 
 // --- Shared imports ---
@@ -49,6 +50,9 @@ const BusOperationPage: React.FC = () => {
       defaultValue: "bus_az"
     }
   ];
+
+  const [showPostDispatchModal, setShowPostDispatchModal] = useState(false);
+  const [selectedBusInfo, setSelectedBusInfo] = useState<any | null>(null);
 
   const fetchAssignments = async () => {
     try {
@@ -122,6 +126,16 @@ const BusOperationPage: React.FC = () => {
     }
   };
 
+  const handleEdit = async (assignment: any) => {
+    setSelectedBusInfo({
+      BusAssignmentID: assignment.BusAssignmentID,
+      BusId: assignment.busLicensePlate,
+      Self_Driver: assignment.driverName,
+      Self_Conductor: assignment.conductorName,
+    });
+    setShowPostDispatchModal(true);
+
+  }
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
@@ -178,7 +192,10 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.conductorName}</td>
                       <td>{assignment.Route.RouteName}</td>
                       <td className={styles.centeredColumn}>
-                        <button className={styles.editBtn}>
+                        <button 
+                          className={styles.editBtn}
+                          onClick={() => handleEdit(assignment)}
+                        >
                           <img
                             src="/assets/images/edit-white.png"
                             alt="Edit"
@@ -212,6 +229,19 @@ const BusOperationPage: React.FC = () => {
             setCurrentPage(1);
           }}
         />
+
+        {/* Bus Readiness Modal (commented out) */}
+        {selectedBusInfo && (
+          <PostDispatchModal
+            show={showPostDispatchModal}
+            onClose={() => {
+              setShowPostDispatchModal(false);
+              setSelectedBusInfo(null);
+            }}
+            busInfo={selectedBusInfo}
+          />
+        )}
+
       </div>
     </div>
   );
