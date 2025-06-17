@@ -25,4 +25,8 @@ export interface BusAssignment {
   IsDeleted: boolean;
   RegularBusAssignment?: RegularBusAssignment;
   Status: BusOperationStatus;
+  CreatedAt?: string; // changes by Y 6/17/2025
+  CreatedBy?: string; // changes by Y 6/17/2025
+  UpdatedAt?: string; // changes by Y 6/17/2025
+  UpdatedBy?: string; // changes by Y 6/17/2025
 }
