@@ -1,38 +1,33 @@
-import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external'; // adjust the path as needed
+import { fetchDriversFullWithToken, fetchConductorsFullWithToken, fetchBusesFullWithToken } from '@/lib/apiCalls/external';
 
 export async function fetchAssignmentDetails(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
 
-  const response = await fetch(`${baseUrl}/api/bus-assignment`, {
-    credentials: 'include', // Send cookies (including token)
+  // Fetch all in parallel
+  const [assignmentsRes, drivers, conductors, buses] = await Promise.all([
+    fetch(`${baseUrl}/api/bus-assignment`, { credentials: 'include' }),
+    fetchDriversFullWithToken(),
+    fetchConductorsFullWithToken(),
+    fetchBusesFullWithToken(),
+  ]);
+
+  if (!assignmentsRes.ok) throw new Error(`Failed to fetch assignments: ${assignmentsRes.statusText}`);
+  const assignments: any[] = await assignmentsRes.json();
+
+  // Map assignments to include external info
+  return assignments.map((assignment) => {
+    const bus = buses.find((b) => b.busId === assignment.BusAssignment?.BusID);
+    const driver = drivers.find((d) => d.driver_id === assignment.DriverID);
+    const conductor = conductors.find((c) => c.conductor_id === assignment.ConductorID);
+    return {
+      ...assignment,
+      busLicensePlate: bus?.license_plate ?? '',
+      busType: bus?.type ?? '',
+      driverName: driver?.name ?? '',
+      conductorName: conductor?.name ?? '',
+    };
   });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch assignments: ${response.statusText}`);
-  }
-
-  const data: any[] = await response.json();
-
-  const assignmentsWithDetails: any[] = await Promise.all(
-    data.map(async (assignment) => {
-      const [driver, conductor, bus] = await Promise.all([
-        assignment.DriverID ? fetchDriverById(assignment.DriverID) : null,
-        assignment.ConductorID ? fetchConductorById(assignment.ConductorID) : null,
-        assignment.BusAssignment?.BusID ? fetchBusById(assignment.BusAssignment.BusID) : null,
-      ]);
-
-      return {
-        ...assignment,
-        driverName: driver?.name ?? '',
-        conductorName: conductor?.name ?? '',
-        busLicensePlate: bus?.license_plate ?? '',
-      };
-    })
-  );
-
-  return assignmentsWithDetails;
 }
 
 export async function createBusAssignment(data: any): Promise<any> {
@@ -63,6 +58,10 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
+
+
+  console.log("Updating BusAssignment with ID:", BusAssignmentID);
+  console.log("Data to update:", data);
 
   const response = await fetch(`${baseUrl}/api/bus-assignment/${BusAssignmentID}`, {
     method: 'PUT',

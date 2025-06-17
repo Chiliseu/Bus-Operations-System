@@ -65,7 +65,8 @@ const CreateRoutePage: React.FC = () => {
         { id: "stops_low", label: "Stops Between: Lowest to Highest" },
         { id: "stops_high", label: "Stops Between: Highest to Lowest" },
       ],
-      defaultValue: "route_az"
+      //defaultValue: "route_az" 
+      //(Newly added and Updated Routes should always be at the top, not sorted by default)
     }
   ];
 
@@ -131,7 +132,8 @@ const CreateRoutePage: React.FC = () => {
         break;
       default:
         // Default to Route Name A-Z
-        sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
+        //sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
+        //(Newly added and Updated Routes should always be at the top, not sorted by default)
         break;
     }
 
