@@ -55,56 +55,59 @@ export async function fetchBusesWithToken(): Promise<any[]> {
   return json.data;
 }
 
-export async function fetchDriverById(driverId: string): Promise<{ id: string; name: string } | null> {
+export async function fetchDriversFullWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
+  if (!baseUrl) {
+    throw new Error("Base URL is not defined in environment variables.");
+  }
 
-  const response = await fetch(`${baseUrl}/api/external/drivers/${driverId}`, {
+  const response = await fetch(`${baseUrl}/api/external/drivers/full`, {
     credentials: 'include',
   });
 
   if (!response.ok) {
-    console.warn(`Failed to fetch driver ${driverId}: ${response.statusText}`);
-    return null;
+    throw new Error(`Failed to fetch drivers: ${response.statusText}`);
   }
 
   const json = await response.json();
-  return json.data || null;
+  return json.data;
 }
 
-export async function fetchConductorById(conductorId: string): Promise<{ id: string; name: string } | null> {
+export async function fetchConductorsFullWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
+  if (!baseUrl) {
+    throw new Error("Base URL is not defined in environment variables.");
+  }
 
-  const response = await fetch(`${baseUrl}/api/external/conductors/${conductorId}`, {
+  const response = await fetch(`${baseUrl}/api/external/conductors/full`, {
     credentials: 'include',
   });
 
   if (!response.ok) {
-    console.warn(`Failed to fetch conductor ${conductorId}: ${response.statusText}`);
-    return null;
+    throw new Error(`Failed to fetch conductors: ${response.statusText}`);
   }
 
   const json = await response.json();
-  return json.data || null;
+  return json.data;
 }
 
-export async function fetchBusById(busId: string): Promise<{ busId: string; license_plate: string } | null> {
+export async function fetchBusesFullWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
+  if (!baseUrl) {
+    throw new Error("Base URL is not defined in environment variables.");
+  }
 
-  const response = await fetch(`${baseUrl}/api/external/buses/${busId}`, {
+  const response = await fetch(`${baseUrl}/api/external/buses/full`, {
     credentials: 'include',
   });
 
   if (!response.ok) {
-    console.warn(`Failed to fetch bus ${busId}: ${response.statusText}`);
-    return null;
+    throw new Error(`Failed to fetch buses: ${response.statusText}`);
   }
 
   const json = await response.json();
-  return json.data || null;
+  return json.data;
 }
