@@ -40,11 +40,13 @@ const BusAssignmentPage: React.FC = () => {
     driverName?: string;
     conductorName?: string;
     busLicensePlate?: string;
+    busType?: string; // changes by Y 6/17/2025
   })[]>([]);
   const [displayedBusAssignments, setDisplayedBusAssignments] = useState<(RegularBusAssignment & {
     driverName?: string;
     conductorName?: string;
     busLicensePlate?: string;
+    busType?: string; // changes by Y 6/17/2025
   })[]>([]);
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
   const [showAssignDriverModal, setShowAssignDriverModal] = useState(false);
@@ -69,6 +71,11 @@ const BusAssignmentPage: React.FC = () => {
   // Filter States
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState('A-Z'); // State for sorting order
+  const [activeFilters, setActiveFilters] = useState<{ sortBy: string; busTypeFilter?: string }>({
+    sortBy: "bus_az"
+  });
+
+  // changes by Y 6/17/2025
   const filterSections: FilterSection[] = [
     {
       id: "sortBy",
@@ -83,19 +90,32 @@ const BusAssignmentPage: React.FC = () => {
         { id: "conductor_za", label: "Conductor Z-A" },
         { id: "route_az", label: "Route A-Z" },
         { id: "route_za", label: "Route Z-A" },
+        { id: "created_newest", label: "Created At (Newest First)" },
+        { id: "created_oldest", label: "Created At (Oldest First)" },
+        { id: "updated_newest", label: "Updated At (Newest First)" },
+        { id: "updated_oldest", label: "Updated At (Oldest First)" },
       ],
       defaultValue: "bus_az"
+    },
+    {
+      id: "busTypeFilter",
+      title: "Bus Type",
+      type: "radio",
+      options: [
+        { id: "Aircon", label: "Aircon" },
+        { id: "Non-Aircon", label: "Non-Aircon" }
+      ]
     }
   ];
 
-  // Loading State
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     const sortedAssignments = [...busAssignments];
 
-    switch (sortOrder) {
+    // SWITCH 1: LOGIC SWITCH (SORTING)  // changes by Y 6/17/2025
+    switch (activeFilters.sortBy) {
       case "bus_az":
         sortedAssignments.sort((a, b) =>
           (a.busLicensePlate || "").localeCompare(b.busLicensePlate || "")
@@ -136,40 +156,87 @@ const BusAssignmentPage: React.FC = () => {
           (b.BusAssignment?.Route?.RouteName || "").localeCompare(a.BusAssignment?.Route?.RouteName || "")
         );
         break;
+      case "created_newest":
+        sortedAssignments.sort((a, b) =>
+          new Date(b.BusAssignment?.CreatedAt || 0).getTime() -
+          new Date(a.BusAssignment?.CreatedAt || 0).getTime()
+        );
+        break;
+      case "created_oldest":
+        sortedAssignments.sort((a, b) =>
+          new Date(a.BusAssignment?.CreatedAt || 0).getTime() -
+          new Date(b.BusAssignment?.CreatedAt || 0).getTime()
+        );
+        break;
+      case "updated_newest":
+        sortedAssignments.sort((a, b) =>
+          new Date(b.BusAssignment?.UpdatedAt || 0).getTime() -
+          new Date(a.BusAssignment?.UpdatedAt || 0).getTime()
+        );
+        break;
+      case "updated_oldest":
+        sortedAssignments.sort((a, b) =>
+          new Date(a.BusAssignment?.UpdatedAt || 0).getTime() -
+          new Date(b.BusAssignment?.UpdatedAt || 0).getTime()
+        );
+        break;
       default:
-        // Optionally, set a default sort
         break;
     }
 
-    const filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
+    let filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
       busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    if (activeFilters.busTypeFilter) {
+      filteredBusAssignments = filteredBusAssignments.filter(
+        (a) => a.busType === activeFilters.busTypeFilter
+      );
+    }
+
     setDisplayedBusAssignments(filteredBusAssignments);
 
-    // Reset currentPage if out of range
     const totalPages = Math.ceil(filteredBusAssignments.length / pageSize);
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(1);
     }
-  }, [busAssignments, searchQuery, sortOrder, pageSize]);
+  }, [busAssignments, searchQuery, activeFilters, pageSize]);
 
+  // SWITCH 2: DISPLAY TEXT SWITCH  // changes by Y 6/17/2025
+  const renderBusTypeLabel = (busType?: string) => {
+    switch (busType) {
+      case "Aircon":
+        return "Air-conditioned Bus";
+      case "Non-Aircon":
+        return "Ordinary Bus";
+      default:
+        return "Unknown Type";
+    }
+  };
+  // changes by Y 6/17/2025
   const fetchAssignments = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
-        const assignments = await fetchAssignmentDetails();
-        setAssignments(assignments);
-      } catch (error) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error loading assignments',
-        });
-      } finally{
-        setLoading(false); // Start loading
-      }
+      let assignments = await fetchAssignmentDetails();
+
+      // Sort newest first so new records appear at top
+      assignments.sort((a, b) =>
+        new Date(b.BusAssignment?.CreatedAt || 0).getTime() -
+        new Date(a.BusAssignment?.CreatedAt || 0).getTime()
+      );
+
+      setAssignments(assignments);
+    } catch (error) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error loading assignments',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // **Initial data fetch on component mount**
@@ -179,8 +246,18 @@ const BusAssignmentPage: React.FC = () => {
 
   // Filter
   const handleApplyFilters = (filterValues: Record<string, any>) => {
-    setSortOrder(filterValues.sortBy);
-  };
+  if (!filterValues.sortBy) {
+    // Provide a fallback if sortBy not set
+    filterValues.sortBy = activeFilters.sortBy || "bus_az";
+  }
+
+  // Now TypeScript is happy because sortBy will always exist
+  setActiveFilters({
+    sortBy: filterValues.sortBy,
+    busTypeFilter: filterValues.busTypeFilter
+  });
+};
+
 
   const handleEdit = (assignment: typeof displayedBusAssignments[number]) => {
     setSelectedAssignment(assignment.RegularBusAssignmentID);
@@ -398,8 +475,8 @@ const BusAssignmentPage: React.FC = () => {
 
           <div className="filter">
             <FilterDropdown
-                sections={filterSections}
-                onApply={handleApplyFilters}
+              sections={filterSections}
+              onApply={handleApplyFilters}
             />
           </div>
 
@@ -422,56 +499,61 @@ const BusAssignmentPage: React.FC = () => {
               <thead>
                 <tr className={styles.tableHeadRow}>
                   <th>Bus</th>
+                  <th>Bus Type</th> {/* changes by Y 6/17/2025*/}
                   <th>Driver</th>
                   <th>Conductor</th>
                   <th>Route</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedAssignments.length > 0 ? (
-                  paginatedAssignments.map((assignment) => (
-                    <tr
-                      key={assignment.RegularBusAssignmentID}
-                      className={styles.tableRow}
-                    >
-                      <td>{assignment.busLicensePlate}</td>
-                      <td>{assignment.driverName || assignment.DriverID}</td>
-                      <td>{assignment.conductorName || assignment.ConductorID}</td>
-                      <td>{assignment.BusAssignment?.Route?.RouteName}</td>
-                      <td>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEdit(assignment)}
-                        >
-                          <img src="/assets/images/edit-white.png" alt="Edit" />
-                        </button>
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() =>
+                <tbody>
+                  {paginatedAssignments.length > 0 ? (
+                    paginatedAssignments.map((assignment) => (
+                      <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
+                        <td>{assignment.busLicensePlate}</td>
+                        <td>{renderBusTypeLabel(assignment.busType)}</td>
+                        <td>{assignment.driverName || assignment.DriverID}</td>
+                        <td>{assignment.conductorName || assignment.ConductorID}</td>
+                        <td>{assignment.BusAssignment?.Route?.RouteName}</td>
+                        <td>
+                          {assignment.BusAssignment?.CreatedAt
+                            ? new Date(assignment.BusAssignment.CreatedAt).toLocaleString()
+                            : "N/A"}
+                        </td>
+                        <td>
+                          {assignment.BusAssignment?.UpdatedAt
+                            ? new Date(assignment.BusAssignment.UpdatedAt).toLocaleString()
+                            : "No updates"}
+                        </td>
+                        <td>
+                          <button className={styles.editBtn} onClick={() => handleEdit(assignment)}>
+                            <img src="/assets/images/edit-white.png" alt="Edit" />
+                          </button>
+                          <button className={styles.deleteBtn} onClick={() =>
                             handleDelete(
                               assignment.RegularBusAssignmentID,
                               assignment.BusAssignment?.IsDeleted
                             )
-                          }
-                        >
-                          <img src="/assets/images/delete-white.png" alt="Delete" />
-                        </button>
+                          }>
+                            <img src="/assets/images/delete-white.png" alt="Delete" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className={styles.noRecords}>
+                        No records found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className={styles.noRecords}>
-                      No records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+                  )}
+                </tbody>
+
             </table>
           </div>
         )}
-
         {/* ✅ Pagination always visible */}
         <PaginationComponent
           currentPage={currentPage}
