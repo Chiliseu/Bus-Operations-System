@@ -72,7 +72,8 @@ const BusAssignmentPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(''); // State for Search Query
   const [sortOrder, setSortOrder] = useState('A-Z'); // State for sorting order
   const [activeFilters, setActiveFilters] = useState<{ sortBy: string; busTypeFilter?: string }>({
-    sortBy: "bus_az"
+    sortBy: ""
+    //(Newly added and Updated Assignments should always be at the top, not sorted by default)
   });
 
   // changes by Y 6/17/2025
@@ -95,7 +96,8 @@ const BusAssignmentPage: React.FC = () => {
         { id: "updated_newest", label: "Updated At (Newest First)" },
         { id: "updated_oldest", label: "Updated At (Oldest First)" },
       ],
-      defaultValue: "bus_az"
+      //defaultValue: "bus_az"
+      //(Newly added and Updated Assignments should always be at the top, not sorted by default)
     },
     {
       id: "busTypeFilter",
@@ -219,7 +221,7 @@ const BusAssignmentPage: React.FC = () => {
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      let assignments = await fetchAssignmentDetails();
+      const assignments = await fetchAssignmentDetails();
 
       // Sort newest first so new records appear at top
       assignments.sort((a, b) =>
@@ -367,7 +369,7 @@ const BusAssignmentPage: React.FC = () => {
 
     try {
       setModalLoading(true);
-      await sofDeleteBusAssignment(BusAssignmentID, IsDeleted);
+      await sofDeleteBusAssignment(BusAssignmentID, true);
       setModalLoading(false);
       
       await Swal.fire('Deleted!', 'Assignment deleted successfully!', 'success'); // ✅ Await this

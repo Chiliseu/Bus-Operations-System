@@ -1,4 +1,4 @@
-import { fetchDriverById, fetchConductorById, fetchBusById } from '@/lib/apiCalls/external';
+import { fetchDriversFullWithToken, fetchConductorsFullWithToken, fetchBusesFullWithToken } from '@/lib/apiCalls/external';
 
 export async function fetchBusAssignmentsWithStatus(status?: string): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
@@ -20,23 +20,32 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
 
   const data = await response.json();
 
-  // Enrich assignments with driver, conductor, and bus info
-  const assignmentsWithDetails: any[] = await Promise.all(
-    data.map(async (assignment: any) => {
-      const [driver, conductor, bus] = await Promise.all([
-        assignment.RegularBusAssignment?.DriverID ? fetchDriverById(assignment.RegularBusAssignment.DriverID) : null,
-        assignment.RegularBusAssignment?.ConductorID ? fetchConductorById(assignment.RegularBusAssignment.ConductorID) : null,
-        assignment.BusID ? fetchBusById(assignment.BusID) : null,
-      ]);
+  // Fetch all external data in parallel (full lists)
+  const [drivers, conductors, buses] = await Promise.all([
+    fetchDriversFullWithToken(),
+    fetchConductorsFullWithToken(),
+    fetchBusesFullWithToken(),
+  ]);
 
-      return {
-        ...assignment,
-        driverName: driver?.name ?? '',
-        conductorName: conductor?.name ?? '',
-        busLicensePlate: bus?.license_plate ?? '',
-      };
-    })
-  );
+  // Enrich assignments with driver, conductor, and bus info (in-memory mapping)
+  const assignmentsWithDetails: any[] = data.map((assignment: any) => {
+    const driver = assignment.RegularBusAssignment?.DriverID
+      ? drivers.find((d: any) => d.driver_id === assignment.RegularBusAssignment.DriverID)
+      : null;
+    const conductor = assignment.RegularBusAssignment?.ConductorID
+      ? conductors.find((c: any) => c.conductor_id === assignment.RegularBusAssignment.ConductorID)
+      : null;
+    const bus = assignment.BusID
+      ? buses.find((b: any) => b.busId === assignment.BusID)
+      : null;
+
+    return {
+      ...assignment,
+      driverName: driver?.name ?? '',
+      conductorName: conductor?.name ?? '',
+      busLicensePlate: bus?.license_plate ?? '',
+    };
+  });
 
   return assignmentsWithDetails;
 }
@@ -63,23 +72,33 @@ export async function fetchReadyBusAssignments(): Promise<any[]> {
   }
 
   const data = await response.json();
-  // Enrich assignments with driver, conductor, and bus info
-  const assignmentsWithDetails: any[] = await Promise.all(
-    data.map(async (assignment: any) => {
-      const [driver, conductor, bus] = await Promise.all([
-        assignment.RegularBusAssignment?.DriverID ? fetchDriverById(assignment.RegularBusAssignment.DriverID) : null,
-        assignment.RegularBusAssignment?.ConductorID ? fetchConductorById(assignment.RegularBusAssignment.ConductorID) : null,
-        assignment.BusID ? fetchBusById(assignment.BusID) : null,
-      ]);
 
-      return {
-        ...assignment,
-        driverName: driver?.name ?? '',
-        conductorName: conductor?.name ?? '',
-        busLicensePlate: bus?.license_plate ?? '',
-      };
-    })
-  );
+  // Fetch all external data in parallel (full lists)
+  const [drivers, conductors, buses] = await Promise.all([
+    fetchDriversFullWithToken(),
+    fetchConductorsFullWithToken(),
+    fetchBusesFullWithToken(),
+  ]);
+
+  // Enrich assignments with driver, conductor, and bus info (in-memory mapping)
+  const assignmentsWithDetails: any[] = data.map((assignment: any) => {
+    const driver = assignment.RegularBusAssignment?.DriverID
+      ? drivers.find((d: any) => d.driver_id === assignment.RegularBusAssignment.DriverID)
+      : null;
+    const conductor = assignment.RegularBusAssignment?.ConductorID
+      ? conductors.find((c: any) => c.conductor_id === assignment.RegularBusAssignment.ConductorID)
+      : null;
+    const bus = assignment.BusID
+      ? buses.find((b: any) => b.busId === assignment.BusID)
+      : null;
+
+    return {
+      ...assignment,
+      driverName: driver?.name ?? '',
+      conductorName: conductor?.name ?? '',
+      busLicensePlate: bus?.license_plate ?? '',
+    };
+  });
 
   return assignmentsWithDetails;
 }
