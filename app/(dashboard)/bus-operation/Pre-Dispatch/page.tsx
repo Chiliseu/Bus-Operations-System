@@ -20,22 +20,29 @@ const BusOperationPage: React.FC = () => {
       driverName?: string;
       conductorName?: string;
       busLicensePlate?: string;
+      busType?: string;
     })[]>([]);
   const [displayedAssignments, setDisplayedAssignments] = useState<(BusAssignment & {
       driverName?: string;
       conductorName?: string;
       busLicensePlate?: string;
+      busType?: string;
     })[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<{ 
+  sortBy: string; 
+  busTypeFilter?: string; 
+}>({
+  sortBy: "created_newest"
+});
 
   const [selectedReadiness, setSelectedReadiness] = useState<any>(null);
 
-  const filterSections: FilterSection[] = [
+ const filterSections: FilterSection[] = [
   {
     id: "sortBy",
     title: "Sort By",
@@ -49,8 +56,21 @@ const BusOperationPage: React.FC = () => {
       { id: "conductor_za", label: "Conductor Z-A" },
       { id: "route_az", label: "Route A-Z" },
       { id: "route_za", label: "Route Z-A" },
+      { id: "created_newest", label: "Created At (Newest First)" },
+      { id: "created_oldest", label: "Created At (Oldest First)" },
+      { id: "updated_newest", label: "Updated At (Newest First)" },
+      { id: "updated_oldest", label: "Updated At (Oldest First)" }
     ],
-    defaultValue: "bus_az"
+    defaultValue: "created_newest"
+  },
+  {
+    id: "busTypeFilter",
+    title: "Bus Type",
+    type: "radio",
+    options: [
+      { id: "Aircon", label: "Aircon" },
+      { id: "Non-Aircon", label: "Non-Aircon" }
+    ]
   }
 ];
 
@@ -69,7 +89,19 @@ const BusOperationPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await fetchBusAssignmentsWithStatus('NotReady');
-      setAssignments(data);
+
+      // Add busType (null for now, placeholder for future integration)
+      const enriched = data.map(a => ({
+        ...a,
+        busType: null  // or set based on some logic if you have
+      }));
+
+      // Sort newest first (by CreatedAt)
+      const sorted = enriched.sort((a, b) =>
+        new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
+      );
+
+      setAssignments(sorted);
     } catch (error) {
       console.error("Error fetching stops:", error);
     } finally {
@@ -81,22 +113,34 @@ const BusOperationPage: React.FC = () => {
     fetchAssignments();
   }, []);
 
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+  setActiveFilters({
+    sortBy: filterValues.sortBy || "created_newest",
+    busTypeFilter: filterValues.busTypeFilter
+  });
+};
 
   useEffect(() => {
     let filtered = [...assignments];
 
+    // Search filter
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.busLicensePlate?.toLowerCase().includes(lower) ||
-          a.driverName?.toLowerCase().includes(lower) ||
-          a.conductorName?.toLowerCase().includes(lower) ||
-          a.Route?.RouteName?.toLowerCase().includes(lower)
+      filtered = filtered.filter(a =>
+        a.busLicensePlate?.toLowerCase().includes(lower) ||
+        a.driverName?.toLowerCase().includes(lower) ||
+        a.conductorName?.toLowerCase().includes(lower) ||
+        a.Route?.RouteName?.toLowerCase().includes(lower)
       );
     }
 
-    switch (sortOrder) {
+    // Bus type filter
+    if (activeFilters.busTypeFilter) {
+      filtered = filtered.filter(a => a.busType === activeFilters.busTypeFilter);
+    }
+
+    // Sort logic
+    switch (activeFilters.sortBy) {
       case "bus_az":
         filtered.sort((a, b) => (a.busLicensePlate || '').localeCompare(b.busLicensePlate || ''));
         break;
@@ -121,15 +165,40 @@ const BusOperationPage: React.FC = () => {
       case "route_za":
         filtered.sort((a, b) => (b.Route?.RouteName || '').localeCompare(a.Route?.RouteName || ''));
         break;
+      case "created_newest":
+        filtered.sort((a, b) => new Date(b.CreatedAt || 0).getTime() - new Date(a.CreatedAt || 0).getTime());
+        break;
+      case "created_oldest":
+        filtered.sort((a, b) => new Date(a.CreatedAt || 0).getTime() - new Date(b.CreatedAt || 0).getTime());
+        break;
+      case "updated_newest":
+        filtered.sort((a, b) => new Date(b.UpdatedAt || 0).getTime() - new Date(a.UpdatedAt || 0).getTime());
+        break;
+      case "updated_oldest":
+        filtered.sort((a, b) => new Date(a.UpdatedAt || 0).getTime() - new Date(b.UpdatedAt || 0).getTime());
+        break;
       default:
         break;
     }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    setDisplayedAssignments(filtered.slice(startIndex, endIndex));
+    // Pagination slice
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    setDisplayedAssignments(filtered.slice(start, end));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [currentPage, assignments, searchQuery, sortOrder, pageSize]);
+  }, [assignments, searchQuery, activeFilters, currentPage, pageSize]);
+
+  // SWITCH 2: DISPLAY TEXT SWITCH  // changes by Y 6/18/2025
+    const renderBusTypeLabel = (busType?: string) => {
+    switch (busType) {
+      case "Aircon":
+        return "Air-conditioned Bus";
+      case "Non-Aircon":
+        return "Ordinary Bus";
+      default:
+        return "Unknown";
+    }
+  };
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -256,7 +325,7 @@ const BusOperationPage: React.FC = () => {
           {/* Sort Dropdown */}
           <FilterDropdown
             sections={filterSections}
-            onApply={(values) => setSortOrder(values.sortBy)}
+            onApply={handleApplyFilters}
           />
         </div>
 
@@ -269,50 +338,64 @@ const BusOperationPage: React.FC = () => {
         ) : (
           <div className={styles.styledTableWrapper}>
             <table className={styles.styledTable}>
-              <thead>
-                <tr>
-                  <th>Bus</th>
-                  <th>Driver</th>
-                  <th>Conductor</th>
-                  <th>Route</th>
-                  <th className={styles.centeredColumn}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedAssignments.length > 0 ? (
-                  displayedAssignments.map((assignment) => (
-                    <tr key={assignment.BusAssignmentID}>
-                      <td>{assignment.busLicensePlate}</td>
-                      <td>{assignment.driverName}</td>
-                      <td>{assignment.conductorName}</td>
-                      <td>{assignment.Route.RouteName}</td>
-                      <td className={styles.centeredColumn}>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEdit(assignment)}
-                        >
-                          <img
-                            src="/assets/images/edit-white.png"
-                            alt="Edit"
-                            width={25}
-                            height={25}
-                          />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+                <thead>
                   <tr>
-                    <td colSpan={4} className={styles.noRecords}>
-                      No records found.
-                    </td>
+                    <th>Bus</th>
+                    <th>Bus Type</th> {/* Added */}
+                    <th>Driver</th>
+                    <th>Conductor</th>
+                    <th>Route</th>
+                    <th>Created At</th> {/* Added */}
+                    <th>Updated At</th> {/* Added */}
+                    <th className={styles.centeredColumn}>Actions</th>
                   </tr>
-                )}
-              </tbody>
+                </thead>
+                  <tbody>
+                    {displayedAssignments.length > 0 ? (
+                      displayedAssignments.map((assignment) => (
+                        <tr key={assignment.BusAssignmentID}>
+                          <td>{assignment.busLicensePlate}</td>
+                          <td>{renderBusTypeLabel(assignment.busType)}</td> {/* Add Bus Type */}
+                          <td>{assignment.driverName}</td>
+                          <td>{assignment.conductorName}</td>
+                          <td>{assignment.Route?.RouteName}</td>
+                          <td>
+                            {assignment.CreatedAt
+                              ? new Date(assignment.CreatedAt).toLocaleString()
+                              : "N/A"}
+                          </td>
+                          <td>
+                            {assignment.UpdatedAt
+                              ? new Date(assignment.UpdatedAt).toLocaleString()
+                              : "No updates"}
+                          </td>
+                          <td className={styles.centeredColumn}>
+                            <button
+                              className={styles.editBtn}
+                              onClick={() => handleEdit(assignment)}
+                            >
+                              <img
+                                src="/assets/images/edit-white.png"
+                                alt="Edit"
+                                width={25}
+                                height={25}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={8} className={styles.noRecords}>
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+
             </table>
           </div>
         )}
-
         {/* Pagination controls */}
         <PaginationComponent
           currentPage={currentPage}

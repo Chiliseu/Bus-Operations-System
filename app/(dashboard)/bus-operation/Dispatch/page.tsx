@@ -4,32 +4,29 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
-import { fetchReadyBusAssignments, fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
+import { fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
-
-// Import interfaces
 import { BusAssignment } from '@/app/interface/bus-assignment';
 
 const BusOperationPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [assignments, setAssignments] = useState<(BusAssignment & {
-        driverName?: string;
-        conductorName?: string;
-        busLicensePlate?: string;
-      })[]>([]);
-  const [displayedAssignments, setDisplayedAssignments] = useState<(BusAssignment & {
-        driverName?: string;
-        conductorName?: string;
-        busLicensePlate?: string;
-      })[]>([]);
+    driverName?: string;
+    conductorName?: string;
+    busLicensePlate?: string;
+    busType?: string;
+  })[]>([]);
+  const [displayedAssignments, setDisplayedAssignments] = useState<typeof assignments>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<{ sortBy: string; busTypeFilter?: string }>({
+    sortBy: 'created_newest'
+  });
 
   const filterSections: FilterSection[] = [
     {
@@ -45,42 +42,72 @@ const BusOperationPage: React.FC = () => {
         { id: "conductor_za", label: "Conductor Z-A" },
         { id: "route_az", label: "Route A-Z" },
         { id: "route_za", label: "Route Z-A" },
+        { id: "created_newest", label: "Created At (Newest First)" },
+        { id: "created_oldest", label: "Created At (Oldest First)" },
+        { id: "updated_newest", label: "Updated At (Newest First)" },
+        { id: "updated_oldest", label: "Updated At (Oldest First)" }
       ],
-      defaultValue: "bus_az"
+      defaultValue: 'created_newest'
+    },
+    {
+      id: "busTypeFilter",
+      title: "Bus Type",
+      type: "radio",
+      options: [
+        { id: "Aircon", label: "Aircon" },
+        { id: "Non-Aircon", label: "Non-Aircon" }
+      ]
     }
   ];
 
   const fetchAssignments = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchBusAssignmentsWithStatus("NotStarted");
-        setAssignments(data);
-      } catch (error) {
-        console.error("Error fetching stops:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    useEffect(() => {
-      fetchAssignments();
-    }, []);
+    try {
+      setLoading(true);
+      const data = await fetchBusAssignmentsWithStatus("NotStarted");
+      const enriched = data.map(a => ({
+        ...a,
+        busType: null // placeholder for future integration
+      }));
+      const sorted = enriched.sort((a, b) =>
+        new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
+      );
+      setAssignments(sorted);
+    } catch (error) {
+      console.error("Error fetching bus assignments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setActiveFilters({
+      sortBy: filterValues.sortBy || 'created_newest',
+      busTypeFilter: filterValues.busTypeFilter
+    });
+  };
 
   useEffect(() => {
     let filtered = [...assignments];
 
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.busLicensePlate?.toLowerCase().includes(lower) ||
-          a.driverName?.toLowerCase().includes(lower) ||
-          a.conductorName?.toLowerCase().includes(lower) ||
-          a.Route?.RouteName?.toLowerCase().includes(lower)
+      filtered = filtered.filter(a =>
+        a.busLicensePlate?.toLowerCase().includes(lower) ||
+        a.driverName?.toLowerCase().includes(lower) ||
+        a.conductorName?.toLowerCase().includes(lower) ||
+        a.Route?.RouteName?.toLowerCase().includes(lower)
       );
     }
 
-    switch (sortOrder) {
+    if (activeFilters.busTypeFilter) {
+      filtered = filtered.filter(a => a.busType === activeFilters.busTypeFilter);
+    }
+
+    switch (activeFilters.sortBy) {
       case "bus_az":
         filtered.sort((a, b) => (a.busLicensePlate || '').localeCompare(b.busLicensePlate || ''));
         break;
@@ -105,15 +132,27 @@ const BusOperationPage: React.FC = () => {
       case "route_za":
         filtered.sort((a, b) => (b.Route?.RouteName || '').localeCompare(a.Route?.RouteName || ''));
         break;
+      case "created_newest":
+        filtered.sort((a, b) => new Date(b.CreatedAt || 0).getTime() - new Date(a.CreatedAt || 0).getTime());
+        break;
+      case "created_oldest":
+        filtered.sort((a, b) => new Date(a.CreatedAt || 0).getTime() - new Date(b.CreatedAt || 0).getTime());
+        break;
+      case "updated_newest":
+        filtered.sort((a, b) => new Date(b.UpdatedAt || 0).getTime() - new Date(a.UpdatedAt || 0).getTime());
+        break;
+      case "updated_oldest":
+        filtered.sort((a, b) => new Date(a.UpdatedAt || 0).getTime() - new Date(b.UpdatedAt || 0).getTime());
+        break;
       default:
         break;
     }
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    setDisplayedAssignments(filtered.slice(startIndex, endIndex));
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    setDisplayedAssignments(filtered.slice(start, end));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [currentPage, assignments, searchQuery, sortOrder, pageSize]);
+  }, [assignments, searchQuery, activeFilters, currentPage, pageSize]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -134,8 +173,8 @@ const BusOperationPage: React.FC = () => {
     if (result.isConfirmed) {
       try {
         await updateBusAssignmentData(BusAssignmentID, { Status: "InOperation" });
-        Swal.fire('Success', 'Bus dispatched successfully!', 'success');
-        fetchAssignments(); // Refresh the list
+        await Swal.fire('Success', 'Bus dispatched successfully!', 'success');
+        fetchAssignments();
       } catch (error: any) {
         Swal.fire('Error', error.message || 'Failed to dispatch bus', 'error');
       }
@@ -145,12 +184,9 @@ const BusOperationPage: React.FC = () => {
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
-        {/* Page title */}
         <h2 className={styles.stopTitle}>Dispatch Bus Operation</h2>
 
-        {/* Search and Sort inputs */}
         <div className={styles.toolbar}>
-          {/* Search Input */}
           <div className={styles.searchWrapper}>
             <i className="ri-search-2-line"></i>
             <input
@@ -162,47 +198,58 @@ const BusOperationPage: React.FC = () => {
             />
           </div>
 
-          {/* Sort Dropdown */}
           <FilterDropdown
             sections={filterSections}
-            onApply={(values) => setSortOrder(values.sortBy)}
+            onApply={handleApplyFilters}
           />
         </div>
 
-        {/* Description */}
         <p className={styles.description}>Check buses that are ready for dispatch</p>
 
-        {/* Loading centered in the card */}
         {loading ? (
-          <Loading/>
+          <Loading />
         ) : (
           <div className={styles.styledTableWrapper}>
             <table className={styles.styledTable}>
               <thead>
                 <tr>
                   <th>Bus</th>
+                  <th>Bus Type</th>
                   <th>Driver</th>
                   <th>Conductor</th>
                   <th>Route</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
                   <th className={styles.centeredColumn}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {displayedAssignments.length > 0 ? (
-                  displayedAssignments.map((assignment) => (
+                  displayedAssignments.map(assignment => (
                     <tr key={assignment.BusAssignmentID}>
                       <td>{assignment.busLicensePlate}</td>
+                      <td>{"Unknown"}</td>
                       <td>{assignment.driverName}</td>
                       <td>{assignment.conductorName}</td>
                       <td>{assignment.Route?.RouteName ?? "No Route"}</td>
+                      <td>
+                        {assignment.CreatedAt
+                          ? new Date(assignment.CreatedAt).toLocaleString()
+                          : "N/A"}
+                      </td>
+                      <td>
+                        {assignment.UpdatedAt
+                          ? new Date(assignment.UpdatedAt).toLocaleString()
+                          : "No updates"}
+                      </td>
                       <td className={styles.centeredColumn}>
                         <button
                           className={styles.editBtn}
-                          onClick={() => {handleDispatch(assignment.BusAssignmentID)}}
+                          onClick={() => handleDispatch(assignment.BusAssignmentID)}
                         >
                           <img
                             src="/assets/images/edit-white.png"
-                            alt="Edit"
+                            alt="Dispatch"
                             width={25}
                             height={25}
                           />
@@ -212,7 +259,7 @@ const BusOperationPage: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className={styles.noRecords}>
+                    <td colSpan={8} className={styles.noRecords}>
                       No records found.
                     </td>
                   </tr>
@@ -222,13 +269,12 @@ const BusOperationPage: React.FC = () => {
           </div>
         )}
 
-        {/* Pagination controls */}
         <PaginationComponent
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
           onPageChange={handlePageChange}
-          onPageSizeChange={(size: number) => {
+          onPageSizeChange={size => {
             setPageSize(size);
             setCurrentPage(1);
           }}
@@ -236,7 +282,6 @@ const BusOperationPage: React.FC = () => {
       </div>
     </div>
   );
-
 };
 
 export default BusOperationPage;
