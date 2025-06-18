@@ -70,13 +70,12 @@ const BusOperationPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await fetchBusAssignmentsWithStatus('InOperation');
-      const enriched = data.map(a => ({
-        ...a,
-        busType: null // Placeholder for future integration
-      }));
-      const sorted = enriched.sort((a, b) =>
+
+      
+      const sorted = data.sort((a, b) =>
         new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
       );
+
       setAssignments(sorted);
     } catch (error) {
       console.error('Error fetching assignments:', error);
@@ -166,6 +165,7 @@ const BusOperationPage: React.FC = () => {
     }
   };
 
+  // SWITCH 2: DISPLAY TEXT SWITCH  // changes by Y 6/18/2025
   const renderBusTypeLabel = (busType?: string) => {
     switch (busType) {
       case 'Aircon':

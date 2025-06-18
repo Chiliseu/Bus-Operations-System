@@ -90,20 +90,14 @@ const BusOperationPage: React.FC = () => {
     try {
       const data = await fetchBusAssignmentsWithStatus('NotReady');
 
-      // Add busType (null for now, placeholder for future integration)
-      const enriched = data.map(a => ({
-        ...a,
-        busType: null  // or set based on some logic if you have
-      }));
-
       // Sort newest first (by CreatedAt)
-      const sorted = enriched.sort((a, b) =>
+      const sorted = data.sort((a, b) =>
         new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
       );
 
       setAssignments(sorted);
     } catch (error) {
-      console.error("Error fetching stops:", error);
+      console.error("Error fetching assignments:", error);
     } finally {
       setLoading(false);
     }
