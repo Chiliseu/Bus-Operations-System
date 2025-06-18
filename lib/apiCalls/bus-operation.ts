@@ -44,6 +44,7 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
       driverName: driver?.name ?? '',
       conductorName: conductor?.name ?? '',
       busLicensePlate: bus?.license_plate ?? '',
+      busType: bus?.type ?? '',
     };
   });
 
@@ -97,6 +98,7 @@ export async function fetchReadyBusAssignments(): Promise<any[]> {
       driverName: driver?.name ?? '',
       conductorName: conductor?.name ?? '',
       busLicensePlate: bus?.license_plate ?? '',
+      busType: bus?.type ?? '',
     };
   });
 
