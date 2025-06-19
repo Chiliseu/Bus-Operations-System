@@ -25,6 +25,9 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   const [isQuotaMet, setIsQuotaMet] = useState(true); // Default to false (Not Met)
   const [quotaType, setQuotaType] = useState<'fixed' | 'percentage'>('percentage');
 
+  // Radio button trip expense type  
+  const [paymentMethod, setPaymentMethod] = useState<'reimbursement' | 'companycash'>('reimbursement');
+
 
   return (
     <div className={styles.overlay}>
@@ -96,14 +99,42 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             <hr />
 
             {/* Ticket and Expense Info */}
-            <div className="grid grid-cols-2 gap-4 text-base">
+            <div className="grid grid-cols-3 gap-4 text-base">
               <div>
                 <label className="block font-semibold text-gray-700 mb-1">Latest Ticket ID:</label>
                 <input type="text" className="w-full border border-gray-300 rounded-md p-2" />
               </div>
               <div>
-                <label className="block font-semibold text-gray-700 mb-1">Fuel Expense:</label>
-                <input type="number" className="w-full border border-gray-300 rounded-md p-2" placeholder="₱ 0.00" />
+                <label className="block font-semibold text-gray-700 mb-1">Trip Expense:</label>
+                <input type="number" className="w-full border border-gray-300 rounded-md p-2" placeholder="₱ 0.00" />                
+              </div>
+              {/* Radio Button: Imbursement/Company Cash */}
+              <div className="flex flex-col items-start">
+                <label className="block font-semibold text-gray-700">Payment Method:</label>
+                <label>
+                  <div className="flex flex-row gap-1">
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="reimbursement" 
+                      checked={paymentMethod === 'reimbursement'}
+                      onChange={() => setPaymentMethod('reimbursement')}
+                    />
+                    <span>Reimbursement</span>
+                  </div>
+                </label>
+                <label>
+                  <div className="flex flex-row gap-1">
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="companycash"
+                      checked={paymentMethod === 'companycash'}
+                      onChange={() => setPaymentMethod('companycash')}
+                    />
+                    <span>Company Cash</span>
+                  </div>
+                </label>
               </div>
               <div>
                 <label className="block font-semibold text-gray-700 mb-1">Sales:</label>
