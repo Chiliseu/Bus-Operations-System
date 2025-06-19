@@ -19,7 +19,16 @@ const DashboardPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Bus Earnings");
 
   const [dashboard, setDashboard] = useState<{
-    earnings: { month: number; year: number; data: number[] };
+    earnings: {
+      month: number;
+      year: number;
+      data: number[];
+      previous?: {
+        month: number;
+        year: number;
+        data: number[];
+      };
+    };
     busStatus: { NotStarted: number; NotReady: number; InOperation: number };
     topRoutes: { [routeName: string]: number };
   } | null>(null);
@@ -35,6 +44,7 @@ const DashboardPage: React.FC = () => {
   const earnings = dashboard?.earnings;
   const busStatus = dashboard?.busStatus;
   const topRoutes = dashboard?.topRoutes;
+  const previous = earnings?.previous;
 
   const todayDay = new Date().getDate();
   const todayIndex = todayDay - 1;
@@ -65,8 +75,14 @@ const DashboardPage: React.FC = () => {
     ? earnings.data.reduce((acc, num) => acc + num, 0)
     : 0;
 
-  // Since you have no last month total, we will just display static text or skip monthly trend
-  // Or you can later compute from API
+  const previousMonthTotal = previous
+  ? previous.data.reduce((acc, num) => acc + num, 0)
+  : 0;
+
+  const monthlyTrend =
+    previousMonthTotal > 0
+      ? ((thisMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
+      : 0;
 
   return (
     <div className={styles.wideCard}>
@@ -109,9 +125,9 @@ const DashboardPage: React.FC = () => {
               <h3 className={styles.amount}>
                 ₱{thisMonthTotal.toLocaleString()}
               </h3>
-              {/* No dynamic trend here since no lastMonthTotal */}
-              <p className={styles.trendDown}>
-                −15% lower than last month
+              <p className={`${styles.trend} ${monthlyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                {monthlyTrend >= 0 ? "+" : "−"}
+                {Math.abs(monthlyTrend).toFixed(2)}% {monthlyTrend >= 0 ? "higher" : "lower"} than last month
               </p>
             </div>
           </div>
