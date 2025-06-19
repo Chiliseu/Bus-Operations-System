@@ -51,60 +51,6 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
   return assignmentsWithDetails;
 }
 
-export async function fetchReadyBusAssignments(): Promise<any[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
-  if (!baseUrl) {
-    throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  const url = `${baseUrl}/api/bus-operations/ready-assignments`;
-
-  const response = await fetch(url, {
-    method: "GET",
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json();
-    throw new Error(
-      `Failed to fetch verified bus assignments: ${errorBody.error || response.statusText}`
-    );
-  }
-
-  const data = await response.json();
-
-  // Fetch all external data in parallel (full lists)
-  const [drivers, conductors, buses] = await Promise.all([
-    fetchDriversFullWithToken(),
-    fetchConductorsFullWithToken(),
-    fetchBusesFullWithToken(),
-  ]);
-
-  // Enrich assignments with driver, conductor, and bus info (in-memory mapping)
-  const assignmentsWithDetails: any[] = data.map((assignment: any) => {
-    const driver = assignment.RegularBusAssignment?.DriverID
-      ? drivers.find((d: any) => d.driver_id === assignment.RegularBusAssignment.DriverID)
-      : null;
-    const conductor = assignment.RegularBusAssignment?.ConductorID
-      ? conductors.find((c: any) => c.conductor_id === assignment.RegularBusAssignment.ConductorID)
-      : null;
-    const bus = assignment.BusID
-      ? buses.find((b: any) => b.busId === assignment.BusID)
-      : null;
-
-    return {
-      ...assignment,
-      driverName: driver?.name ?? '',
-      conductorName: conductor?.name ?? '',
-      busLicensePlate: bus?.license_plate ?? '',
-      busType: bus?.type ?? '',
-    };
-  });
-
-  return assignmentsWithDetails;
-}
-
 export async function updateBusAssignmentData(BusAssignmentID: string, data: any): Promise<any> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
