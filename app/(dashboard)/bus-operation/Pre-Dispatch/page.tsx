@@ -230,6 +230,7 @@ const BusOperationPage: React.FC = () => {
       tickets: assignment.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((t: any) => ({
         type: t.TicketType?.TicketTypeID ?? "",
         StartingIDNumber: t.StartingIDNumber,
+        EndingIDNumber: t.EndingIDNumber, // <-- Add this line
       })) ?? [],
     });
 
@@ -242,7 +243,7 @@ const BusOperationPage: React.FC = () => {
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean; };
     changeFunds: number;
-    tickets: { type: string; StartingIDNumber: number }[];
+    tickets: { type: string; StartingIDNumber: number; EndingIDNumber: number }[];
   }): Promise<boolean> => {
     try {
       setLoadingModal(true);
@@ -250,6 +251,7 @@ const BusOperationPage: React.FC = () => {
       // Convert tickets to TicketBusTrips format
       const TicketBusTrips = data.tickets.map(ticket => ({
         StartingIDNumber: Number(ticket.StartingIDNumber),
+        EndingIDNumber: Number(ticket.EndingIDNumber), // Include EndingIDNumber
         TicketTypeID: ticket.type,
       }));
 
