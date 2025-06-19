@@ -43,31 +43,33 @@ const DashboardPage: React.FC = () => {
   const yesterdayIndex = todayIndex - 1;
   const yesterdayEarnings = earnings ? earnings.data[yesterdayIndex] || 0 : 0;
 
-  const yesterdayChange =
-    yesterdayEarnings > 0
-      ? Math.abs(((todayEarnings - yesterdayEarnings) / yesterdayEarnings) * 100).toFixed(2)
-      : "0.00";
+  const yesterdayChange = yesterdayEarnings > 0
+    ? ((todayEarnings - yesterdayEarnings) / yesterdayEarnings) * 100
+    : 0;
 
-  // This week: last 7 days including today
   const thisWeekEarnings = earnings
     ? earnings.data.slice(Math.max(todayIndex - 6, 0), todayIndex + 1).reduce((acc, num) => acc + num, 0)
     : 0;
 
-  // Last week: 7 days before this week
   const lastWeekStart = Math.max(todayIndex - 13, 0);
   const lastWeekEnd = Math.max(todayIndex - 7, 0);
   const lastWeekEarnings = earnings
     ? earnings.data.slice(lastWeekStart, lastWeekEnd + 1).reduce((acc, num) => acc + num, 0)
     : 0;
 
-  const weeklyTrend =
-    lastWeekEarnings > 0
-      ? (((thisWeekEarnings - lastWeekEarnings) / lastWeekEarnings) * 100).toFixed(2)
-      : "0.00";
+  const weeklyTrend = lastWeekEarnings > 0
+    ? ((thisWeekEarnings - lastWeekEarnings) / lastWeekEarnings) * 100
+    : 0;
+
+  const thisMonthTotal = earnings
+    ? earnings.data.reduce((acc, num) => acc + num, 0)
+    : 0;
+
+  // Since you have no last month total, we will just display static text or skip monthly trend
+  // Or you can later compute from API
 
   return (
     <div className={styles.wideCard}>
-      {/* Segmented Control */}
       <div className="mb-4">
         <SegmentedControl
           options={["Bus Earnings", "Bus Status", "Top Performing Routes"]}
@@ -76,43 +78,46 @@ const DashboardPage: React.FC = () => {
         />
       </div>
 
-      {/* Conditional Rendering */}
       {selectedTab === "Bus Earnings" && earnings && (
         <>
           <div className={styles.heading}>Bus Total Earnings</div>
           <div className="grid gap-13 sm:grid-cols-3">
-            {/* Today's Earnings */}
             <div className={styles.reportCard}>
               <p className={styles.cardTitle}>
                 Today ({monthString(earnings.month)} {todayDay})
               </p>
               <h3 className={styles.amount}>₱{todayEarnings.toLocaleString()}</h3>
-              <p className={styles.trend}>
+              <p className={`${styles.trend} ${todayEarnings >= yesterdayEarnings ? styles.trendUp : styles.trendDown}`}>
                 {todayEarnings >= yesterdayEarnings ? "+" : "−"}
-                {yesterdayChange}% from yesterday
+                {Math.abs(yesterdayChange).toFixed(2)}% from yesterday
               </p>
             </div>
 
-            {/* Weekly Earnings */}
             <div className={styles.reportCard}>
               <p className={styles.cardTitle}>This week</p>
               <h3 className={styles.amount}>₱{thisWeekEarnings.toLocaleString()}</h3>
-              <p className={styles.trend}>+{weeklyTrend}% from last week</p>
+              <p className={`${styles.trend} ${weeklyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                {weeklyTrend >= 0 ? "+" : "−"}
+                {Math.abs(weeklyTrend).toFixed(2)}% from last week
+              </p>
             </div>
 
-            {/* Monthly Earnings */}
             <div className={styles.reportCard}>
               <p className={styles.cardTitle}>
                 This month ({monthString(earnings.month)})
               </p>
               <h3 className={styles.amount}>
-                ₱{earnings.data.reduce((acc, num) => acc + num, 0).toLocaleString()}
+                ₱{thisMonthTotal.toLocaleString()}
               </h3>
-              <p className={styles.trend}>−15% lower than last month</p>
+              {/* No dynamic trend here since no lastMonthTotal */}
+              <p className={styles.trendDown}>
+                −15% lower than last month
+              </p>
             </div>
           </div>
+
           <div className="w-full my-3">
-            <ThisMonthGraph earnings={{ ...earnings, day: new Date().getDate() }} />
+            <ThisMonthGraph earnings={{ ...earnings, day: todayDay }} />
           </div>
         </>
       )}

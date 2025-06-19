@@ -36,6 +36,13 @@
 
 .trend {
   font-size: 14px;
-  color: #828282;
   font-weight: 500;
+}
+
+.trendUp {
+  color: green;
+}
+
+.trendDown {
+  color: red;
 }
