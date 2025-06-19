@@ -59,6 +59,8 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
         IsDeleted: false,
         latitude: "",
         longitude: "",
+        CreatedAt: "",
+        UpdatedAt: "",
       },
     ]);
   };

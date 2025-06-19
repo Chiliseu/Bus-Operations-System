@@ -6,6 +6,8 @@ import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import PostDispatchModal from '@/components/modal/Post-Dispatch-Modal/PostDispatchModal';
 import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
+import { updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
+
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -25,6 +27,7 @@ const BusOperationPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [activeFilters, setActiveFilters] = useState<{ 
     sortBy: string;
     busTypeFilter?: string;
@@ -182,6 +185,40 @@ const BusOperationPage: React.FC = () => {
     setShowPostDispatchModal(true);
   };
 
+  const handleSavePostDispatch = async (formData: {
+    sales: number;
+    tripExpense: number;
+    paymentMethod: 'reimbursement' | 'companycash';
+    latestTicketIds: number[];
+    remarks: string;
+    busAssignmentID: string;
+  }) => {
+    try {
+      setLoadingModal(true);
+      // Prepare the data to send to the backend
+      const dataToSend = {
+        Sales: formData.sales,
+        TripExpense: formData.tripExpense,
+        PaymentMethod: formData.paymentMethod,
+        LatestTicketIds: formData.latestTicketIds,
+        Remarks: formData.remarks,
+      };
+
+      await updateBusAssignmentData(formData.busAssignmentID, dataToSend);
+      setLoadingModal(false);
+
+      // Optionally, refresh assignments or close modal here
+      fetchAssignments();
+      setShowPostDispatchModal(false);
+      setSelectedBusInfo(null);
+      // Optionally show a success Swal here
+    } catch (error: any) {
+      setLoadingModal(false);
+      // Optionally show an error Swal here
+      console.error('Failed to update bus assignment:', error);
+    }
+  };
+
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
@@ -275,8 +312,11 @@ const BusOperationPage: React.FC = () => {
               setSelectedBusInfo(null);
             }}
             busInfo={selectedBusInfo}
+            onSave={handleSavePostDispatch} // <-- pass the handler as a prop
           />
         )}
+
+        {loadingModal && <LoadingModal/>}
       </div>
     </div>
   );
