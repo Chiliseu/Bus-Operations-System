@@ -27,6 +27,9 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   const [isQuotaMet, setIsQuotaMet] = useState(true); // Default to false (Not Met)
   const [quotaType, setQuotaType] = useState<'fixed' | 'percentage'>('percentage');
   const [activeQuota, setActiveQuota] = useState<any>(null);
+  const ticketBusTrips = busInfo.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips ?? [];
+  const [tripExpense, setTripExpense] = useState<number>(0);
+  const [tripExpenseType, setTripExpenseType] = useState<'Reimbursement' | 'Company Cash'>('Company Cash');
 
   // Radio button trip expense type  
   const [paymentMethod, setPaymentMethod] = useState<'reimbursement' | 'companycash'>('reimbursement');
@@ -84,17 +87,40 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             {/* Conditional Rendering Based on quotaType */}
             {activeQuota?.Fixed ? (
                 <>
+                  {/* Quota to be Met (now Total Required) */}
                   <div className="text-center font-bold text-2xl text-green-600 mb-4">
-                    ₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    ₱ {(
+                      (activeQuota.Fixed.Quota ?? 0) +
+                      (busInfo.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0) -
+                      (paymentMethod === 'reimbursement' ? tripExpense : 0)
+                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </div>
+                  <div className="flex items-center justify-center text-lg text-gray-700 mb-2">
+                    <div className="flex flex-col items-center mx-2">
+                      <div className="font-semibold">Base Quota</div>
+                      <div className="font-bold">
+                        ₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                    <div className="mx-2 text-2xl font-bold">+</div>
+                    <div className="flex flex-col items-center mx-2">
+                      <div className="font-semibold">Change Fund</div>
+                      <div className="font-bold">
+                        ₱ {busInfo.RegularBusAssignment?.LatestBusTrip?.ChangeFund?.toLocaleString(undefined, { minimumFractionDigits: 2 }) ?? "0.00"}
+                      </div>
+                    </div>
+                    <div className="mx-2 text-2xl font-bold">-</div>
+                    <div className="flex flex-col items-center mx-2">
+                      <div className="font-semibold">Trip Expense</div>
+                      <div className="font-bold">
+                        ₱ {(paymentMethod === 'reimbursement'
+                          ? tripExpense
+                          : 0
+                        ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                    </div>
                   </div>
                   <div className="border-b border-gray-300 mb-4"></div>
-                  <div className="flex justify-between text-center text-lg text-gray-700">
-                    <div>
-                      <div className="font-semibold">Base Quota</div>
-                      <div className="font-bold">₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-                    </div>
-                    {/* You can add Change Fund and Total Required if you have those values */}
-                  </div>
                 </>
               ) : activeQuota?.Percentage ? (
                 <>
@@ -122,13 +148,33 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
 
             {/* Ticket and Expense Info */}
             <div className="grid grid-cols-3 gap-4 text-base">
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Latest Ticket ID:</label>
-                <input type="text" className="w-full border border-gray-300 rounded-md p-2" />
-              </div>
+              {/* Latest Ticket ID Inputs */}
+              {ticketBusTrips.length > 0 && (
+                <div className="grid grid-cols-3 gap-4 text-base">
+                  {ticketBusTrips.map((tbt, idx) => (
+                    <div key={tbt.TicketBusTripID || idx}>
+                      <label className="block font-semibold text-gray-700 mb-1">
+                        ₱{tbt.TicketType?.Value} Latest Ticket ID
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-md p-2"
+                        // value={...} // You can manage state for each input if needed
+                        // onChange={...}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
               <div>
                 <label className="block font-semibold text-gray-700 mb-1">Trip Expense:</label>
-                <input type="number" className="w-full border border-gray-300 rounded-md p-2" placeholder="₱ 0.00" />                
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 rounded-md p-2"
+                  placeholder="₱ 0.00"
+                  value={tripExpense}
+                  onChange={e => setTripExpense(Number(e.target.value) || 0)}
+                />              
               </div>
               {/* Radio Button: Imbursement/Company Cash */}
               <div className="flex flex-col items-start">
