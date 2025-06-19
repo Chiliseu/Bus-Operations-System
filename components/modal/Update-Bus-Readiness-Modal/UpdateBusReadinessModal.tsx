@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchAllTicketTypes } from "@/lib/apiCalls/ticket-types";
 import styles from "./update-bus-readiness.module.css";
+import Swal from 'sweetalert2';
 
 interface Ticket {
   type: string;
@@ -125,7 +126,40 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     );
   };
 
+  const validateTickets = () => {
+    let hasTypeError = false;
+    let hasSameIdError = false;
+
+    for (const ticket of tickets) {
+      if (!ticket.type) {
+        hasTypeError = true;
+      }
+      if (
+        ticket.StartingIDNumber != null &&
+        ticket.EndingIDNumber != null &&
+        ticket.StartingIDNumber === ticket.EndingIDNumber
+      ) {
+        hasSameIdError = true;
+      }
+    }
+
+    const errors: string[] = [];
+    if (hasTypeError) errors.push('Select a ticket type.');
+    if (hasSameIdError) errors.push('Start and End ID number cannot be the same.');
+
+    return errors;
+  };
+
   const handleSave = async () => {
+    const errors = validateTickets();
+    if (errors.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        html: errors.map(e => `<div>${e}</div>`).join(''),
+      });
+      return;
+    }
     const success = await onSave({
       regularBusAssignmentID: busInfo.regularBusAssignmentID,
       vehicleCondition,

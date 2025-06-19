@@ -201,7 +201,6 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = async (assignment: any) => {
-    console.log(JSON.stringify(assignment));
     setSelectedBusInfo({
       regularBusAssignmentID: assignment.BusAssignmentID,
       busNumber: assignment.busLicensePlate,
@@ -271,12 +270,10 @@ const BusOperationPage: React.FC = () => {
         ResetCompleted: false,
         // The following fields are placeholders; replace with real values if available
         ChangeFund: data.changeFunds ?? 0,
-        TicketBusTrips,
         DispatchedAt: null,
         Sales: null,
+        ...(TicketBusTrips.length > 0 && { TicketBusTrips }), // Only include if not empty
       };
-
-      console.log(apiData);
 
       await updateBusAssignmentData(data.regularBusAssignmentID, apiData);
       setLoadingModal(false);

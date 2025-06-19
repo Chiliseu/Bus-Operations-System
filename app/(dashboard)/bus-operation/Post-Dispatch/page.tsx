@@ -178,12 +178,7 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = (assignment: any) => {
-    setSelectedBusInfo({
-      BusAssignmentID: assignment.BusAssignmentID,
-      BusId: assignment.busLicensePlate,
-      Self_Driver: assignment.driverName,
-      Self_Conductor: assignment.conductorName
-    });
+    setSelectedBusInfo(assignment); // Pass the whole assignment object
     setShowPostDispatchModal(true);
   };
 

@@ -4,15 +4,17 @@ import React, { useState, useEffect } from "react";
 import styles from "./post-dispatch-modal.module.css";
 import { TicketType } from "@/app/interface";
 import { TicketBusTrip } from "@/app/interface";
+import type { BusAssignment } from "@/app/interface/bus-assignment";
+
 
 interface BusAssignmentModalProps {
   show: boolean;
   onClose: () => void;
-  busInfo: {
-    BusAssignmentID: string;
-    BusId: string;
-    Self_Driver: string;
-    Self_Conductor: string;
+  busInfo: BusAssignment & {
+    driverName?: string;
+    conductorName?: string;
+    busLicensePlate?: string;
+    busType?: string;
   };
 }
 
@@ -24,10 +26,35 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   // Define a variable for Quota Status
   const [isQuotaMet, setIsQuotaMet] = useState(true); // Default to false (Not Met)
   const [quotaType, setQuotaType] = useState<'fixed' | 'percentage'>('percentage');
+  const [activeQuota, setActiveQuota] = useState<any>(null);
 
   // Radio button trip expense type  
   const [paymentMethod, setPaymentMethod] = useState<'reimbursement' | 'companycash'>('reimbursement');
 
+  useEffect(() => {
+    if (!busInfo?.RegularBusAssignment?.QuotaPolicies) return;
+
+    const today = new Date();
+    const todayISO = today.toISOString();
+
+    // Find the quota policy for today
+    // const found = busInfo.RegularBusAssignment.QuotaPolicies.find(qp => {
+    const found = busInfo.RegularBusAssignment.QuotaPolicies.find(qp => {
+      const start = new Date(qp.StartDate);
+      const end = new Date(qp.EndDate);
+      return today >= start && today <= end;
+    });
+
+    setActiveQuota(found || null);
+
+    if (found) {
+      if (found.Fixed) {
+        setQuotaType('fixed');
+      } else if (found.Percentage) {
+        setQuotaType('percentage');
+      }
+    }
+  }, [busInfo]);
 
   return (
     <div className={styles.overlay}>
@@ -43,9 +70,9 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             {/* Bus Information */}
             <h4 className={styles.sectionTitle}>Bus Assignment Information</h4>
             <div className="flex justify-center gap-20 h-5">
-              <p><strong>Bus:</strong> {busInfo.BusId}</p>
-              <p><strong>Driver:</strong> {busInfo.Self_Driver}</p>
-              <p><strong>Conductor:</strong> {busInfo.Self_Conductor}</p>
+              <p><strong>Bus:</strong> {busInfo.busLicensePlate}</p>
+              <p><strong>Driver:</strong> {busInfo.driverName}</p>
+              <p><strong>Conductor:</strong> {busInfo.conductorName}</p>
             </div>
             <hr />
             
@@ -55,45 +82,40 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             </div>
 
             {/* Conditional Rendering Based on quotaType */}
-            {quotaType === 'fixed' ? (
-              <>
-                <div className="text-center font-bold text-2xl text-green-600 mb-4">
-                  ₱ 500.00
-                </div>
-                <div className="border-b border-gray-300 mb-4"></div>
-                <div className="flex justify-between text-center text-lg text-gray-700">
-                  <div>
-                    <div className="font-semibold">Base Quota</div>
-                    <div className="font-bold">₱ 450.00</div>
+            {activeQuota?.Fixed ? (
+                <>
+                  <div className="text-center font-bold text-2xl text-green-600 mb-4">
+                    ₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
-                  <div>
-                    <div className="font-semibold">Change Fund</div>
-                    <div className="font-bold">₱ 50.00</div>
+                  <div className="border-b border-gray-300 mb-4"></div>
+                  <div className="flex justify-between text-center text-lg text-gray-700">
+                    <div>
+                      <div className="font-semibold">Base Quota</div>
+                      <div className="font-bold">₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    {/* You can add Change Fund and Total Required if you have those values */}
                   </div>
-                  <div>
-                    <div className="font-semibold">Total Required</div>
-                    <div className="font-bold">₱ 500.00</div>
+                </>
+              ) : activeQuota?.Percentage ? (
+                <>
+                  <div className="text-center font-bold text-2xl text-blue-600 mb-4">
+                    Company Share: {activeQuota.Percentage.Percentage}%
                   </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="text-center font-bold text-2xl text-blue-600 mb-4">
-                  Company Share: 70%
-                </div>
-                <div className="border-b border-gray-300 mb-4"></div>
-                <div className="flex justify-between text-center text-lg text-gray-700">
-                  <div>
-                    <div className="font-semibold">Company Gets</div>
-                    <div className="font-bold">70%</div>
+                  <div className="border-b border-gray-300 mb-4"></div>
+                  <div className="flex justify-between text-center text-lg text-gray-700">
+                    <div>
+                      <div className="font-semibold">Company Gets</div>
+                      <div className="font-bold">{activeQuota.Percentage.Percentage}%</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold">Remaining Share</div>
+                      <div className="font-bold">{100 - activeQuota.Percentage.Percentage}%</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-semibold">Remaining Share</div>
-                    <div className="font-bold">30%</div>
-                  </div>
-                </div>
-              </>
-            )}
+                </>
+              ) : (
+                <div className="text-center text-red-500">No active quota policy for today.</div>
+              )}
           </div>
 
             <hr />

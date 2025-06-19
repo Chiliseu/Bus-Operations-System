@@ -139,7 +139,7 @@ const Sidebar: React.FC = () => {
             </div>
           )}
 
-          <Link
+          {/* <Link
             href="/gps"
             className={`nav-item ${activeItem === 'gps' ? 'active' : ''}`}
             onClick={() => setActiveItem('gps')}
@@ -152,7 +152,7 @@ const Sidebar: React.FC = () => {
               height={24}
             />
             <span>GPS</span>
-          </Link>
+          </Link> */}
 
           <div
             className={`nav-item module ${isBusOperationActive ? 'active' : ''}`}
@@ -199,7 +199,7 @@ const Sidebar: React.FC = () => {
             </div>
           )}
 
-          <Link
+          {/* <Link
             href="/bus-rental"
             className={`nav-item ${activeItem === 'bus-rental' ? 'active' : ''}`}
             onClick={() => setActiveItem('bus-rental')}
@@ -227,7 +227,7 @@ const Sidebar: React.FC = () => {
               height={24}
             />
             <span>Performance Report</span>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="logout">
