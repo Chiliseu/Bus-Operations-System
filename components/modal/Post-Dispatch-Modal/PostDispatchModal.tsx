@@ -347,7 +347,13 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             {/* Inspector Remarks */}
             <div className="mt-4">
               <label className="block font-semibold text-gray-700 mb-1">Inspector Remarks:</label>
-              <textarea className="w-full border border-gray-300 rounded-md p-2" rows={3} placeholder="Enter remarks"></textarea>
+              <textarea
+                className="w-full border border-gray-300 rounded-md p-2"
+                rows={3}
+                placeholder="Enter remarks"
+                value={remarks}
+                onChange={e => setRemarks(e.target.value)}
+              />
             </div>
           </div>
         </div>

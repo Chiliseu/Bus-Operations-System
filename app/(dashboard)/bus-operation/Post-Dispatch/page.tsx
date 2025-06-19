@@ -195,26 +195,45 @@ const BusOperationPage: React.FC = () => {
   }) => {
     try {
       setLoadingModal(true);
+
+      // Prepare TicketBusTrips array with all required fields
+      const ticketBusTrips =
+        selectedBusInfo?.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((tbt: any, idx: number) => ({
+          TicketBusTripID: tbt.TicketBusTripID,
+          TicketTypeID: tbt.TicketType?.TicketTypeID,
+          StartingIDNumber: tbt.StartingIDNumber,
+          EndingIDNumber: tbt.EndingIDNumber,
+          OverallEndingID: formData.latestTicketIds[idx],
+        })) ?? [];
+
       // Prepare the data to send to the backend
       const dataToSend = {
-        Sales: formData.sales,
         TripExpense: formData.tripExpense,
-        PaymentMethod: formData.paymentMethod,
-        LatestTicketIds: formData.latestTicketIds,
+        Payment_Method: formData.paymentMethod === 'companycash' ? 'Company_Cash' : 'Reimbursement',
+        Sales: formData.sales,
         Remarks: formData.remarks,
+        ResetCompleted: true,
+        TicketBusTrips: ticketBusTrips,
       };
 
       await updateBusAssignmentData(formData.busAssignmentID, dataToSend);
       setLoadingModal(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Bus readiness updated successfully!',
+      });
 
-      // Optionally, refresh assignments or close modal here
       fetchAssignments();
       setShowPostDispatchModal(false);
       setSelectedBusInfo(null);
-      // Optionally show a success Swal here
     } catch (error: any) {
       setLoadingModal(false);
-      // Optionally show an error Swal here
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to update bus readiness.',
+      });
       console.error('Failed to update bus assignment:', error);
     }
   };
