@@ -123,8 +123,26 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
           StartDate: new Date(policy.StartDate),
           EndDate: new Date(policy.EndDate),
           RegularBusAssignmentID: "",
-          Fixed: policy.quotaType === "Fixed" ? { FQuotaPolicyID: "", Quota: policy.quotaValue, quotaPolicy: {} as Quota_Policy } : undefined,
-          Percentage: policy.quotaType === "Percentage" ? { PQuotaPolicyID: "", Percentage: policy.quotaValue, quotaPolicy: {} as Quota_Policy } : undefined,
+          Fixed: policy.quotaType === "Fixed"
+            ? {
+                FQuotaPolicyID: "",
+                Quota: policy.quotaValue,
+                quotaPolicy: {} as Quota_Policy,
+                CreatedAt: "",   // <-- Add this
+                UpdatedAt: "",   // <-- Add this
+              }
+            : undefined,
+          Percentage: policy.quotaType === "Percentage"
+            ? {
+                PQuotaPolicyID: "",
+                Percentage: policy.quotaValue,
+                quotaPolicy: {} as Quota_Policy,
+                CreatedAt: "",   // <-- Add this
+                UpdatedAt: "",   // <-- Add this
+              }
+            : undefined,
+          CreatedAt: "",   // <-- Add this line
+          UpdatedAt: "",   // <-- Add this line
         };
         return base;
       });
