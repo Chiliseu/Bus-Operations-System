@@ -10,5 +10,10 @@ export interface RouteStop {
     StopOrder: number;
     Route: Route;
     Stop: Stop;
+
+    CreatedAt: string;
+    UpdatedAt: string;
+    CreatedBy?: string;
+    UpdatedBy?: string;
   }
   

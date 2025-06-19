@@ -14,5 +14,10 @@ export interface Stop {
     routesAsStart?: Route[];   // Related routes where this is the start stop
     routesAsEnd?: Route[];     // Related routes where this is the end stop
     RouteStops?: RouteStop[];  // Join table relationship
+    
+    CreatedAt: string;
+    UpdatedAt: string;
+    CreatedBy?: string;
+    UpdatedBy?: string;
   }
   

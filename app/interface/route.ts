@@ -15,4 +15,9 @@ export interface Route {
     EndStop?: Stop;
     RouteStops?: RouteStop[];
     BusAssignments?: BusAssignment[];
+
+    CreatedAt: string;
+    UpdatedAt: string;
+    CreatedBy?: string;
+    UpdatedBy?: string;
   }
