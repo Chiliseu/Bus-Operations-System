@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { fetchAllTicketTypes } from "@/lib/apiCalls/ticket-types";
 import styles from "./update-bus-readiness.module.css";
+import Swal from 'sweetalert2';
 
 interface Ticket {
   type: string;
   StartingIDNumber: number;
+  EndingIDNumber: number; // Add this line
 }
 
 interface BusReadinessModalProps  {
@@ -58,7 +60,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   });
   const [showChangeInput, setShowChangeInput] = useState(false);
   const [changeFunds, setChangeFunds] = useState(0);
-  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0 }]);
+  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]);
 
   useEffect(() => {
     if (show) {
@@ -74,8 +76,11 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
           setTicketTypes(types);
           setTickets(
             readiness?.tickets && readiness.tickets.length > 0
-              ? readiness.tickets
-              : [{ type: "", StartingIDNumber: 0 }]
+              ? readiness.tickets.map(t => ({
+                  ...t,
+                  EndingIDNumber: t.EndingIDNumber ?? 0, // Ensure EndingIDNumber is present
+                }))
+              : [{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]
           );
           // Debug
           // console.log("TicketTypes:", types);
@@ -102,7 +107,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     if (unselected) {
       setTickets(prev => [
         ...prev,
-        { type: unselected.TicketTypeID, StartingIDNumber: 0 }
+        { type: "", StartingIDNumber: 0, EndingIDNumber: 0 }
       ]);
     }
   };
@@ -115,13 +120,46 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     setTickets((prev) =>
       prev.map((ticket, i) =>
         i === index
-          ? { ...ticket, [field]: field === "StartingIDNumber" ? Number(value) : value }
+          ? { ...ticket, [field]: value }
           : ticket
       )
     );
   };
 
+  const validateTickets = () => {
+    let hasTypeError = false;
+    let hasSameIdError = false;
+
+    for (const ticket of tickets) {
+      if (!ticket.type) {
+        hasTypeError = true;
+      }
+      if (
+        ticket.StartingIDNumber != null &&
+        ticket.EndingIDNumber != null &&
+        ticket.StartingIDNumber === ticket.EndingIDNumber
+      ) {
+        hasSameIdError = true;
+      }
+    }
+
+    const errors: string[] = [];
+    if (hasTypeError) errors.push('Select a ticket type.');
+    if (hasSameIdError) errors.push('Start and End ID number cannot be the same.');
+
+    return errors;
+  };
+
   const handleSave = async () => {
+    const errors = validateTickets();
+    if (errors.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        html: errors.map(e => `<div>${e}</div>`).join(''),
+      });
+      return;
+    }
     const success = await onSave({
       regularBusAssignmentID: busInfo.regularBusAssignmentID,
       vehicleCondition,
@@ -244,14 +282,29 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             </div>
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>Tickets</h4>
-              {tickets.length === 0 && (
+              {/* Header row for labels */}
+              {/* Warning label */}
+              {tickets.length === 0 ? (
                 <div className="text-danger mb-2">
                   Please add a ticket.
+                </div>
+              ) : (
+                <div className="row g-2 mb-1">
+                  <div className="col-4">
+                    <label className="form-label">Ticket Type</label>
+                  </div>
+                  <div className="col-3">
+                    <label className="form-label">Starting ID Number</label>
+                  </div>
+                  <div className="col-3">
+                    <label className="form-label">Ending ID Number</label>
+                  </div>
+                  <div className="col-2"></div>
                 </div>
               )}
               {tickets.map((ticket, index) => (
                 <div className="row g-2 mb-2" key={index}>
-                  <div className="col-5">
+                  <div className="col-4">
                     <select
                       className="form-select"
                       value={ticket.type}
@@ -271,13 +324,22 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                         ))}
                     </select>
                   </div>
-                  <div className="col-5">
+                  <div className="col-3">
                     <input
                       type="text"
                       className="form-control"
                       placeholder="Latest ID Number"
                       value={ticket.StartingIDNumber}
                       onChange={(e) => updateTicket(index, "StartingIDNumber", e.target.value)}
+                    />
+                  </div>
+                  <div className="col-3">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Ending ID Number"
+                      value={ticket.EndingIDNumber}
+                      onChange={(e) => updateTicket(index, "EndingIDNumber", e.target.value)}
                     />
                   </div>
                   <div className="col-2 d-flex align-items-center">

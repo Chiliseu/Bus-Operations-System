@@ -170,7 +170,9 @@ const CreateRoutePage: React.FC = () => {
             StopName: rs.Stop.StopName || '',
             IsDeleted: rs.Stop.IsDeleted ?? false,
             latitude: rs.Stop.latitude ?? '',
-            longitude: rs.Stop.longitude ?? ''
+            longitude: rs.Stop.longitude ?? '',
+            CreatedAt: rs.Stop.CreatedAt ?? '',
+            UpdatedAt: rs.Stop.UpdatedAt ?? '',
           }))
       : []
   );
@@ -467,6 +469,8 @@ const CreateRoutePage: React.FC = () => {
                     IsDeleted: false,
                     latitude: '',
                     longitude: '',
+                    CreatedAt: '', // or new Date().toISOString()
+                    UpdatedAt: '', // or new Date().toISOString()
                   };
                   setEditStopsBetween(updatedStops);
                 }
@@ -487,6 +491,8 @@ const CreateRoutePage: React.FC = () => {
                     IsDeleted: false,
                     latitude: '',
                     longitude: '',
+                    CreatedAt: '', // or new Date().toISOString()
+                    UpdatedAt: '', // or new Date().toISOString()
                   };
                   setStopsBetween(updatedStops);
                 }

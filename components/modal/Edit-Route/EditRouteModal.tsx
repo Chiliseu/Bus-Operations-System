@@ -62,6 +62,8 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
         IsDeleted: false,
         latitude: "",
         longitude: "",
+        CreatedAt: "",   // <-- Add this
+        UpdatedAt: "",   // <-- Add this
       },
     ]);
   };

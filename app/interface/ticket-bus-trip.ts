@@ -5,8 +5,13 @@ export interface TicketBusTrip {
   TicketBusTripID: string;
   BusTripID: string;
   TicketTypeID: string;
-  StartingIDNumber: number;
-  EndingIDNumber: number;
+  StartingIDNumber?: number | null;
+  EndingIDNumber?: number | null;
+  OverallEndingID?: number | null;
   BusTrip: BusTrip;
   TicketType: TicketType;
+  CreatedAt: string;
+  UpdatedAt: string;
+  CreatedBy?: string;
+  UpdatedBy?: string;
 }

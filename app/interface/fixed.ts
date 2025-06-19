@@ -6,4 +6,8 @@ export interface Fixed {
   FQuotaPolicyID: string;
   Quota: number;
   quotaPolicy: Quota_Policy; // The relation to Quota_Policy
+  CreatedAt: string;
+  UpdatedAt: string;
+  CreatedBy?: string;
+  UpdatedBy?: string;
 }

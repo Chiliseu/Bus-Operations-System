@@ -11,4 +11,8 @@ export interface BusTrip {
   regularBusAssignment: RegularBusAssignment;
   TicketBusTrips: TicketBusTrip[];
   LatestForAssignment?: RegularBusAssignment | null;
+  CreatedAt: string;
+  UpdatedAt: string;
+  CreatedBy?: string;
+  UpdatedBy?: string;
 }

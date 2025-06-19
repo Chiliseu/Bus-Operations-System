@@ -13,4 +13,8 @@ export interface RegularBusAssignment {
   BusTrips: BusTrip[];
   LatestBusTripID?: string | null;
   LatestBusTrip?: BusTrip | null;
+  CreatedAt: string;
+  UpdatedAt: string;
+  CreatedBy?: string;
+  UpdatedBy?: string;
 }

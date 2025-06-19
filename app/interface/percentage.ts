@@ -6,4 +6,8 @@ export interface Percentage {
     PQuotaPolicyID: string;
     Percentage: number;
     quotaPolicy: Quota_Policy;
+    CreatedAt: string;
+    UpdatedAt: string;
+    CreatedBy?: string;
+    UpdatedBy?: string;
   }

@@ -6,6 +6,8 @@ import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import PostDispatchModal from '@/components/modal/Post-Dispatch-Modal/PostDispatchModal';
 import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
+import { updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
+
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -25,6 +27,7 @@ const BusOperationPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [activeFilters, setActiveFilters] = useState<{ 
     sortBy: string;
     busTypeFilter?: string;
@@ -178,13 +181,61 @@ const BusOperationPage: React.FC = () => {
   };
 
   const handleEdit = (assignment: any) => {
-    setSelectedBusInfo({
-      BusAssignmentID: assignment.BusAssignmentID,
-      BusId: assignment.busLicensePlate,
-      Self_Driver: assignment.driverName,
-      Self_Conductor: assignment.conductorName
-    });
+    setSelectedBusInfo(assignment); // Pass the whole assignment object
     setShowPostDispatchModal(true);
+  };
+
+  const handleSavePostDispatch = async (formData: {
+    sales: number;
+    tripExpense: number;
+    paymentMethod: 'reimbursement' | 'companycash';
+    latestTicketIds: number[];
+    remarks: string;
+    busAssignmentID: string;
+  }) => {
+    try {
+      setLoadingModal(true);
+
+      // Prepare TicketBusTrips array with all required fields
+      const ticketBusTrips =
+        selectedBusInfo?.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((tbt: any, idx: number) => ({
+          TicketBusTripID: tbt.TicketBusTripID,
+          TicketTypeID: tbt.TicketType?.TicketTypeID,
+          StartingIDNumber: tbt.StartingIDNumber,
+          EndingIDNumber: tbt.EndingIDNumber,
+          OverallEndingID: formData.latestTicketIds[idx],
+        })) ?? [];
+
+      // Prepare the data to send to the backend
+      const dataToSend = {
+        TripExpense: formData.tripExpense,
+        Payment_Method: formData.paymentMethod === 'companycash' ? 'Company_Cash' : 'Reimbursement',
+        Sales: formData.sales,
+        Remarks: formData.remarks,
+        ResetCompleted: true,
+        TicketBusTrips: ticketBusTrips,
+      };
+
+      await updateBusAssignmentData(formData.busAssignmentID, dataToSend);
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Bus readiness updated successfully!',
+      });
+
+      fetchAssignments();
+      setShowPostDispatchModal(false);
+      setSelectedBusInfo(null);
+    } catch (error: any) {
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error?.message || 'Failed to update bus readiness.',
+      });
+      console.error('Failed to update bus assignment:', error);
+    }
   };
 
   return (
@@ -280,8 +331,11 @@ const BusOperationPage: React.FC = () => {
               setSelectedBusInfo(null);
             }}
             busInfo={selectedBusInfo}
+            onSave={handleSavePostDispatch} // <-- pass the handler as a prop
           />
         )}
+
+        {loadingModal && <LoadingModal/>}
       </div>
     </div>
   );
