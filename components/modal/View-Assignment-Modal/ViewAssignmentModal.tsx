@@ -150,34 +150,36 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
             )}
             </div>
 
-          {/* Bus Trip History */}
-          <div className={styles.section}>
+            {/* Bus Trip History */}
+            <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Bus Trip History</h4>
-            {assignment.busTrips && assignment.busTrips.length > 0 ? (
-              <table style={{ width: "100%", fontSize: "0.95rem" }}>
-                <thead>
-                  <tr>
-                    <th>Trip ID</th>
-                    <th>Dispatched At</th>
-                    <th>Completed At</th>
-                    <th>Sales</th>
-                    <th>Change Fund</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignment.busTrips.map((trip: any) => (
-                    <tr key={trip.BusTripID}>
-                      <td>{trip.BusTripID}</td>
-                      <td>{trip.DispatchedAt ? new Date(trip.DispatchedAt).toLocaleString() : "N/A"}</td>
-                      <td>{trip.CompletedAt ? new Date(trip.CompletedAt).toLocaleString() : "N/A"}</td>
-                      <td>₱{trip.Sales?.toLocaleString() ?? "0"}</td>
-                      <td>₱{trip.ChangeFund?.toLocaleString() ?? "0"}</td>
+            {assignment.BusTrips && assignment.BusTrips.length > 0 ? (
+                <div style={{ maxHeight: 250, overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 6 }}>
+                <table style={{ width: "100%", fontSize: "0.95rem" }}>
+                    <thead style={{ position: "sticky", top: 0, background: "#f5f5f5", zIndex: 1 }}>
+                    <tr>
+                        <th>Dispatched At</th>
+                        <th>Completed At</th>
+                        <th>Sales</th>
+                        <th>Change Fund</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : <div className="text-muted">No bus trip history.</div>}
-          </div>
+                    </thead>
+                    <tbody>
+                    {assignment.BusTrips.map((trip: any) => (
+                        <tr key={trip.BusTripID}>
+                        <td>{trip.DispatchedAt ? new Date(trip.DispatchedAt).toLocaleString() : "N/A"}</td>
+                        <td>{trip.CompletedAt ? new Date(trip.CompletedAt).toLocaleString() : "N/A"}</td>
+                        <td>₱{trip.Sales?.toLocaleString() ?? "0"}</td>
+                        <td>₱{trip.ChangeFund?.toLocaleString() ?? "0"}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
+            ) : (
+                <div className="text-muted">No bus trip history.</div>
+            )}
+            </div>
         </div>
 
         <div className={styles.footer}>
