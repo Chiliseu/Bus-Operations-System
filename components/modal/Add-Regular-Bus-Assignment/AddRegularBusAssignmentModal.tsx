@@ -112,6 +112,10 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
   handleAdd,
 }) => {
   const [quotaPolicies, setQuotaPolicies] = useState<QuotaPolicy[]>(recalcQuotaDateRanges(1));
+  const [currentTime, setCurrentTime] = useState<string>(
+  new Date().toLocaleString('en-US', { hour12: true })
+);
+
 
   useEffect(() => {
     if (show) {
@@ -122,6 +126,19 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
       setQuotaPolicies(recalcQuotaDateRanges(1));
     }
   }, [show]);
+
+  //TIME CHECK
+
+  useEffect(() => {
+  if (!show) return;  // Only tick when modal is visible
+
+  const interval = setInterval(() => {
+    setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+  }, 1000);
+
+  return () => clearInterval(interval);  // Cleanup on close
+}, [show]);
+
 
   const addQuotaPolicy = () => {
     const newCount = quotaPolicies.length + 1;
@@ -477,15 +494,17 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
             </div>
           </div>
 
-          <div className="modal-footer">
-          <button
-            type="button"
-            className={styles.createAssignmentBtn}
-            onClick={handleCreate}
-          >
-            Create Assignment
-          </button>
-
+          <div className="modal-footer d-flex justify-content-between align-items-center w-100">
+            <small className="text-muted">
+               {currentTime}
+            </small>
+            <button
+              type="button"
+              className={styles.createAssignmentBtn}
+              onClick={handleCreate}
+            >
+              Create Assignment
+            </button>
           </div>
         </div>
       </div>

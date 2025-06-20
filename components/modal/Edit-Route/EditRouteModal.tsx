@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import { Stop, Route } from "@/app/interface";
@@ -51,6 +51,18 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
   onEndStopClick,
   onBetweenStopClick,
 }) => {
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  useEffect(() => {
+    if (!show) return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [show]);
+
   if (!show || !route) return null;
 
   const handleAddStop = () => {
@@ -62,8 +74,8 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
         IsDeleted: false,
         latitude: "",
         longitude: "",
-        CreatedAt: "",   // <-- Add this
-        UpdatedAt: "",   // <-- Add this
+        CreatedAt: "",
+        UpdatedAt: "",
       },
     ]);
   };
@@ -121,7 +133,6 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
         </div>
 
         <div className={styles.modalBody}>
-          {/* Route Information */}
           <div className={styles.formSection}>
             <h4 className={styles.sectionTitle}>Route Information</h4>
             <div className={styles.row}>
@@ -134,7 +145,7 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                   value={routeName}
                   onChange={(e) => {
                     const value = e.target.value;
-                    const filtered = value.replace(/[^a-zA-Z0-9 .,\-'/&#]/g, ""); // allowed: letters, numbers, space, . , - ' & / #
+                    const filtered = value.replace(/[^a-zA-Z0-9 .,\-'/&#]/g, "");
                     if (filtered.length <= 30) {
                       setRouteName(filtered);
                     }
@@ -169,7 +180,6 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
             </div>
           </div>
 
-          {/* Stops Between */}
           <div className={styles.formSection}>
             <h4 className={styles.sectionTitle}>Stops Between</h4>
             <div className={styles.stopsScrollContainer}>
@@ -246,7 +256,8 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
           </div>
         </div>
 
-        <div className={styles.modalFooter}>
+        <div className={`${styles.modalFooter} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">{currentTime}</small>
           <button
             className={styles.saveRouteBtn}
             onClick={handleSave}

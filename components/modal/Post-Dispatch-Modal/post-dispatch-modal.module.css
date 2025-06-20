@@ -64,11 +64,17 @@
 .section {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 0;
-  width: 100%;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Enable smooth transform + shadow */
 }
+
+.section:hover {
+  transform: translateY(-2px); /* Move up slightly on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow on hover */
+}
+
 
 .sectionTitle {
   font-size: 16px;

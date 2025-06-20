@@ -62,6 +62,18 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   const [showChangeInput, setShowChangeInput] = useState(false);
   const [changeFunds, setChangeFunds] = useState(0);
   const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]);
+  const [currentTime, setCurrentTime] = useState(
+  new Date().toLocaleString('en-US', { hour12: true })
+);
+  
+//TIME CHECK
+  useEffect(() => {
+    if (!show) return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [show]);
 
   useEffect(() => {
     if (show) {
@@ -369,11 +381,18 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             </div>
           </div>
         </div>
-        <div className={styles.footer}>
-          <button type="button" className={styles.createBtn} onClick={handleSave}>
-            Save Readiness
-          </button>
-        </div>
+          <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+            <small className="text-muted">
+              {currentTime}
+            </small>
+            <button
+              type="button"
+              className={styles.createBtn}
+              onClick={handleSave}
+            >
+              Save Readiness
+            </button>
+          </div>
       </div>
     </div>
   );

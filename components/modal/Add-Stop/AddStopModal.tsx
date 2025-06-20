@@ -24,6 +24,22 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  React.useEffect(() => {
+    if (!show) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [show]);
+
+
   const handleCreate = async () => {
   if (!name || !latitude || !longitude) {
     return await Swal.fire({
@@ -104,7 +120,10 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
           </div>
         </div>
 
-        <div className={styles.footer}>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">
+             {currentTime}
+          </small>
           <button
             type="button"
             className={styles.createStopBtn}
