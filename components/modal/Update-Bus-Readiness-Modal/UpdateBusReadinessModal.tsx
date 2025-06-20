@@ -8,7 +8,8 @@ import Swal from 'sweetalert2';
 interface Ticket {
   type: string;
   StartingIDNumber: number;
-  EndingIDNumber: number; // Add this line
+  EndingIDNumber?: number ; // Add this line
+  OverallEndingID: number;
 }
 
 interface BusReadinessModalProps  {
@@ -60,7 +61,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   });
   const [showChangeInput, setShowChangeInput] = useState(false);
   const [changeFunds, setChangeFunds] = useState(0);
-  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]);
+  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]);
 
   useEffect(() => {
     if (show) {
@@ -78,9 +79,9 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             readiness?.tickets && readiness.tickets.length > 0
               ? readiness.tickets.map(t => ({
                   ...t,
-                  EndingIDNumber: t.EndingIDNumber ?? 0, // Ensure EndingIDNumber is present
+                  OverallEndingID: t.OverallEndingID ?? 0, // Ensure EndingIDNumber is present
                 }))
-              : [{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]
+              : [{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]
           );
           // Debug
           // console.log("TicketTypes:", types);
@@ -107,7 +108,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     if (unselected) {
       setTickets(prev => [
         ...prev,
-        { type: "", StartingIDNumber: 0, EndingIDNumber: 0 }
+        { type: "", StartingIDNumber: 0, OverallEndingID: 0 }
       ]);
     }
   };
@@ -120,7 +121,9 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     setTickets((prev) =>
       prev.map((ticket, i) =>
         i === index
-          ? { ...ticket, [field]: value }
+          ? field === "EndingIDNumber"
+            ? { ...ticket, EndingIDNumber: Number(value), OverallEndingID: Number(value) }
+            : { ...ticket, [field]: value }
           : ticket
       )
     );
