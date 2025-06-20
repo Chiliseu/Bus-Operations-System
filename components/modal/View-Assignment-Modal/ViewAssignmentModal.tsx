@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../Add-Stop/add-stop.module.css";
+import styles from "./view-assignment-modal.module.css";
 
 interface ViewAssignmentModalProps {
   show: boolean;
@@ -21,21 +21,14 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
         </div>
 
         <div className={styles.body}>
-          {/* Combined Main Details */}
+          {/* Assignment Participants */}
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Assignment Participants</h4>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gap: "1.5rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className={styles.participantsGrid}>
               {/* Bus */}
-              <div>
-                <h5 style={{ marginBottom: 8, fontWeight: 600 }}>Bus</h5>
-                <ul>
+              <div className={styles.participantCard}>
+                <h5 className={styles.participantTitle}>Bus</h5>
+                <ul className={styles.participantInfo}>
                   <li><b>License Plate:</b> {assignment.busLicensePlate || assignment.bus?.license_plate || "N/A"}</li>
                   <li><b>Type:</b> {assignment.busType || assignment.bus?.type || "N/A"}</li>
                   {assignment.bus?.capacity && (
@@ -43,15 +36,16 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                   )}
                   {assignment.bus?.image && (
                     <li>
-                      <img src={assignment.bus.image} alt="Bus" style={{ width: 80, marginTop: 8 }} />
+                      <img src={assignment.bus.image} alt="Bus" className={styles.participantImg} />
                     </li>
                   )}
                 </ul>
               </div>
+
               {/* Driver */}
-              <div>
-                <h5 style={{ marginBottom: 8, fontWeight: 600 }}>Driver</h5>
-                <ul>
+              <div className={styles.participantCard}>
+                <h5 className={styles.participantTitle}>Driver</h5>
+                <ul className={styles.participantInfo}>
                   <li><b>Name:</b> {assignment.driverName || assignment.driver?.name || "N/A"}</li>
                   {assignment.driver?.contactNo && (
                     <li><b>Contact:</b> {assignment.driver.contactNo}</li>
@@ -61,15 +55,16 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                   )}
                   {assignment.driver?.image && (
                     <li>
-                      <img src={assignment.driver.image} alt="Driver" style={{ width: 80, marginTop: 8 }} />
+                      <img src={assignment.driver.image} alt="Driver" className={styles.participantImg} />
                     </li>
                   )}
                 </ul>
               </div>
+
               {/* Conductor */}
-              <div>
-                <h5 style={{ marginBottom: 8, fontWeight: 600 }}>Conductor</h5>
-                <ul>
+              <div className={styles.participantCard}>
+                <h5 className={styles.participantTitle}>Conductor</h5>
+                <ul className={styles.participantInfo}>
                   <li><b>Name:</b> {assignment.conductorName || assignment.conductor?.name || "N/A"}</li>
                   {assignment.conductor?.contactNo && (
                     <li><b>Contact:</b> {assignment.conductor.contactNo}</li>
@@ -79,7 +74,7 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                   )}
                   {assignment.conductor?.image && (
                     <li>
-                      <img src={assignment.conductor.image} alt="Conductor" style={{ width: 80, marginTop: 8 }} />
+                      <img src={assignment.conductor.image} alt="Conductor" className={styles.participantImg} />
                     </li>
                   )}
                 </ul>
@@ -87,99 +82,87 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
             </div>
           </div>
 
-          {/* Quota Policy - Display Only, Styled Like Edit Modal */}
-            <div className={styles.section}>
+          {/* Quota Policy */}
+          <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Quota Policy</h4>
             {assignment.QuotaPolicies && assignment.QuotaPolicies.length > 0 ? (
-                <div>
+              <div>
                 {assignment.QuotaPolicies.map((policy: any, idx: number) => (
-                    <div
-                    key={policy.QuotaPolicyID || idx}
-                    style={{
-                        display: "flex",
-                        gap: "1rem",
-                        alignItems: "center",
-                        border: "1px solid #e0e0e0",
-                        borderRadius: 6,
-                        padding: "0.75rem 1rem",
-                        marginBottom: 10,
-                        background: "#fafbfc"
-                    }}
-                    >
-                    <div style={{ minWidth: 120 }}>
-                        <label className={styles.formLabel}>Start Date</label>
-                        <div>
+                  <div key={policy.QuotaPolicyID || idx} className={styles.quotaPolicyItem}>
+                    <div className={styles.policyField}>
+                      <label className={styles.formLabel}>Start Date</label>
+                      <div className={styles.policyValue}>
                         {policy.StartDate
-                            ? new Date(policy.StartDate).toLocaleDateString()
-                            : "-"}
-                        </div>
+                          ? new Date(policy.StartDate).toLocaleDateString()
+                          : "-"}
+                      </div>
                     </div>
-                    <div style={{ minWidth: 120 }}>
-                        <label className={styles.formLabel}>End Date</label>
-                        <div>
+                    <div className={styles.policyField}>
+                      <label className={styles.formLabel}>End Date</label>
+                      <div className={styles.policyValue}>
                         {policy.EndDate
-                            ? new Date(policy.EndDate).toLocaleDateString()
-                            : "-"}
-                        </div>
+                          ? new Date(policy.EndDate).toLocaleDateString()
+                          : "-"}
+                      </div>
                     </div>
-                    <div style={{ minWidth: 120 }}>
-                        <label className={styles.formLabel}>Type</label>
-                        <div>
+                    <div className={styles.policyField}>
+                      <label className={styles.formLabel}>Type</label>
+                      <div className={styles.policyValue}>
                         {policy.Fixed && policy.Fixed.Quota != null
-                            ? "Fixed"
-                            : policy.Percentage && policy.Percentage.Percentage != null
-                            ? "Percentage"
-                            : "-"}
-                        </div>
+                          ? "Fixed"
+                          : policy.Percentage && policy.Percentage.Percentage != null
+                          ? "Percentage"
+                          : "-"}
+                      </div>
                     </div>
-                    <div style={{ minWidth: 120 }}>
-                        <label className={styles.formLabel}>Value</label>
-                        <div>
+                    <div className={styles.policyField}>
+                      <label className={styles.formLabel}>Value</label>
+                      <div className={styles.policyValue}>
                         {policy.Fixed && policy.Fixed.Quota != null
-                            ? `₱${policy.Fixed.Quota}`
-                            : policy.Percentage && policy.Percentage.Percentage != null
-                            ? `${policy.Percentage.Percentage}%`
-                            : "-"}
-                        </div>
+                          ? `₱${policy.Fixed.Quota}`
+                          : policy.Percentage && policy.Percentage.Percentage != null
+                          ? `${policy.Percentage.Percentage}%`
+                          : "-"}
+                      </div>
                     </div>
-                    </div>
+                  </div>
                 ))}
-                </div>
+              </div>
             ) : (
-                <div className="text-muted">No quota policy info.</div>
+              <div className={styles.emptyState}>No quota policy information available.</div>
             )}
-            </div>
+          </div>
 
-            {/* Bus Trip History */}
-            <div className={styles.section}>
+          {/* Bus Trip History */}
+          <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Bus Trip History</h4>
             {assignment.BusTrips && assignment.BusTrips.length > 0 ? (
-                <div style={{ maxHeight: 250, overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 6 }}>
-                <table style={{ width: "100%", fontSize: "0.95rem" }}>
-                    <thead style={{ position: "sticky", top: 0, background: "#f5f5f5", zIndex: 1 }}>
+              <div className={styles.tripHistoryContainer}>
+                <table className={styles.tripTable}>
+                  <thead>
                     <tr>
-                        <th>Dispatched At</th>
-                        <th>Completed At</th>
-                        <th>Sales</th>
-                        <th>Change Fund</th>
+                      <th>Dispatched At</th>
+                      <th>Completed At</th>
+                      <th>Sales</th>
+                      <th>Change Fund</th>
                     </tr>
-                    </thead>
-                    <tbody>
+                  </thead>
+                  <tbody>
                     {assignment.BusTrips.map((trip: any) => (
-                        <tr key={trip.BusTripID}>
+                      <tr key={trip.BusTripID}>
                         <td>{trip.DispatchedAt ? new Date(trip.DispatchedAt).toLocaleString() : "N/A"}</td>
                         <td>{trip.CompletedAt ? new Date(trip.CompletedAt).toLocaleString() : "N/A"}</td>
                         <td>₱{trip.Sales?.toLocaleString() ?? "0"}</td>
                         <td>₱{trip.ChangeFund?.toLocaleString() ?? "0"}</td>
-                        </tr>
+                      </tr>
                     ))}
-                    </tbody>
+                  </tbody>
                 </table>
-                </div>
+              </div>
             ) : (
-                <div className="text-muted">No bus trip history.</div>
+              <div className={styles.emptyState}>No bus trip history available.</div>
             )}
-            </div>
+          </div>
         </div>
 
         <div className={styles.footer}>
