@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         
         <title>Agila Transport System</title>
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
         <Token_Generation />
