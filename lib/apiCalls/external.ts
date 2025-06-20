@@ -14,6 +14,7 @@ export async function fetchDriversWithToken(): Promise<any[]> {
   }
 
   const json = await response.json();
+  console.log("DRIVER "+json.data);
   return json.data;
 }
 

@@ -18,6 +18,7 @@ import AssignConductorModal from '@/components/modal/Assign-Conductor/AssignCond
 import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
 import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
 import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
+import ViewAssignmentModal from '@/components/modal/View-Assignment-Modal/ViewAssignmentModal';
 
 // API calls Imports
 import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
@@ -75,6 +76,9 @@ const BusAssignmentPage: React.FC = () => {
     sortBy: ""
     //(Newly added and Updated Assignments should always be at the top, not sorted by default)
   });
+
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewAssignment, setViewAssignment] = useState<any>(null); // Replace 'any' with your assignment type if you have one
 
   // changes by Y 6/17/2025
   const filterSections: FilterSection[] = [
@@ -226,6 +230,7 @@ const BusAssignmentPage: React.FC = () => {
     setLoading(true);
     try {
       const assignments = await fetchAssignmentDetails();
+      console.log(assignments);
 
       // Sort newest first so new records appear at top
       assignments.sort((a, b) =>
@@ -534,6 +539,16 @@ const BusAssignmentPage: React.FC = () => {
                             : "No updates"}
                         </td>
                         <td>
+                          <button
+                            className={styles.viewBtn}
+                            onClick={() => {
+                              setViewAssignment(assignment);
+                              setShowViewModal(true);
+                            }}
+                            title="View"
+                          >
+                            <img src="/assets/images/eye-line.png" alt="View" />
+                          </button>
                           <button className={styles.editBtn} onClick={() => handleEdit(assignment)}>
                             <img src="/assets/images/edit-white.png" alt="Edit" />
                           </button>
@@ -652,6 +667,14 @@ const BusAssignmentPage: React.FC = () => {
             setSelectedRoute(route);
             setShowAssignRouteModal(false);
           }}
+        />
+      )}
+
+      {showViewModal && viewAssignment && (
+        <ViewAssignmentModal
+          show={showViewModal}
+          onClose={() => setShowViewModal(false)}
+          assignment={viewAssignment}
         />
       )}
 
