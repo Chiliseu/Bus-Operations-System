@@ -47,6 +47,20 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<'reimbursement' | 'companycash'>('reimbursement');
   const [remarks, setRemarks] = useState<string>("");
 
+    const [currentTime, setCurrentTime] = useState(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+    useEffect(() => {
+    if (!show) return;
+
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [show]);
+
   useEffect(() => {
     if (!busInfo?.RegularBusAssignment?.QuotaPolicies) return;
 
@@ -392,18 +406,12 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className={styles['modern-footer']}>
-          <div className={styles['modern-status-container']}>
-            <div className={styles['modern-validation-badge']}>
-              <span>✓</span>
-              Form Ready
-            </div>
+        <div className={`${styles['modern-footer']} d-flex justify-content-between align-items-center`}>
+                <small className="text-muted">{currentTime}</small>
+                <button type="button" className={styles.createBtn} onClick={handleSave}>
+                  Save
+                </button>
           </div>
-
-          <button type="button" className={styles.createBtn} onClick={handleSave}>
-            Save
-          </button>
-        </div>
       </div>
     </div>
   );

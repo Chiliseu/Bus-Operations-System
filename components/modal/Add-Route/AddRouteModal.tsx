@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import Image from "next/image";
 import { Stop } from "@/app/interface";
@@ -48,6 +48,18 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
   onEndStopClick,
   onBetweenStopClick,
 }) => {
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  useEffect(() => {
+    if (!show) return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [show]);
+
   if (!show) return null;
 
   const handleAddStop = () => {
@@ -125,20 +137,20 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Route Information</h4>
             <div className={styles.grid3}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Route Name</label>
-              <input
-                type="text"
-                className={styles.input}
-                placeholder="Enter route name"
-                value={routeName}
-                onChange={(e) => setRouteName(e.target.value)}
-                maxLength={30}
-              />
-            <small className={styles.hint}>
-              * Max 30 characters and only . , - &apos; &amp; / # allowed.
-            </small>
-            </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Route Name</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  placeholder="Enter route name"
+                  value={routeName}
+                  onChange={(e) => setRouteName(e.target.value)}
+                  maxLength={30}
+                />
+                <small className={styles.hint}>
+                  * Max 30 characters and only . , - &apos; &amp; / # allowed.
+                </small>
+              </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Start Stop</label>
                 <input
@@ -150,7 +162,6 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
                   readOnly
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>End Stop</label>
                 <input
@@ -235,7 +246,8 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
           </div>
         </div>
 
-        <div className={styles.footer}>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">{currentTime}</small>
           <button
             className={styles.createRouteBtn}
             onClick={handleCreate}

@@ -26,6 +26,17 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
   const [name, setName] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  useEffect(() => {
+    if (!show) return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [show]);
 
   useEffect(() => {
     if (stop) {
@@ -118,7 +129,8 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
           </div>
         </div>
 
-        <div className={styles.footer}>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">{currentTime}</small>
           <button
             type="button"
             className={styles.createStopBtn}

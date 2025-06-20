@@ -59,6 +59,11 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
       },
     ]
   );
+
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+  new Date().toLocaleString('en-US', { hour12: true })
+);
   
   useEffect(() => {
     if (quotaPolicy && quotaPolicy.length > 0) {
@@ -91,6 +96,15 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
     }
   }, [quotaPolicy]);
 
+    useEffect(() => {
+    if (!show) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [show]);
 
   if (!show) return null;
 
@@ -372,7 +386,10 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
             </div>
           </div>
 
-          <div className="modal-footer">
+          <div className="modal-footer d-flex justify-content-between align-items-center w-100">
+            <small className="text-muted">
+               {currentTime}
+            </small>
             <button
               type="button"
               className={styles.saveAssignmentBtn}

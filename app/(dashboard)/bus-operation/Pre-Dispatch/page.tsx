@@ -120,12 +120,17 @@ const BusOperationPage: React.FC = () => {
     // Search filter
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
-      filtered = filtered.filter(a =>
-        a.busLicensePlate?.toLowerCase().includes(lower) ||
-        a.driverName?.toLowerCase().includes(lower) ||
-        a.conductorName?.toLowerCase().includes(lower) ||
-        a.Route?.RouteName?.toLowerCase().includes(lower)
-      );
+      filtered = filtered.filter(a => {
+        const busTypeLabel = renderBusTypeLabel(a.busType).toLowerCase();
+        return (
+          a.busLicensePlate?.toLowerCase().includes(lower) ||
+          a.driverName?.toLowerCase().includes(lower) ||
+          a.conductorName?.toLowerCase().includes(lower) ||
+          a.Route?.RouteName?.toLowerCase().includes(lower) ||
+          a.busType?.toLowerCase().includes(lower) ||
+          busTypeLabel.includes(lower)
+        );
+      });
     }
 
     // Bus type filter

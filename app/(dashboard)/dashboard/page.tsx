@@ -216,7 +216,7 @@ const DashboardPage: React.FC = () => {
                     {
                       data: [
                         { id: 0, value: busStatus.NotReady ?? 0, label: "Not Ready", color: "#961C1E" },
-                        { id: 1, value: busStatus.InOperation ?? 0, label: "In Operation", color: "#FEB71F" },
+                        { id: 1, value: busStatus.InOperation ?? 0, label: "In Operation", color: "#0a8969" },
                         { id: 2, value: busStatus.NotStarted ?? 0, label: "Not Started", color: "#888" },
                       ],
                     },

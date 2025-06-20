@@ -36,7 +36,6 @@
   align-items: center;
 }
 
-
 .busModalBody {
   padding: 25px;
   background: white;
@@ -44,10 +43,16 @@
 
 .formSection {
   background: #f8f9fa;
-  border-radius: 6px;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
   border: 1px solid #e9ecef;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formSection:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .sectionTitle {

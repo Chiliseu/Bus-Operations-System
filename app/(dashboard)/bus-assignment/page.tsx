@@ -186,11 +186,15 @@ const BusAssignmentPage: React.FC = () => {
         break;
     }
 
-    let filteredBusAssignments = sortedAssignments.filter((busAssignment) =>
-      busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+      let filteredBusAssignments = sortedAssignments.filter((busAssignment) => {
+        const busTypeLabel = renderBusTypeLabel(busAssignment.busType).toLowerCase();
+        return (
+          busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          busTypeLabel.includes(searchQuery.toLowerCase())
+        );
+      });
 
     if (activeFilters.busTypeFilter) {
       filteredBusAssignments = filteredBusAssignments.filter(
