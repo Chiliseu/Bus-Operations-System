@@ -192,6 +192,28 @@
 
 
 /* Edit and Delete Button Icon Styling */
+.viewBtn {
+  background-color: #1cb353;
+  padding: 3px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px;
+}
+
+.viewBtn:hover {
+  background-color: #14863e;
+}
+
+.viewBtn img {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .editBtn {
   background-color: #2D8EFF;
   padding: 3px 6px;
