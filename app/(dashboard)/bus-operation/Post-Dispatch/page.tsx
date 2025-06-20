@@ -202,8 +202,8 @@ const BusOperationPage: React.FC = () => {
           TicketBusTripID: tbt.TicketBusTripID,
           TicketTypeID: tbt.TicketType?.TicketTypeID,
           StartingIDNumber: tbt.StartingIDNumber,
-          EndingIDNumber: tbt.EndingIDNumber,
-          OverallEndingID: formData.latestTicketIds[idx],
+          EndingIDNumber: formData.latestTicketIds[idx],
+          OverallEndingID: tbt.OverallEndingID,
         })) ?? [];
 
       // Prepare the data to send to the backend
