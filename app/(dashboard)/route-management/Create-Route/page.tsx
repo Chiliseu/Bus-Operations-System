@@ -105,7 +105,7 @@ const CreateRoutePage: React.FC = () => {
 
   // Update displayed routes whenever the current page, search query, or sort order changes
   useEffect(() => {
-  let sortedRoutes = [...routes];
+  const sortedRoutes = [...routes];
 
   switch (sortOrder) {
     case "route_az":

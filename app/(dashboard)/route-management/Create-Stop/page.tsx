@@ -57,7 +57,7 @@ const RouteManagementPage: React.FC = () => {
 
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
-  let sortedStops = [...stops];
+  const sortedStops = [...stops];
 
   switch (sortOrder) {
     case "az":
