@@ -50,7 +50,7 @@ const CreateRoutePage: React.FC = () => {
   const [selectedStopIndex, setSelectedStopIndex] = useState<number | null>(null); // for between stops
 
   // FilterDropdown sections for sorting
-  const filterSections: FilterSection[] = [
+    const filterSections: FilterSection[] = [
     {
       id: "sortBy",
       title: "Sort By",
@@ -64,9 +64,11 @@ const CreateRoutePage: React.FC = () => {
         { id: "end_za", label: "End Stop: Z-A" },
         { id: "stops_low", label: "Stops Between: Lowest to Highest" },
         { id: "stops_high", label: "Stops Between: Highest to Lowest" },
+        { id: "created_newest", label: "Created At: Newest First" },
+        { id: "created_oldest", label: "Created At: Oldest First" },
+        { id: "updated_newest", label: "Updated At: Newest First" },
+        { id: "updated_oldest", label: "Updated At: Oldest First" },
       ],
-      //defaultValue: "route_az" 
-      //(Newly added and Updated Routes should always be at the top, not sorted by default)
     }
   ];
 
@@ -103,39 +105,62 @@ const CreateRoutePage: React.FC = () => {
 
   // Update displayed routes whenever the current page, search query, or sort order changes
   useEffect(() => {
-    const sortedRoutes = [...routes];
+  let sortedRoutes = [...routes];
 
-    switch (sortOrder) {
-      case "route_az":
-        sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
-        break;
-      case "route_za":
-        sortedRoutes.sort((a, b) => (b.RouteName || '').localeCompare(a.RouteName || ''));
-        break;
-      case "start_az":
-        sortedRoutes.sort((a, b) => (a.StartStop?.StopName || '').localeCompare(b.StartStop?.StopName || ''));
-        break;
-      case "start_za":
-        sortedRoutes.sort((a, b) => (b.StartStop?.StopName || '').localeCompare(a.StartStop?.StopName || ''));
-        break;
-      case "end_az":
-        sortedRoutes.sort((a, b) => (a.EndStop?.StopName || '').localeCompare(b.EndStop?.StopName || ''));
-        break;
-      case "end_za":
-        sortedRoutes.sort((a, b) => (b.EndStop?.StopName || '').localeCompare(a.EndStop?.StopName || ''));
-        break;
-      case "stops_low":
-        sortedRoutes.sort((a, b) => (a.RouteStops?.length ?? 0) - (b.RouteStops?.length ?? 0));
-        break;
-      case "stops_high":
-        sortedRoutes.sort((a, b) => (b.RouteStops?.length ?? 0) - (a.RouteStops?.length ?? 0));
-        break;
-      default:
-        // Default to Route Name A-Z
-        //sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
-        //(Newly added and Updated Routes should always be at the top, not sorted by default)
-        break;
-    }
+  switch (sortOrder) {
+    case "route_az":
+      sortedRoutes.sort((a, b) => (a.RouteName || '').localeCompare(b.RouteName || ''));
+      break;
+    case "route_za":
+      sortedRoutes.sort((a, b) => (b.RouteName || '').localeCompare(a.RouteName || ''));
+      break;
+    case "start_az":
+      sortedRoutes.sort((a, b) => (a.StartStop?.StopName || '').localeCompare(b.StartStop?.StopName || ''));
+      break;
+    case "start_za":
+      sortedRoutes.sort((a, b) => (b.StartStop?.StopName || '').localeCompare(a.StartStop?.StopName || ''));
+      break;
+    case "end_az":
+      sortedRoutes.sort((a, b) => (a.EndStop?.StopName || '').localeCompare(b.EndStop?.StopName || ''));
+      break;
+    case "end_za":
+      sortedRoutes.sort((a, b) => (b.EndStop?.StopName || '').localeCompare(a.EndStop?.StopName || ''));
+      break;
+    case "stops_low":
+      sortedRoutes.sort((a, b) => (a.RouteStops?.length ?? 0) - (b.RouteStops?.length ?? 0));
+      break;
+    case "stops_high":
+      sortedRoutes.sort((a, b) => (b.RouteStops?.length ?? 0) - (a.RouteStops?.length ?? 0));
+      break;
+        case "created_newest":
+      sortedRoutes.sort((a, b) =>
+        new Date(b.CreatedAt || 0).getTime() - new Date(a.CreatedAt || 0).getTime()
+      );
+      break;
+    case "created_oldest":
+      sortedRoutes.sort((a, b) =>
+        new Date(a.CreatedAt || 0).getTime() - new Date(b.CreatedAt || 0).getTime()
+      );
+      break;
+    case "updated_newest":
+      sortedRoutes.sort((a, b) =>
+        new Date(b.UpdatedAt || 0).getTime() - new Date(a.UpdatedAt || 0).getTime()
+      );
+      break;
+    case "updated_oldest":
+      sortedRoutes.sort((a, b) =>
+        new Date(a.UpdatedAt || 0).getTime() - new Date(b.UpdatedAt || 0).getTime()
+      );
+      break;
+    default:
+      // Default: sort by UpdatedAt or CreatedAt (newest first)
+      sortedRoutes.sort((a, b) => {
+        const dateA = new Date(a.UpdatedAt || a.CreatedAt || 0).getTime();
+        const dateB = new Date(b.UpdatedAt || b.CreatedAt || 0).getTime();
+        return dateB - dateA;
+      });
+      break;
+  }
 
     const filteredRoutes = sortedRoutes.filter((route) =>
       route.RouteName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -380,59 +405,63 @@ const CreateRoutePage: React.FC = () => {
           {loading ? (
             <Loading />
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr className={styles.tableHeadRow}>
-                <th>Route Name</th>
-                <th>Start Stop</th>
-                <th>End Stop</th>
-                <th>No. of Stops Between</th>
-                <th className={styles.actions}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedroutes.length > 0 ? (
-                currentRoutes.map((route) => (
-                  <tr key={route.RouteID} className={styles.tableRow}>
-                    <td>{route.RouteName}</td>
-                    <td>{route.StartStop?.StopName}</td>
-                    <td>{route.EndStop?.StopName}</td>
-                    <td>{route.RouteStops?.length ?? 0}</td>
-                    <td className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => handleEditRoute(route)}
-                      >
-                        <Image
-                          src="/assets/images/edit-white.png"
-                          alt="Edit"
-                          width={25}
-                          height={25}
-                        />
-                      </button>
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => handleDeleteRoute(route.RouteID)}
-                      >
-                        <Image
-                          src="/assets/images/delete-white.png"
-                          alt="Delete"
-                          width={25}
-                          height={25}
-                        />
-                      </button>
+            <table className={styles.table}>
+              <thead>
+                <tr className={styles.tableHeadRow}>
+                  <th>Route Name</th>
+                  <th>Start Stop</th>
+                  <th>End Stop</th>
+                  <th>No. of Stops Between</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th className={styles.actions}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayedroutes.length > 0 ? (
+                  currentRoutes.map((route) => (
+                    <tr key={route.RouteID} className={styles.tableRow}>
+                      <td>{route.RouteName}</td>
+                      <td>{route.StartStop?.StopName}</td>
+                      <td>{route.EndStop?.StopName}</td>
+                      <td>{route.RouteStops?.length ?? 0}</td>
+                      <td>{route.CreatedAt ? new Date(route.CreatedAt).toLocaleString() : '-'}</td>
+                      <td>{route.UpdatedAt ? new Date(route.UpdatedAt).toLocaleString() : '-'}</td>
+                      <td className={styles.actions}>
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => handleEditRoute(route)}
+                        >
+                          <Image
+                            src="/assets/images/edit-white.png"
+                            alt="Edit"
+                            width={25}
+                            height={25}
+                          />
+                        </button>
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => handleDeleteRoute(route.RouteID)}
+                        >
+                          <Image
+                            src="/assets/images/delete-white.png"
+                            alt="Delete"
+                            width={25}
+                            height={25}
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className={styles.noRecords}>
+                      No routes found.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className={styles.noRecords}>
-                    No routes found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
         )}
 
         {/* Pagination */}

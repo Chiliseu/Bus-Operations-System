@@ -46,20 +46,53 @@ const RouteManagementPage: React.FC = () => {
       options: [
         { id: "az", label: "Stop Name: A-Z" },
         { id: "za", label: "Stop Name: Z-A" },
+        { id: "created_newest", label: "Created At: Newest First" },
+        { id: "created_oldest", label: "Created At: Oldest First" },
+        { id: "updated_newest", label: "Updated At: Newest First" },
+        { id: "updated_oldest", label: "Updated At: Oldest First" },
       ],
-      defaultValue: "az"
-    }
+      defaultValue: "az",
+    },
   ];
 
   // Update displayed stops whenever the current page or search query changes
   useEffect(() => {
-    const sortedStops = [...stops];
+  let sortedStops = [...stops];
 
-    if (sortOrder === 'az') {
+  switch (sortOrder) {
+    case "az":
       sortedStops.sort((a, b) => a.StopName.localeCompare(b.StopName));
-    } else if (sortOrder === 'za') {
+      break;
+    case "za":
       sortedStops.sort((a, b) => b.StopName.localeCompare(a.StopName));
-    }
+      break;
+    case "created_newest":
+      sortedStops.sort((a, b) =>
+        new Date(b.CreatedAt || 0).getTime() - new Date(a.CreatedAt || 0).getTime()
+      );
+      break;
+    case "created_oldest":
+      sortedStops.sort((a, b) =>
+        new Date(a.CreatedAt || 0).getTime() - new Date(b.CreatedAt || 0).getTime()
+      );
+      break;
+    case "updated_newest":
+      sortedStops.sort((a, b) =>
+        new Date(b.UpdatedAt || 0).getTime() - new Date(a.UpdatedAt || 0).getTime()
+      );
+      break;
+    case "updated_oldest":
+      sortedStops.sort((a, b) =>
+        new Date(a.UpdatedAt || 0).getTime() - new Date(b.UpdatedAt || 0).getTime()
+      );
+      break;
+    default:
+      sortedStops.sort((a, b) => {
+        const dateA = new Date(a.UpdatedAt || a.CreatedAt || 0).getTime();
+        const dateB = new Date(b.UpdatedAt || b.CreatedAt || 0).getTime();
+        return dateB - dateA;
+      });
+  }
 
     const filteredStops = sortedStops.filter((stop) =>
       stop.StopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -267,6 +300,8 @@ const RouteManagementPage: React.FC = () => {
                       <th>Stop Name</th>
                       <th>Longitude</th>
                       <th>Latitude</th>
+                      <th>Created At</th>
+                      <th>Updated At</th>
                       <th className={styles.actions}>Actions</th>
                     </tr>
                   </thead>
@@ -277,6 +312,8 @@ const RouteManagementPage: React.FC = () => {
                           <td>{stop.StopName}</td>
                           <td>{stop.longitude}</td>
                           <td>{stop.latitude}</td>
+                          <td>{stop.CreatedAt ? new Date(stop.CreatedAt).toLocaleString() : '-'}</td>
+                          <td>{stop.UpdatedAt ? new Date(stop.UpdatedAt).toLocaleString() : '-'}</td>
                           <td className={styles.actions}>
                             <button
                               className={styles.editBtn}
@@ -298,7 +335,7 @@ const RouteManagementPage: React.FC = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className={styles.noRecords}>
+                        <td colSpan={6} className={styles.noRecords}>
                           No records found.
                         </td>
                       </tr>
