@@ -232,11 +232,12 @@ const BusAssignmentPage: React.FC = () => {
       const assignments = await fetchAssignmentDetails();
       console.log(assignments);
 
-      // Sort newest first so new records appear at top
-      assignments.sort((a, b) =>
-        new Date(b.BusAssignment?.CreatedAt || 0).getTime() -
-        new Date(a.BusAssignment?.CreatedAt || 0).getTime()
-      );
+      // Sort by UpdatedAt (newest first), fallback to CreatedAt
+      assignments.sort((a, b) => {
+        const dateA = new Date(a.BusAssignment?.UpdatedAt || a.BusAssignment?.CreatedAt || 0).getTime();
+        const dateB = new Date(b.BusAssignment?.UpdatedAt || b.BusAssignment?.CreatedAt || 0).getTime();
+        return dateB - dateA; // Newest first
+      });
 
       setAssignments(assignments);
     } catch (error) {
