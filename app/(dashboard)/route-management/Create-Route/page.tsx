@@ -176,6 +176,7 @@ const CreateRoutePage: React.FC = () => {
       setCurrentPage(1);
     }
   }, [routes, searchQuery, sortOrder, pageSize]);
+  
 
   const handleEditRoute = (route: Route) => {
     console.log(route);
