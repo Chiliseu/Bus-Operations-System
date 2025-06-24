@@ -230,7 +230,7 @@ const BusOperationPage: React.FC = () => {
         driverReady: assignment.Self_Driver,
         conductorReady: assignment.Self_Conductor,
       },
-      changeFunds: assignment.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0, // <-- Prefill change fund
+      pettyCash: assignment.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0, // <-- Prefill change fund
       tickets: assignment.RegularBusAssignment?.LatestBusTrip?.TicketBusTrips?.map((t: any) => ({
         type: t.TicketType?.TicketTypeID ?? "",
         StartingIDNumber: t.StartingIDNumber,
@@ -246,7 +246,7 @@ const BusOperationPage: React.FC = () => {
     regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean; };
-    changeFunds: number;
+    pettyCashs: number;
     tickets: { type: string; StartingIDNumber: number; OverallEndingID: number }[];
   }): Promise<boolean> => {
     try {
@@ -274,7 +274,7 @@ const BusOperationPage: React.FC = () => {
         Self_Conductor: data.personnelCondition.conductorReady ?? false,
         ResetCompleted: false,
         // The following fields are placeholders; replace with real values if available
-        ChangeFund: data.changeFunds ?? 0,
+        PettyCash: data.pettyCashs ?? 0,
         DispatchedAt: null,
         Sales: null,
         ...(TicketBusTrips.length > 0 && { TicketBusTrips }), // Only include if not empty

@@ -44,7 +44,6 @@ export async function createStopWithToken(stop: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Backend error:', errorText);
     throw new Error('Failed to add stop');
   }
 

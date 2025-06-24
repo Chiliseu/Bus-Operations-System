@@ -59,10 +59,6 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
 
-
-  console.log("Updating BusAssignment with ID:", BusAssignmentID);
-  console.log("Data to update:", data);
-
   const response = await fetch(`${baseUrl}/api/bus-assignment/${BusAssignmentID}`, {
     method: 'PUT',
     headers: {
