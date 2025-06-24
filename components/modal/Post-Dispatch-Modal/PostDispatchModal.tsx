@@ -101,11 +101,11 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   const companySharePercent = activeQuota?.Percentage?.Percentage ?? 0;
   const companyShareDecimal = companySharePercent / 100;
   const totalSales = sales ?? 0;
-  const changeFund = busInfo.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0;
+  const pettyCash = busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0;
   const tripExpenseValue = paymentMethod === 'reimbursement' ? (tripExpense ?? 0) : 0;
 
   // Company gets a percentage of sales, plus change fund, minus trip expense if reimbursement
-  const companyMoney = (totalSales * companyShareDecimal) + changeFund - tripExpenseValue;
+  const companyMoney = (totalSales * companyShareDecimal) + pettyCash - tripExpenseValue;
   const remainingMoney = totalSales - (totalSales * companyShareDecimal);
 
   const validateInputs = () => {
@@ -197,7 +197,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                   <div className={styles['modern-quota-total']}>
                     ₱ {(
                       (activeQuota.Fixed.Quota ?? 0) +
-                      (busInfo.RegularBusAssignment?.LatestBusTrip?.ChangeFund ?? 0) -
+                      (busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0) -
                       (paymentMethod === 'reimbursement' ? tripExpense : 0)
                     ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
@@ -213,9 +213,9 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                     <div className={styles['modern-quota-operator']}>+</div>
                     
                     <div className={styles['modern-quota-item']}>
-                      <div className={styles['modern-quota-label']}>Change Fund</div>
+                      <div className={styles['modern-quota-label']}>Petty Cash</div>
                       <div className={styles['modern-quota-value']}>
-                        ₱ {busInfo.RegularBusAssignment?.LatestBusTrip?.ChangeFund?.toLocaleString(undefined, { minimumFractionDigits: 2 }) ?? "0.00"}
+                        ₱ {busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash?.toLocaleString(undefined, { minimumFractionDigits: 2 }) ?? "0.00"}
                       </div>
                     </div>
                     
@@ -243,7 +243,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       </div>
                       <div className={styles['modern-share-title']}>Company Gets</div>
                       <div className={styles['modern-share-subtitle']}>
-                        {companySharePercent}% of Sales + Change Fund{paymentMethod === 'reimbursement' ? ' - Trip Expense' : ''}
+                        {companySharePercent}% of Sales + Petty Cash{paymentMethod === 'reimbursement' ? ' - Trip Expense' : ''}
                       </div>
                     </div>
                     
