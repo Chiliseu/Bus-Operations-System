@@ -9,7 +9,12 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import styles from "./edit-route.module.css";
-import RouteMapPreview from "@/components/ui/RouteMapPreview";
+import dynamic from "next/dynamic";
+
+const RouteMapPreview = dynamic(
+  () => import("@/components/ui/RouteMapPreview"),
+  { ssr: false }
+);
 
 interface EditRouteModalProps {
   show: boolean;
