@@ -9,22 +9,23 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import styles from "./add-route.module.css";
+import RouteMapPreview from "@/components/ui/RouteMapPreview";
 
 interface AddRouteModalProps {
   show: boolean;
   onClose: () => void;
   onCreate: (route: {
     routeName: string;
-    startStop: string;
-    endStop: string;
+    startStop: Stop;
+    endStop: Stop;
     stopsBetween: { StopID: string; StopName: string }[];
   }) => void;
   routeName: string;
   setRouteName: (name: string) => void;
-  startStop: string;
-  setStartStop: (name: string) => void;
-  endStop: string;
-  setEndStop: (name: string) => void;
+  startStop: Stop | null;
+  setStartStop: (stop: Stop | null) => void;
+  endStop: Stop | null;
+  setEndStop: (stop: Stop | null) => void;
   stopsBetween: Stop[];
   setStopsBetween: (stops: Stop[]) => void;
   onStartStopClick: () => void;
@@ -59,6 +60,10 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
     }, 1000);
     return () => clearInterval(interval);
   }, [show]);
+
+  useEffect(() => {
+    console.log("stopsBetween:", stopsBetween);
+  }, [stopsBetween]);
 
   if (!show) return null;
 
@@ -96,7 +101,7 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
   };
 
   const handleCreate = async () => {
-    if (!routeName.trim() || !startStop.trim() || !endStop.trim()) {
+    if (!routeName.trim() || !startStop?.StopName.trim() || !endStop?.StopName.trim()) {
       await Swal.fire({
         icon: "warning",
         title: "Missing Fields",
@@ -116,8 +121,8 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
 
     onCreate({ routeName, startStop, endStop, stopsBetween });
     setRouteName("");
-    setStartStop("");
-    setEndStop("");
+    setStartStop(null);
+    setEndStop(null);
     setStopsBetween([]);
     onClose();
   };
@@ -157,7 +162,7 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
                   type="text"
                   className={`${styles.input} ${startStop ? styles.filled : ""}`}
                   placeholder="Click to select start stop"
-                  value={startStop}
+                  value={startStop?.StopName}
                   onClick={onStartStopClick}
                   readOnly
                 />
@@ -168,13 +173,24 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
                   type="text"
                   className={`${styles.input} ${endStop ? styles.filled : ""}`}
                   placeholder="Click to select end stop"
-                  value={endStop}
+                  value={endStop?.StopName}
                   onClick={onEndStopClick}
                   readOnly
                 />
               </div>
             </div>
           </div>
+
+          <RouteMapPreview
+            key={
+              (startStop?.StopID || "") +
+              (endStop?.StopID || "") +
+              stopsBetween.map(s => s.StopID).join("-")
+            }
+            startStop={startStop}
+            endStop={endStop}
+            stopsBetween={stopsBetween}
+          />
 
           {/* Stops Between */}
           <div className={styles.section}>

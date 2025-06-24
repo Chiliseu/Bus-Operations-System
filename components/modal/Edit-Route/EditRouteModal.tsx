@@ -9,6 +9,7 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import styles from "./edit-route.module.css";
+import RouteMapPreview from "@/components/ui/RouteMapPreview";
 
 interface EditRouteModalProps {
   show: boolean;
@@ -16,17 +17,17 @@ interface EditRouteModalProps {
   route: Route | null;
   routeName: string;
   setRouteName: React.Dispatch<React.SetStateAction<string>>;
-  startStop: string;
-  setStartStop: React.Dispatch<React.SetStateAction<string>>;
-  endStop: string;
-  setEndStop: React.Dispatch<React.SetStateAction<string>>;
+  startStop: Stop | null;
+  setStartStop: React.Dispatch<React.SetStateAction<Stop | null>>;
+  endStop: Stop | null;
+  setEndStop: React.Dispatch<React.SetStateAction<Stop | null>>;
   stopsBetween: Stop[];
   setStopsBetween: React.Dispatch<React.SetStateAction<Stop[]>>;
   onSave: (route: {
     RouteID: string;
     RouteName: string;
-    StartStop: string;
-    EndStop: string;
+    StartStop: Stop;
+    EndStop: Stop;
     stopsBetween: Stop[];
   }) => void;
   onStartStopClick: () => void;
@@ -161,7 +162,7 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                   type="text"
                   className={`${styles.formControl} ${startStop ? styles.filled : ""}`}
                   placeholder="Click to select start stop"
-                  value={startStop}
+                  value={startStop?.StopName}
                   onClick={onStartStopClick}
                   readOnly
                 />
@@ -172,13 +173,24 @@ const EditRouteModal: React.FC<EditRouteModalProps> = ({
                   type="text"
                   className={`${styles.formControl} ${endStop ? styles.filled : ""}`}
                   placeholder="Click to select end stop"
-                  value={endStop}
+                  value={endStop?.StopName}
                   onClick={onEndStopClick}
                   readOnly
                 />
               </div>
             </div>
           </div>
+
+          <RouteMapPreview
+            key={
+              (startStop?.StopID || "") +
+              (endStop?.StopID || "") +
+              stopsBetween.map(s => s.StopID).join("-")
+            }
+            startStop={startStop}
+            endStop={endStop}
+            stopsBetween={stopsBetween}
+          />
 
           <div className={styles.formSection}>
             <h4 className={styles.sectionTitle}>Stops Between</h4>
