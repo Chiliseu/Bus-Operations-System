@@ -176,31 +176,31 @@ const CreateRoutePage: React.FC = () => {
       setCurrentPage(1);
     }
   }, [routes, searchQuery, sortOrder, pageSize]);
+  
 
   const handleEditRoute = (route: Route) => {
+    console.log(route);
     setRouteToEdit(route);
     setEditRouteName(route.RouteName || '');
-    setEditStartStop(route.StartStop?.StopName || '');
-    setEditEndStop(route.EndStop?.StopName || '');
     setStartStopID(route.StartStop?.StopID || null);
     setEndStopID(route.EndStop?.StopID || null);
     setEditSelectedStartStop(route.StartStop || null);
     setEditSelectedEndStop(route.EndStop || null);
     setEditStopsBetween(
-    route.RouteStops
-      ? route.RouteStops
-          .filter(rs => rs.Stop && rs.Stop.StopID)
-          .map(rs => ({
-            StopID: rs.Stop.StopID,
-            StopName: rs.Stop.StopName || '',
-            IsDeleted: rs.Stop.IsDeleted ?? false,
-            latitude: rs.Stop.latitude ?? '',
-            longitude: rs.Stop.longitude ?? '',
-            CreatedAt: rs.Stop.CreatedAt ?? '',
-            UpdatedAt: rs.Stop.UpdatedAt ?? '',
-          }))
-      : []
-  );
+      route.RouteStops
+        ? route.RouteStops
+            .filter(rs => rs.Stop && rs.Stop.StopID)
+            .map(rs => ({
+              StopID: rs.Stop.StopID,
+              StopName: rs.Stop.StopName || '',
+              IsDeleted: rs.Stop.IsDeleted ?? false,
+              latitude: rs.Stop.latitude ?? '',
+              longitude: rs.Stop.longitude ?? '',
+              CreatedAt: rs.Stop.CreatedAt ?? '',
+              UpdatedAt: rs.Stop.UpdatedAt ?? '',
+            }))
+        : []
+    );
     setShowEditRouteModal(true);
   };
 
@@ -379,10 +379,10 @@ const CreateRoutePage: React.FC = () => {
             onCreate={handleAddRoute}
             routeName={routeName}
             setRouteName={setRouteName}
-            startStop={startStop}
-            setStartStop={setStartStop}
-            endStop={endStop}
-            setEndStop={setEndStop}
+            startStop={selectedStartStop}
+            setStartStop={setSelectedStartStop}
+            endStop={selectedEndStop}
+            setEndStop={setSelectedEndStop}
             stopsBetween={stopsBetween}
             setStopsBetween={setStopsBetween}
             onStartStopClick={() => {
@@ -492,15 +492,7 @@ const CreateRoutePage: React.FC = () => {
                   setEndStopID(stop.StopID);
                 } else if (stopType === 'between' && selectedStopIndex !== null) {
                   const updatedStops = [...editStopsBetween];
-                  updatedStops[selectedStopIndex] = {
-                    StopID: stop.StopID,
-                    StopName: stop.StopName,
-                    IsDeleted: false,
-                    latitude: '',
-                    longitude: '',
-                    CreatedAt: '', // or new Date().toISOString()
-                    UpdatedAt: '', // or new Date().toISOString()
-                  };
+                  updatedStops[selectedStopIndex] = stop;
                   setEditStopsBetween(updatedStops);
                 }
               } else {
@@ -514,15 +506,7 @@ const CreateRoutePage: React.FC = () => {
                   setSelectedEndStop(stop);
                 } else if (stopType === 'between' && selectedStopIndex !== null) {
                   const updatedStops = [...stopsBetween];
-                  updatedStops[selectedStopIndex] = {
-                    StopID: stop.StopID,
-                    StopName: stop.StopName,
-                    IsDeleted: false,
-                    latitude: '',
-                    longitude: '',
-                    CreatedAt: '', // or new Date().toISOString()
-                    UpdatedAt: '', // or new Date().toISOString()
-                  };
+                  updatedStops[selectedStopIndex] = stop;
                   setStopsBetween(updatedStops);
                 }
               }
@@ -553,10 +537,10 @@ const CreateRoutePage: React.FC = () => {
           route={routeToEdit}
           routeName={editRouteName}
           setRouteName={setEditRouteName}
-          startStop={editStartStop}
-          setStartStop={setEditStartStop}
-          endStop={editEndStop}
-          setEndStop={setEditEndStop}
+          startStop={editSelectedStartStop}
+          setStartStop={setEditSelectedStartStop}
+          endStop={editSelectedEndStop}
+          setEndStop={setEditSelectedEndStop}
           stopsBetween={editStopsBetween}
           setStopsBetween={setEditStopsBetween}
           onSave={handleSaveEditedRoute}
