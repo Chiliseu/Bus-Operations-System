@@ -245,7 +245,7 @@ const BusAssignmentPage: React.FC = () => {
     } catch (error) {
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
+        title: 'Fetch Failed',
         text: 'Error loading assignments',
       });
     } finally {
@@ -550,10 +550,10 @@ const BusAssignmentPage: React.FC = () => {
                             }}
                             title="View"
                           >
-                            <img src="/assets/images/eye-line.png" alt="View" />
+                            <Image src="/assets/images/eye-line.png" alt="View" width={25} height={25} />
                           </button>
                           <button className={styles.editBtn} onClick={() => handleEdit(assignment)}>
-                            <img src="/assets/images/edit-white.png" alt="Edit" />
+                            <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
                           </button>
                           <button className={styles.deleteBtn} onClick={() =>
                             handleDelete(
@@ -561,7 +561,7 @@ const BusAssignmentPage: React.FC = () => {
                               assignment.BusAssignment?.IsDeleted
                             )
                           }>
-                            <img src="/assets/images/delete-white.png" alt="Delete" />
+                            <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
                           </button>
                         </td>
                       </tr>

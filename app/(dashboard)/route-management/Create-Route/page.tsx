@@ -10,6 +10,7 @@ import AddRouteModal from "@/components/modal/Add-Route/AddRouteModal";
 import EditRouteModal from '@/components/modal/Edit-Route/EditRouteModal';
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
+import ViewRouteModal from "@/components/modal/View-Route/ViewRouteModal"
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -35,6 +36,7 @@ const CreateRoutePage: React.FC = () => {
   const [showAssignBusModal, setShowAssignBusModal] = useState(false);
   const [showAddRouteModal, setShowAddRouteModal] = useState(false);
   const [showEditRouteModal, setShowEditRouteModal] = useState(false);
+  const [showViewRouteModal, setShowViewRouteModal] = useState(false);
   const [routeToEdit, setRouteToEdit] = useState<Route | null>(null);
   const [editRouteName, setEditRouteName] = useState('');
   const [editStartStop, setEditStartStop] = useState('');
@@ -42,7 +44,8 @@ const CreateRoutePage: React.FC = () => {
   const [editStopsBetween, setEditStopsBetween] = useState<Stop[]>([]);
   const [editSelectedStartStop, setEditSelectedStartStop] = useState<Stop | null>(null);
   const [editSelectedEndStop, setEditSelectedEndStop] = useState<Stop | null>(null);
-
+  const [routeToView, setRouteToView] = useState<Route | null>(null);
+  
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
   const [selectedEndStop, setSelectedEndStop] = useState<Stop | null>(null);
@@ -428,6 +431,15 @@ const CreateRoutePage: React.FC = () => {
                       <td>{route.UpdatedAt ? new Date(route.UpdatedAt).toLocaleString() : '-'}</td>
                       <td className={styles.actions}>
                         <button
+                          className={styles.viewBtn}
+                          onClick={() => {
+                            setRouteToView(route);
+                            setShowViewRouteModal(true);
+                          }}
+                        >
+                          <Image src="/assets/images/eye-line.png" alt="View" width={25} height={25} />
+                        </button>
+                        <button
                           className={styles.editBtn}
                           onClick={() => handleEditRoute(route)}
                         >
@@ -556,6 +568,12 @@ const CreateRoutePage: React.FC = () => {
             setSelectedStopIndex(idx);
             setShowStopsModal(true);
           }}
+        />
+
+        <ViewRouteModal
+          show={showViewRouteModal}
+          onClose={() => setShowViewRouteModal(false)}
+          route={routeToView}
         />
 
         {modalLoading && <LoadingModal />}
