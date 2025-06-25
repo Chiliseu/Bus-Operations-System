@@ -22,9 +22,9 @@
 
 /* === Actions Column Styling === */
 .actions {
-  width: 120px;              /* Fixed width to fit buttons */
-  text-align: center;        /* Center content horizontally */
-  white-space: nowrap;       /* Prevent line breaks */
+  width: 180px; /* or more, adjust as needed */
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* === Base Button Styling === */
@@ -61,6 +61,25 @@
 
 /* === Edit Button Specific Styling === */
 /* Edit and Delete Button Icon Styling */
+/* Edit and Delete Button Icon Styling */
+ .viewBtn {
+  background-color: #1cb353;
+  padding: 3px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px;
+}
+
+.viewBtn:hover {
+  background-color: #14863e;
+}
+
+
+
 .editBtn {
   background-color: #2D8EFF;
   padding: 3px 6px;
@@ -92,6 +111,7 @@
   background-color: #DE3939;
 }
 
+.viewBtn img,
 .editBtn img,
 .deleteBtn img {
   width: 20px;   /* smaller width */

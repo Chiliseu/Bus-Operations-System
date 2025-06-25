@@ -81,7 +81,11 @@ const BusOperationPage: React.FC = () => {
 
       setAssignments(sorted);
     } catch (error) {
-      console.error('Error fetching assignments:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Failed to load assignments.',
+      });
     } finally {
       setLoading(false);
     }
@@ -237,10 +241,9 @@ const BusOperationPage: React.FC = () => {
       setLoadingModal(false);
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: error?.message || 'Failed to update bus readiness.',
+        title: 'Finalization Failed',
+        text: 'Failed to finalize bus trip and record sales.',
       });
-      console.error('Failed to update bus assignment:', error);
     }
   };
 

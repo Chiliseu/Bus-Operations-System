@@ -66,10 +66,6 @@ const AddRouteModal: React.FC<AddRouteModalProps> = ({
     return () => clearInterval(interval);
   }, [show]);
 
-  useEffect(() => {
-    console.log("stopsBetween:", stopsBetween);
-  }, [stopsBetween]);
-
   if (!show) return null;
 
   const handleAddStop = () => {

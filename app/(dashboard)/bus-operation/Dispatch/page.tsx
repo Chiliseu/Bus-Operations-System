@@ -72,7 +72,11 @@ const BusOperationPage: React.FC = () => {
 
       setAssignments(sorted);
     } catch (error) {
-      console.error("Error fetching bus assignments:", error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Failed to load assignments.',
+      });
     } finally {
       setLoading(false);
     }
@@ -193,7 +197,11 @@ const BusOperationPage: React.FC = () => {
         await Swal.fire('Success', 'Bus dispatched successfully!', 'success');
         fetchAssignments();
       } catch (error: any) {
-        Swal.fire('Error', error.message || 'Failed to dispatch bus', 'error');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Dispatch Failed',
+          text: 'Failed to dispatch.',
+        });
       }
     }
   };

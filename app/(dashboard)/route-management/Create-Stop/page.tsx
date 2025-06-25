@@ -9,6 +9,8 @@ import PrintTable from '@/components/printtable/PrintTable'; // Importing the Pr
 import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
 import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
+import ViewStopModal from "@/components/modal/View-Stop/ViewStopModal";
+
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -25,8 +27,9 @@ const RouteManagementPage: React.FC = () => {
 
   const [modalLoading, setModalLoading] = useState(false);
 
-  // For editing stops
+  // For editing/view stops
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
 
   // Pagination states
@@ -114,7 +117,11 @@ const RouteManagementPage: React.FC = () => {
       const data = await fetchStopsWithToken();
       setStops(data);
     } catch (error) {
-      console.error("Error fetching stops:", error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Failed to load stops.',
+      });
     } finally {
       setLoading(false);
     }
@@ -154,12 +161,11 @@ const RouteManagementPage: React.FC = () => {
       return true;
     } catch (error) {
       setModalLoading(false);
-      console.error('Error adding stop:', error);
-          await Swal.fire({
-            icon: 'error',
-            title: 'Add Failed',
-            text: 'Failed to add stop. Please try again.',
-          });
+      await Swal.fire({
+        icon: 'error',
+        title: 'Add Failed',
+        text: 'Failed to add stop. Please try again.',
+      });
       setShowAddStopModal(false);
       return false;
     }
@@ -189,12 +195,11 @@ const RouteManagementPage: React.FC = () => {
       setSelectedStop(null);
       return true;
     } catch (error) {
-      console.error('Error updating stop:', error);
       setModalLoading(false);
       await Swal.fire({
         icon: 'error',
         title: 'Update Failed',
-        text: error instanceof Error ? error.message : 'Failed to update stop. Please try again.',
+        text: 'Failed to update stop. Please try again.',
       });
       return false;
     }
@@ -268,10 +273,10 @@ const RouteManagementPage: React.FC = () => {
             />
           </div>
 
-              <FilterDropdown
-                sections={filterSections}
-                onApply={handleApplyFilters}
-              />
+          <FilterDropdown
+            sections={filterSections}
+            onApply={handleApplyFilters}
+          />
 
           <button
             className={styles.addButton}
@@ -316,6 +321,15 @@ const RouteManagementPage: React.FC = () => {
                           <td>{stop.UpdatedAt ? new Date(stop.UpdatedAt).toLocaleString() : 'No Updates'}</td>
                           <td className={styles.actions}>
                             <button
+                              className={styles.viewBtn}
+                              onClick={() => {
+                                setSelectedStop(stop);
+                                setShowViewModal(true);
+                              }}
+                            >
+                              <Image src="/assets/images/eye-line.png" alt="View" width={25} height={25} />
+                            </button>
+                            <button
                               className={styles.editBtn}
                               onClick={() => {
                                 setSelectedStop(stop);
@@ -324,6 +338,7 @@ const RouteManagementPage: React.FC = () => {
                             >
                               <Image src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
                             </button>
+
                             <button
                               className={styles.deleteBtn}
                               onClick={() => handleDelete(stop.StopID)}
@@ -370,6 +385,12 @@ const RouteManagementPage: React.FC = () => {
               : null
           }
           onSave={handleSave}
+        />
+
+        <ViewStopModal
+          show={showViewModal}
+          onClose={() => setShowViewModal(false)}
+          stop={selectedStop}
         />
 
         {modalLoading && <LoadingModal />}
