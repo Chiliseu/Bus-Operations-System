@@ -85,7 +85,7 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
                 placeholder="Enter stop name"
               />
             <small className={styles.hint}>
-              * Max 30 characters and only . , - &apos; &amp; / # allowed.
+              * Max 30 characters and only . , - &#39; &amp; / # allowed.
             </small>
           </div>
           
