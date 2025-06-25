@@ -25,14 +25,14 @@ interface BusReadinessModalProps  {
     regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean };
-    changeFunds: number;
+    pettyCashs: number;
     tickets: Ticket[];
   }) => Promise<boolean>;
   readiness?: {
     regularBusAssignmentID: string;
     vehicleCondition: Record<string, boolean>;
     personnelCondition: { driverReady: boolean; conductorReady: boolean };
-    changeFunds: number;
+    pettyCashs: number;
     tickets: Ticket[];
   };
 }
@@ -60,7 +60,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     conductorReady: false,
   });
   const [showChangeInput, setShowChangeInput] = useState(false);
-  const [changeFunds, setChangeFunds] = useState(0);
+  const [pettyCashs, setPettyCashs] = useState(0);
   const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]);
   const [currentTime, setCurrentTime] = useState(
   new Date().toLocaleString('en-US', { hour12: true })
@@ -82,8 +82,8 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
         conditionItems.reduce((acc, item) => ({ ...acc, [item]: false }), {})
       );
       setPersonnelCondition(readiness?.personnelCondition ?? { driverReady: false, conductorReady: false });
-      setShowChangeInput(!!readiness?.changeFunds);
-      setChangeFunds(readiness?.changeFunds ?? 0);
+      setShowChangeInput(!!readiness?.pettyCashs);
+      setPettyCashs(readiness?.pettyCashs ?? 0);
       fetchAllTicketTypes()
         .then((types) => {
           setTicketTypes(types);
@@ -179,7 +179,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
       regularBusAssignmentID: busInfo.regularBusAssignmentID,
       vehicleCondition,
       personnelCondition,
-      changeFunds: changeFunds,
+      pettyCashs: pettyCashs,
       tickets,
     });
     if (success) {
@@ -249,7 +249,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                   checked={showChangeInput}
                   onChange={() => {
                     setShowChangeInput((prev) => {
-                      if (prev) setChangeFunds(0); // If unchecking, set to zero
+                      if (prev) setPettyCashs(0); // If unchecking, set to zero
                       return !prev;
                     });
                   }}
@@ -263,8 +263,8 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                   type="number"
                   className={styles.input}
                   placeholder="Enter amount or details"
-                  value={changeFunds}
-                  onChange={(e) => setChangeFunds(Number(e.target.value))}
+                  value={pettyCashs}
+                  onChange={(e) => setPettyCashs(Number(e.target.value))}
                 />
               )}
             </div>

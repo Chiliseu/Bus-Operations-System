@@ -1,4 +1,11 @@
 import { fetchDriversFullWithToken, fetchConductorsFullWithToken, fetchBusesFullWithToken } from '@/lib/apiCalls/external';
+import { BUS_ASSIGNMENT_URL } from '@/lib/urls';
+
+const Backend_BaseURL = process.env.NEXT_PUBLIC_Backend_BaseURL;
+
+if (!Backend_BaseURL) {
+  throw new Error("NEXT_PUBLIC_Backend_BaseURL is not defined");
+}
 
 export async function fetchAssignmentDetails(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
@@ -6,12 +13,12 @@ export async function fetchAssignmentDetails(): Promise<any[]> {
 
   // Fetch all in parallel
   const [assignmentsRes, drivers, conductors, buses] = await Promise.all([
-    fetch(`${baseUrl}/api/bus-assignment`, { credentials: 'include' }),
+    fetch(BUS_ASSIGNMENT_URL, { credentials: 'include' }),
     fetchDriversFullWithToken(),
     fetchConductorsFullWithToken(),
     fetchBusesFullWithToken(),
   ]);
-
+ 
   if (!assignmentsRes.ok) throw new Error(`Failed to fetch assignments: ${assignmentsRes.statusText}`);
   const assignments: any[] = await assignmentsRes.json();
 
@@ -35,7 +42,7 @@ export async function createBusAssignment(data: any): Promise<any> {
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
 
-  const response = await fetch(`${baseUrl}/api/bus-assignment`, {
+  const response = await fetch(BUS_ASSIGNMENT_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -59,11 +66,7 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
 
-
-  console.log("Updating BusAssignment with ID:", BusAssignmentID);
-  console.log("Data to update:", data);
-
-  const response = await fetch(`${baseUrl}/api/bus-assignment/${BusAssignmentID}`, {
+  const response = await fetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +94,7 @@ export async function sofDeleteBusAssignment(
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
   if (typeof IsDeleted !== 'boolean') throw new Error("IsDeleted must be a boolean.");
 
-  const response = await fetch(`${baseUrl}/api/bus-assignment/${BusAssignmentID}`, {
+  const response = await fetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

@@ -7,7 +7,7 @@ export interface BusTrip {
   DispatchedAt?: string | null;
   CompletedAt?: string | null;
   Sales?: number | null;
-  ChangeFund?: number | null;
+  PettyCash?: number | null;
   regularBusAssignment: RegularBusAssignment;
   TicketBusTrips: TicketBusTrip[];
   LatestForAssignment?: RegularBusAssignment | null;

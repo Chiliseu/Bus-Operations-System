@@ -232,7 +232,6 @@ const BusAssignmentPage: React.FC = () => {
     setLoading(true);
     try {
       const assignments = await fetchAssignmentDetails();
-      console.log(assignments);
 
       // Sort by UpdatedAt (newest first), fallback to CreatedAt
       assignments.sort((a, b) => {

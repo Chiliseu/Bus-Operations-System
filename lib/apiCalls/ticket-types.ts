@@ -1,3 +1,5 @@
+import { TICKET_TYPES_URL } from '@/lib/urls';
+
 export async function fetchAllTicketTypes(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
@@ -5,7 +7,7 @@ export async function fetchAllTicketTypes(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/ticket-types`, {
+  const response = await fetch(TICKET_TYPES_URL, {
     method: 'GET',
     credentials: 'include',
   });

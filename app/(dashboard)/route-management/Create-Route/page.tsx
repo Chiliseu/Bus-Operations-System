@@ -428,7 +428,7 @@ const CreateRoutePage: React.FC = () => {
                       <td>{route.EndStop?.StopName}</td>
                       <td>{route.RouteStops?.length ?? 0}</td>
                       <td>{route.CreatedAt ? new Date(route.CreatedAt).toLocaleString() : '-'}</td>
-                      <td>{route.UpdatedAt ? new Date(route.UpdatedAt).toLocaleString() : '-'}</td>
+                      <td>{route.UpdatedAt ? new Date(route.UpdatedAt).toLocaleString() : 'No Updates'}</td>
                       <td className={styles.actions}>
                         <button
                           className={styles.viewBtn}

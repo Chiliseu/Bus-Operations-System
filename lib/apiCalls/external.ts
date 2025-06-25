@@ -1,3 +1,5 @@
+import { DRIVERS_FULL_URL, CONDUCTORS_FULL_URL, DRIVERS_URL, CONDUCTORS_URL } from '@/lib/urls';
+
 export async function fetchDriversWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
@@ -5,7 +7,7 @@ export async function fetchDriversWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/drivers`, {
+  const response = await fetch(DRIVERS_URL, {
     credentials: 'include',
   });
 
@@ -14,7 +16,6 @@ export async function fetchDriversWithToken(): Promise<any[]> {
   }
 
   const json = await response.json();
-  console.log("DRIVER "+json.data);
   return json.data;
 }
 
@@ -25,7 +26,7 @@ export async function fetchConductorsWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/conductors`, {
+  const response = await fetch(CONDUCTORS_URL, {
     credentials: 'include',
   });
 
@@ -63,7 +64,7 @@ export async function fetchDriversFullWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/drivers/full`, {
+  const response = await fetch(DRIVERS_FULL_URL, {
     credentials: 'include',
   });
 
@@ -82,7 +83,7 @@ export async function fetchConductorsFullWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/conductors/full`, {
+  const response = await fetch(CONDUCTORS_FULL_URL, {
     credentials: 'include',
   });
 
