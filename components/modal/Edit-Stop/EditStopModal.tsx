@@ -93,14 +93,15 @@ const EditStopModal: React.FC<EditStopModalProps> = ({ show, onClose, stop, onSa
               }}
               placeholder="Enter stop name"
             />
-            {/* <small className={styles.hint}>
-              * Max 30 characters and only . , - &#39; &amp; / # allowed.
-            </small> */}
+            <small className={styles.hint}>
+              * Max 30 characters and only . , - &apos; &amp; / # allowed.
+            </small>
           </div>
           
           <label className={styles.label} style={{ marginBottom: 6 }}>
-            Select a location on the map to set the stop's coordinates.
+            Select a location on the map to set the stop&apos;s coordinates.
           </label>
+
 
           <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
             <StopMapPicker
