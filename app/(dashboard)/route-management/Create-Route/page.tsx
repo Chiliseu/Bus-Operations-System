@@ -92,7 +92,11 @@ const CreateRoutePage: React.FC = () => {
       const data = await fetchRoutesWithToken(); // Call the new function
       setRoutes(data);
     } catch (error) {
-      console.error('Error fetching routes:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Failed to load routes.',
+      });
     } finally {
       setLoading(false); // Stop loading
     }
@@ -176,10 +180,8 @@ const CreateRoutePage: React.FC = () => {
       setCurrentPage(1);
     }
   }, [routes, searchQuery, sortOrder, pageSize]);
-  
 
   const handleEditRoute = (route: Route) => {
-    console.log(route);
     setRouteToEdit(route);
     setEditRouteName(route.RouteName || '');
     setStartStopID(route.StartStop?.StopID || null);
@@ -242,11 +244,10 @@ const CreateRoutePage: React.FC = () => {
       fetchRoutes();
     } catch (error) {
       setModalLoading(false);
-      console.error('Error adding route:', error);
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: error instanceof Error ? error.message : 'Failed to add route. Please try again.',
+        title: 'Add Failed',
+        text: 'Failed to add route. Please try again.',
       });
     }
   };
@@ -276,11 +277,10 @@ const CreateRoutePage: React.FC = () => {
       fetchRoutes(); // Refresh the route list
     } catch (error) {
       setModalLoading(false);
-      console.error('Error deleting route:', error);
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: error instanceof Error ? error.message : 'Failed to delete route. Please try again.',
+        title: 'Delete Failed',
+        text: 'Failed to delete route. Please try again.',
       });
     }
   };
@@ -331,11 +331,10 @@ const CreateRoutePage: React.FC = () => {
       setEditStopsBetween([]);
     } catch (error) {
       setModalLoading(false);
-      console.error('Error updating route:', error);
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: error instanceof Error ? error.message : 'Failed to update route. Please try again.',
+        title: 'Update Failed',
+        text: 'Failed to update route. Please try again.',
       });
     }
   };

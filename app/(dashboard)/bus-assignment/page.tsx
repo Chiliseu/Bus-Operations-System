@@ -196,6 +196,8 @@ const BusAssignmentPage: React.FC = () => {
           busAssignment.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           busAssignment.conductorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           busAssignment.busLicensePlate?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          busAssignment.busType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          busAssignment.BusAssignment.Route.RouteName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           busTypeLabel.includes(searchQuery.toLowerCase())
         );
       });

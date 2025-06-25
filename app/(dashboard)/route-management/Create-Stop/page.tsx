@@ -114,7 +114,11 @@ const RouteManagementPage: React.FC = () => {
       const data = await fetchStopsWithToken();
       setStops(data);
     } catch (error) {
-      console.error("Error fetching stops:", error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Fetch Failed',
+        text: 'Failed to load stops.',
+      });
     } finally {
       setLoading(false);
     }
@@ -154,12 +158,11 @@ const RouteManagementPage: React.FC = () => {
       return true;
     } catch (error) {
       setModalLoading(false);
-      console.error('Error adding stop:', error);
-          await Swal.fire({
-            icon: 'error',
-            title: 'Add Failed',
-            text: 'Failed to add stop. Please try again.',
-          });
+      await Swal.fire({
+        icon: 'error',
+        title: 'Add Failed',
+        text: 'Failed to add stop. Please try again.',
+      });
       setShowAddStopModal(false);
       return false;
     }
@@ -189,12 +192,11 @@ const RouteManagementPage: React.FC = () => {
       setSelectedStop(null);
       return true;
     } catch (error) {
-      console.error('Error updating stop:', error);
       setModalLoading(false);
       await Swal.fire({
         icon: 'error',
         title: 'Update Failed',
-        text: error instanceof Error ? error.message : 'Failed to update stop. Please try again.',
+        text: 'Failed to update stop. Please try again.',
       });
       return false;
     }
