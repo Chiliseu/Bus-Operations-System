@@ -28,6 +28,61 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
         }))
     : [];
 
+  // Create the complete route visualization
+  const renderRouteVisualization = () => {
+    const allStops = [];
+    
+    // Add start stop
+    if (route.StartStop) {
+      allStops.push({
+        ...route.StartStop,
+        type: 'start'
+      });
+    }
+    
+    // Add intermediate stops
+    stopsBetween.forEach(stop => {
+      allStops.push({
+        ...stop,
+        type: 'intermediate'
+      });
+    });
+    
+    // Add end stop
+    if (route.EndStop) {
+      allStops.push({
+        ...route.EndStop,
+        type: 'end'
+      });
+    }
+
+    if (allStops.length === 0) {
+      return <div className={styles.noStopsText}>No route stops available</div>;
+    }
+
+    return (
+      <div className={styles.routeFlow}>
+        {allStops.map((stop, index) => (
+          <React.Fragment key={stop.StopID || index}>
+            <div 
+              className={`${styles.routeStop} ${
+                stop.type === 'start' ? styles.startStop : 
+                stop.type === 'end' ? styles.endStop : ''
+              }`}
+            >
+              {stop.StopName}
+              {stop.type === 'start' && ' (Start)'}
+              {stop.type === 'end' && ' (End)'}
+            </div>
+            {index < allStops.length - 1 && (
+              <div className={styles.routeArrow}>→</div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -51,26 +106,9 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
             <div className={styles.input} style={{ background: "#f5f5f5" }}>{route.EndStop?.StopName || "-"}</div>
           </div>
           <div className={styles.section}>
-            <label className={styles.label}>Stops Between</label>
-            <div
-              className={styles.input}
-              style={{
-                background: "#f5f5f5",
-                maxHeight: 120,
-                overflowY: "auto",
-                whiteSpace: "normal",
-                padding: "8px",
-              }}
-            >
-              {stopsBetween.length > 0 ? (
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  {stopsBetween.map((s, idx) => (
-                    <li key={s.StopID || idx}>{s.StopName}</li>
-                  ))}
-                </ul>
-              ) : (
-                "None"
-              )}
+            <label className={styles.label}>Route Visualization</label>
+            <div className={styles.routeVisualization}>
+              {renderRouteVisualization()}
             </div>
           </div>
           <div style={{ height: 300, width: "100%", marginBottom: 12 }}>

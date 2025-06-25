@@ -118,7 +118,7 @@
   font-family: 'Open sans'; /* Font */
   color: #1f2937;                 /* Text color */
   box-shadow: 0 1px 12px rgba(0,0,0,0.05); /* Subtle shadow */
-  font-size: 16px;                /* Font size */
+  font-size: 14px;                /* Font size */
 }
 
 /* === Table Header Row Styling === */

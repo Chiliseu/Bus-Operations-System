@@ -124,7 +124,7 @@
 .styledTable {
   width: 100%;                /* Full width */
   border-collapse: collapse;  /* Remove double borders */
-  font-size: 16px;            /* Readable font size */
+  font-size: 14px;            /* Readable font size */
 }
 
 /* Table header background color */
