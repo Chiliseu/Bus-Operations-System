@@ -1,3 +1,5 @@
+import { ROUTE_MANAGEMENT_FULL_URL, ROUTE_MANAGEMENT_URL } from '@/lib/urls';
+
 export async function fetchRoutesWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
@@ -5,7 +7,7 @@ export async function fetchRoutesWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/route-management/full`, {
+  const response = await fetch(ROUTE_MANAGEMENT_FULL_URL, {
     credentials: 'include',
   });
 
@@ -28,7 +30,7 @@ export async function createRouteWithToken(route: {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/route-management`, {
+  const response = await fetch(ROUTE_MANAGEMENT_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ export async function updateRouteWithToken(route: {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/route-management/${route.RouteID}`, {
+  const response = await fetch(`${ROUTE_MANAGEMENT_URL}/${route.RouteID}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -82,7 +84,7 @@ export async function deleteRouteWithToken(routeID: string): Promise<boolean> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/route-management/${routeID}`, {
+  const response = await fetch(`${ROUTE_MANAGEMENT_URL}/${routeID}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -110,7 +112,7 @@ export async function fetchRoutesModalWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/route-management`, {
+  const response = await fetch(ROUTE_MANAGEMENT_URL, {
     credentials: 'include',
   });
 

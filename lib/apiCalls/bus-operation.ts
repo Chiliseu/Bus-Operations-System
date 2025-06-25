@@ -1,4 +1,5 @@
 import { fetchDriversFullWithToken, fetchConductorsFullWithToken, fetchBusesFullWithToken } from '@/lib/apiCalls/external';
+import { BUS_OPERATIONS_URL } from '@/lib/urls';
 
 export async function fetchBusAssignmentsWithStatus(status?: string): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
@@ -6,7 +7,7 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
 
   const query = status ? `?status=${encodeURIComponent(status)}` : '';
-  const url = `${baseUrl}/api/bus-operations${query}`;
+  const url = `${BUS_OPERATIONS_URL}${query}`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -56,7 +57,7 @@ export async function updateBusAssignmentData(BusAssignmentID: string, data: any
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
 
-  const url = `${baseUrl}/api/bus-operations/${BusAssignmentID}`;
+  const url = `${BUS_OPERATIONS_URL}/${BusAssignmentID}`;
 
   const response = await fetch(url, {
     method: "PUT",

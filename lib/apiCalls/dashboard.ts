@@ -1,3 +1,5 @@
+import { DASHBOARD_URL } from '@/lib/urls';
+
 export async function fetchDashboardSummary(): Promise<{
   earnings: { month: number; year: number; data: number[] };
   busStatus: { NotStarted: number; NotReady: number; InOperation: number };
@@ -9,7 +11,7 @@ export async function fetchDashboardSummary(): Promise<{
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/dashboard`, {
+  const response = await fetch(DASHBOARD_URL, {
     method: "GET",
     credentials: "include",
   });

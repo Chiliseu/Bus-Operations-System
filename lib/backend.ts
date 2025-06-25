@@ -1,3 +1,5 @@
+import { LOGIN_URL } from './urls';
+
 const Backend_BaseURL = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
 if (!Backend_BaseURL) {
@@ -10,7 +12,7 @@ export const getBackendToken = () => backendToken;
 export const getBackendBaseURL = () => Backend_BaseURL;
 export const fetchBackendToken = async (): Promise<string | null> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_Backend_BaseURL}/api/login`, {
+    const res = await fetch(LOGIN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role: "admin" }),

@@ -1,6 +1,8 @@
+import { LOGOUT_URL } from '@/lib/urls';
+
 export async function logoutUser(): Promise<void> {
   try {
-    // const res = await fetch('https://auth.agilabuscorp.me/api/auth/logout', {
+    // const res = await fetch(LOGOUT_URL, {
     //   method: 'POST',
     //   credentials: 'include', // ensures cookies are sent
     // });
