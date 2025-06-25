@@ -413,7 +413,7 @@ const CreateRoutePage: React.FC = () => {
                   <th>Route Name</th>
                   <th>Start Stop</th>
                   <th>End Stop</th>
-                  <th>No. of Stops Between</th>
+                  <th>No. of Stops</th>
                   <th>Created At</th>
                   <th>Updated At</th>
                   <th className={styles.actions}>Actions</th>

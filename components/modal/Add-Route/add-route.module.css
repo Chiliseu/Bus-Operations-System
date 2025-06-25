@@ -32,10 +32,13 @@
 .modal {
   background: white;
   border-radius: 8px;
-  max-width: 1000px;
-  width: 95%;
+  max-width: 1300px;   /* Increased from 1000px */
+  width: 98%;          /* Slightly wider */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;    /* Prevent modal from exceeding viewport */
 }
 
 .header {
@@ -57,7 +60,10 @@
 }
 
 .body {
-  padding: 25px;
+  padding: 20px 30px;  /* Reduce vertical padding */
+  overflow-y: auto;    /* Enable vertical scroll if needed */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .section {

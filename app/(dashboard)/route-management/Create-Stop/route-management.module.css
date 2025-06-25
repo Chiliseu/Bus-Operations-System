@@ -22,7 +22,7 @@
 
 /* === Actions Column Styling === */
 .actions {
-  width: 180px; /* or more, adjust as needed */
+  min-width: 120px; /* or 100px, adjust as needed */
   text-align: center;
   white-space: nowrap;
 }
@@ -165,7 +165,7 @@
   width: 100%;                 /* Full width table */
   border-collapse: collapse;   /* Collapse borders */
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: #000000;              /* Black text */
   background-color: #fff;      /* White background */
   border-radius: 5px;         /* Rounded corners */

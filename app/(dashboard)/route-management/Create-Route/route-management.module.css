@@ -22,6 +22,12 @@
   transform: scale(1.1);         /* Slightly enlarge icon */
 }
 
+.actions {
+  min-width: 100px; /* or 100px, adjust as needed */
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* === Add Button Specific Styling === */
 
 .addButton {
@@ -152,7 +158,7 @@
   width: 100%;                 /* Full width table */
   border-collapse: collapse;   /* Collapse borders */
   font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: #000000;              /* Black text */
   background-color: #fff;      /* White background */
   border-radius: 5px;         /* Rounded corners */
