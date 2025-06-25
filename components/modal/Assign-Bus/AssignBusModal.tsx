@@ -87,7 +87,7 @@ const AssignBusModal = ({
               setSearchTerm(text);
               const filtered = buses.filter((bus) =>
                 bus.busId.toLowerCase().includes(text.toLowerCase()) ||
-                bus.route.toLowerCase().includes(text.toLowerCase()) ||
+                //bus.route.toLowerCase().includes(text.toLowerCase()) ||
                 bus.type.toLowerCase().includes(text.toLowerCase())
               );
               setFilteredBuses(filtered);
@@ -130,7 +130,7 @@ const AssignBusModal = ({
                   <div className='flex flex-col items-start'>
                     <div className="flex gap-2 items-center">
                       <div>{bus.busId}</div>
-                      <div className="text-sm text-gray-400">{bus.route}</div>
+                      {/* <div className="text-sm text-gray-400">{bus.route}</div> */}
                     </div>
                     <div className="text-sm text-gray-400">{bus.type}</div>
                     <div className="text-sm text-gray-400">{`${bus.capacity} seats`}</div>
