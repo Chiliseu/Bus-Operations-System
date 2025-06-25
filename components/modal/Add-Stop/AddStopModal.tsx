@@ -93,7 +93,6 @@ const AddStopModal: React.FC<AddStopModalProps> = ({ show, onClose, onCreate }) 
             Select a location on the map to set the stop&apos;s coordinates.
           </label>
 
-
           <div style={{ height: 300, width: "100%", marginBottom: 12 }}>
             <StopMapPicker
               latitude={latitude}
