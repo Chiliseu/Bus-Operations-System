@@ -313,7 +313,7 @@ const RouteManagementPage: React.FC = () => {
                           <td>{stop.longitude}</td>
                           <td>{stop.latitude}</td>
                           <td>{stop.CreatedAt ? new Date(stop.CreatedAt).toLocaleString() : '-'}</td>
-                          <td>{stop.UpdatedAt ? new Date(stop.UpdatedAt).toLocaleString() : '-'}</td>
+                          <td>{stop.UpdatedAt ? new Date(stop.UpdatedAt).toLocaleString() : 'No Updates'}</td>
                           <td className={styles.actions}>
                             <button
                               className={styles.editBtn}
