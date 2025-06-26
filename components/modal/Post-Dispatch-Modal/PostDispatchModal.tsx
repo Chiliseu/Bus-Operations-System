@@ -98,15 +98,16 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
     return sum + sold * value;
   }, 0);
 
-  const companySharePercent = activeQuota?.Percentage?.Percentage ?? 0;
-  const companyShareDecimal = companySharePercent / 100;
+  // const companySharePercent = activeQuota?.Percentage?.Percentage ?? 0;
+  // const companyShareDecimal = companySharePercent / 100;
+  const companyShareDecimal = activeQuota?.Percentage?.Percentage ?? 0; // use as-is for calculations
+  const companySharePercent = companyShareDecimal * 100; // for display
   const totalSales = sales ?? 0;
   const pettyCash = busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0;
   const tripExpenseValue = paymentMethod === 'reimbursement' ? (tripExpense ?? 0) : 0;
-
-  // Company gets a percentage of sales, plus change fund, minus trip expense if reimbursement
-  const companyMoney = (totalSales * companyShareDecimal) + pettyCash - tripExpenseValue;
-  const remainingMoney = totalSales - (totalSales * companyShareDecimal);
+  const netSales = totalSales - tripExpenseValue;
+  const companyMoney = netSales * companyShareDecimal;
+  const remainingMoney = netSales * (1 - companyShareDecimal);
 
   const validateInputs = () => {
     // Check Latest Ticket IDs
@@ -235,7 +236,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                     <div className={styles['modern-percentage-value']}>{companySharePercent}%</div>
                     <div className={styles['modern-percentage-label']}>Company Share</div>
                   </div>
-                  
                   <div className={styles['modern-share-grid']}>
                     <div className={`${styles['modern-share-card']} ${styles['modern-share-company']}`}>
                       <div className={styles['modern-share-amount']}>
@@ -243,17 +243,16 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       </div>
                       <div className={styles['modern-share-title']}>Company Gets</div>
                       <div className={styles['modern-share-subtitle']}>
-                        {companySharePercent}% of Sales + Petty Cash{paymentMethod === 'reimbursement' ? ' - Trip Expense' : ''}
+                        ({companySharePercent}% of Sales - Trip Expense)
                       </div>
                     </div>
-                    
                     <div className={`${styles['modern-share-card']} ${styles['modern-share-remaining']}`}>
                       <div className={styles['modern-share-amount']}>
                         ₱ {remainingMoney.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </div>
                       <div className={styles['modern-share-title']}>Remaining Share</div>
                       <div className={styles['modern-share-subtitle']}>
-                        {100 - companySharePercent}% of Sales
+                        ({(100 - companySharePercent).toFixed(2)}% of Sales - Trip Expense)
                       </div>
                     </div>
                   </div>
@@ -353,7 +352,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                           checked={paymentMethod === 'companycash'}
                           onChange={() => setPaymentMethod('companycash')}
                         />
-                        <span className={styles['modern-radio-label']}>Company Cash</span>
+                        <span className={styles['modern-radio-label']}>Petty Cash</span>
                       </label>
                     </div>
                   </div>
