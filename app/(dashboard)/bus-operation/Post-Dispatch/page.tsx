@@ -186,7 +186,7 @@ const BusOperationPage: React.FC = () => {
       case 'Non-Aircon':
         return 'Ordinary Bus';
       default:
-        return 'Unknown';
+        return '-';
     }
   };
 
@@ -295,11 +295,11 @@ const BusOperationPage: React.FC = () => {
                 {displayedAssignments.length > 0 ? (
                   displayedAssignments.map((assignment) => (
                     <tr key={assignment.BusAssignmentID}>
-                      <td>{assignment.busLicensePlate}</td>
-                      <td>{renderBusTypeLabel(assignment.busType)}</td>
-                      <td>{assignment.driverName}</td>
-                      <td>{assignment.conductorName}</td>
-                      <td>{assignment.Route?.RouteName || 'No Route'}</td>
+                      <td>{assignment.busLicensePlate || "-"}</td>
+                      <td>{renderBusTypeLabel(assignment.busType) || "-"}</td>
+                      <td>{assignment.driverName || "-"}</td>
+                      <td>{assignment.conductorName || "-"}</td>
+                      <td>{assignment.Route?.RouteName ?? "No Route"}</td>
                       <td>{assignment.CreatedAt ? new Date(assignment.CreatedAt).toLocaleString() : 'N/A'}</td>
                       <td>{assignment.UpdatedAt ? new Date(assignment.UpdatedAt).toLocaleString() : 'No updates'}</td>
                       <td className={styles.centeredColumn}>

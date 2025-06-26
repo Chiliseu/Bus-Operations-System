@@ -224,7 +224,7 @@ const BusAssignmentPage: React.FC = () => {
       case "Non-Aircon":
         return "Ordinary Bus";
       default:
-        return "Unknown Type";
+        return "-";
     }
   };
   // changes by Y 6/17/2025
@@ -299,7 +299,22 @@ const BusAssignmentPage: React.FC = () => {
       image: null,
     });
     setSelectedRoute(assignment.BusAssignment.Route);
-    setSelectedQuotaPolicy(assignment.QuotaPolicies);
+
+    // Multiply percentage value by 100 before passing to modal
+    const quotaPoliciesForModal = assignment.QuotaPolicies.map((policy) => {
+      if (policy.Percentage && typeof policy.Percentage.Percentage === "number") {
+        return {
+          ...policy,
+          Percentage: {
+            ...policy.Percentage,
+            Percentage: policy.Percentage.Percentage * 100,
+          },
+        };
+      }
+      return policy;
+    });
+
+    setSelectedQuotaPolicy(quotaPoliciesForModal);
     setShowEditModal(true);
   };
 
@@ -341,7 +356,16 @@ const BusAssignmentPage: React.FC = () => {
 
     try {
       setModalLoading(true);
-      await createBusAssignment(assignment);
+      // Transform QuotaPolicy values
+      const transformedAssignment = {
+        ...assignment,
+        QuotaPolicy: assignment.QuotaPolicy.map(q => ({
+          ...q,
+          value: q.type === "Percentage" ? q.value / 100 : q.value,
+        })),
+      };
+
+      await createBusAssignment(transformedAssignment);
       setModalLoading(false);
 
       await Swal.fire({
@@ -425,7 +449,7 @@ const BusAssignmentPage: React.FC = () => {
           return {
             QuotaPolicyID: policy.QuotaPolicyID,
             type: "Percentage",
-            value: policy.Percentage.Percentage,
+            value: policy.Percentage.Percentage / 100, // Divide by 100 before saving
             StartDate: policy.StartDate.toISOString().split("T")[0],
             EndDate: policy.EndDate.toISOString().split("T")[0],
           };
@@ -525,11 +549,11 @@ const BusAssignmentPage: React.FC = () => {
                   {paginatedAssignments.length > 0 ? (
                     paginatedAssignments.map((assignment) => (
                       <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
-                        <td>{assignment.busLicensePlate}</td>
+                        <td>{assignment.busLicensePlate || "-"}</td>
                         <td>{renderBusTypeLabel(assignment.busType)}</td>
-                        <td>{assignment.driverName || assignment.DriverID}</td>
-                        <td>{assignment.conductorName || assignment.ConductorID}</td>
-                        <td>{assignment.BusAssignment?.Route?.RouteName}</td>
+                        <td>{assignment.driverName || "-"}</td>
+                        <td>{assignment.conductorName || "-"}</td>
+                        <td>{assignment.BusAssignment?.Route?.RouteName || "No Route"}</td>
                         <td>
                           {assignment.BusAssignment?.CreatedAt
                             ? new Date(assignment.BusAssignment.CreatedAt).toLocaleString()
@@ -544,6 +568,7 @@ const BusAssignmentPage: React.FC = () => {
                           <button
                             className={styles.viewBtn}
                             onClick={() => {
+                              console.log(assignment);
                               setViewAssignment(assignment);
                               setShowViewModal(true);
                             }}

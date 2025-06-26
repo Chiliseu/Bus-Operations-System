@@ -110,7 +110,7 @@ const AssignConductorModal = ({
                   </div>
                   <div className='flex flex-col items-start'>
                     <div className="flex gap-2 items-center">
-                      <div>{conductor.name}</div>
+                      <div>{conductor.name || "No Name"}</div>
                       <div className="text-sm text-gray-400">{conductor.job}</div>
                     </div>
                     <div className="text-sm text-gray-400">{conductor.contactNo}</div>

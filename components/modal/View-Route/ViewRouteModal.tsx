@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./view-route.module.css";
 import dynamic from "next/dynamic";
 import { Route, Stop } from "@/app/interface";
 const RouteMapPreview = dynamic(() => import("@/components/ui/RouteMapPreview"), { ssr: false });
+const ViewStopModal = dynamic(() => import("../View-Stop/ViewStopModal"), { ssr: false });
 
 interface ViewRouteModalProps {
   show: boolean;
@@ -11,6 +12,9 @@ interface ViewRouteModalProps {
 }
 
 const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route }) => {
+  const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
+  const [showViewStopModal, setShowViewStopModal] = useState(false);
+
   if (!show || !route) return null;
 
   // Prepare stopsBetween as Stop[]
@@ -30,8 +34,8 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
 
   // Create the complete route visualization
   const renderRouteVisualization = () => {
-    const allStops = [];
-    
+    const allStops: (Stop & { type: string })[] = [];
+
     // Add start stop
     if (route.StartStop) {
       allStops.push({
@@ -39,7 +43,7 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
         type: 'start'
       });
     }
-    
+
     // Add intermediate stops
     stopsBetween.forEach(stop => {
       allStops.push({
@@ -47,7 +51,7 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
         type: 'intermediate'
       });
     });
-    
+
     // Add end stop
     if (route.EndStop) {
       allStops.push({
@@ -64,11 +68,16 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
       <div className={styles.routeFlow}>
         {allStops.map((stop, index) => (
           <React.Fragment key={stop.StopID || index}>
-            <div 
+            <div
               className={`${styles.routeStop} ${
-                stop.type === 'start' ? styles.startStop : 
+                stop.type === 'start' ? styles.startStop :
                 stop.type === 'end' ? styles.endStop : ''
               }`}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setSelectedStop(stop);
+                setShowViewStopModal(true);
+              }}
             >
               {stop.StopName}
               {stop.type === 'start' && ' (Start)'}
@@ -120,6 +129,12 @@ const ViewRouteModal: React.FC<ViewRouteModalProps> = ({ show, onClose, route })
           </div>
         </div>
       </div>
+      {/* ViewStopModal for stop details */}
+      <ViewStopModal
+        show={showViewStopModal}
+        onClose={() => setShowViewStopModal(false)}
+        stop={selectedStop}
+      />
     </div>
   );
 };

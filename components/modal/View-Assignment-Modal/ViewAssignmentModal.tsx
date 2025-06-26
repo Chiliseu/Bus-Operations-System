@@ -79,6 +79,14 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                   )}
                 </ul>
               </div>
+
+              {/* Route */}
+              <div className={styles.participantCard}>
+                <h5 className={styles.participantTitle}>Route</h5>
+                <ul className={styles.participantInfo}>
+                  <li><b>Route Name:</b> {assignment.BusAssignment.Route.RouteName || "N/A"}</li>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -121,7 +129,7 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                         {policy.Fixed && policy.Fixed.Quota != null
                           ? `₱${policy.Fixed.Quota}`
                           : policy.Percentage && policy.Percentage.Percentage != null
-                          ? `${policy.Percentage.Percentage}%`
+                          ? `${(policy.Percentage.Percentage * 100).toFixed(2)}%`
                           : "-"}
                       </div>
                     </div>
