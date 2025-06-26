@@ -276,7 +276,7 @@ const BusAssignmentPage: React.FC = () => {
     setSelectedAssignment(assignment.RegularBusAssignmentID);
     setSelectedBus({
       busId: assignment.BusAssignment.BusID,
-      route: '',
+      //route: '',
       type: '',
       capacity: 0,
       image: null,
