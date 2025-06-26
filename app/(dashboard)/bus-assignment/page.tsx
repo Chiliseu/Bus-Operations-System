@@ -544,6 +544,7 @@ const BusAssignmentPage: React.FC = () => {
                           <button
                             className={styles.viewBtn}
                             onClick={() => {
+                              console.log(assignment);
                               setViewAssignment(assignment);
                               setShowViewModal(true);
                             }}
