@@ -54,6 +54,7 @@ export async function fetchBusAssignmentsWithStatus(status?: string): Promise<an
 
 export async function updateBusAssignmentData(BusAssignmentID: string, data: any): Promise<any> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
+  console.log(BusAssignmentID, data);
 
   if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
 
