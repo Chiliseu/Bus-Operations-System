@@ -42,8 +42,8 @@ function extractTokenFromCookie(cookie: string | undefined): string | null {
 // --- Middleware ---
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const loginUrl = LOGIN_URL;
-
+  const loginUrl = 'https://auth.agilabuscorp.me/authentication/login';
+  
   console.log(`[middleware] Incoming request for "${pathname}"`);
 
   const allowedRoles = getAllowedRolesForPage(pathname);
