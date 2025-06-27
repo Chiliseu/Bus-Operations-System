@@ -1,13 +1,13 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
-import { useEffect} from 'react';
 import { fetchDriversWithToken } from '@/lib/apiCalls/external';
 import { Driver } from "@/app/interface";
-import Loading from "@/components/ui/Loading/Loading"
+import Loading from "@/components/ui/Loading/Loading";
+import styles from "./assign-driver.module.css";
 
 const AssignDriverModal = ({ 
   onClose,
@@ -15,11 +15,23 @@ const AssignDriverModal = ({
 }: { 
   onClose: () => void;
   onAssign: (driver: Driver) => void; 
-}
+}) => {
 
-) => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadDrivers = async () => {
@@ -43,11 +55,16 @@ const AssignDriverModal = ({
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
-
   const [filteredDrivers, setFilteredDrivers] = useState(drivers);
-  const [searchTerm, setSearchTerm] = useState(''); // use state for search function
+  const [searchTerm, setSearchTerm] = useState('');
 
   const dropdownItems = [
+    {
+      name: 'All',
+      action: () => {
+        setFilteredDrivers(drivers);
+      },
+    },
     {
       name: 'Alphabetical',
       action: () => {
@@ -56,87 +73,101 @@ const AssignDriverModal = ({
       },
     },
   ];
-
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
-      <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-lg p-4 flex flex-col">
-        {/*  Search Bar */}
-        <header className='mb-4'>
-          <SearchBar placeholder='Search Driver'
-            value={searchTerm}
-            onChange={(e) => {
-              const text = e.target.value;
-              setSearchTerm(text);
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Assign Driver</h2>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
 
-              // Filter drivers
-              const filtered = drivers.filter((driver) =>
-                driver.name.toLowerCase().includes(text.toLowerCase()) ||
-                driver.contactNo.toLowerCase().includes(text.toLowerCase()) ||
-                driver.address.toLowerCase().includes(text.toLowerCase())
-              );
-              setFilteredDrivers(filtered);
-            }}
-          />
-        </header>
-
-        {/* Title and Filter section */}
-        <nav className='px-3 flex justify-between items-center mb-2'>
-          <div className='font-medium text-lg'>Available Drivers</div>
-          {/* Filter */}
-          <div className='flex items-center gap-3'>
-            <div className='font-medium mr-3'>Filter</div>
-            <DropdownButton dropdownItems={dropdownItems} />
-          </div>
-        </nav>
-
-        {/* Driver List Section */}
-        <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {loading? (
-            <div className="flex justify-center items-center h-full w-full">
-              <Loading />
+        <div className={styles.body}>
+          {/* Search Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Search & Filter</h4>
+            <div className={styles.searchContainer}>
+              <SearchBar
+                placeholder="Search Driver"
+                value={searchTerm}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setSearchTerm(text);
+                  const filtered = drivers.filter((driver) =>
+                    driver.name.toLowerCase().includes(text.toLowerCase()) ||
+                    driver.contactNo.toLowerCase().includes(text.toLowerCase()) ||
+                    driver.address.toLowerCase().includes(text.toLowerCase())
+                  );
+                  setFilteredDrivers(filtered);
+                }}
+              />
+              <div className={styles.filterSection}>
+                <label className={styles.label}>Filter by:</label>
+                <DropdownButton dropdownItems={dropdownItems} />
+              </div>
             </div>
-          ):(
-            filteredDrivers.map((driver, index) => (
-              // Each Driver
-              <article key={index} className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between">
-                {/* Driver Info */}
-                <div className="flex items-center gap-3">
-                  {/* Driver Image */}
-                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                    <Image
-                      src={driver.image || '/assets/images/bus-fallback.png'}
-                      alt="Driver"
-                      className="object-cover"
-                      fill
+          </div>
+
+          {/* Available Drivers Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Available Drivers ({filteredDrivers.length})</h4>
+            <div className={styles.driverListContainer}>
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <Loading />
+                </div>
+              ) : filteredDrivers.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No drivers found matching your criteria.</p>
+                </div>
+              ) : (
+                filteredDrivers.map((driver, index) => (
+                  <div
+                    key={index}
+                    className={styles.driverCard}
+                  >
+                    <div className={styles.driverInfo}>
+                      <div className={styles.driverImageContainer}>
+                        <Image
+                          src={driver.image || '/assets/images/busdriver.png'}
+                          alt="Driver"
+                          className={styles.driverImage}
+                          fill
+                        />
+                      </div>
+                      <div className={styles.driverDetails}>
+                        <div className={styles.driverName}>
+                          {driver.name || "No Name"}
+                          <span className={styles.driverJob}>{driver.job}</span>
+                        </div>
+                        <div className={styles.driverContact}>{driver.contactNo}</div>
+                        <div className={styles.driverAddress}>{driver.address}</div>
+                      </div>
+                    </div>
+                    <Button 
+                      text="Assign" 
+                      onClick={() => onAssign(driver)}
                     />
                   </div>
-                  {/* Driver Details */}
-                  <div className='flex flex-col items-start'>
-                    <div className="flex gap-2 items-center">
-                      <div>{driver.name}</div>
-                      <div className="text-sm text-gray-400">{driver.job}</div>
-                    </div>
-                    <div className="text-sm text-gray-400">{driver.contactNo}</div>
-                    <div className="text-sm text-gray-400">{driver.address}</div>
-                  </div>
-                </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
 
-                {/* Assign Button */}
-                <Button
-                  text='Assign'
-                  onClick = {() => onAssign(driver)}
-                />
-              </article>
-            ))
-          )}
-        </section>
-
-        {/* Cancel button */}
-        <footer className='flex justify-end'>
-          <Button onClick={onClose} text='Cancel' bgColor='btn-secondary' />
-        </footer>
-      </main>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">
+            {currentTime}
+          </small>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,12 +1,13 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '@/components/ui/DropdownButton';
-import { Route } from '@/app/interface'; // Importing the Route interface
+import { Route } from '@/app/interface';
 import { fetchRoutesModalWithToken } from '@/lib/apiCalls/route';
 import Loading from "@/components/ui/Loading/Loading";
+import styles from "./assign-route.module.css";
 
 const AssignRouteModal = ({ 
   onClose,
@@ -15,27 +16,38 @@ const AssignRouteModal = ({
   onClose: () => void;
   onAssign: (route: Route) => void; 
 }) => {
-  const [routes, setRoutes] = useState<Route[]>([]); // State for all routes
-  const [filteredRoutes, setFilteredRoutes] = useState<Route[]>([]); // State for filtered routes
-  const [searchTerm, setSearchTerm] = useState(''); // State for search input
-  const [loading, setLoading] = useState(true); // Add loading state
 
-  // Fetch routes from the database
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
-    const fetchRoutes = async () => {
+    const loadRoutes = async () => {
       setLoading(true);
       try {
-        const data: Route[] = await fetchRoutesModalWithToken();
-        setRoutes(data); // Set the fetched routes
-        setFilteredRoutes(data); // Initialize filtered routes
+        const routes = await fetchRoutesModalWithToken();
+        setRoutes(routes);
+        setFilteredRoutes(routes);
       } catch (error) {
-        console.error('Error fetching routes:', error);
+        console.error('Error fetching routes from API:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRoutes();
+    loadRoutes();
   }, []);
 
   useEffect(() => {
@@ -43,7 +55,16 @@ const AssignRouteModal = ({
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
+  const [filteredRoutes, setFilteredRoutes] = useState(routes);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const dropdownItems = [
+    {
+      name: 'All',
+      action: () => {
+        setFilteredRoutes(routes);
+      },
+    },
     {
       name: 'Alphabetical',
       action: () => {
@@ -51,89 +72,101 @@ const AssignRouteModal = ({
         setFilteredRoutes(sorted);
       },
     },
-    {
-      name: 'Show All',
-      action: () => {
-        setFilteredRoutes(routes);
-      },
-    },
   ];
-
+  
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
-      <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-lg p-4 flex flex-col">
-        {/* Search Bar */}
-        <header className='mb-4'>  
-          <SearchBar 
-            placeholder='Search Route' 
-            value={searchTerm}
-            onChange={(e) => {
-              const text = e.target.value;
-              setSearchTerm(text);
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Assign Route</h2>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
 
-              // Filter routes based on search term
-              const filtered = routes.filter((route) =>
-                route.RouteName.toLowerCase().includes(text.toLowerCase()) ||
-                route.StartStop?.StopName.toLowerCase().includes(text.toLowerCase()) ||
-                route.EndStop?.StopName.toLowerCase().includes(text.toLowerCase())
-              );
-              setFilteredRoutes(filtered);
-            }}
-          ></SearchBar>
-        </header>
-
-        {/* Title and Filter section */}
-        <nav className='px-3 flex justify-between items-center mb-2'>
-          <div className='font-medium text-lg'>Routes</div>
-          <div className='flex items-center gap-3'>
-            <div className='font-medium mr-3'>Filter</div>
-            <DropdownButton dropdownItems={dropdownItems}></DropdownButton>
-          </div>
-        </nav>
-
-        {/* Route List Section */}
-        <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {loading? (
-            <div className="flex justify-center items-center h-full w-full">
-              <Loading />
+        <div className={styles.body}>
+          {/* Search Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Search & Filter</h4>
+            <div className={styles.searchContainer}>
+              <SearchBar
+                placeholder="Search Route"
+                value={searchTerm}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setSearchTerm(text);
+                  const filtered = routes.filter((route) =>
+                    route.RouteName.toLowerCase().includes(text.toLowerCase()) ||
+                    route.StartStop?.StopName.toLowerCase().includes(text.toLowerCase()) ||
+                    route.EndStop?.StopName.toLowerCase().includes(text.toLowerCase())
+                  );
+                  setFilteredRoutes(filtered);
+                }}
+              />
+              <div className={styles.filterSection}>
+                <label className={styles.label}>Filter by:</label>
+                <DropdownButton dropdownItems={dropdownItems} />
+              </div>
             </div>
-          ):(
-            filteredRoutes.map((route, index) => (
-              <article key={index} className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between">
-                {/* Route Info */}
-                <div className="flex items-center gap-3">
-                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                    <Image
-                      src={'/assets/images/bus-fallback.png'}
-                      alt="Bus"
-                      className="object-cover"
-                      fill
+          </div>
+
+          {/* Available Routes Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Available Routes ({filteredRoutes.length})</h4>
+            <div className={styles.routeListContainer}>
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <Loading />
+                </div>
+              ) : filteredRoutes.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No routes found matching your criteria.</p>
+                </div>
+              ) : (
+                filteredRoutes.map((route, index) => (
+                  <div
+                    key={index}
+                    className={styles.routeCard}
+                  >
+                    <div className={styles.routeInfo}>
+                      <div className={styles.routeImageContainer}>
+                        <Image
+                          src="/assets/images/route.png"
+                          alt="Route"
+                          className={styles.routeImage}
+                          fill
+                        />
+                      </div>
+                      <div className={styles.routeDetails}>
+                        <div className={styles.routeName}>
+                          {route.RouteName || "No Name"}
+                        </div>
+                        <div className={styles.routeStart}>Start: {route.StartStop?.StopName}</div>
+                        <div className={styles.routeEnd}>End: {route.EndStop?.StopName}</div>
+                      </div>
+                    </div>
+                    <Button 
+                      text="Assign" 
+                      onClick={() => onAssign(route)}
                     />
                   </div>
-                  <div className='flex flex-col items-start'>
-                    <div className="flex gap-2 items-center">
-                      <div>{route.RouteName}</div>
-                    </div>
-                    <div className="text-sm text-gray-400">{`Start: ${route.StartStop?.StopName}`}</div>
-                    <div className="text-sm text-gray-400">{`End: ${route.EndStop?.StopName}`}</div>
-                  </div>
-                </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
 
-                {/* Assign Button */}
-                <Button
-                  text='Assign'
-                  onClick={() => onAssign(route)}
-                ></Button>
-              </article>
-            ))
-          )}
-        </section>
-
-        {/* Cancel button */}
-        <footer className='flex justify-end'>
-          <Button onClick={onClose} text='Cancel' bgColor='btn-secondary'></Button>
-        </footer>
-      </main>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">
+            {currentTime}
+          </small>
+        </div>
+      </div>
     </div>
   );
 };
