@@ -347,18 +347,31 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                       className="form-control"
                       value={policy.quotaValue === undefined || policy.quotaValue === null ? "" : policy.quotaValue}
                       min={policy.quotaType === "Percentage" ? 1 : 0}
-                      max={policy.quotaType === "Percentage" ? 99 : undefined}
-                      onChange={(e) => {
-                        let val = e.target.value === "" ? (policy.quotaType === "Percentage" ? 1 : 0) : Number(e.target.value);
+                      max={policy.quotaType === "Percentage" ? 99 : 99999}
+                      step={policy.quotaType === "Percentage" ? 1 : 0.01}
+                      onFocus={e => {
+                        if (e.target.value === "0") e.target.value = "";
+                      }}
+                      onBlur={e => {
+                        if (e.target.value === "") updateQuotaPolicyValue(index, { quotaValue: 0 });
+                      }}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/^0+(?!$)/, "");
+                        const val = Number(raw);
 
+                        let normalized = val;
                         if (policy.quotaType === "Percentage") {
-                          if (val < 1) val = 1;
-                          if (val > 99) val = 99;
+                          if (val < 1) normalized = 1;
+                          if (val > 99) normalized = 99;
+                          normalized = Math.floor(normalized); // Ensure integer for percentage
                         } else {
-                          if (val < 0) val = 0;
+                          if (val < 0) normalized = 0;
+                          if (val > 99999) normalized = 99999;
+                          // Limit to 2 decimal places
+                          normalized = Math.floor(normalized * 100) / 100;
                         }
 
-                        updateQuotaPolicyValue(index, { quotaValue: val });
+                        updateQuotaPolicyValue(index, { quotaValue: normalized });
                       }}
                     />
                   </div>

@@ -32,7 +32,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
   busInfo,
   onSave,
 }) => {
-  // Define a variable for Quota Status
   const [isQuotaMet, setIsQuotaMet] = useState(true);
   const [quotaType, setQuotaType] = useState<'fixed' | 'percentage'>('percentage');
   const [activeQuota, setActiveQuota] = useState<any>(null);
@@ -43,15 +42,14 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
     ticketBusTrips.map(() => 0)
   );
 
-  // Radio button trip expense type  
   const [paymentMethod, setPaymentMethod] = useState<'reimbursement' | 'companycash'>('reimbursement');
   const [remarks, setRemarks] = useState<string>("");
 
-    const [currentTime, setCurrentTime] = useState(
+  const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleString('en-US', { hour12: true })
   );
 
-    useEffect(() => {
+  useEffect(() => {
     if (!show) return;
 
     const timer = setInterval(() => {
@@ -65,7 +63,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
     if (!busInfo?.RegularBusAssignment?.QuotaPolicies) return;
 
     const today = new Date();
-    const todayISO = today.toISOString();
 
     // Find the quota policy for today
     const found = busInfo.RegularBusAssignment.QuotaPolicies.find(qp => {
@@ -85,7 +82,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
     }
   }, [busInfo]);
 
-  // Reset when ticketBusTrips changes
   useEffect(() => {
     setLatestTicketIds(ticketBusTrips.map(() => 0));
   }, [ticketBusTrips]);
@@ -98,27 +94,34 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
     return sum + sold * value;
   }, 0);
 
-  // const companySharePercent = activeQuota?.Percentage?.Percentage ?? 0;
-  // const companyShareDecimal = companySharePercent / 100;
+  // Percentage Quota Calculations
   const companyShareDecimal = activeQuota?.Percentage?.Percentage ?? 0; // use as-is for calculations
   const companySharePercent = companyShareDecimal * 100; // for display
   const totalSales = sales ?? 0;
   const pettyCash = busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0;
-  const tripExpenseValue = paymentMethod === 'reimbursement' ? (tripExpense ?? 0) : 0;
-  const netSales = totalSales - tripExpenseValue;
-  const companyMoney = netSales * companyShareDecimal;
-  const remainingMoney = netSales * (1 - companyShareDecimal);
+  const tripExpenseValue = tripExpense ?? 0;
+
+  let companyMoney = 0;
+  let remainingMoney = 0;
+
+  if (activeQuota?.Percentage) {
+    // Always use: (TripSales × Quota%) + (PettyCash - TripExpenses)
+    companyMoney = (totalSales * companyShareDecimal) + (pettyCash - tripExpenseValue);
+    remainingMoney = (totalSales * (1 - companyShareDecimal));
+  }
+
+  // Fixed Quota Calculation (unchanged)
+  const fixedQuotaTotal = (activeQuota?.Fixed?.Quota ?? 0)
+    + (busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0)
+    - (tripExpense ?? 0);
 
   const validateInputs = () => {
-    // Check Latest Ticket IDs
     if (ticketBusTrips.some((_, idx) => latestTicketIds[idx] === undefined || latestTicketIds[idx] === 0)) {
       return "All Latest Ticket ID fields are required.";
     }
-    // Check Trip Expense
     if (tripExpense === undefined) {
       return "Trip Expense is required.";
     }
-    // Check Sales
     if (sales === undefined || sales === 0) {
       return "Sales is required.";
     }
@@ -159,11 +162,9 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
         
         <div className={styles.body}>
           <div className={styles.section}>
-            {/* Bus Information */}
             <h4 className={styles.sectionTitle}>
               Bus Assignment Information
             </h4>
-            
             <div className={`${styles.grid} ${styles['md:grid-cols-3']} ${styles['gap-4']} ${styles['mb-6']}`}>
               <div className={styles['modern-info-card']} style={{borderLeft: '4px solid #961c1e'}}>
                 <div className={styles['modern-info-icon']}>
@@ -171,14 +172,12 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                 </div>
                 <p className={styles['modern-info-value']}>{busInfo.busLicensePlate}</p>
               </div>
-              
               <div className={styles['modern-info-card']} style={{borderLeft: '4px solid #961c1e'}}>
                 <div className={styles['modern-info-icon']}>
                   Driver
                 </div>
                 <p className={styles['modern-info-value']}>{busInfo.driverName}</p>
               </div>
-              
               <div className={styles['modern-info-card']} style={{borderLeft: '4px solid #961c1e'}}>
                 <div className={styles['modern-info-icon']}>
                   Conductor
@@ -186,46 +185,35 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                 <p className={styles['modern-info-value']}>{busInfo.conductorName}</p>
               </div>
             </div>
-            
-            {/* Quota Information */}
             <div className={styles['modern-quota-container']}>
               <div className={styles['modern-quota-header']}>
                 Quota to be Met
               </div>
-
               {activeQuota?.Fixed ? (
                 <div className={styles['modern-quota-content']}>
+                  {/* Base Quota on top */}
                   <div className={styles['modern-quota-total']}>
-                    ₱ {(
-                      (activeQuota.Fixed.Quota ?? 0) +
-                      (busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash ?? 0) -
-                      (paymentMethod === 'reimbursement' ? tripExpense : 0)
-                    ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    Base Quota: ₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </div>
-                  
-                  <div className={styles['modern-quota-breakdown']}>
-                    <div className={styles['modern-quota-item']}>
-                      <div className={styles['modern-quota-label']}>Base Quota</div>
-                      <div className={styles['modern-quota-value']}>
-                        ₱ {activeQuota.Fixed.Quota.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  <div className={styles['modern-share-grid']}>
+                    {/* Company Share */}
+                    <div className={`${styles['modern-share-card']} ${styles['modern-share-company']}`}>
+                      <div className={styles['modern-share-amount']}>
+                        ₱ {fixedQuotaTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className={styles['modern-share-title']}>Company Gets</div>
+                      <div className={styles['modern-share-subtitle']}>
+                        (Base Quota + Petty Cash (₱ {pettyCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}) - Trip Expense (₱ {tripExpenseValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}))
                       </div>
                     </div>
-                    
-                    <div className={styles['modern-quota-operator']}>+</div>
-                    
-                    <div className={styles['modern-quota-item']}>
-                      <div className={styles['modern-quota-label']}>Petty Cash</div>
-                      <div className={styles['modern-quota-value']}>
-                        ₱ {busInfo.RegularBusAssignment?.LatestBusTrip?.PettyCash?.toLocaleString(undefined, { minimumFractionDigits: 2 }) ?? "0.00"}
+                    {/* Driver/Conductor Share */}
+                    <div className={`${styles['modern-share-card']} ${styles['modern-share-remaining']}`}>
+                      <div className={styles['modern-share-amount']}>
+                        ₱ {(totalSales - fixedQuotaTotal).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </div>
-                    </div>
-                    
-                    <div className={styles['modern-quota-operator']}>-</div>
-                    
-                    <div className={styles['modern-quota-item']}>
-                      <div className={styles['modern-quota-label']}>Trip Expense</div>
-                      <div className={styles['modern-quota-value']}>
-                        ₱ {(paymentMethod === 'reimbursement' ? tripExpense : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      <div className={styles['modern-share-title']}>Driver/Conductor Gets</div>
+                      <div className={styles['modern-share-subtitle']}>
+                        (Sales (₱ {totalSales.toLocaleString(undefined, { minimumFractionDigits: 2 })}) - Company Gets (₱ {fixedQuotaTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}))
                       </div>
                     </div>
                   </div>
@@ -243,7 +231,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       </div>
                       <div className={styles['modern-share-title']}>Company Gets</div>
                       <div className={styles['modern-share-subtitle']}>
-                        ({companySharePercent}% of Sales - Trip Expense)
+                        ({companySharePercent}% of Sales + Petty Cash (₱ {pettyCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}) - Trip Expense (₱ {tripExpenseValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}))
                       </div>
                     </div>
                     <div className={`${styles['modern-share-card']} ${styles['modern-share-remaining']}`}>
@@ -252,7 +240,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       </div>
                       <div className={styles['modern-share-title']}>Remaining Share</div>
                       <div className={styles['modern-share-subtitle']}>
-                        ({(100 - companySharePercent).toFixed(2)}% of Sales - Trip Expense)
+                        ({(100 - companySharePercent).toFixed(2)}% of Sales)
                       </div>
                     </div>
                   </div>
@@ -263,10 +251,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Form Section */}
             <div className={styles['modern-form-section']}>
-              {/* Latest Ticket ID Inputs */}
               {ticketBusTrips.length > 0 && (
                 <div className={styles['modern-input-group']}>
                   <div className={styles['modern-section-label']}>
@@ -283,14 +268,15 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                           className={styles['modern-input']}
                           min={0}
                           max={tbt.EndingIDNumber ?? 9999}
+                          step={1}
                           value={latestTicketIds[idx] === 0 ? "" : latestTicketIds[idx]}
                           onChange={e => {
                             const val = e.target.value;
+                            let num = val === "" ? 0 : Math.max(0, Math.floor(Number(val)));
+                            const maxVal = tbt.EndingIDNumber ?? 9999;
+                            if (num > maxVal) num = maxVal;
                             setLatestTicketIds(ids => {
                               const newIds = [...ids];
-                              let num = val === "" ? 0 : Math.max(0, Number(val));
-                              const maxVal = tbt.EndingIDNumber ?? 9999;
-                              if (num > maxVal) num = maxVal;
                               newIds[idx] = num;
                               return newIds;
                             });
@@ -301,8 +287,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                   </div>
                 </div>
               )}
-
-              {/* Financial Information */}
               <div className={styles['modern-input-group']}>
                 <div className={styles['modern-section-label']}>
                   Financial Information
@@ -316,19 +300,21 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       placeholder="₱ 0.00"
                       min={0}
                       max={99999}
+                      step="0.001"
                       value={tripExpense === 0 ? "" : tripExpense}
                       onChange={e => {
                         const val = e.target.value;
                         if (val === "") {
                           setTripExpense(0);
                         } else {
-                          const num = Math.max(0, Number(val));
+                          let num = Math.max(0, Number(val));
+                          // Limit to 2 decimal places
+                          num = Math.floor(num * 100) / 100;
                           setTripExpense(num > 99999 ? 99999 : num);
                         }
                       }}
                     />
                   </div>
-
                   <div className={styles['modern-radio-container']}>
                     <label className={styles['modern-input-label']}>Payment Method</label>
                     <div className={styles['modern-radio-group']}>
@@ -356,7 +342,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       </label>
                     </div>
                   </div>
-
                   <div className={styles['modern-input-container']}>
                     <label className={styles['modern-input-label']}>Sales</label>
                     <input
@@ -365,19 +350,21 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                       placeholder="₱ 0.00"
                       min={0}
                       max={99999}
+                      step="0.001"
                       value={sales === undefined ? "" : sales}
                       onChange={e => {
                         const val = e.target.value;
                         if (val === "") {
                           setSales(undefined);
                         } else {
-                          const num = Math.max(0, Math.min(99999, Number(val)));
+                          let num = Math.max(0, Math.min(99999, Number(val)));
+                          // Limit to 2 decimal places
+                          num = Math.floor(num * 100) / 100;
                           setSales(num);
                         }
                       }}
                     />
                   </div>
-
                   <div className={styles['modern-display-container']}>
                     <label className={styles['modern-input-label']}>Total Expected Money</label>
                     <div className={styles['modern-display-value']}>
@@ -386,8 +373,6 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* Inspector Remarks */}
               <div className={styles['modern-input-group']}>
                 <div className={styles['modern-section-label']}>
                   Inspector Remarks
@@ -403,14 +388,12 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Footer */}
         <div className={`${styles['modern-footer']} d-flex justify-content-between align-items-center`}>
-                <small className="text-muted">{currentTime}</small>
-                <button type="button" className={styles.createBtn} onClick={handleSave}>
-                  Save
-                </button>
-          </div>
+          <small className="text-muted">{currentTime}</small>
+          <button type="button" className={styles.createBtn} onClick={handleSave}>
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

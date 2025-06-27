@@ -8,8 +8,7 @@ import Swal from 'sweetalert2';
 interface Ticket {
   type: string;
   StartingIDNumber: number;
-  EndingIDNumber?: number ; // Add this line
-  OverallEndingID: number;
+  EndingIDNumber: number;
 }
 
 interface BusReadinessModalProps  {
@@ -61,7 +60,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
   });
   const [showChangeInput, setShowChangeInput] = useState(false);
   const [pettyCashs, setPettyCashs] = useState(0);
-  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]);
+  const [tickets, setTickets] = useState<Ticket[]>([{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]);
   const [currentTime, setCurrentTime] = useState(
   new Date().toLocaleString('en-US', { hour12: true })
 );
@@ -91,9 +90,9 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
             readiness?.tickets && readiness.tickets.length > 0
               ? readiness.tickets.map(t => ({
                   ...t,
-                  OverallEndingID: t.OverallEndingID ?? 0, // Ensure EndingIDNumber is present
+                  EndingIDNumber: t.EndingIDNumber ?? 0, // Ensure EndingIDNumber is present
                 }))
-              : [{ type: "", StartingIDNumber: 0, OverallEndingID: 0 }]
+              : [{ type: "", StartingIDNumber: 0, EndingIDNumber: 0 }]
           );
           // Debug
           // console.log("TicketTypes:", types);
@@ -120,7 +119,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     if (unselected) {
       setTickets(prev => [
         ...prev,
-        { type: "", StartingIDNumber: 0, OverallEndingID: 0 }
+        { type: "", StartingIDNumber: 0, EndingIDNumber: 0 }
       ]);
     }
   };
@@ -133,9 +132,7 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
     setTickets((prev) =>
       prev.map((ticket, i) =>
         i === index
-          ? field === "EndingIDNumber"
-            ? { ...ticket, EndingIDNumber: Number(value), OverallEndingID: Number(value) }
-            : { ...ticket, [field]: value }
+          ? { ...ticket, [field]: (field === "EndingIDNumber" || field === "StartingIDNumber") ? Number(value) : value }
           : ticket
       )
     );
@@ -255,16 +252,25 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                   }}
                 />
                 <label className="form-check-label" htmlFor="changeCheck">
-                  Change / Money
+                  Petty Cash
                 </label>
               </div>
               {showChangeInput && (
                 <input
                   type="number"
                   className={styles.input}
-                  placeholder="Enter amount or details"
-                  value={pettyCashs}
-                  onChange={(e) => setPettyCashs(Number(e.target.value))}
+                  min={0}
+                  max={99999}
+                  step={0.01}
+                  placeholder="0.00"
+                  value={pettyCashs === 0 ? "" : pettyCashs}
+                  onChange={e => {
+                    const val = e.target.value;
+                    let num = val === "" ? 0 : Math.max(0, Number(val));
+                    // Limit to 2 decimal places
+                    num = Math.floor(num * 100) / 100;
+                    setPettyCashs(num > 99999 ? 99999 : num);
+                  }}
                 />
               )}
             </div>
@@ -341,20 +347,38 @@ const BusReadinessModal: React.FC<BusReadinessModalProps> = ({
                   </div>
                   <div className="col-3">
                     <input
-                      type="text"
+                      type="number"
                       className="form-control"
-                      placeholder="Latest ID Number"
-                      value={ticket.StartingIDNumber}
-                      onChange={(e) => updateTicket(index, "StartingIDNumber", e.target.value)}
+                      min={0}
+                      max={9999999999}
+                      step={1}
+                      placeholder="Starting ID Number"
+                      value={ticket.StartingIDNumber === 0 ? "" : ticket.StartingIDNumber}
+                      onChange={e => {
+                        const val = e.target.value;
+                        let num = val === "" ? 0 : Math.max(0, Math.floor(Number(val)));
+                        const maxVal = 9999999999;
+                        if (num > maxVal) num = maxVal;
+                        updateTicket(index, "StartingIDNumber", num.toString());
+                      }}
                     />
                   </div>
                   <div className="col-3">
                     <input
-                      type="text"
+                      type="number"
                       className="form-control"
+                      min={0}
+                      max={9999999999}
+                      step={1}
                       placeholder="Ending ID Number"
-                      value={ticket.EndingIDNumber}
-                      onChange={(e) => updateTicket(index, "EndingIDNumber", e.target.value)}
+                      value={ticket.EndingIDNumber === 0 ? "" : ticket.EndingIDNumber}
+                      onChange={e => {
+                        const val = e.target.value;
+                        let num = val === "" ? 0 : Math.max(0, Math.floor(Number(val)));
+                        const maxVal = 9999999999;
+                        if (num > maxVal) num = maxVal;
+                        updateTicket(index, "EndingIDNumber", num.toString());
+                      }}
                     />
                   </div>
                   <div className="col-2 d-flex align-items-center">
