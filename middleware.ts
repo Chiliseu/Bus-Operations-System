@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { LOGIN_URL } from '@/lib/urls';
 
 // --- Role and Page Access Definitions ---
 export const ROLES = {
@@ -10,6 +11,7 @@ export const ROLES = {
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export const PAGE_ACCESS: Record<string, Role[]> = {
+  '/dashboard': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER],
   '/bus-assignment': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER, ROLES.DISPATCHER],
   '/route-management/Create-Route': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER],
   '/route-management/Create-Stop': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER],
@@ -40,7 +42,7 @@ function extractTokenFromCookie(cookie: string | undefined): string | null {
 // --- Middleware ---
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const loginUrl = 'https://auth.agilabuscorp.me/authentication/login';
+  const loginUrl = LOGIN_URL;
 
   console.log(`[middleware] Incoming request for "${pathname}"`);
 
@@ -106,6 +108,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/bus-assignment',
+    '/dashboard',
     '/route-management/:path*',
     '/bus-operation/:path*',
   ],
