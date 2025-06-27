@@ -153,6 +153,7 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                       <th>Completed At</th>
                       <th>Sales</th>
                       <th>Petty Cash</th>
+                      <th>Expenses</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -162,6 +163,7 @@ const ViewAssignmentModal: React.FC<ViewAssignmentModalProps> = ({ show, onClose
                         <td>{trip.CompletedAt ? new Date(trip.CompletedAt).toLocaleString() : "N/A"}</td>
                         <td>₱{trip.Sales?.toLocaleString() ?? "0"}</td>
                         <td>₱{trip.PettyCash?.toLocaleString() ?? "0"}</td>
+                        <td>₱{trip.TripExpense?.toLocaleString() ?? "0"}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -265,6 +265,7 @@ const PostDispatchModal: React.FC<BusAssignmentModalProps> = ({
                         </label>
                         <input
                           type="number"
+                          placeholder="Latest Ticket ID"
                           className={styles['modern-input']}
                           min={0}
                           max={tbt.EndingIDNumber ?? 9999}
