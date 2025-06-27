@@ -7,6 +7,7 @@ import DropdownButton from '../../ui/DropdownButton';
 import { fetchBusesWithToken } from '@/lib/apiCalls/external';
 import { Bus } from "@/app/interface";
 import Loading from "@/components/ui/Loading/Loading";
+import styles from "./assign-bus-modal.module.css";
 
 const AssignBusModal = ({ 
   onClose,
@@ -18,6 +19,19 @@ const AssignBusModal = ({
 
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadBuses = async () => {
@@ -75,87 +89,98 @@ const AssignBusModal = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
-      <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
-        {/* Search Bar */}
-        <header className="mb-4">
-          <SearchBar
-            placeholder="Search Bus"
-            value={searchTerm}
-            onChange={(e) => {
-              const text = e.target.value;
-              setSearchTerm(text);
-              const filtered = buses.filter((bus) =>
-                bus.busId.toLowerCase().includes(text.toLowerCase()) ||
-                //bus.route.toLowerCase().includes(text.toLowerCase()) ||
-                bus.type.toLowerCase().includes(text.toLowerCase())
-              );
-              setFilteredBuses(filtered);
-            }}
-          />
-        </header>
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Assign Bus</h2>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
 
-        {/* Title and Filter section */}
-        <nav className="px-3 flex justify-between items-center mb-2">
-          <div className="font-medium text-lg">Available Buses</div>
-          <div className="flex items-center gap-3">
-            <div className="font-medium mr-3">Filter</div>
-            <DropdownButton dropdownItems={dropdownItems} />
-          </div>
-        </nav>
-
-        {/* Bus List Section */}
-        <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {loading? (
-            <div className="flex justify-center items-center h-full w-full">
-              <Loading />
+        <div className={styles.body}>
+          {/* Search Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Search & Filter</h4>
+            <div className={styles.searchContainer}>
+              <SearchBar
+                placeholder="Search Bus"
+                value={searchTerm}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setSearchTerm(text);
+                  const filtered = buses.filter((bus) =>
+                    bus.busId.toLowerCase().includes(text.toLowerCase()) ||
+                    bus.type.toLowerCase().includes(text.toLowerCase())
+                  );
+                  setFilteredBuses(filtered);
+                }}
+              />
+              <div className={styles.filterSection}>
+                <label className={styles.label}>Filter by:</label>
+                <DropdownButton dropdownItems={dropdownItems} />
+              </div>
             </div>
-          ):(
-            filteredBuses.map((bus, index) => (
-              <article
-                key={index}
-                className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  {/* Bus Icon */}
-                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                    <Image
-                      src={bus.image || '/assets/images/bus-fallback.png'}
-                      alt="Bus"
-                      className="object-cover"
-                      fill
+          </div>
+
+          {/* Available Buses Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Available Buses ({filteredBuses.length})</h4>
+            <div className={styles.busListContainer}>
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <Loading />
+                </div>
+              ) : filteredBuses.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No buses found matching your criteria.</p>
+                </div>
+              ) : (
+                filteredBuses.map((bus, index) => (
+                  <div
+                    key={index}
+                    className={styles.busCard}
+                  >
+                    <div className={styles.busInfo}>
+                      <div className={styles.busImageContainer}>
+                        <Image
+                          src={bus.image || '/assets/images/bus-fallback.png'}
+                          alt="Bus"
+                          className={styles.busImage}
+                          fill
+                        />
+                      </div>
+                      <div className={styles.busDetails}>
+                        <div className={styles.busId}>{bus.busId}</div>
+                        <div className={styles.busType}>{bus.type}</div>
+                        <div className={styles.busCapacity}>{`${bus.capacity} seats`}</div>
+                      </div>
+                    </div>
+                    <Button 
+                      text="Assign"
+                      onClick={() => onAssign(bus)}
                     />
                   </div>
-                  {/* Bus Details */}
-                  <div className='flex flex-col items-start'>
-                    <div className="flex gap-2 items-center">
-                      <div>{bus.busId}</div>
-                      {/* <div className="text-sm text-gray-400">{bus.route}</div> */}
-                    </div>
-                    <div className="text-sm text-gray-400">{bus.type}</div>
-                    <div className="text-sm text-gray-400">{`${bus.capacity} seats`}</div>
-                  </div>
-                </div>
-                {/* Assign Button */}
-                <Button 
-                  text="Assign"
-                  onClick={() => onAssign(bus)}
-                />
-              </article>
-            ))
-          )}
-          
-        </section>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
 
-        {/* Cancel button */}
-        <footer className="flex justify-end">
-          <Button
-            onClick={onClose}
-            text="Cancel"
-            bgColor="btn-secondary"
-          />
-        </footer>
-      </main>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">
+            {currentTime}
+          </small>
+                     <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              ×
+            </button>
+        </div>
+      </div>
     </div>
   );
 };
