@@ -161,7 +161,12 @@ const DashboardPage: React.FC = () => {
 
           {earnings && (
             <div className={styles.chartContainer}>
-              <ThisMonthGraph earnings={{ ...earnings, day: todayDay }} />
+              <ThisMonthGraph
+                earnings={{ ...earnings, day: todayDay }}
+                previousMonthTotal={previousMonthTotal}
+                thisMonthTotal={thisMonthTotal}
+              />
+
             </div>
           )}
         </>
