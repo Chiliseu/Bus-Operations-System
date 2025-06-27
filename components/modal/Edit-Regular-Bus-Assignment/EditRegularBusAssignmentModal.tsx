@@ -356,8 +356,8 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                         if (e.target.value === "") updateQuotaPolicyValue(index, { quotaValue: 0 });
                       }}
                       onChange={e => {
-                        let raw = e.target.value.replace(/^0+(?!$)/, "");
-                        let val = Number(raw);
+                        const raw = e.target.value.replace(/^0+(?!$)/, "");
+                        const val = Number(raw);
 
                         let normalized = val;
                         if (policy.quotaType === "Percentage") {
