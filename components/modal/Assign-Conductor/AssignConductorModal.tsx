@@ -5,8 +5,9 @@ import Button from "@/components/ui/Button";
 import SearchBar from "@/components/ui/SearchBar";
 import DropdownButton from '../../ui/DropdownButton';
 import { fetchConductorsWithToken } from '@/lib/apiCalls/external';
-import { Conductor } from "@/app/interface"; // Conductor interface
+import { Conductor } from "@/app/interface";
 import Loading from "@/components/ui/Loading/Loading";
+import styles from "./assign-conductor.module.css";
 
 const AssignConductorModal = ({ 
   onClose,
@@ -14,12 +15,23 @@ const AssignConductorModal = ({
 }: { 
   onClose: () => void;
   onAssign: (conductor: Conductor) => void; 
-}
-  
-) => {
+}) => {
 
   const [conductors, setConductors] = useState<Conductor[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // TIME CHECK
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadConductors = async () => {
@@ -48,6 +60,12 @@ const AssignConductorModal = ({
 
   const dropdownItems = [
     {
+      name: 'All',
+      action: () => {
+        setFilteredConductors(conductors);
+      },
+    },
+    {
       name: 'Alphabetical',
       action: () => {
         const sorted = [...filteredConductors].sort((a, b) => a.name.localeCompare(b.name));
@@ -57,82 +75,99 @@ const AssignConductorModal = ({
   ];
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/20" style={{ zIndex: 1060 }}>
-      <main className="w-[720px] h-[600px] rounded-lg bg-white shadow-xl p-4 flex flex-col border border-gray-300">
-        {/* Search Bar */}
-        <header className="mb-4">
-          <SearchBar
-            placeholder="Search Conductor"
-            value={searchTerm}
-            onChange={(e) => {
-              const text = e.target.value;
-              setSearchTerm(text);
+    <div className={styles.overlay}>
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Assign Conductor</h2>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
 
-              const filtered = conductors.filter((conductor) =>
-                conductor.name.toLowerCase().includes(text.toLowerCase()) ||
-                conductor.contactNo.toLowerCase().includes(text.toLowerCase()) ||
-                conductor.address.toLowerCase().includes(text.toLowerCase())
-              );
-              setFilteredConductors(filtered);
-            }}
-          />
-        </header>
-
-        {/* Title and Filter */}
-        <nav className="px-3 flex justify-between items-center mb-2">
-          <div className="font-medium text-lg">Available Conductors</div>
-          <div className="flex items-center gap-3">
-            <div className="font-medium mr-3">Filter</div>
-            <DropdownButton dropdownItems={dropdownItems} />
-          </div>
-        </nav>
-
-        {/* Conductor List */}
-        <section className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 mb-4">
-          {loading ? (
-            <div className="flex justify-center items-center h-full w-full">
-              <Loading />
+        <div className={styles.body}>
+          {/* Search Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Search & Filter</h4>
+            <div className={styles.searchContainer}>
+              <SearchBar
+                placeholder="Search Conductor"
+                value={searchTerm}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  setSearchTerm(text);
+                  const filtered = conductors.filter((conductor) =>
+                    conductor.name.toLowerCase().includes(text.toLowerCase()) ||
+                    conductor.contactNo.toLowerCase().includes(text.toLowerCase()) ||
+                    conductor.address.toLowerCase().includes(text.toLowerCase())
+                  );
+                  setFilteredConductors(filtered);
+                }}
+              />
+              <div className={styles.filterSection}>
+                <label className={styles.label}>Filter by:</label>
+                <DropdownButton dropdownItems={dropdownItems} />
+              </div>
             </div>
-          ):(
-            filteredConductors.map((conductor, index) => (
-              <article
-                key={index}
-                className="rounded-lg my-1 px-3 flex items-center h-20 bg-gray-50 hover:bg-gray-100 cursor-pointer text-black justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="bg-gray-200 rounded-2xl h-20 w-20 flex items-center relative overflow-hidden">
-                    <Image
-                      src={conductor.image || '/assets/images/bus-fallback.png'}
-                      alt="Conductor"
-                      className="object-cover"
-                      fill
+          </div>
+
+          {/* Available Conductors Section */}
+          <div className={styles.section}>
+            <h4 className={styles.sectionTitle}>Available Conductors ({filteredConductors.length})</h4>
+            <div className={styles.conductorListContainer}>
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <Loading />
+                </div>
+              ) : filteredConductors.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No conductors found matching your criteria.</p>
+                </div>
+              ) : (
+                filteredConductors.map((conductor, index) => (
+                  <div
+                    key={index}
+                    className={styles.conductorCard}
+                  >
+                    <div className={styles.conductorInfo}>
+                      <div className={styles.conductorImageContainer}>
+                        <Image
+                          src={conductor.image || '/assets/images/conductor.png'}
+                          alt="Conductor"
+                          className={styles.conductorImage}
+                          fill
+                        />
+                      </div>
+                      <div className={styles.conductorDetails}>
+                        <div className={styles.conductorName}>
+                          {conductor.name || "No Name"}
+                          <span className={styles.conductorJob}>{conductor.job}</span>
+                        </div>
+                        <div className={styles.conductorContact}>{conductor.contactNo}</div>
+                        <div className={styles.conductorAddress}>{conductor.address}</div>
+                      </div>
+                    </div>
+                    <Button 
+                      text="Assign" 
+                      onClick={() => onAssign(conductor)}
                     />
                   </div>
-                  <div className='flex flex-col items-start'>
-                    <div className="flex gap-2 items-center">
-                      <div>{conductor.name || "No Name"}</div>
-                      <div className="text-sm text-gray-400">{conductor.job}</div>
-                    </div>
-                    <div className="text-sm text-gray-400">{conductor.contactNo}</div>
-                    <div className="text-sm text-gray-400">{conductor.address}</div>
-                  </div>
-                </div>
-                <Button text="Assign" 
-                onClick={() => onAssign(conductor)}/>
-              </article>
-            ))
-          )}
-        </section>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
 
-        {/* Cancel button */}
-        <footer className="flex justify-end">
-          <Button
-            onClick={onClose}
-            text="Cancel"
-            bgColor="btn-secondary"
-          />
-        </footer>
-      </main>
+        <div className={`${styles.footer} d-flex justify-content-between align-items-center`}>
+          <small className="text-muted">
+            {currentTime}
+          </small>
+        </div>
+      </div>
     </div>
   );
 };
