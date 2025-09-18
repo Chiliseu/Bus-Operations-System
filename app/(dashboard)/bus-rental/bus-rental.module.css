@@ -1,0 +1,673 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Main Container === */
+.wideCard {
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
+}
+
+/* === Title Styling === */
+.stopTitle {
+  font-family: 'Open Sans';
+  color: #000000;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.description {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* === Grid Layout === */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* === Form Sections === */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionCard {
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sectionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  color: #000000;
+}
+
+.sectionIcon {
+  margin-right: 0.5rem;
+  height: 1.25rem;
+  width: 1.25rem;
+  color: #000000;
+}
+
+/* === Grid for Form Fields === */
+.fieldGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .fieldGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fieldGridFull {
+  grid-column: span 2;
+}
+
+/* === Form Input Styling === */
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.inputField:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.inputField:hover:not(:focus) {
+  border-color: #374151;
+}
+
+.inputField:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.inputFieldError {
+  border-color: #ef4444;
+}
+
+.inputFieldError:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.selectField {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectField:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.selectField:hover:not(:focus) {
+  border-color: #374151;
+}
+
+.selectField:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.selectFieldError {
+  border-color: #ef4444;
+}
+
+.selectFieldError:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* === Error Messages === */
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.errorIcon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.25rem;
+}
+
+/* === Submit Button === */
+.submitContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.submitButton {
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButtonActive {
+  background-color: #961c1e;
+  color: white;
+  box-shadow: 0 4px 12px rgba(150, 28, 30, 0.3);
+}
+
+.submitButtonActive:hover {
+  background-color: #7a1619;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(150, 28, 30, 0.4);
+}
+
+.submitButtonActive:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(150, 28, 30, 0.3);
+}
+
+.submitButtonDisabled {
+  background-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.submitButtonLoading {
+  display: flex;
+  align-items: center;
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  height: 1rem;
+  width: 1rem;
+  border: 2px solid transparent;
+  border-bottom: 2px solid white;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === Price Calculator === */
+.priceCalculator {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  position: sticky;
+  top: 1.5rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.priceCalculator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.calculatorHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  color: #000000;
+}
+
+.calculatorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.tooltipContainer {
+  position: relative;
+  margin-left: 0.5rem;
+}
+
+.tooltipButton {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.tooltipButton:hover {
+  color: #000000;
+}
+
+/* === Price Breakdown === */
+.priceBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.priceRow:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.priceLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.priceValue {
+  font-weight: 600;
+  color: #374151;
+}
+
+.priceTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0.75rem;
+  border-top: 2px solid #e5e7eb;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.priceTotalLabel {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+.priceTotalValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #961c1e;
+}
+
+/* === Empty Calculator State === */
+.calculatorEmpty {
+  text-align: center;
+  padding: 2.5rem 0;
+  color: #6b7280;
+}
+
+.calculatorEmptyIcon {
+  margin: 0 auto 1rem;
+  height: 3rem;
+  width: 3rem;
+  opacity: 0.4;
+  color: #6b7280;
+}
+
+.calculatorEmptyText {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* === Tooltip Styling === */
+
+.tooltip {
+  position: absolute;
+  z-index: 20;
+  width: 16rem;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #fff;
+  background-color: #1f2937;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  top: 125%; /* places tooltip below the icon */
+  left: 50%;  /* center horizontally */
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.tooltipVisible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: #1f2937;
+}
+
+
+/* === Info Icon === */
+.infoIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+  height: 1.125rem;
+  width: 1.125rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.infoIcon:hover {
+  color: #000000;
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* === Price Summary Section === */
+.priceSummary {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.priceSummaryLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.priceSummaryValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #961c1e;
+}
+
+/* === Total Highlight === */
+.total {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 2px solid #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #961c1e;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* === Additional Hover Effects === */
+.inputGroup:hover .inputLabel {
+  color: #961c1e;
+  transition: color 0.2s ease;
+}
+
+/* === Smooth transitions for form sections === */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sectionCard {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.sectionCard:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+/* === Focus states for better accessibility === */
+.submitButton:focus {
+  outline: 2px solid #961c1e;
+  outline-offset: 2px;
+}
+
+.inputField:focus,
+.selectField:focus {
+  outline: none;
+}
+
+/* === Responsive adjustments === */
+@media (max-width: 768px) {
+  .fieldGridFull {
+    grid-column: span 1;
+  }
+  
+  .submitContainer {
+    justify-content: stretch;
+  }
+  
+  .submitButton {
+    width: 100%;
+  }
+}
+
+/* === Live Preview Section === */
+/* === Live Preview Section === */
+.previewSection {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #000000;
+}
+
+.previewTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.previewContent {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.previewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.previewRowLast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: none;
+}
+
+.previewLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.previewValue {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+/* === Preview Status === */
+.previewStatus {
+  margin-top: 1rem;
+}
+
+.previewStatusButton {
+  border: none;
+  background: inherit;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.previewStatusButton:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.previewStatusButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.previewStatusButton:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.previewStatusContent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.previewStatusReady {
+  background-color: #0a8930;
+  color: white;
+  border: 2px solid #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.previewStatusReady:hover {
+  background-color: #961c1e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(181, 30, 13, 0.39);
+}
+
+.previewStatusReady:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
+}
+
+.previewStatusIncomplete {
+  background-color: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  color: #1a47a1;
+  box-shadow: none;
+}
+
+.previewStatusPrice {
+  font-size: 0.75rem;
+  color: #065f46;
+  margin-top: 0.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.incompleteList {
+  margin-top: 4px;
+  padding-left: 16px;
+  color: #b91c1c; /* red text for errors */
+  font-size: 0.9rem;
+  list-style-type: disc;
+}
