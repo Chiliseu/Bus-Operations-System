@@ -7,7 +7,7 @@ import '../../../../styles/globals.css';
 import { fetchBusAssignmentsWithStatus, updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 import { BusAssignment } from '@/app/interface/bus-assignment';
 
@@ -24,6 +24,7 @@ const BusOperationPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
   const [activeFilters, setActiveFilters] = useState<{ sortBy: string; busTypeFilter?: string }>({
     sortBy: 'created_newest'
   });
@@ -193,10 +194,13 @@ const BusOperationPage: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
+        setLoadingModal(true);
         await updateBusAssignmentData(BusAssignmentID, { Status: "InOperation" });
+        setLoadingModal(false);
         await Swal.fire('Success', 'Bus dispatched successfully!', 'success');
         fetchAssignments();
       } catch (error: any) {
+        setLoadingModal(false);
         await Swal.fire({
           icon: 'error',
           title: 'Dispatch Failed',
@@ -304,6 +308,8 @@ const BusOperationPage: React.FC = () => {
             setCurrentPage(1);
           }}
         />
+
+        {loadingModal && <LoadingModal/>}
       </div>
     </div>
   );

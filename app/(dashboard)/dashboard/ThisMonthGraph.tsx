@@ -37,7 +37,7 @@ function getDaysInMonth(month: number, year: number) {
 }
 
 
-export default function ThisMonthGraph({ earnings }: { earnings: EarningsData}) {
+export default function ThisMonthGraph({ earnings,previousMonthTotal,thisMonthTotal }: { earnings: EarningsData; previousMonthTotal: number; thisMonthTotal: number}) {
   const theme = useTheme();
   const daysInMonth = getDaysInMonth(earnings.month, earnings.year);
 
@@ -47,7 +47,20 @@ export default function ThisMonthGraph({ earnings }: { earnings: EarningsData}) 
     theme.palette.primary.dark,
   ];
 
+  // Calculate the percentage difference
+  const monthChange = previousMonthTotal > 0
+    ? ((thisMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
+    : 0;
+
+  // Format the chip label
+  const trendLabel = previousMonthTotal > 0
+    ? `${monthChange >= 0 ? '+' : '−'}${Math.abs(monthChange).toFixed(1)}%`
+    : 'No previous data';
+
+      
   return (
+
+    
     <Card variant="outlined" sx={{ width: "100%" }}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
@@ -65,7 +78,12 @@ export default function ThisMonthGraph({ earnings }: { earnings: EarningsData}) 
             <Typography variant="h4" component="p">
               <span>&#8369;</span>{earnings.data.reduce((acc, num) => acc + num, 0).toLocaleString()}
             </Typography>
-            <Chip size="small" color="success" label="+35%" />
+            <Chip
+              size="small"
+              color={monthChange >= 0 ? 'success' : 'error'}
+              label={trendLabel}
+            />
+
           </Stack>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             Earnings per day for the month of {monthString(earnings.month)}
