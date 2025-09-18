@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { AlertCircle, Calculator, Bus, User, Info } from "lucide-react";
+import { AlertCircle, Calculator, Bus, User, Info, Receipt, Calendar, MapPin, Clock } from "lucide-react";
 import styles from "./bus-rental.module.css";
 
 /* ---- Types ---- */
@@ -63,6 +63,11 @@ export default function BusRentalPage() {
     return buses.filter((b) => b.available && (!busType || b.type === busType));
   }, [buses, busType]);
 
+  // Get selected bus details
+  const selectedBus = useMemo(() => {
+    return buses.find((b) => b.id === selectedBusId) || null;
+  }, [buses, selectedBusId]);
+
   // Price calculation (breakdown)
   const [priceBreakdown, setPriceBreakdown] = useState({
     baseRate: 0,
@@ -97,6 +102,38 @@ export default function BusRentalPage() {
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(n);
 
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const isFormReady = useMemo(() => {
+  return (
+    customerName.trim() &&
+    contact.trim() &&
+    /^\d{7,15}$/.test(contact) &&
+    busType &&
+    selectedBusId &&
+    rentalDate &&
+    rentalDate >= today &&
+    parseInt(duration || "0", 10) >= 1 &&
+    destination.trim() &&
+    parseInt(distance || "0", 10) > 0 &&
+    parseInt(passengers || "0", 10) > 0
+  );
+}, [
+  customerName, contact, busType, selectedBusId, rentalDate,
+  duration, destination, distance, passengers, today
+]);
+
+
   // validation
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -125,21 +162,43 @@ export default function BusRentalPage() {
     } else if (parseInt(passengers, 10) <= 0) {
       newErrors.passengers = "Passengers must be greated than 0.";
     }
-
+    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const getMissingFields = () => {
+  const missing: string[] = [];
+
+  if (!customerName.trim()) missing.push("Customer Name is required.");
+  if (!contact.trim()) missing.push("Contact Number is required.");
+  else if (!/^\d{7,15}$/.test(contact)) missing.push("Contact Number must be 7–15 digits.");
+  if (!busType) missing.push("Bus Type must be selected.");
+  if (!selectedBusId) missing.push("Available Bus must be selected.");
+  else {
+    const bus = buses.find((b) => b.id === selectedBusId);
+    if (!bus || !bus.available) missing.push("Selected Bus is not available.");
+  }
+  if (!rentalDate) missing.push("Rental Date is required.");
+  else if (rentalDate < today) missing.push("Rental Date must be today or in the future.");
+  if (!duration || parseInt(duration || "0", 10) < 1) missing.push("Duration must be at least 1 day.");
+  if (!distance || parseInt(distance || "0", 10) <= 0) missing.push("Distance must be greater than 0 km.");
+  if (!passengers || parseInt(passengers || "0", 10) <= 0) missing.push("Passengers must be greater than 0.");
+  if (!destination.trim()) missing.push("Destination is required.");
+
+  return missing;
+};
+
+
   // submit (simulate saving and mark bus unavailable locally)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setNotification({ type: null });
     setErrors({});
 
     if (!validateForm()) return;
     setShowSummaryModal(true);
-    
 
     // recompute price server-side-style to prevent tampered price submission
     const recomputedPrice =
@@ -174,6 +233,7 @@ export default function BusRentalPage() {
       setDuration("");
       setDistance("");
       setPassengers("");
+      setDestination("");
       setPriceBreakdown({ baseRate: 0, durationFee: 0, distanceFee: 0, extraFees: 0, total: 0 });
     } catch (err) {
       setNotification({ type: "error", message: "Failed to save rental request." });
@@ -182,9 +242,41 @@ export default function BusRentalPage() {
     }
   };
 
+  useEffect(() => {
+    if (notification.type) {
+      const timer = setTimeout(() => {
+        setNotification({ type: null });
+      }, 4000); // disappears after 4 seconds
+
+      return () => clearTimeout(timer); // cleanup if notification changes
+    }
+  }, [notification.type]);
+
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
+
+          {/* Notification Top-Right */}
+          {notification.type && (
+            <div
+              style={{
+                position: "fixed",
+                top: 20,
+                right: 20,
+                minWidth: 250,
+                padding: "12px 16px",
+                borderRadius: 8,
+                background: notification.type === "success" ? "#ecfdf5" : "#fee2e2",
+                color: notification.type === "success" ? "#065f46" : "#991b1b",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                zIndex: 9999,
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              {notification.message}
+            </div>
+          )}
+
         <h2 className={styles.stopTitle}>Bus Rental Request</h2>
         <p className={styles.description}>Fill out the form below to create a rental request.</p>
 
@@ -371,30 +463,16 @@ export default function BusRentalPage() {
                 </div>
               </div>
             </div>
-
-            <div className={styles.submitContainer}>
-              <button
-                type="submit"
-                disabled={loading || !price || price <= 0}
-                className={`${styles.submitButton} ${loading || !price ? styles.submitButtonDisabled : styles.submitButtonActive}`}
-              >
-                {loading ? "Submitting..." : "Submit Request"}
-              </button>
-              {errors.price && (
-                <p className={styles.errorMessage}>
-                  <AlertCircle className={styles.errorIcon} /> {errors.price}
-                </p>
-              )}
-            </div>
           </form>
 
-          {/* ===== Right: Price Calculator ===== */}
+          {/* ===== Right: Live Preview & Price Calculator ===== */}
           <div className={styles.priceCalculator}>
+            {/* Price Calculator Header */}
             <div className={styles.calculatorHeader}>
               <Calculator />
               <span className={styles.calculatorTitle}>Rental Price Calculator</span>
 
-              {/* Tooltip moved INSIDE the header */}
+              {/* Tooltip */}
               <div
                 className={styles.tooltipContainer}
                 onMouseEnter={() => setShowTooltip(true)}
@@ -407,6 +485,7 @@ export default function BusRentalPage() {
               </div>
             </div>
 
+            {/* Price Breakdown */}
             {price > 0 ? (
               <div className={styles.priceBreakdown}>
                 <div className={styles.priceRow}>
@@ -444,25 +523,113 @@ export default function BusRentalPage() {
                 </p>
               </div>
             )}
+
+            {/* Live Preview Section */}
+            <div className={styles.previewSection}>
+              <div className={styles.previewHeader}>
+                <Receipt size={18} />
+                <span className={styles.previewTitle}>Rental Request Preview</span>
+              </div>
+
+              <div className={styles.previewContent}>
+                {/* Customer Information */}
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Customer Name</span>
+                  <span className={styles.previewValue}>
+                    {customerName || "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Contact Number</span>
+                  <span className={styles.previewValue}>
+                    {contact || "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Bus Type</span>
+                  <span className={styles.previewValue}>
+                    {busType || "Not selected"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Selected Bus</span>
+                  <span className={styles.previewValue}>
+                    {selectedBus ? `${selectedBus.name} (${selectedBus.capacity} seats)` : "Not selected"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Rental Date</span>
+                  <span className={styles.previewValue}>
+                    {rentalDate ? formatDate(rentalDate) : "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Duration</span>
+                  <span className={styles.previewValue}>
+                    {duration ? `${duration} day${duration !== "1" ? "s" : ""}` : "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Distance</span>
+                  <span className={styles.previewValue}>
+                    {distance ? `${distance} km` : "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Passengers</span>
+                  <span className={styles.previewValue}>
+                    {passengers ? `${passengers} passenger${passengers !== "1" ? "s" : ""}` : "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRowLast}>
+                  <span className={styles.previewLabel}>Destination</span>
+                  <span className={styles.previewValue}>
+                    {destination || "Not specified"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Status indicator - now as button when ready */}
+              <div className={styles.previewStatus}>
+                {isFormReady ? (
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className={`${styles.previewStatusContent} ${styles.previewStatusReady} ${styles.previewStatusButton}`}
+                  >
+                    <Calendar size={16} />
+                    {loading ? "Submitting..." : "Submit Rental Request"}
+                  </button>
+                ) : (
+                  <>
+                    {/* Compact incomplete indicator */}
+                    <div className={`${styles.previewStatusContent} ${styles.previewStatusIncomplete}`}>
+                      <AlertCircle size={16} style={{ marginRight: 6 }} />
+                      Form Incomplete
+                    </div>
+
+                    {/* Missing fields list below */}
+                    <ul className={styles.incompleteList}>
+                      {getMissingFields().map((msg, idx) => (
+                        <li key={idx}>{msg}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+
+            </div>
           </div>
         </div>
-
-        {/* Notifications */}
-        {notification.type && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 12,
-              borderRadius: 8,
-              background: notification.type === "success" ? "#ecfdf5" : "#fee2e2",
-              color: notification.type === "success" ? "#065f46" : "#991b1b",
-            }}
-          >
-            {notification.message}
-          </div>
-        )}
-
-        
       </div>
     </div>
   );

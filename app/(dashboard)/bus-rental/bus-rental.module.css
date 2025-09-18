@@ -531,3 +531,143 @@
     width: 100%;
   }
 }
+
+/* === Live Preview Section === */
+/* === Live Preview Section === */
+.previewSection {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #000000;
+}
+
+.previewTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.previewContent {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.previewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.previewRowLast {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: none;
+}
+
+.previewLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.previewValue {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+/* === Preview Status === */
+.previewStatus {
+  margin-top: 1rem;
+}
+
+.previewStatusButton {
+  border: none;
+  background: inherit;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.previewStatusButton:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.previewStatusButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.previewStatusButton:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.previewStatusContent {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.previewStatusReady {
+  background-color: #0a8930;
+  color: white;
+  border: 2px solid #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.previewStatusReady:hover {
+  background-color: #961c1e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(181, 30, 13, 0.39);
+}
+
+.previewStatusReady:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
+}
+
+.previewStatusIncomplete {
+  background-color: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  color: #1a47a1;
+  box-shadow: none;
+}
+
+.previewStatusPrice {
+  font-size: 0.75rem;
+  color: #065f46;
+  margin-top: 0.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.incompleteList {
+  margin-top: 4px;
+  padding-left: 16px;
+  color: #b91c1c; /* red text for errors */
+  font-size: 0.9rem;
+  list-style-type: disc;
+}
