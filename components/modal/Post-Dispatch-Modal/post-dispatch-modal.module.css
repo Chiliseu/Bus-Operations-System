@@ -317,6 +317,15 @@
   align-items: end;
 }
 
+.peso-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+.peso-sign {
+  margin-right: 4px;
+  font-weight: bold;
+}
+
 /* Radio Buttons */
 .modern-radio-container {
   display: flex;

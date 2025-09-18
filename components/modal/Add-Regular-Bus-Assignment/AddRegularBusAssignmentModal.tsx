@@ -447,7 +447,8 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                       className="form-control"
                       value={policy.quotaValue.toString()}
                       min={policy.quotaType === "Percentage" ? 1 : 0}
-                      max={policy.quotaType === "Percentage" ? 99 : undefined}
+                      max={policy.quotaType === "Percentage" ? 99 : 99999}
+                      step={policy.quotaType === "Percentage" ? 1 : 0.01}
                       onFocus={(e) => {
                         if (e.target.value === '0') e.target.value = '';
                       }}
@@ -462,8 +463,12 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                         if (policy.quotaType === 'Percentage') {
                           if (val < 1) normalized = 1;
                           if (val > 99) normalized = 99;
+                          normalized = Math.floor(normalized); // Ensure integer for percentage
                         } else {
                           if (val < 0) normalized = 0;
+                          if (val > 99999) normalized = 99999;
+                          // Limit to 2 decimal places
+                          normalized = Math.floor(normalized * 100) / 100;
                         }
 
                         updateQuotaPolicyValue(index, { quotaValue: normalized });
