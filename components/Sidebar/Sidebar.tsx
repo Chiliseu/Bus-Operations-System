@@ -199,7 +199,7 @@ const Sidebar: React.FC = () => {
             </div>
           )}
 
-          {/* <Link
+          <Link
             href="/bus-rental"
             className={`nav-item ${activeItem === 'bus-rental' ? 'active' : ''}`}
             onClick={() => setActiveItem('bus-rental')}
@@ -214,7 +214,7 @@ const Sidebar: React.FC = () => {
             <span>Bus Rental</span>
           </Link>
 
-          <Link
+          {/* <Link
             href="/performance-report"
             className={`nav-item ${activeItem === 'performance-report' ? 'active' : ''}`}
             onClick={() => setActiveItem('performance-report')}
