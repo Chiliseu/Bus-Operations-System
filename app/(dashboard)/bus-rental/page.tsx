@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, Calculator, Bus, User, Info, Receipt, Calendar, MapPin, Clock } from "lucide-react";
 import styles from "./bus-rental.module.css";
+import { getBackendBaseURL, fetchBackendToken } from "@/lib/backend";
 
 /* ---- Types ---- */
 type BusType = "Aircon" | "Non-Aircon";
@@ -34,6 +35,7 @@ export default function BusRentalPage() {
   const [distance, setDistance] = useState(""); // km
   const [passengers, setPassengers] = useState(""); // optional for extra fees
   const [destination, setDestination] = useState("");
+  const [pickupLocation, setPickupLocation] = useState("");
 
   // local buses (simulate backend)
   const [buses, setBuses] = useState<Bus[]>(INITIAL_BUSES);
@@ -76,24 +78,74 @@ export default function BusRentalPage() {
     extraFees: 0,
     total: 0,
   });
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const d = parseInt(duration || "0", 10) || 0;
-    const dist = parseInt(distance || "0", 10) || 0;
-    const pax = parseInt(passengers || "0", 10) || 0;
+  // Function to call the price calculation API
+  const calculatePrice = async (busType: BusType, duration: string, distance: string, passengers: string) => {
+    const d = parseInt(duration || "0", 10);
+    const dist = parseInt(distance || "0", 10);
+    const pax = parseInt(passengers || "0", 10);
 
-    if (!busType || d <= 0) {
+    // Reset if invalid inputs
+    if (!busType || d <= 0 || dist <= 0 || pax <= 0) {
       setPriceBreakdown({ baseRate: 0, durationFee: 0, distanceFee: 0, extraFees: 0, total: 0 });
+      setPriceError(null);
       return;
     }
 
-    const baseRate = busType === "Aircon" ? 5000 : 3000;
-    const durationFee = d * 1000; // ₱1,000 per day
-    const distanceFee = dist * 10; // ₱10 per km (example)
-    const extraFees = pax > 40 ? 500 : 0; // extra fee if >40 passengers
-    const total = baseRate + durationFee + distanceFee + extraFees;
+    setPriceLoading(true);
+    setPriceError(null);
 
-    setPriceBreakdown({ baseRate, durationFee, distanceFee, extraFees, total });
+    try {
+      const baseURL = getBackendBaseURL();
+      const response = await fetch(`${baseURL}/api/rental-calculate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          busType,
+          duration: d,
+          distance: dist,
+          passengers: pax,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to calculate price');
+      }
+
+      const result = await response.json();
+      setPriceBreakdown(result.priceBreakdown);
+    } catch (err) {
+      console.error('Price calculation error:', err);
+      setPriceError(err instanceof Error ? err.message : 'Failed to calculate price');
+      // Fallback to local calculation
+      const baseRate = busType === "Aircon" ? 5000 : 3000;
+      const durationFee = d * 1000;
+      const distanceFee = dist * 10;
+      const extraFees = pax > 40 ? 500 : 0;
+      const total = baseRate + durationFee + distanceFee + extraFees;
+      setPriceBreakdown({ baseRate, durationFee, distanceFee, extraFees, total });
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
+  // Effect to trigger price calculation when inputs change (with debouncing)
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (busType && duration && distance && passengers) {
+        calculatePrice(busType as BusType, duration, distance, passengers);
+      } else {
+        setPriceBreakdown({ baseRate: 0, durationFee: 0, distanceFee: 0, extraFees: 0, total: 0 });
+        setPriceError(null);
+      }
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(debounceTimer);
   }, [busType, duration, distance, passengers]);
 
   const price = priceBreakdown.total;
@@ -125,12 +177,13 @@ export default function BusRentalPage() {
     rentalDate >= today &&
     parseInt(duration || "0", 10) >= 1 &&
     destination.trim() &&
+    pickupLocation.trim() &&
     parseInt(distance || "0", 10) > 0 &&
     parseInt(passengers || "0", 10) > 0
   );
 }, [
   customerName, contact, busType, selectedBusId, rentalDate,
-  duration, destination, distance, passengers, today
+  duration, destination, pickupLocation, distance, passengers, today
 ]);
 
 
@@ -150,6 +203,7 @@ export default function BusRentalPage() {
     if (rentalDate && rentalDate < today) newErrors.rentalDate = "Rental date cannot be in the past.";
     if (!duration || parseInt(duration || "0", 10) < 1) newErrors.duration = "Duration must be at least 1 day.";
     if (!destination.trim()) newErrors.destination = "Destination is required.";
+    if (!pickupLocation.trim()) newErrors.pickupLocation = "Pickup location is required.";
     if (!price || price <= 0) newErrors.price = "Price must be calculated before submitting.";
     if (!distance) {
       newErrors.distance = "Distance is Required.";
@@ -186,12 +240,13 @@ export default function BusRentalPage() {
   if (!distance || parseInt(distance || "0", 10) <= 0) missing.push("Distance must be greater than 0 km.");
   if (!passengers || parseInt(passengers || "0", 10) <= 0) missing.push("Passengers must be greater than 0.");
   if (!destination.trim()) missing.push("Destination is required.");
+  if (!pickupLocation.trim()) missing.push("Pickup Location is required.");
 
   return missing;
 };
 
 
-  // submit (simulate saving and mark bus unavailable locally)
+  // submit (make API call to backend)
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setNotification({ type: null });
@@ -215,14 +270,51 @@ export default function BusRentalPage() {
     setLoading(true);
 
     try {
-      // Simulated API delay
-      await new Promise((r) => setTimeout(r, 900));
+      // Authenticate and get token
+      const token = await fetchBackendToken();
+      if (!token) {
+        throw new Error('Authentication failed');
+      }
+
+      // Prepare rental request data
+      const rentalData = {
+        CustomerName: customerName.trim(),
+        CustomerContact: contact.trim(),
+        PickupLocation: pickupLocation.trim(),
+        DropoffLocation: destination.trim(),
+        NumberOfPassengers: parseInt(passengers, 10),
+        PickupDateAndTime: new Date(rentalDate).toISOString(),
+        ExpectedArrivalTime: null, // Optional field
+        SpecialRequirements: `Bus Type: ${busType}, Duration: ${duration} days, Distance: ${distance}km, Total Price: ${formatCurrency(price)}`,
+        Status: "Pending"
+      };
+
+      // Make API call
+      const baseURL = getBackendBaseURL();
+      const response = await fetch(`${baseURL}/api/rental-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify(rentalData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+
+      const createdRequest = await response.json();
 
       // mark bus unavailable locally (simulate backend update)
       setBuses((prev) => prev.map((b) => (b.id === selectedBusId ? { ...b, available: false } : b)));
 
       // success
-      setNotification({ type: "success", message: "Rental request submitted and bus reserved." });
+      setNotification({ 
+        type: "success", 
+        message: `Rental request submitted successfully! Request ID: ${createdRequest.RentalRequestID}` 
+      });
 
       // reset form
       setCustomerName("");
@@ -234,11 +326,18 @@ export default function BusRentalPage() {
       setDistance("");
       setPassengers("");
       setDestination("");
+      setPickupLocation("");
       setPriceBreakdown({ baseRate: 0, durationFee: 0, distanceFee: 0, extraFees: 0, total: 0 });
+      
     } catch (err) {
-      setNotification({ type: "error", message: "Failed to save rental request." });
+      console.error('Rental request error:', err);
+      setNotification({ 
+        type: "error", 
+        message: err instanceof Error ? err.message : "Failed to submit rental request. Please try again." 
+      });
     } finally {
       setLoading(false);
+      setShowSummaryModal(false);
     }
   };
 
@@ -431,16 +530,33 @@ export default function BusRentalPage() {
                 </div>
 
                 {/* Destination */}
-                <div className={`${styles.inputGroup} ${styles.fieldGridFull}`}>
+                <div className={styles.inputGroup}>
                   <label className={styles.inputLabel}>Destination</label>
                   <input
                     className={`${styles.inputField} ${errors.destination ? styles.inputFieldError : ""}`}
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
+                    placeholder="Where are you going?"
                   />
                   {errors.destination && (
                     <p className={styles.errorMessage}>
                       <AlertCircle className={styles.errorIcon} /> {errors.destination}
+                    </p>
+                  )}
+                </div>
+
+                {/* Pickup Location */}
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Pickup Location</label>
+                  <input
+                    className={`${styles.inputField} ${errors.pickupLocation ? styles.inputFieldError : ""}`}
+                    value={pickupLocation}
+                    onChange={(e) => setPickupLocation(e.target.value)}
+                    placeholder="Where should we pick you up?"
+                  />
+                  {errors.pickupLocation && (
+                    <p className={styles.errorMessage}>
+                      <AlertCircle className={styles.errorIcon} /> {errors.pickupLocation}
                     </p>
                   )}
                 </div>
@@ -470,7 +586,10 @@ export default function BusRentalPage() {
             {/* Price Calculator Header */}
             <div className={styles.calculatorHeader}>
               <Calculator />
-              <span className={styles.calculatorTitle}>Rental Price Calculator</span>
+              <span className={styles.calculatorTitle}>
+                Rental Price Calculator
+                {priceLoading && <span style={{ marginLeft: '8px', fontSize: '12px', opacity: 0.7 }}>Calculating...</span>}
+              </span>
 
               {/* Tooltip */}
               <div
@@ -485,9 +604,27 @@ export default function BusRentalPage() {
               </div>
             </div>
 
+            {/* Price Error Display */}
+            {priceError && (
+              <div style={{ 
+                padding: '8px 12px', 
+                margin: '8px 0',
+                backgroundColor: '#fee2e2', 
+                color: '#991b1b', 
+                borderRadius: '4px',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <AlertCircle size={16} />
+                <span>Price calculation failed, using fallback. {priceError}</span>
+              </div>
+            )}
+
             {/* Price Breakdown */}
             {price > 0 ? (
-              <div className={styles.priceBreakdown}>
+              <div className={styles.priceBreakdown} style={{ opacity: priceLoading ? 0.6 : 1 }}>
                 <div className={styles.priceRow}>
                   <span className={styles.priceLabel}>Base Rate</span>
                   <span className={styles.priceValue}>{formatCurrency(priceBreakdown.baseRate)}</span>
@@ -519,7 +656,10 @@ export default function BusRentalPage() {
               <div className={styles.calculatorEmpty}>
                 <Bus className={styles.calculatorEmptyIcon} />
                 <p className={styles.calculatorEmptyText}>
-                  Select bus type & duration to calculate price
+                  {priceLoading 
+                    ? "Calculating price..." 
+                    : "Select bus type & enter details to calculate price"
+                  }
                 </p>
               </div>
             )}
@@ -589,10 +729,17 @@ export default function BusRentalPage() {
                   </span>
                 </div>
 
-                <div className={styles.previewRowLast}>
+                <div className={styles.previewRow}>
                   <span className={styles.previewLabel}>Destination</span>
                   <span className={styles.previewValue}>
                     {destination || "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRowLast}>
+                  <span className={styles.previewLabel}>Pickup Location</span>
+                  <span className={styles.previewValue}>
+                    {pickupLocation || "Not specified"}
                   </span>
                 </div>
               </div>
