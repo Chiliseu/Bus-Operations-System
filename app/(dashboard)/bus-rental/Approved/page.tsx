@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './approved.module.css';
 import '../../../../styles/globals.css';
-import { Loading, Swal } from '@/shared/imports';
+import Swal from 'sweetalert2';
 import ApprovedBusReadinessModal from '@/components/modal/Approved-Bus-Readiness-Modal/ApprovedBusReadinessModal';
 import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Modal/AssignRentalDriverModal';
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
