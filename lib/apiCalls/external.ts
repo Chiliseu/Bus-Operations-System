@@ -128,6 +128,7 @@ export async function fetchRentDriversWithToken(token: string, startDate?: strin
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    credentials: 'include', // <-- include cookies/session credentials
     cache: 'no-store',
   });
 
@@ -160,6 +161,7 @@ export async function fetchRentBusesWithToken(
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    credentials: 'include', // <-- include cookies/session credentials
     cache: 'no-store',
   });
 
