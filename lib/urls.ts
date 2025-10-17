@@ -38,3 +38,11 @@ export const BUS_ASSIGNMENT_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_BusAssig
 
 // Bus Operations
 export const BUS_OPERATIONS_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_BusOperations_Endpoint}`;
+
+
+export const RENTAL_REQUESTS_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_Rental_Requests_Endpoint}`;
+
+export const DRIVERS_RENT_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_DriversRent_Endpoint}`;
+
+export const BUSES_RENT_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_BusesRent_Endpoint}`;
+
