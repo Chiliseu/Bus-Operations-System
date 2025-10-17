@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 import styles from "./damage-check.module.css";
 
 interface DamageCheckModalProps {
