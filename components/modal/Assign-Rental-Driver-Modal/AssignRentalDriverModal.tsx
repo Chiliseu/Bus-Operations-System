@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from "@/components/ui/Button";
-import styles from "./assign-driver.module.css";
+import styles from "./assign-rental-driver.module.css";
+import Swal from 'sweetalert2'; // ✅ Import Swal for alerts
 
 interface Driver {
   id: string;
@@ -17,7 +18,7 @@ interface Driver {
 interface AssignRentalDriverModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (driver: Driver) => void;
+  onSave: (drivers: { mainDriver: Driver; assistantDriver: Driver }) => void;
   busData?: {
     busName: string;
     status: string;
@@ -30,12 +31,13 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
   onSave,
   busData,
 }) => {
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [mainDriver, setMainDriver] = useState<Driver | null>(null);
+  const [assistantDriver, setAssistantDriver] = useState<Driver | null>(null);
   const [currentTime, setCurrentTime] = useState<string>(
     new Date().toLocaleString('en-US', { hour12: true })
   );
 
-  // Demo driver list (replace with your data later)
+  // Demo driver list
   const drivers: Driver[] = [
     {
       id: '1',
@@ -72,13 +74,40 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleSelectDriver = (driver: Driver, role: 'main' | 'assistant') => {
+    if (role === 'main') {
+      setMainDriver(driver);
+    } else {
+      setAssistantDriver(driver);
+    }
+  };
+
+  const handleSave = async () => {
+    // ✅ Error handling using Swal
+    if (!mainDriver || !assistantDriver) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Selection',
+        text: 'Please select both a main driver and an assistant driver before saving.',
+      });
+      return;
+    }
+    onSave({ mainDriver, assistantDriver });
+    await Swal.fire({
+      icon: 'success',
+      title: 'Drivers Assigned',
+      text: `Main Driver: ${mainDriver.name}\nAssistant Driver: ${assistantDriver.name}`,
+    });
+    onClose();
+  };
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>
-            Assign Driver {busData ? `for ${busData.busName}` : ''}
+            Assign Drivers {busData ? `for ${busData.busName}` : ''}
           </h2>
           <button
             type="button"
@@ -100,9 +129,10 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
                 <div
                   key={driver.id}
                   className={`${styles.driverCard} ${
-                    selectedDriver?.id === driver.id ? styles.activeCard : ''
+                    mainDriver?.id === driver.id || assistantDriver?.id === driver.id
+                      ? styles.activeCard
+                      : ''
                   }`}
-                  onClick={() => setSelectedDriver(driver)}
                 >
                   <div className={styles.driverInfo}>
                     <div className={styles.driverImageContainer}>
@@ -123,13 +153,16 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
                     </div>
                   </div>
 
-                  <Button
-                    text={selectedDriver?.id === driver.id ? 'Selected' : 'Assign'}
-                    onClick={() => {
-                      setSelectedDriver(driver);
-                      onSave(driver);
-                    }}
-                  />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button
+                      text={mainDriver?.id === driver.id ? 'Main Selected' : 'Set as Main'}
+                      onClick={() => handleSelectDriver(driver, 'main')}
+                    />
+                    <Button
+                      text={assistantDriver?.id === driver.id ? 'Assistant Selected' : 'Set as Assistant'}
+                      onClick={() => handleSelectDriver(driver, 'assistant')}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -139,6 +172,7 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
         {/* Footer */}
         <div className={styles.footer}>
           <small className="text-muted">{currentTime}</small>
+          <Button text="Assign Selected Drivers" onClick={handleSave} />
         </div>
       </div>
     </div>

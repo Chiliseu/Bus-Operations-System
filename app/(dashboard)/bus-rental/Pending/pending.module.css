@@ -1,0 +1,273 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Local Button Styles === */
+
+/* General button styling for custom buttons */
+.custom-button {
+  display: flex;               /* Use flexbox to align icon and text */
+  align-items: center;         /* Vertically center content */
+  justify-content: center;     /* Horizontally center content */
+  padding: 8px 12px;           /* Padding inside button */
+  background-color: #f8f9fa;   /* Light background color */
+  border-radius: 5px;          /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: all 0.3s ease;   /* Smooth transition on hover */
+}
+
+/* Style for images/icons inside the custom button */
+.custom-button img {
+  margin-right: 8px;           /* Space between icon and text */
+  transition: transform 0.3s ease; /* Smooth scaling effect on hover */
+}
+
+/* Scale up icon slightly when hovering on button */
+.custom-button:hover img {
+  transform: scale(1.1);
+}
+
+/* === Edit Button Specific Styles === */
+
+.editBtn {
+  background-color: #2D8EFF;
+  padding: 3px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px; /* Space between buttons */
+}
+
+.editBtn:hover {
+  background-color: #267BDB;
+}
+
+/* === Delete Button Specific Styles === */
+
+.btn-delete {
+  color: #dc3545;              /* Bootstrap danger red color */
+  border: 1px solid #dc3545;  /* Red border */
+}
+
+.btn-delete:hover {
+  background-color: #dc3545;  /* Red background on hover */
+  color: white;               /* White text on hover */
+}
+
+/* === Utility and Layout Classes === */
+
+/* 
+  Make buttons fill the width of the action column while 
+  ensuring multiple buttons fit side by side neatly 
+*/
+.w-48 {
+  width: 1%; /* This is a trick to shrink width and let flexbox or table layout adjust */
+}
+
+/* === Center Box Styling === */
+
+.center-box {
+  background-color: #ffffff;           /* White background */
+  padding-top: 40px;                   /* Space at the top */
+  border-radius: 10px;                 /* Rounded corners */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  margin-top: 130px;                   /* Space from top of the page */
+}
+
+/* === Icon Styling === */
+
+.icon-small {
+  width: 60px;       /* Fixed width */
+  height: 6px;       /* Very short height, like a small bar */
+  margin-right: 10px; /* Space to the right of the icon */
+  vertical-align: middle; /* Align vertically with text */
+}
+
+/* === Assignment Title Styling === */
+
+.stopTitle {
+  font-family: 'Open Sans';
+  color: #000000;           /* Black text */
+  font-size: 24px;          /* Set font size */
+  font-weight: 800;         /* Bold */
+  margin-bottom: 15px;      /* Bottom margin */
+}
+
+/* === Container Card Styling === */
+
+.wideCard {
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
+}
+
+/* === Table Wrapper Styling === */
+
+.styledTableWrapper {
+  border-radius: 5px;                    /* Rounded corners */
+  overflow: hidden;                      /* Hide overflow (for border radius on table) */
+  border: 2px solid #d1d5db;             /* Light gray border (Tailwind gray-300) */
+  margin-top: 10px;                      /* Small spacing above */
+}
+
+/* === Table Styling === */
+
+.styledTable {
+  width: 100%;                /* Full width */
+  border-collapse: collapse;  /* Remove double borders */
+  font-size: 14px;            /* Readable font size */
+}
+
+/* Table header background color */
+.styledTable thead {
+  background-color: #D8D8D8;  /* Light gray background for header */
+}
+
+/* Table row hover effect */
+.styledTable tbody tr:hover {
+  background-color: #ECECEC;  /* Slightly darker gray on hover */
+}
+
+/* Table cells styling */
+.styledTable th,
+.styledTable td {
+  padding: 12px;                     /* Padding inside cells */
+  border-bottom: 1px solid #e5e7eb; /* Light bottom border */
+  text-align: left;                 /* Left align text */
+  border-bottom: 1px solid #999;   /* Darker and thicker horizontal lines */
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline; /* align all items to baseline instead of center */
+  gap: 1rem;
+  margin-bottom: 0.10rem;
+}
+
+.searchWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.searchWrapper i {
+  position: absolute;
+  left: 10px;
+  top: 60%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 18px;
+  color: #aaa;
+  
+}
+
+.searchInput {
+  padding-left: 30px !important; /* enough to make space for icon */
+  height: 35px;
+  width: 250px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  background-color: white;
+  margin-top: 10px;
+}
+
+.description{
+  margin-top: 10px;
+}
+
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px; /* enough space for centering */
+}
+
+.loadingImage {
+  width: 90px;
+  height: 90px;
+}
+
+
+/* Dropdown style */
+.sortSelect {
+  height: 35px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  padding: 0 8px;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* === ACTION BUTTONS (Approve / Reject / Notes) === */
+
+.noteBtn,
+.approveBtn,
+.rejectBtn {
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* View Notes Button */
+.noteBtn {
+  background-color: #e8f0fe; /* Light blue tint */
+  color: #1a73e8;            /* Google-style blue */
+  border: 1px solid #cbdafc;
+}
+.noteBtn:hover {
+  background-color: #d2e3fc;
+  transform: translateY(-1px);
+}
+
+/* Approve Button */
+.approveBtn {
+  background-color: #28a745; /* Green */
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+.approveBtn:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Reject Button */
+.rejectBtn {
+  background-color: #dc3545; /* Red */
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+.rejectBtn:hover {
+  background-color: #c82333;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Centered action column for buttons */
+.centeredColumn {
+  text-align: center;
+  white-space: nowrap;
+}
+
