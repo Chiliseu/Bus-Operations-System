@@ -36,6 +36,8 @@ export default function BusRentalPage() {
   const [passengers, setPassengers] = useState(""); // optional for extra fees
   const [destination, setDestination] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
+  const [note, setNote] = useState(""); // new note field
+
 
   // local buses (simulate backend)
   const [buses, setBuses] = useState<Bus[]>(INITIAL_BUSES);
@@ -285,8 +287,7 @@ export default function BusRentalPage() {
         NumberOfPassengers: parseInt(passengers, 10),
         PickupDateAndTime: new Date(rentalDate).toISOString(),
         ExpectedArrivalTime: null, // Optional field
-        SpecialRequirements: `Bus Type: ${busType}, Duration: ${duration} days, Distance: ${distance}km, Total Price: ${formatCurrency(price)}`,
-        Status: "Pending"
+        SpecialRequirements: `Bus Type: ${busType}, Duration: ${duration} days, Distance: ${distance}km, Total Price: ${formatCurrency(price)}, Note: ${note}`,
       };
 
       // Make API call
@@ -579,6 +580,27 @@ export default function BusRentalPage() {
                 </div>
               </div>
             </div>
+
+            {/* ===== Note Section ===== */}
+              <div className={styles.sectionCard}>
+                <h3 className={styles.sectionTitle}>
+                  <Info className={styles.sectionIcon} />
+                  Note
+                </h3>
+
+                <div className={styles.fieldGrid}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Additional Notes</label>
+                    <textarea
+                      className={styles.inputField}
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder="Any special instructions or comments..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              </div>
           </form>
 
           {/* ===== Right: Live Preview & Price Calculator ===== */}
@@ -736,13 +758,20 @@ export default function BusRentalPage() {
                   </span>
                 </div>
 
-                <div className={styles.previewRowLast}>
+                <div className={styles.previewRow}>
                   <span className={styles.previewLabel}>Pickup Location</span>
                   <span className={styles.previewValue}>
                     {pickupLocation || "Not specified"}
                   </span>
                 </div>
+                
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Note</span>
+                  <span className={styles.previewValue}>
+                    {note || "Not specified"}
+                  </span>
               </div>
+            </div>
 
               {/* Status indicator - now as button when ready */}
               <div className={styles.previewStatus}>

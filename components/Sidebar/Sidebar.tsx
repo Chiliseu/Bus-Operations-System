@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import '@/styles/sidebar.css';
-import {logoutUser} from '@/lib/apiCalls/logout'
+import { logoutUser } from '@/lib/apiCalls/logout';
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
@@ -16,23 +16,40 @@ const Sidebar: React.FC = () => {
     '/dashboard': 'dashboard',
     '/bus-assignment': 'assignment',
     '/gps': 'gps',
-    '/bus-rental': 'bus-rental',
     '/performance-report': 'performance-report',
+
+    // Route Management
     '/route-management/Create-Stop': 'create-stop',
     '/route-management/Create-Route': 'create-route',
+
+    // Bus Operation
     '/bus-operation/Pre-Dispatch': 'pre-dispatch',
     '/bus-operation/Dispatch': 'dispatch',
     '/bus-operation/Post-Dispatch': 'post-dispatch',
+
+    // Bus Rental
+    '/bus-rental': 'bus-rental-request',
+    '/bus-rental/Pending': 'rental-pending',
+    '/bus-rental/Approved': 'rental-approved',
+    '/bus-rental/Ongoing': 'rental-ongoing',
   };
 
   const routeManagementSubItems = [
     '/route-management/Create-Stop',
     '/route-management/Create-Route',
   ];
+
   const busOperationSubItems = [
     '/bus-operation/Pre-Dispatch',
     '/bus-operation/Dispatch',
     '/bus-operation/Post-Dispatch',
+  ];
+
+  const busRentalSubItems = [
+    '/bus-rental',
+    '/bus-rental/Pending',
+    '/bus-rental/Approved',
+    '/bus-rental/Ongoing',
   ];
 
   // Set activeItem based on pathname
@@ -46,6 +63,8 @@ const Sidebar: React.FC = () => {
       setOpenSubMenu('route-management-submenu');
     } else if (busOperationSubItems.includes(pathname)) {
       setOpenSubMenu('bus-operation-submenu');
+    } else if (busRentalSubItems.includes(pathname)) {
+      setOpenSubMenu('bus-rental-submenu');
     } else {
       setOpenSubMenu(null);
     }
@@ -57,11 +76,12 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = async () => {
     console.log('Logging out...');
-    await logoutUser(); 
+    await logoutUser();
   };
 
   const isRouteManagementActive = routeManagementSubItems.includes(pathname);
   const isBusOperationActive = busOperationSubItems.includes(pathname);
+  const isBusRentalActive = busRentalSubItems.includes(pathname);
 
   return (
     <div className="sidebar shadow-lg" id="sidebar">
@@ -101,6 +121,7 @@ const Sidebar: React.FC = () => {
             <span>Assignment</span>
           </Link>
 
+          {/* === ROUTE MANAGEMENT === */}
           <div
             className={`nav-item module ${isRouteManagementActive ? 'active' : ''}`}
             onClick={() => toggleSubMenu('route-management-submenu')}
@@ -139,21 +160,7 @@ const Sidebar: React.FC = () => {
             </div>
           )}
 
-          {/* <Link
-            href="/gps"
-            className={`nav-item ${activeItem === 'gps' ? 'active' : ''}`}
-            onClick={() => setActiveItem('gps')}
-          >
-            <Image
-              src="/assets/images/GPS.png"
-              alt="GPS"
-              className="nav-icon"
-              width={24}
-              height={24}
-            />
-            <span>GPS</span>
-          </Link> */}
-
+          {/* === BUS OPERATION === */}
           <div
             className={`nav-item module ${isBusOperationActive ? 'active' : ''}`}
             onClick={() => toggleSubMenu('bus-operation-submenu')}
@@ -199,10 +206,10 @@ const Sidebar: React.FC = () => {
             </div>
           )}
 
-          <Link
-            href="/bus-rental"
-            className={`nav-item ${activeItem === 'bus-rental' ? 'active' : ''}`}
-            onClick={() => setActiveItem('bus-rental')}
+          {/* === BUS RENTAL === */}
+          <div
+            className={`nav-item module ${isBusRentalActive ? 'active' : ''}`}
+            onClick={() => toggleSubMenu('bus-rental-submenu')}
           >
             <Image
               src="/assets/images/busrental.png"
@@ -212,9 +219,48 @@ const Sidebar: React.FC = () => {
               height={24}
             />
             <span>Bus Rental</span>
-          </Link>
+            <i
+              className={`dropdown-arrow ri-arrow-down-s-line ${
+                openSubMenu === 'bus-rental-submenu' ? 'rotate' : ''
+              }`}
+            />
+          </div>
 
-          { <Link
+          {openSubMenu === 'bus-rental-submenu' && (
+            <div className="sub-menu active">
+              <Link
+                href="/bus-rental"
+                className={`sub-item ${activeItem === 'bus-rental-request' ? 'active' : ''}`}
+                onClick={() => setActiveItem('bus-rental-request')}
+              >
+                Bus Rental Request
+              </Link>
+              <Link
+                href="/bus-rental/Pending"
+                className={`sub-item ${activeItem === 'rental-pending' ? 'active' : ''}`}
+                onClick={() => setActiveItem('rental-pending')}
+              >
+                Pending
+              </Link>
+              <Link
+                href="/bus-rental/Approved"
+                className={`sub-item ${activeItem === 'rental-approved' ? 'active' : ''}`}
+                onClick={() => setActiveItem('rental-approved')}
+              >
+                Approved
+              </Link>
+              <Link
+                href="/bus-rental/Completed"
+                className={`sub-item ${activeItem === 'rental-ongoing' ? 'active' : ''}`}
+                onClick={() => setActiveItem('rental-ongoing')}
+              >
+                Completed
+              </Link>
+            </div>
+          )}
+
+          {/* === PERFORMANCE REPORT === */}
+          <Link
             href="/performance-report"
             className={`nav-item ${activeItem === 'performance-report' ? 'active' : ''}`}
             onClick={() => setActiveItem('performance-report')}
@@ -227,9 +273,10 @@ const Sidebar: React.FC = () => {
               height={24}
             />
             <span>Performance Report</span>
-          </Link>}
+          </Link>
         </div>
 
+        {/* === LOGOUT === */}
         <div className="logout">
           <a onClick={handleLogout}>
             <span>Logout</span>
