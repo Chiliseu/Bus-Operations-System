@@ -6,6 +6,7 @@ import styles from './pending.module.css';
 import '../../../../styles/globals.css';
 import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
 import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown'; // ✅ Proper import
+import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
 
 // --- BusRental Interface ---
 interface BusRental {
@@ -37,65 +38,45 @@ const PendingRentalPage: React.FC = () => {
     sortBy: 'created_newest',
   });
 
-  // --- Fetch dummy data with validation ---
-  useEffect(() => {
+useEffect(() => {
+  const fetchData = async () => {
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        // Simulate fetch
-        const data: Partial<BusRental>[] = [
-          {
-            id: '1',
-            customerName: 'Juan Dela Cruz',
-            contactNo: '09123456789',
-            busType: 'Aircon',
-            bus: 'Bus-101',
-            rentalDate: '2025-10-18',
-            duration: '2 days',
-            distance: '120 km',
-            destination: 'Tagaytay',
-            pickupLocation: 'Cubao Terminal',
-            passengers: 40,
-            price: 15000,
-            note: 'Wedding event',
-            status: 'Pending',
-          },
-        ];
+    try {
 
-        // Validate each rental
-        const validData: BusRental[] = data
-          .filter(
-            (r) =>
-              r.id &&
-              r.customerName &&
-              r.contactNo &&
-              r.busType &&
-              r.bus &&
-              r.rentalDate &&
-              r.duration &&
-              r.destination &&
-              r.pickupLocation &&
-              typeof r.passengers === 'number' &&
-              typeof r.price === 'number' &&
-              r.status
-          )
-          .map((r) => r as BusRental);
+      const data = await fetchRentalRequestsByStatus('Pending');
 
-        if (validData.length === 0) {
-          throw new Error('No valid rental data found.');
-        }
-
-        setRentals(validData);
-      } catch (err: any) {
-        console.error('Error fetching rentals:', err);
-        Swal.fire('Error', err.message || 'Failed to load rentals.', 'error');
-      } finally {
-        setLoading(false);
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid response format from server.');
       }
-    };
 
-    fetchData();
-  }, []);
+      const mappedData: BusRental[] = data.map((r: any) => ({
+        id: r.RentalRequestID ?? '',
+        customerName: r.CustomerName ?? 'N/A',
+        contactNo: r.CustomerContact ?? 'N/A',
+        busType: r.BusType ?? 'N/A',
+        bus: r.PlateNumber ?? 'N/A',
+        rentalDate: r.RentalDate ? new Date(r.RentalDate).toISOString().split('T')[0] : '',
+        duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
+        distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
+        destination: r.DropoffLocation ?? '',
+        pickupLocation: r.PickupLocation ?? '',
+        passengers: Number(r.NumberOfPassengers ?? 0),
+        price: Number(r.RentalPrice ?? 0),
+        note: r.SpecialRequirements ?? '',
+        status: r.Status ?? 'Pending',
+      }));
+
+      setRentals(mappedData);
+    } catch (err: any) {
+      console.error('Error fetching rentals:', err);
+      Swal.fire('Error', err.message || 'Failed to load rentals.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   // --- FilterDropdown configuration ---
   const filterSections: FilterSection[] = [

@@ -9,6 +9,7 @@ import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Mod
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
 import LoadingModal from "@/components/modal/LoadingModal";
 
+import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
 
 interface Driver {
   id: string;
@@ -50,85 +51,74 @@ const ApprovedNotReadyPage: React.FC = () => {
 
   // --- Fetch and validate data ---
   useEffect(() => {
+  const fetchData = async () => {
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        const data: Partial<BusRental>[] = [
-          {
-            id: '1',
-            customerName: 'Maria Santos',
-            contactNo: '09987654321',
-            busType: 'Deluxe',
-            bus: 'Bus-202',
-            rentalDate: '2025-10-20',
-            duration: '1 day',
-            distance: '80 km',
-            destination: 'Taguig',
-            pickupLocation: 'SM North Terminal',
-            passengers: 35,
-            price: 12000,
-            note: 'Corporate outing',
-            status: 'Not Ready',
-          },
-          {
-            id: '2',
-            customerName: 'Carlos Reyes',
-            contactNo: '09171234567',
-            busType: 'Luxury',
-            bus: 'Bus-108',
-            rentalDate: '2025-10-22',
-            duration: '2 days',
-            distance: '150 km',
-            destination: 'Batangas',
-            pickupLocation: 'Ayala Terminal',
-            passengers: 40,
-            price: 20000,
-            note: 'Company team building',
-            status: 'Not Started',
-          },
-          {
-            id: '3',
-            customerName: 'Ana Dizon',
-            contactNo: '09219876543',
-            busType: 'Regular',
-            bus: 'Bus-305',
-            rentalDate: '2025-10-23',
-            duration: '3 days',
-            distance: '250 km',
-            destination: 'Baguio',
-            pickupLocation: 'Cubao Terminal',
-            passengers: 50,
-            price: 30000,
-            note: 'School field trip',
-            status: 'Ongoing',
-          },
-        ];
+    try {
+      const res = await fetchRentalRequestsByStatus('Approved'); // API call
 
-        const validRentals: BusRental[] = data.filter(
-          (r) =>
-            r.id &&
-            r.customerName &&
-            r.bus &&
-            r.status &&
-            typeof r.passengers === 'number' &&
-            typeof r.price === 'number'
-        ) as BusRental[];
+      if (!Array.isArray(res)) throw new Error('Invalid API response');
 
-        if (validRentals.length === 0) {
-          throw new Error('No valid rental data found.');
-        }
+      const mappedData: BusRental[] = res.map((r: any) => {
+        // Map first two drivers as mainDriver & assistantDriver
+        const drivers = r.RentalBusAssignment?.RentalDrivers ?? [];
+        const mainDriver = drivers[0]
+          ? { id: drivers[0].DriverID, name: drivers[0].DriverID, job: '', contactNo: '', address: '' }
+          : null;
+        const assistantDriver = drivers[1]
+          ? { id: drivers[1].DriverID, name: drivers[1].DriverID, job: '', contactNo: '', address: '' }
+          : null;
 
-        setRentals(validRentals);
-      } catch (err: any) {
-        console.error('Error fetching rentals:', err);
-        Swal.fire('Error', err.message || 'Failed to load rentals.', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
+        return {
+          id: r.RentalRequestID ?? '',
+          customerName: r.CustomerName ?? 'N/A',
+          contactNo: r.CustomerContact ?? 'N/A',
+          busType: r.BusType ?? 'N/A',
+          bus: r.PlateNumber ?? 'N/A',
+          rentalDate: r.RentalDate ? new Date(r.RentalDate).toISOString().split('T')[0] : '',
+          duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
+          distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
+          destination: r.DropoffLocation ?? '',
+          pickupLocation: r.PickupLocation ?? '',
+          passengers: Number(r.NumberOfPassengers ?? 0),
+          price: Number(r.RentalPrice ?? 0),
+          note: r.SpecialRequirements ?? '',
+          status: 'Not Ready', // all approved rentals start as "Not Ready"
+          assignedDrivers:
+            mainDriver && assistantDriver
+              ? { mainDriver, assistantDriver }
+              : undefined,
+          readinessDone: r.RentalBusAssignment?.BusAssignment?.Status === 'Ready' || false,
+          damageCheckDone: false,
+          damageData: r.RentalBusAssignment
+            ? {
+                vehicleCondition: {
+                  Battery: r.RentalBusAssignment.Battery ?? false,
+                  Lights: r.RentalBusAssignment.Lights ?? false,
+                  Oil: r.RentalBusAssignment.Oil ?? false,
+                  Water: r.RentalBusAssignment.Water ?? false,
+                  Brake: r.RentalBusAssignment.Break ?? false,
+                  Air: r.RentalBusAssignment.Air ?? false,
+                  Gas: r.RentalBusAssignment.Gas ?? false,
+                  Engine: r.RentalBusAssignment.Engine ?? false,
+                  'Tire Condition': r.RentalBusAssignment.TireCondition ?? false,
+                },
+                note: r.RentalBusAssignment.Note ?? '',
+              }
+            : undefined,
+        };
+      });
 
-    fetchData();
-  }, []);
+      setRentals(mappedData);
+    } catch (err: any) {
+      console.error('Error fetching approved rentals:', err);
+      Swal.fire('Error', err.message || 'Failed to load approved rentals.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   const handleViewNote = (note?: string) => {
     Swal.fire({

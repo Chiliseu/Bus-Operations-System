@@ -1,13 +1,11 @@
 import { RENTAL_REQUESTS_URL } from '@/lib/urls';
 
 // ✅ Fetch rental requests filtered by status
-export const fetchRentalRequestsByStatus = async (token: string, status: string) => {
+export const fetchRentalRequestsByStatus = async (status: string) => {
   try {
     const url = `${RENTAL_REQUESTS_URL}?status=${encodeURIComponent(status)}`;
     const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: 'include', // sends jwt cookie automatically
       cache: 'no-store',
     });
 
@@ -32,6 +30,7 @@ export const createRentalRequest = async (token: string, data: any) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      credentials: 'include', // <-- include cookies/session credentials
       body: JSON.stringify(data),
     });
 
@@ -46,6 +45,7 @@ export const createRentalRequest = async (token: string, data: any) => {
     throw error;
   }
 };
+
 
 // ✅ Update an existing rental request (PUT)
 export const updateRentalRequest = async (
@@ -66,6 +66,7 @@ export const updateRentalRequest = async (
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      credentials: 'include', // <-- include cookies/session credentials
       body: JSON.stringify(payload),
     });
 

@@ -6,6 +6,7 @@ import '../../../../styles/globals.css';
 import { Loading, Swal } from '@/shared/imports';
 import ViewDamageModal from '@/components/modal/View-Damage-Modal/ViewDamageModal'; // import new modal
 import { RiEyeLine } from 'react-icons/ri'; // eye icon
+import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
 
 interface BusRental {
   id: string;
@@ -35,36 +36,64 @@ const CompletedRentalPage: React.FC = () => {
   const [selectedRental, setSelectedRental] = useState<BusRental | null>(null);
   const [showDamageModal, setShowDamageModal] = useState(false);
 
-  useEffect(() => {
+
+useEffect(() => {
+  const fetchData = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const data: BusRental[] = [
-        {
-          id: '1',
-          customerName: 'Juan Dela Cruz',
-          contactNo: '09123456789',
-          busType: 'Aircon',
-          bus: 'Bus-101',
-          rentalDate: '2025-10-10',
-          duration: '2 days',
-          distance: '120 km',
-          destination: 'Tagaytay',
-          pickupLocation: 'Cubao Terminal',
-          passengers: 40,
-          price: 15000,
-          note: 'Wedding event',
-          status: 'Completed',
-          driver: 'Juan Dela Cruz',
-          damageData: {
-            vehicleCondition: { Battery: true, Lights: false, Oil: false, Water: true, Brake: false, Air: true, Gas: false, Engine: false, "Tire Condition": true },
-            note: 'Minor scratches on rear bumper.'
-          }
-        },
-      ];
-      setRentals(data);
+    try {
+      const res = await fetchRentalRequestsByStatus('Completed'); // cookie-based auth handled
+
+      if (!Array.isArray(res)) throw new Error('Invalid response from server');
+
+      const mappedData: BusRental[] = res.map((r: any) => ({
+        id: r.RentalRequestID ?? '',
+        customerName: r.CustomerName ?? 'N/A',
+        contactNo: r.CustomerContact ?? 'N/A',
+        busType: r.BusType ?? 'N/A',
+        bus: r.PlateNumber ?? 'N/A',
+        rentalDate: r.RentalDate
+          ? new Date(r.RentalDate).toISOString().split('T')[0]
+          : '',
+        duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
+        distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
+        destination: r.DropoffLocation ?? '',
+        pickupLocation: r.PickupLocation ?? '',
+        passengers: Number(r.NumberOfPassengers ?? 0),
+        price: Number(r.RentalPrice ?? 0),
+        note: r.SpecialRequirements ?? '',
+        status: r.Status ?? 'Completed',
+        driver: r.RentalBusAssignment?.RentalDrivers
+          ?.map((d: any) => d.DriverID)
+          .join(', ') ?? '',
+        damageData: r.RentalBusAssignment
+          ? {
+              vehicleCondition: {
+                Battery: r.RentalBusAssignment.Battery ?? false,
+                Lights: r.RentalBusAssignment.Lights ?? false,
+                Oil: r.RentalBusAssignment.Oil ?? false,
+                Water: r.RentalBusAssignment.Water ?? false,
+                Brake: r.RentalBusAssignment.Break ?? false,
+                Air: r.RentalBusAssignment.Air ?? false,
+                Gas: r.RentalBusAssignment.Gas ?? false,
+                Engine: r.RentalBusAssignment.Engine ?? false,
+                "Tire Condition": r.RentalBusAssignment.TireCondition ?? false,
+              },
+              note: r.RentalBusAssignment.Note ?? '',
+            }
+          : undefined,
+      }));
+
+      setRentals(mappedData);
+    } catch (err: any) {
+      console.error('Error fetching completed rentals:', err);
+      Swal.fire('Error', err.message || 'Failed to load completed rentals.', 'error');
+    } finally {
       setLoading(false);
-    }, 800);
-  }, []);
+    }
+  };
+
+  fetchData();
+}, []);
 
   const handleViewNote = (note: string) => {
     Swal.fire({ title: 'Rental Note', text: note || 'No note provided.', icon: 'info' });
