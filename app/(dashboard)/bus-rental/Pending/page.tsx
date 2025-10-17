@@ -5,22 +5,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './pending.module.css';
 import '../../../../styles/globals.css';
 import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
+import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown'; // ✅ Proper import
 
-type FilterFieldType = 'radio' | 'checkbox' | 'select';
-
-interface FilterOption {
-  id: string;
-  label: string;
-}
-
-interface FilterSection {
-  id: string;
-  title: string;
-  type: FilterFieldType;
-  options: FilterOption[];
-  defaultValue: string;
-}
-
+// --- BusRental Interface ---
 interface BusRental {
   id: string;
   customerName: string;
@@ -110,6 +97,7 @@ const PendingRentalPage: React.FC = () => {
     fetchData();
   }, []);
 
+  // --- FilterDropdown configuration ---
   const filterSections: FilterSection[] = [
     {
       id: 'sortBy',
@@ -132,6 +120,7 @@ const PendingRentalPage: React.FC = () => {
     setCurrentPage(1);
   };
 
+  // --- Handle search & filtering logic ---
   useEffect(() => {
     try {
       let filtered = [...rentals];
@@ -164,7 +153,7 @@ const PendingRentalPage: React.FC = () => {
     }
   }, [rentals, searchQuery, activeFilters, currentPage, pageSize]);
 
-  // --- Handlers with validation ---
+  // --- Approve Handler ---
   const handleApprove = async (id: string) => {
     const rental = rentals.find((r) => r.id === id);
     if (!rental) return Swal.fire('Error', 'Rental not found.', 'error');
@@ -189,6 +178,7 @@ const PendingRentalPage: React.FC = () => {
     }
   };
 
+  // --- Reject Handler ---
   const handleReject = async (id: string) => {
     const rental = rentals.find((r) => r.id === id);
     if (!rental) return Swal.fire('Error', 'Rental not found.', 'error');
@@ -213,6 +203,7 @@ const PendingRentalPage: React.FC = () => {
     }
   };
 
+  // --- View Note Handler ---
   const handleViewNote = (note?: string) => {
     Swal.fire({
       title: 'Rental Note',
@@ -221,6 +212,7 @@ const PendingRentalPage: React.FC = () => {
     });
   };
 
+  // --- Render UI ---
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
