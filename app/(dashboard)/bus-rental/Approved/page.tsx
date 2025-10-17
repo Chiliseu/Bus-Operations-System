@@ -7,6 +7,9 @@ import Swal from 'sweetalert2';
 import ApprovedBusReadinessModal from '@/components/modal/Approved-Bus-Readiness-Modal/ApprovedBusReadinessModal';
 import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Modal/AssignRentalDriverModal';
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
+import LoadingModal from "@/components/modal/LoadingModal";
+
+
 
 interface Driver {
   id: string;
@@ -194,7 +197,7 @@ const ApprovedNotReadyPage: React.FC = () => {
         </p>
 
         {loading ? (
-          <Loading />
+          <LoadingModal />
         ) : (
           <div className={styles.styledTableWrapper}>
             <table className={styles.styledTable}>
