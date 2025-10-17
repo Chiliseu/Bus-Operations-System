@@ -346,25 +346,25 @@ const ApprovedNotReadyPage: React.FC = () => {
 
         {/* Assign Drivers Modal */}
         {showAssignDriversModal && selectedRental && (
-          <AssignRentalDriverModal
+            <AssignRentalDriverModal
             isOpen={showAssignDriversModal}
             onClose={() => setShowAssignDriversModal(false)}
             busData={{
-              busName: selectedRental.bus,
-              status: selectedRental.status,
+                busName: selectedRental.bus,
+                status: selectedRental.status,
             }}
-            onSave={(assignedDrivers) => {
-              setRentals((prev) =>
+            onSave={(assignedDrivers) => {   // ✅ correct prop name
+                setRentals((prev) =>
                 prev.map((r) =>
-                  r.id === selectedRental.id
+                    r.id === selectedRental.id
                     ? { ...r, assignedDrivers }
                     : r
                 )
-              );
-              setShowAssignDriversModal(false);
-              Swal.fire('Success', 'Drivers have been assigned.', 'success');
+                );
+                setShowAssignDriversModal(false);
+                Swal.fire('Success', 'Drivers have been assigned.', 'success');
             }}
-          />
+            />
         )}
 
         {/* Damage Check Modal */}
