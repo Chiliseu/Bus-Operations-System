@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Button from "@/components/ui/Button";
 import styles from "./assign-rental-driver.module.css";
-import Swal from 'sweetalert2'; // ✅ Import Swal for alerts
+import Swal from 'sweetalert2';
 
 interface Driver {
   id: string;
@@ -33,36 +33,15 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
 }) => {
   const [mainDriver, setMainDriver] = useState<Driver | null>(null);
   const [assistantDriver, setAssistantDriver] = useState<Driver | null>(null);
-  const [currentTime, setCurrentTime] = useState<string>(
+  const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleString('en-US', { hour12: true })
   );
 
   // Demo driver list
   const drivers: Driver[] = [
-    {
-      id: '1',
-      name: 'Juan Dela Cruz',
-      job: 'Main Driver',
-      contactNo: '09171234567',
-      address: 'Quezon City',
-      image: '/assets/images/busdriver.png',
-    },
-    {
-      id: '2',
-      name: 'Pedro Santos',
-      job: 'Backup Driver',
-      contactNo: '09987654321',
-      address: 'Makati City',
-      image: '/assets/images/busdriver.png',
-    },
-    {
-      id: '3',
-      name: 'Mario Reyes',
-      job: 'Senior Driver',
-      contactNo: '09221234567',
-      address: 'Pasig City',
-      image: '/assets/images/busdriver.png',
-    },
+    { id: '1', name: 'Juan Dela Cruz', job: 'Main Driver', contactNo: '09171234567', address: 'Quezon City', image: '/assets/images/busdriver.png' },
+    { id: '2', name: 'Pedro Santos', job: 'Backup Driver', contactNo: '09987654321', address: 'Makati City', image: '/assets/images/busdriver.png' },
+    { id: '3', name: 'Mario Reyes', job: 'Senior Driver', contactNo: '09221234567', address: 'Pasig City', image: '/assets/images/busdriver.png' },
   ];
 
   useEffect(() => {
@@ -75,15 +54,11 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
   if (!isOpen) return null;
 
   const handleSelectDriver = (driver: Driver, role: 'main' | 'assistant') => {
-    if (role === 'main') {
-      setMainDriver(driver);
-    } else {
-      setAssistantDriver(driver);
-    }
+    if (role === 'main') setMainDriver(driver);
+    else setAssistantDriver(driver);
   };
 
   const handleSave = async () => {
-    // ✅ Error handling using Swal
     if (!mainDriver || !assistantDriver) {
       await Swal.fire({
         icon: 'warning',
@@ -104,44 +79,24 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>
             Assign Drivers {busData ? `for ${busData.busName}` : ''}
           </h2>
-          <button
-            type="button"
-            className={styles.closeBtn}
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ×
-          </button>
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">×</button>
         </div>
 
-        {/* Body */}
         <div className={styles.body}>
           <div className={styles.section}>
             <h4 className={styles.sectionTitle}>Available Drivers</h4>
-
             <div className={styles.driverListContainer}>
-              {drivers.map((driver) => (
-                <div
-                  key={driver.id}
-                  className={`${styles.driverCard} ${
-                    mainDriver?.id === driver.id || assistantDriver?.id === driver.id
-                      ? styles.activeCard
-                      : ''
-                  }`}
-                >
+              {drivers.map(driver => (
+                <div key={driver.id} className={`${styles.driverCard} ${
+                  mainDriver?.id === driver.id || assistantDriver?.id === driver.id ? styles.activeCard : ''
+                }`}>
                   <div className={styles.driverInfo}>
                     <div className={styles.driverImageContainer}>
-                      <Image
-                        src={driver.image || '/assets/images/busdriver.png'}
-                        alt="Driver"
-                        className={styles.driverImage}
-                        fill
-                      />
+                      <Image src={driver.image || '/assets/images/busdriver.png'} alt="Driver" className={styles.driverImage} fill />
                     </div>
                     <div className={styles.driverDetails}>
                       <div className={styles.driverName}>
@@ -152,16 +107,9 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
                       <div className={styles.driverAddress}>{driver.address}</div>
                     </div>
                   </div>
-
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button
-                      text={mainDriver?.id === driver.id ? 'Main Selected' : 'Set as Main'}
-                      onClick={() => handleSelectDriver(driver, 'main')}
-                    />
-                    <Button
-                      text={assistantDriver?.id === driver.id ? 'Assistant Selected' : 'Set as Assistant'}
-                      onClick={() => handleSelectDriver(driver, 'assistant')}
-                    />
+                    <Button text={mainDriver?.id === driver.id ? 'Main Selected' : 'Set as Main'} onClick={() => handleSelectDriver(driver, 'main')} />
+                    <Button text={assistantDriver?.id === driver.id ? 'Assistant Selected' : 'Set as Assistant'} onClick={() => handleSelectDriver(driver, 'assistant')} />
                   </div>
                 </div>
               ))}
@@ -169,7 +117,6 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
         <div className={styles.footer}>
           <small className="text-muted">{currentTime}</small>
           <Button text="Assign Selected Drivers" onClick={handleSave} />
