@@ -181,11 +181,12 @@ export default function BusRentalPage() {
     destination.trim() &&
     pickupLocation.trim() &&
     parseInt(distance || "0", 10) > 0 &&
-    parseInt(passengers || "0", 10) > 0
+    parseInt(passengers || "0", 10) > 0 &&
+    price > 0 // Backend requires calculated price
   );
 }, [
   customerName, contact, busType, selectedBusId, rentalDate,
-  duration, destination, pickupLocation, distance, passengers, today
+  duration, destination, pickupLocation, distance, passengers, today, price
 ]);
 
 
@@ -243,6 +244,7 @@ export default function BusRentalPage() {
   if (!passengers || parseInt(passengers || "0", 10) <= 0) missing.push("Passengers must be greater than 0.");
   if (!destination.trim()) missing.push("Destination is required.");
   if (!pickupLocation.trim()) missing.push("Pickup Location is required.");
+  if (!price || price <= 0) missing.push("Price must be calculated. Fill all fields and wait for calculation.");
 
   return missing;
 };
@@ -285,9 +287,12 @@ export default function BusRentalPage() {
         PickupLocation: pickupLocation.trim(),
         DropoffLocation: destination.trim(),
         NumberOfPassengers: parseInt(passengers, 10),
-        PickupDateAndTime: new Date(rentalDate).toISOString(),
-        ExpectedArrivalTime: null, // Optional field
-        SpecialRequirements: `Bus Type: ${busType}, Duration: ${duration} days, Distance: ${distance}km, Total Price: ${formatCurrency(price)}, Note: ${note}`,
+        RentalDate: new Date(rentalDate).toISOString(),
+        Duration: parseInt(duration, 10),
+        DistanceKM: parseInt(distance, 10),
+        RentalPrice: price,
+        BusID: selectedBusId,
+        SpecialRequirements: `Bus Type: ${busType}, Note: ${note}`,
       };
 
       // Make API call
