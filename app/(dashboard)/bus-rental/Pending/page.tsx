@@ -6,7 +6,8 @@ import styles from './pending.module.css';
 import '../../../../styles/globals.css';
 import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
 import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown'; // ✅ Proper import
-import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
+import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
+import { fetchBackendToken } from '@/lib/backend';
 
 // --- BusRental Interface ---
 interface BusRental {
@@ -152,10 +153,28 @@ useEffect(() => {
     });
 
     if (confirm.isConfirmed) {
-      setRentals((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: 'Approved' } : r))
-      );
-      Swal.fire('Approved!', 'The rental has been approved.', 'success');
+      try {
+        setLoading(true);
+        
+        // Get authentication token
+        const token = await fetchBackendToken();
+        if (!token) {
+          throw new Error('Authentication failed');
+        }
+
+        // Call the API to approve the rental request
+        await updateRentalRequest(token, id, { command: 'approve' });
+
+        // Remove from local state since it's no longer pending
+        setRentals((prev) => prev.filter((r) => r.id !== id));
+        
+        Swal.fire('Approved!', 'The rental has been approved and moved to the approved section.', 'success');
+      } catch (error: any) {
+        console.error('Error approving rental:', error);
+        Swal.fire('Error', error.message || 'Failed to approve rental request.', 'error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -177,10 +196,28 @@ useEffect(() => {
     });
 
     if (confirm.isConfirmed) {
-      setRentals((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: 'Rejected' } : r))
-      );
-      Swal.fire('Rejected!', 'The rental has been rejected.', 'info');
+      try {
+        setLoading(true);
+        
+        // Get authentication token
+        const token = await fetchBackendToken();
+        if (!token) {
+          throw new Error('Authentication failed');
+        }
+
+        // Call the API to reject the rental request
+        await updateRentalRequest(token, id, { command: 'reject' });
+
+        // Remove from local state since it's no longer pending
+        setRentals((prev) => prev.filter((r) => r.id !== id));
+        
+        Swal.fire('Rejected!', 'The rental has been rejected and moved to the rejected section.', 'info');
+      } catch (error: any) {
+        console.error('Error rejecting rental:', error);
+        Swal.fire('Error', error.message || 'Failed to reject rental request.', 'error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

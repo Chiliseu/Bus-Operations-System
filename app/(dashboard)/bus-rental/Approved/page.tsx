@@ -9,7 +9,8 @@ import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Mod
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
 import LoadingModal from "@/components/modal/LoadingModal";
 
-import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
+import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
+import { fetchBackendToken } from '@/lib/backend';
 
 interface Driver {
   id: string;
@@ -34,7 +35,7 @@ interface BusRental {
   passengers: number;
   price: number;
   note: string;
-  status: 'Not Ready' | 'Not Started' | 'Ongoing';
+  status: 'Not Ready' | 'Ready' | 'Not Started' | 'Ongoing' | 'Completed';
   assignedDrivers?: { mainDriver: Driver; assistantDriver: Driver };
   readinessDone?: boolean;
   damageCheckDone?: boolean;
@@ -48,6 +49,7 @@ const ApprovedNotReadyPage: React.FC = () => {
   const [showReadinessModal, setShowReadinessModal] = useState(false);
   const [showAssignDriversModal, setShowAssignDriversModal] = useState(false);
   const [showDamageCheckModal, setShowDamageCheckModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<BusRental['status']>('Not Ready');
 
   // --- Fetch and validate data ---
   useEffect(() => {
@@ -62,10 +64,22 @@ const ApprovedNotReadyPage: React.FC = () => {
         // Map first two drivers as mainDriver & assistantDriver
         const drivers = r.RentalBusAssignment?.RentalDrivers ?? [];
         const mainDriver = drivers[0]
-          ? { id: drivers[0].DriverID, name: drivers[0].DriverID, job: '', contactNo: '', address: '' }
+          ? { 
+              id: drivers[0].DriverID, 
+              name: drivers[0].Driver?.DriverName || drivers[0].DriverID, 
+              job: '', 
+              contactNo: '', 
+              address: '' 
+            }
           : null;
         const assistantDriver = drivers[1]
-          ? { id: drivers[1].DriverID, name: drivers[1].DriverID, job: '', contactNo: '', address: '' }
+          ? { 
+              id: drivers[1].DriverID, 
+              name: drivers[1].Driver?.DriverName || drivers[1].DriverID, 
+              job: '', 
+              contactNo: '', 
+              address: '' 
+            }
           : null;
 
         return {
@@ -82,12 +96,52 @@ const ApprovedNotReadyPage: React.FC = () => {
           passengers: Number(r.NumberOfPassengers ?? 0),
           price: Number(r.RentalPrice ?? 0),
           note: r.SpecialRequirements ?? '',
-          status: 'Not Ready', // all approved rentals start as "Not Ready"
+          // Determine status based on backend data
+          status: (() => {
+            const busStatus = r.RentalBusAssignment?.BusAssignment?.Status;
+            const hasReadinessChecks = r.RentalBusAssignment && (
+              r.RentalBusAssignment.Battery || r.RentalBusAssignment.Lights ||
+              r.RentalBusAssignment.Oil || r.RentalBusAssignment.Water ||
+              r.RentalBusAssignment.Break || r.RentalBusAssignment.Air ||
+              r.RentalBusAssignment.Gas || r.RentalBusAssignment.Engine ||
+              r.RentalBusAssignment.TireCondition
+            );
+            
+            if (busStatus === 'Completed') return 'Completed';
+            if (busStatus === 'InOperation') return 'Ongoing';
+            if (busStatus === 'NotStarted') return 'Not Started';
+            // If status is NotReady but has readiness checks completed, consider it Ready
+            if (busStatus === 'NotReady' && hasReadinessChecks) return 'Ready';
+            return 'Not Ready';
+          })() as 'Not Ready' | 'Ready' | 'Not Started' | 'Ongoing' | 'Completed',
           assignedDrivers:
             mainDriver && assistantDriver
               ? { mainDriver, assistantDriver }
+              : drivers.length >= 2 
+              ? { 
+                  mainDriver: { 
+                    id: drivers[0].DriverID, 
+                    name: drivers[0].Driver?.DriverName || drivers[0].DriverID, 
+                    job: '', 
+                    contactNo: '', 
+                    address: '' 
+                  },
+                  assistantDriver: { 
+                    id: drivers[1].DriverID, 
+                    name: drivers[1].Driver?.DriverName || drivers[1].DriverID, 
+                    job: '', 
+                    contactNo: '', 
+                    address: '' 
+                  }
+                }
               : undefined,
-          readinessDone: r.RentalBusAssignment?.BusAssignment?.Status === 'Ready' || false,
+          readinessDone: r.RentalBusAssignment && (
+                        r.RentalBusAssignment.Battery || r.RentalBusAssignment.Lights ||
+                        r.RentalBusAssignment.Oil || r.RentalBusAssignment.Water ||
+                        r.RentalBusAssignment.Break || r.RentalBusAssignment.Air ||
+                        r.RentalBusAssignment.Gas || r.RentalBusAssignment.Engine ||
+                        r.RentalBusAssignment.TireCondition
+                      ) || false,
           damageCheckDone: false,
           damageData: r.RentalBusAssignment
             ? {
@@ -142,13 +196,17 @@ const ApprovedNotReadyPage: React.FC = () => {
 
   const handleDamageCheck = (rental?: BusRental) => {
     if (!rental) return Swal.fire('Error', 'Rental not found.', 'error');
-    if (!rental.assignedDrivers || !rental.readinessDone) {
+    
+    // For Ongoing status, we allow damage check regardless of readiness flags
+    // since the rental is already in operation
+    if (rental.status !== 'Ongoing' && (!rental.assignedDrivers || !rental.readinessDone)) {
       return Swal.fire(
         'Error',
         'Cannot perform damage check before readiness and driver assignment.',
         'warning'
       );
     }
+    
     setSelectedRental(rental);
     setShowDamageCheckModal(true);
   };
@@ -159,23 +217,233 @@ const ApprovedNotReadyPage: React.FC = () => {
       case 'Not Ready':
         badgeColor = styles.statusNotReady;
         break;
+      case 'Ready':
+        badgeColor = styles.statusReady || styles.statusNotStarted; // fallback if no Ready style
+        break;
       case 'Not Started':
         badgeColor = styles.statusNotStarted;
         break;
       case 'Ongoing':
         badgeColor = styles.statusOngoing;
         break;
+      case 'Completed':
+        badgeColor = styles.statusCompleted || styles.statusOngoing; // fallback to ongoing style
+        break;
     }
     return <span className={`${styles.statusBadge} ${badgeColor}`}>{status}</span>;
   };
 
-  const handleStatusUpdate = (rental: BusRental, newStatus: BusRental['status']) => {
+  const handleStatusUpdate = async (rental: BusRental, newStatus: BusRental['status']) => {
     if (!rental) return;
-    setRentals((prev) =>
-      prev.map((r) => (r.id === rental.id ? { ...r, status: newStatus } : r))
-    );
-    Swal.fire('Success', `Rental status updated to ${newStatus}.`, 'success');
+
+    try {
+      setLoading(true);
+      
+      // Get authentication token
+      const token = await fetchBackendToken();
+      if (!token) {
+        throw new Error('Authentication failed');
+      }
+
+      // Handle special case for completing ongoing operations
+      if (rental.status === 'Ongoing' && newStatus === 'Completed') {
+        // Use the 'complete' command for ongoing operations
+        await updateRentalRequest(token, rental.id, {
+          command: 'complete'
+        });
+      } else {
+        // Map frontend status to backend BusOperationStatus for other transitions
+        let backendStatus = '';
+        switch (newStatus) {
+          case 'Not Started':
+            backendStatus = 'NotStarted';
+            break;
+          case 'Ongoing':
+            backendStatus = 'InOperation';
+            break;
+          case 'Completed':
+            backendStatus = 'Completed';
+            break;
+          default:
+            throw new Error('Invalid status transition');
+        }
+
+        // Update the bus assignment status in the backend
+        await updateRentalRequest(token, rental.id, {
+          busAssignmentUpdates: {
+            Status: backendStatus
+          }
+        });
+      }
+
+      // Update local state
+      setRentals((prev) =>
+        prev.map((r) => (r.id === rental.id ? { ...r, status: newStatus } : r))
+      );
+
+      Swal.fire('Success', `Rental status updated to ${newStatus}.`, 'success');
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      Swal.fire('Error', error.message || 'Failed to update rental status.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Group rentals by status
+  const groupedRentals = {
+    'Not Ready': rentals.filter(r => r.status === 'Not Ready'),
+    'Ready': rentals.filter(r => r.status === 'Ready'),
+    'Not Started': rentals.filter(r => r.status === 'Not Started'),
+    'Ongoing': rentals.filter(r => r.status === 'Ongoing'),
+    'Completed': rentals.filter(r => r.status === 'Completed')
+  };
+
+  // Get status counts for tab badges
+  const statusCounts = {
+    'Not Ready': groupedRentals['Not Ready'].length,
+    'Ready': groupedRentals['Ready'].length,
+    'Not Started': groupedRentals['Not Started'].length,
+    'Ongoing': groupedRentals['Ongoing'].length,
+    'Completed': groupedRentals['Completed'].length
+  };
+
+  const renderRentalTable = (rentalsToShow: BusRental[]) => (
+    <div className={styles.styledTableWrapper}>
+      <table className={styles.styledTable}>
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Contact No.</th>
+            <th>Bus Type</th>
+            <th>Bus</th>
+            <th>Rental Date</th>
+            <th>Duration</th>
+            <th>Distance</th>
+            <th>Destination</th>
+            <th>Pickup Location</th>
+            <th>Passengers</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Drivers</th>
+            <th>Note</th>
+            <th className={styles.centeredColumn}>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rentalsToShow.length > 0 ? (
+            rentalsToShow.map((rental) => (
+              <tr key={rental.id}>
+                <td>{rental.customerName || 'N/A'}</td>
+                <td>{rental.contactNo || 'N/A'}</td>
+                <td>{rental.busType || 'N/A'}</td>
+                <td>{rental.bus || 'N/A'}</td>
+                <td>{rental.rentalDate || 'N/A'}</td>
+                <td>{rental.duration || 'N/A'}</td>
+                <td>{rental.distance || 'N/A'}</td>
+                <td>{rental.destination || 'N/A'}</td>
+                <td>{rental.pickupLocation || 'N/A'}</td>
+                <td>{rental.passengers ?? 'N/A'}</td>
+                <td>₱{rental.price?.toLocaleString() ?? '0'}</td>
+                <td>{renderStatusBadge(rental.status)}</td>
+                <td>
+                  {rental.assignedDrivers
+                    ? `${rental.assignedDrivers.mainDriver.name} / ${rental.assignedDrivers.assistantDriver.name}`
+                    : '—'}
+                </td>
+                <td>
+                  <button
+                    className={styles.noteBtn}
+                    onClick={() => handleViewNote(rental.note)}
+                  >
+                    View Notes
+                  </button>
+                </td>
+                <td className={styles.centeredColumn}>
+                  {rental.status === 'Not Ready' && (
+                    <div className={styles.actionWrapper}>
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => handleReadinessCheck(rental)}
+                      >
+                        Readiness Check
+                      </button>
+                      <button
+                        className={styles.rejectBtn}
+                        onClick={() => handleAssignDrivers(rental)}
+                      >
+                        Assign Drivers
+                      </button>
+                    </div>
+                  )}
+                  {rental.status === 'Ready' && (
+                    <div className={styles.actionWrapper}>
+                      <button
+                        className={styles.rejectBtn}
+                        onClick={() => handleAssignDrivers(rental)}
+                      >
+                        Assign Drivers
+                      </button>
+                      <button
+                        className={styles.checkBtn}
+                        disabled={!rental.assignedDrivers || !rental.assignedDrivers.mainDriver || !rental.assignedDrivers.assistantDriver}
+                        onClick={() => handleStatusUpdate(rental, 'Not Started')}
+                      >
+                        Mark as Not Started
+                      </button>
+                      <button
+                        className={styles.confirmBtn}
+                        disabled={!rental.assignedDrivers || !rental.assignedDrivers.mainDriver || !rental.assignedDrivers.assistantDriver}
+                        onClick={() => handleStatusUpdate(rental, 'Ongoing')}
+                      >
+                        Start Operation
+                      </button>
+                    </div>
+                  )}
+                  {rental.status === 'Not Started' && (
+                    <div className={styles.actionWrapper}>
+                      <button
+                        className={styles.confirmBtn}
+                        onClick={() => handleStatusUpdate(rental, 'Ongoing')}
+                      >
+                        Start Operation
+                      </button>
+                    </div>
+                  )}
+                  {rental.status === 'Ongoing' && (
+                    <div className={styles.actionWrapper}>
+                      <button
+                        className={styles.confirmBtn}
+                        onClick={() => handleStatusUpdate(rental, 'Completed')}
+                      >
+                        Complete
+                      </button>
+                    </div>
+                  )}
+                  {rental.status === 'Completed' && (
+                    <div className={styles.actionWrapper}>
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => handleDamageCheck(rental)}
+                      >
+                        Damage Check
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={15} className={styles.noRecords}>
+                No {activeTab.toLowerCase()} rentals found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className={styles.wideCard}>
@@ -185,122 +453,44 @@ const ApprovedNotReadyPage: React.FC = () => {
           Manage rentals that are approved but in different readiness stages.
         </p>
 
+        {/* Status Tabs */}
+        <div className="mb-6">
+          <div className="flex border-b">
+            {(['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'] as const).map((status) => (
+              <button
+                key={status}
+                className={`px-4 py-2 mr-2 font-medium text-sm rounded-t-lg transition-colors ${
+                  activeTab === status
+                    ? 'bg-blue-500 text-white border-b-2 border-blue-500'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                onClick={() => setActiveTab(status)}
+              >
+                {status} {statusCounts[status] > 0 && (
+                  <span className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
+                    activeTab === status ? 'bg-white text-blue-500' : 'bg-gray-500 text-white'
+                  }`}>
+                    {statusCounts[status]}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {loading ? (
           <LoadingModal />
         ) : (
-          <div className={styles.styledTableWrapper}>
-            <table className={styles.styledTable}>
-              <thead>
-                <tr>
-                  <th>Customer Name</th>
-                  <th>Contact No.</th>
-                  <th>Bus Type</th>
-                  <th>Bus</th>
-                  <th>Rental Date</th>
-                  <th>Duration</th>
-                  <th>Distance</th>
-                  <th>Destination</th>
-                  <th>Pickup Location</th>
-                  <th>Passengers</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Drivers</th>
-                  <th>Note</th>
-                  <th className={styles.centeredColumn}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rentals.length > 0 ? (
-                  rentals
-                    .slice()
-                    .sort((a, b) => {
-                      const order = ['Not Ready', 'Not Started', 'Ongoing'];
-                      return order.indexOf(a.status) - order.indexOf(b.status);
-                    })
-                    .map((rental) => (
-                      <tr key={rental.id}>
-                        <td>{rental.customerName || 'N/A'}</td>
-                        <td>{rental.contactNo || 'N/A'}</td>
-                        <td>{rental.busType || 'N/A'}</td>
-                        <td>{rental.bus || 'N/A'}</td>
-                        <td>{rental.rentalDate || 'N/A'}</td>
-                        <td>{rental.duration || 'N/A'}</td>
-                        <td>{rental.distance || 'N/A'}</td>
-                        <td>{rental.destination || 'N/A'}</td>
-                        <td>{rental.pickupLocation || 'N/A'}</td>
-                        <td>{rental.passengers ?? 'N/A'}</td>
-                        <td>₱{rental.price?.toLocaleString() ?? '0'}</td>
-                        <td>{renderStatusBadge(rental.status)}</td>
-                        <td>
-                          {rental.assignedDrivers
-                            ? `${rental.assignedDrivers.mainDriver.name} / ${rental.assignedDrivers.assistantDriver.name}`
-                            : '—'}
-                        </td>
-                        <td>
-                          <button
-                            className={styles.noteBtn}
-                            onClick={() => handleViewNote(rental.note)}
-                          >
-                            View Notes
-                          </button>
-                        </td>
-                        <td className={styles.centeredColumn}>
-                          {rental.status === 'Not Ready' && (
-                            <div className={styles.actionWrapper}>
-                              <button
-                                className={styles.approveBtn}
-                                onClick={() => handleReadinessCheck(rental)}
-                              >
-                                Readiness Check
-                              </button>
-                              <button
-                                className={styles.rejectBtn}
-                                onClick={() => handleAssignDrivers(rental)}
-                              >
-                                Assign Drivers
-                              </button>
-                              <button
-                                className={styles.checkBtn}
-                                disabled={!rental.assignedDrivers || !rental.readinessDone}
-                                onClick={() => handleStatusUpdate(rental, 'Not Started')}
-                              >
-                                Check
-                              </button>
-                            </div>
-                          )}
-                          {rental.status === 'Not Started' && (
-                            <div className={styles.actionWrapper}>
-                              <button
-                                className={styles.confirmBtn}
-                                onClick={() => handleStatusUpdate(rental, 'Ongoing')}
-                              >
-                                Confirm
-                              </button>
-                            </div>
-                          )}
-                          {rental.status === 'Ongoing' && (
-                            <div className={styles.actionWrapper}>
-                              <button
-                                className={styles.approveBtn}
-                                onClick={() => handleDamageCheck(rental)}
-                              >
-                                Damage Check
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                ) : (
-                  <tr>
-                    <td colSpan={15} className={styles.noRecords}>
-                      No approved rentals found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Active Tab Content */}
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {activeTab} Rentals ({statusCounts[activeTab]})
+              </h3>
+            </div>
+            
+            {renderRentalTable(groupedRentals[activeTab])}
+          </>
         )}
 
         {/* Readiness Modal */}
@@ -315,20 +505,68 @@ const ApprovedNotReadyPage: React.FC = () => {
                 selectedRental.assignedDrivers?.mainDriver.name || 'Juan Dela Cruz',
             }}
             onSave={async (data) => {
-              setRentals((prev) =>
-                prev.map((r) =>
-                  r.id === selectedRental.id
-                    ? { ...r, readinessDone: true }
-                    : r
-                )
-              );
-              await Swal.fire(
-                'Success',
-                'Bus readiness has been updated.',
-                'success'
-              );
-              setShowReadinessModal(false);
-              return true;
+              try {
+                setLoading(true);
+                
+                // Get authentication token
+                const token = await fetchBackendToken();
+                if (!token) {
+                  throw new Error('Authentication failed');
+                }
+
+                // Update the bus assignment with readiness check data
+                await updateRentalRequest(token, selectedRental.id, {
+                  busAssignmentUpdates: {
+                    Battery: data.vehicleCondition.Battery || false,
+                    Lights: data.vehicleCondition.Lights || false,
+                    Oil: data.vehicleCondition.Oil || false,
+                    Water: data.vehicleCondition.Water || false,
+                    Break: data.vehicleCondition.Brake || false,
+                    Air: data.vehicleCondition.Air || false,
+                    Gas: data.vehicleCondition.Gas || false,
+                    Engine: data.vehicleCondition.Engine || false,
+                    TireCondition: data.vehicleCondition.Tire || false,
+                    Self_Driver: data.personnelCondition.driverReady || false,
+                    // Don't update Status here - let the readiness checks indicate readiness
+                  }
+                });
+
+                // Update local state
+                setRentals((prev) =>
+                  prev.map((r) =>
+                    r.id === selectedRental.id
+                      ? { 
+                          ...r, 
+                          readinessDone: true, 
+                          // Only change to Ready if BOTH readiness AND drivers are complete
+                          status: r.assignedDrivers && r.assignedDrivers.mainDriver && r.assignedDrivers.assistantDriver 
+                            ? 'Ready' 
+                            : 'Not Ready'
+                        }
+                      : r
+                  )
+                );
+
+                setLoading(false);
+                setShowReadinessModal(false);
+                const hasDrivers = selectedRental.assignedDrivers && 
+                                 selectedRental.assignedDrivers.mainDriver && 
+                                 selectedRental.assignedDrivers.assistantDriver;
+                
+                await Swal.fire(
+                  'Success',
+                  hasDrivers 
+                    ? 'Bus readiness completed! Status changed to Ready.' 
+                    : 'Bus readiness completed! Assign drivers to change status to Ready.',
+                  'success'
+                );
+                return true;
+              } catch (error: any) {
+                console.error('Error updating readiness:', error);
+                setLoading(false);
+                await Swal.fire('Error', error.message || 'Failed to update readiness.', 'error');
+                return false;
+              }
             }}
           />
         )}
@@ -342,16 +580,50 @@ const ApprovedNotReadyPage: React.FC = () => {
                 busName: selectedRental.bus,
                 status: selectedRental.status,
             }}
-            onSave={(assignedDrivers) => {   // ✅ correct prop name
-                setRentals((prev) =>
-                prev.map((r) =>
-                    r.id === selectedRental.id
-                    ? { ...r, assignedDrivers }
-                    : r
-                )
-                );
-                setShowAssignDriversModal(false);
-                Swal.fire('Success', 'Drivers have been assigned.', 'success');
+            onSave={async (assignedDrivers) => {
+                try {
+                    setLoading(true);
+                    
+                    // Get authentication token
+                    const token = await fetchBackendToken();
+                    if (!token) {
+                        throw new Error('Authentication failed');
+                    }
+
+                    // Update the rental request with assigned drivers
+                    await updateRentalRequest(token, selectedRental.id, {
+                        drivers: [assignedDrivers.mainDriver.id, assignedDrivers.assistantDriver.id]
+                    });
+
+                    // Update local state
+                    setRentals((prev) =>
+                        prev.map((r) =>
+                            r.id === selectedRental.id
+                            ? { 
+                                ...r, 
+                                assignedDrivers,
+                                // Only change to Ready if BOTH readiness AND drivers are complete
+                                status: r.readinessDone ? 'Ready' : 'Not Ready'
+                              }
+                            : r
+                        )
+                    );
+                    
+                    setLoading(false);
+                    setShowAssignDriversModal(false);
+                    const isReady = selectedRental.readinessDone;
+                    await Swal.fire(
+                      'Success', 
+                      isReady 
+                        ? 'Drivers assigned! Status changed to Ready.' 
+                        : 'Drivers assigned! Complete readiness check to change status to Ready.', 
+                      'success'
+                    );
+                } catch (error: any) {
+                    console.error('Error assigning drivers:', error);
+                    setLoading(false);
+                    await Swal.fire('Error', error.message || 'Failed to assign drivers.', 'error');
+                }
             }}
             />
         )}
@@ -369,20 +641,46 @@ const ApprovedNotReadyPage: React.FC = () => {
             }}
             damageData={selectedRental.damageData}
             onSave={async (data) => {
-              setRentals((prev) =>
-                prev.map((r) =>
-                  r.id === selectedRental.id
-                    ? {
-                        ...r,
-                        damageData: { vehicleCondition: data.vehicleCondition, note: data.note },
-                        damageCheckDone: true,
-                      }
-                    : r
-                )
-              );
-              await Swal.fire('Success', 'Damage check has been saved.', 'success');
-              setShowDamageCheckModal(false);
-              return true;
+              try {
+                setLoading(true);
+                
+                // Get authentication token
+                const token = await fetchBackendToken();
+                if (!token) {
+                  throw new Error('Authentication failed');
+                }
+
+                // Update the rental request with damage check info - rental is now fully processed
+                await updateRentalRequest(token, selectedRental.id, {
+                  command: 'updateStatus',
+                  busAssignmentUpdates: {
+                    Status: 'Completed'
+                  },
+                  rentalRequestUpdates: {
+                    damageReport: {
+                      vehicleCondition: data.vehicleCondition,
+                      note: data.note,
+                      checkDate: new Date().toISOString()
+                    },
+                    isFullyCompleted: true // Flag to indicate damage check is done
+                  }
+                });
+
+                // Update local state - remove from list since rental is fully completed
+                setRentals((prev) =>
+                  prev.filter((r) => r.id !== selectedRental.id)
+                );
+                
+                setLoading(false);
+                setShowDamageCheckModal(false);
+                await Swal.fire('Success', 'Damage check completed. Rental has been fully processed and completed.', 'success');
+                return true;
+              } catch (error: any) {
+                console.error('Error completing damage check:', error);
+                setLoading(false);
+                await Swal.fire('Error', error.message || 'Failed to complete damage check.', 'error');
+                return false;
+              }
             }}
           />
         )}
