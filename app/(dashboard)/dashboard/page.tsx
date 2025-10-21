@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import SegmentedControl from "@/components/ui/SegmentedControl";
 import { BarChart, PieChart } from "@mui/x-charts";
 import styles from "./dashboard.module.css";
 import ThisMonthGraph from "./ThisMonthGraph";
 import { fetchDashboardSummary } from "@/lib/apiCalls/dashboard";
+import LoadingModal from "@/components/modal/LoadingModal";
 
 function monthString(month: number): string {
   const months = [
@@ -18,6 +18,9 @@ function monthString(month: number): string {
 const DashboardPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Bus Earnings");
   const [isLoading, setIsLoading] = useState(true);
+
+  const tabs = ["Bus Earnings", "Bus Status", "Top Performing Routes"];
+  const activeTabIndex = tabs.indexOf(selectedTab);
 
   const [dashboard, setDashboard] = useState<{
     earnings: {
@@ -89,184 +92,199 @@ const DashboardPage: React.FC = () => {
       ? ((thisMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
       : 0;
 
-  // Loading skeleton component
-  const LoadingSkeleton = () => (
-    <div className={styles.statsGrid}>
-      {[1, 2, 3].map((i) => (
-        <div key={i} className={`${styles.reportCard} ${styles.loading}`}>
-          <div style={{ height: '20px', marginBottom: '12px' }}></div>
-          <div style={{ height: '40px', marginBottom: '8px' }}></div>
-          <div style={{ height: '16px' }}></div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className={styles.wideCard}>
+      {/* Segmented Control with Sliding Indicator */}
       <div className={styles.segmentedControlContainer}>
-        <SegmentedControl
-          options={["Bus Earnings", "Bus Status", "Top Performing Routes"]}
-          defaultValue="Bus Earnings"
-          onSelect={handleSegmentChange}
-        />
+        <div className={styles.tabContainer}>
+          {/* Sliding indicator background */}
+          <div 
+            className={styles.tabIndicator}
+            style={{
+              transform: `translateX(calc(${activeTabIndex * 100}% + ${activeTabIndex * 4}px))`,
+              width: `calc(${100 / tabs.length}% - ${4 * (tabs.length - 1) / tabs.length}px)`
+            }}
+          />
+          
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              className={`${styles.tabButton} ${selectedTab === tab ? styles.tabButtonActive : ''}`}
+              onClick={() => handleSegmentChange(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {selectedTab === "Bus Earnings" && (
-        <>
-          <div className={styles.heading}>Bus Total Earnings</div>
-          
-          {isLoading ? (
-            <LoadingSkeleton />
-          ) : earnings ? (
-            <div className={styles.statsGrid}>
-              <div className={styles.reportCard}>
-                <p className={styles.cardTitle}>
-                   Today ({monthString(earnings.month)} {todayDay})
-                </p>
-                <h3 className={styles.amount}>₱ {todayEarnings.toLocaleString()}</h3>
-                <p className={`${styles.trend} ${todayEarnings >= yesterdayEarnings ? styles.trendUp : styles.trendDown}`}>
-                  {todayEarnings >= yesterdayEarnings ? "+" : "−"}
-                  {Math.abs(yesterdayChange).toFixed(2)}% from yesterday
-                </p>
+      {/* Content Wrapper */}
+      <div className={styles.contentWrapper}>
+        {selectedTab === "Bus Earnings" && (
+          <>
+            <div className={styles.heading}>Bus Total Earnings</div>
+            
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingModal />
               </div>
+            ) : earnings ? (
+              <div className={styles.tabContent} key={selectedTab}>
+                <div className={styles.statsGrid}>
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}>
+                       Today ({monthString(earnings.month)} {todayDay})
+                    </p>
+                    <h3 className={styles.amount}>₱ {todayEarnings.toLocaleString()}</h3>
+                    <p className={`${styles.trend} ${todayEarnings >= yesterdayEarnings ? styles.trendUp : styles.trendDown}`}>
+                      {todayEarnings >= yesterdayEarnings ? "+" : "−"}
+                      {Math.abs(yesterdayChange).toFixed(2)}% from yesterday
+                    </p>
+                  </div>
 
-              <div className={styles.reportCard}>
-                <p className={styles.cardTitle}> This week</p>
-                <h3 className={styles.amount}>₱ {thisWeekEarnings.toLocaleString()}</h3>
-                <p className={`${styles.trend} ${weeklyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
-                  {weeklyTrend >= 0 ? "+" : "−"}
-                  {Math.abs(weeklyTrend).toFixed(2)}% from last week
-                </p>
-              </div>
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}> This week</p>
+                    <h3 className={styles.amount}>₱ {thisWeekEarnings.toLocaleString()}</h3>
+                    <p className={`${styles.trend} ${weeklyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                      {weeklyTrend >= 0 ? "+" : "−"}
+                      {Math.abs(weeklyTrend).toFixed(2)}% from last week
+                    </p>
+                  </div>
 
-              <div className={styles.reportCard}>
-                <p className={styles.cardTitle}>
-                   This month ({monthString(earnings.month)})
-                </p>
-                <h3 className={styles.amount}>
-                  ₱ {thisMonthTotal.toLocaleString()}
-                </h3>
-                <p className={`${styles.trend} ${monthlyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
-                  {monthlyTrend >= 0 ? "+" : "−"}
-                  {Math.abs(monthlyTrend).toFixed(2)}% {monthlyTrend >= 0 ? "higher" : "lower"} than last month
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.reportCard}>
-              <p>No earnings data available</p>
-            </div>
-          )}
-
-          {earnings && (
-            <div className={styles.chartContainer}>
-              <ThisMonthGraph
-                earnings={{ ...earnings, day: todayDay }}
-                previousMonthTotal={previousMonthTotal}
-                thisMonthTotal={thisMonthTotal}
-              />
-
-            </div>
-          )}
-        </>
-      )}
-
-      {selectedTab === "Bus Status" && (
-        <>
-          <div className={styles.heading}> Bus Status Summary</div>
-          
-          {isLoading ? (
-            <div className={`${styles.chartContainer} ${styles.loading}`} style={{ height: '200px' }}></div>
-          ) : busStatus ? (
-            <div className={styles.chartContainer}>
-              {/* Status Summary Cards */}
-              <div className={styles.statsGrid} style={{ marginBottom: '24px' }}>
-                <div className={styles.reportCard}>
-                  <p className={styles.cardTitle}>
-                    <span className={`${styles.statusIcon} ${styles.ready}`}></span>
-                    In Operation
-                  </p>
-                  <h3 className={styles.amount} style={{ color: '#059669' }}>
-                    {busStatus.InOperation ?? 0}
-                  </h3>
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}>
+                       This month ({monthString(earnings.month)})
+                    </p>
+                    <h3 className={styles.amount}>
+                      ₱ {thisMonthTotal.toLocaleString()}
+                    </h3>
+                    <p className={`${styles.trend} ${monthlyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                      {monthlyTrend >= 0 ? "+" : "−"}
+                      {Math.abs(monthlyTrend).toFixed(2)}% {monthlyTrend >= 0 ? "higher" : "lower"} than last month
+                    </p>
+                  </div>
                 </div>
-                
-                <div className={styles.reportCard}>
-                  <p className={styles.cardTitle}>
-                    <span className={`${styles.statusIcon} ${styles.notReady}`}></span>
-                    Not Ready
-                  </p>
-                  <h3 className={styles.amount} style={{ color: '#961c1e' }}>
-                    {busStatus.NotReady ?? 0}
-                  </h3>
-                </div>
-                
-                <div className={styles.reportCard}>
-                  <p className={styles.cardTitle}>
-                    <span className={`${styles.statusIcon} ${styles.notStarted}`}></span>
-                    Not Started
-                  </p>
-                  <h3 className={styles.amount} style={{ color: '#6b7280' }}>
-                    {busStatus.NotStarted ?? 0}
-                  </h3>
+
+                <div className={styles.chartContainer}>
+                  <ThisMonthGraph
+                    earnings={{ ...earnings, day: todayDay }}
+                    previousMonthTotal={previousMonthTotal}
+                    thisMonthTotal={thisMonthTotal}
+                  />
                 </div>
               </div>
-
-              {/* Pie Chart */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <PieChart
-                  colors={["#961C1E", "#FEB71F", "#888"]}
-                  series={[
-                    {
-                      data: [
-                        { id: 0, value: busStatus.NotReady ?? 0, label: "Not Ready", color: "#961C1E" },
-                        { id: 1, value: busStatus.InOperation ?? 0, label: "In Operation", color: "#0a8969" },
-                        { id: 2, value: busStatus.NotStarted ?? 0, label: "Not Started", color: "#888" },
-                      ],
-                    },
-                  ]}
-                  width={400}
-                  height={300}
-                />
+            ) : (
+              <div className={styles.reportCard}>
+                <p>No earnings data available</p>
               </div>
-            </div>
-          ) : (
-            <div className={styles.reportCard}>
-              <p>No bus status data available</p>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
 
-      {selectedTab === "Top Performing Routes" && (
-        <>
-          <div className={styles.heading}>Top Performing Routes</div>
-          
-          {isLoading ? (
-            <div className={`${styles.chartContainer} ${styles.loading}`} style={{ height: '300px' }}></div>
-          ) : topRoutes ? (
-            <div className={styles.chartContainer}>
-              <BarChart
-                xAxis={[
-                  {
-                    data: Object.keys(topRoutes),
-                  },
-                ]}
-                series={[{ 
-                  data: Object.values(topRoutes),
-                  color: '#961c1e'
-                }]}
-                height={300}
-              />
-            </div>
-          ) : (
-            <div className={styles.reportCard}>
-              <p>No route performance data available</p>
-            </div>
-          )}
-        </>
-      )}
+        {selectedTab === "Bus Status" && (
+          <>
+            <div className={styles.heading}> Bus Status Summary</div>
+            
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingModal />
+              </div>
+            ) : busStatus ? (
+              <div className={styles.tabContent} key={selectedTab}>
+                <div className={styles.chartContainer}>
+                  {/* Status Summary Cards */}
+                  <div className={styles.statsGrid} style={{ marginBottom: '24px' }}>
+                    <div className={styles.reportCard}>
+                      <p className={styles.cardTitle}>
+                        <span className={`${styles.statusIcon} ${styles.ready}`}></span>
+                        In Operation
+                      </p>
+                      <h3 className={styles.amount} style={{ color: '#059669' }}>
+                        {busStatus.InOperation ?? 0}
+                      </h3>
+                    </div>
+                    
+                    <div className={styles.reportCard}>
+                      <p className={styles.cardTitle}>
+                        <span className={`${styles.statusIcon} ${styles.notReady}`}></span>
+                        Not Ready
+                      </p>
+                      <h3 className={styles.amount} style={{ color: '#961c1e' }}>
+                        {busStatus.NotReady ?? 0}
+                      </h3>
+                    </div>
+                    
+                    <div className={styles.reportCard}>
+                      <p className={styles.cardTitle}>
+                        <span className={`${styles.statusIcon} ${styles.notStarted}`}></span>
+                        Not Started
+                      </p>
+                      <h3 className={styles.amount} style={{ color: '#6b7280' }}>
+                        {busStatus.NotStarted ?? 0}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Pie Chart */}
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <PieChart
+                      colors={["#961C1E", "#FEB71F", "#888"]}
+                      series={[
+                        {
+                          data: [
+                            { id: 0, value: busStatus.NotReady ?? 0, label: "Not Ready", color: "#961C1E" },
+                            { id: 1, value: busStatus.InOperation ?? 0, label: "In Operation", color: "#0a8969" },
+                            { id: 2, value: busStatus.NotStarted ?? 0, label: "Not Started", color: "#888" },
+                          ],
+                        },
+                      ]}
+                      width={400}
+                      height={300}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.reportCard}>
+                <p>No bus status data available</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {selectedTab === "Top Performing Routes" && (
+          <>
+            <div className={styles.heading}>Top Performing Routes</div>
+            
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingModal />
+              </div>
+            ) : topRoutes ? (
+              <div className={styles.tabContent} key={selectedTab}>
+                <div className={styles.chartContainer}>
+                  <BarChart
+                    xAxis={[
+                      {
+                        data: Object.keys(topRoutes),
+                      },
+                    ]}
+                    series={[{ 
+                      data: Object.values(topRoutes),
+                      color: '#961c1e'
+                    }]}
+                    height={300}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className={styles.reportCard}>
+                <p>No route performance data available</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

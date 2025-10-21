@@ -241,6 +241,17 @@
   transform: translateY(-1px);
 }
 
+/* View Notes Button */
+.dmgBtn {
+  background-color: #e8f0fe; /* Light blue tint */
+  color: #1a73e8;            /* Google-style blue */
+  border: 3px solid #cbdafc;
+}
+.dmgBtn:hover {
+  background-color: #d2e3fc;
+  transform: translateY(-1px);
+}
+
 /* Approve Button */
 .approveBtn {
   background-color: #28a745; /* Green */
