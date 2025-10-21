@@ -309,3 +309,90 @@
     margin-bottom: 0;
   }
 }
+
+/* === SEGMENTED CONTROL TAB STYLES === */
+.tabContainer {
+  display: flex;
+  background-color: #e5e5e5;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  max-width: fit-content;
+  margin: 0 auto;
+}
+
+/* Sliding indicator */
+.tabIndicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  background-color: #961c1e;
+  border-radius: 8px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(150, 28, 30, 0.3);
+  z-index: 0;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  background-color: transparent;
+  color: #666666;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.tabButton:hover:not(.tabButtonActive) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tabButtonActive {
+  color: #ffffff;
+  background-color: transparent;
+}
+
+/* Content wrapper for loading states */
+.contentWrapper {
+  position: relative;
+  min-height: 400px;
+}
+
+/* Tab content slide animation */
+.tabContent {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Loading container */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+}

@@ -48,7 +48,7 @@
 /* === Delete Button Specific Styles === */
 
 .btn-delete {
-  color: #dc3545;              /* Bootstrap danger red color */
+  color: #961c1e;              /* Bootstrap danger red color */
   border: 1px solid #dc3545;  /* Red border */
 }
 
@@ -255,7 +255,7 @@
 
 /* Reject Button */
 .rejectBtn {
-  background-color: #dc3545; /* Red */
+  background-color: #961c1e; /* Red */
   color: #fff;
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
 }
@@ -404,4 +404,122 @@
   background-color: #218838;
 }
 
+/* === SEGMENTED CONTROL TAB STYLES === */
+.tabContainer {
+  display: flex;
+  background-color: #e5e5e5;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 24px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
 
+/* Sliding indicator */
+.tabIndicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  background-color: #961c1e;
+  border-radius: 8px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(150, 28, 30, 0.3);
+  z-index: 0;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background-color: transparent;
+  color: #666666;
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.tabButton:hover:not(.tabButtonActive) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tabButtonActive {
+  color: #ffffff;
+  background-color: transparent; /* Remove background since indicator handles it */
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: rgba(0, 0, 0, 0.15);
+  color: #666666;
+  transition: all 0.3s ease;
+}
+
+.tabButtonActive .tabBadge {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+/* === TAB CONTENT SLIDE ANIMATION === */
+.tabContentWrapper {
+  position: relative;
+  overflow: hidden;
+  min-height: 400px; /* Ensures consistent height during loading */
+}
+
+.tabContent {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tableLoadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide out animation for leaving content */
+.tabContentExit {
+  animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}

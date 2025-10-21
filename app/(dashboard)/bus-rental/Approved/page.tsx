@@ -50,6 +50,8 @@ const ApprovedNotReadyPage: React.FC = () => {
   const [showAssignDriversModal, setShowAssignDriversModal] = useState(false);
   const [showDamageCheckModal, setShowDamageCheckModal] = useState(false);
   const [activeTab, setActiveTab] = useState<BusRental['status']>('Not Ready');
+  const tabs: BusRental['status'][] = ['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'];
+  const activeTabIndex = tabs.indexOf(activeTab);
 
   // --- Fetch and validate data ---
   useEffect(() => {
@@ -453,45 +455,51 @@ const ApprovedNotReadyPage: React.FC = () => {
           Manage rentals that are approved but in different readiness stages.
         </p>
 
-        {/* Status Tabs */}
-        <div className="mb-6">
-          <div className="flex border-b">
-            {(['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'] as const).map((status) => (
-              <button
-                key={status}
-                className={`px-4 py-2 mr-2 font-medium text-sm rounded-t-lg transition-colors ${
-                  activeTab === status
-                    ? 'bg-blue-500 text-white border-b-2 border-blue-500'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                onClick={() => setActiveTab(status)}
-              >
-                {status} {statusCounts[status] > 0 && (
-                  <span className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
-                    activeTab === status ? 'bg-white text-blue-500' : 'bg-gray-500 text-white'
-                  }`}>
-                    {statusCounts[status]}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+        {/* Status Tabs - Segmented Control with Sliding Indicator */}
+        <div className={styles.tabContainer}>
+          {/* Sliding indicator background */}
+          <div 
+            className={styles.tabIndicator}
+            style={{
+              transform: `translateX(calc(${activeTabIndex * 100}% + ${activeTabIndex * 4}px))`,
+              width: `calc(${100 / tabs.length}% - ${4 * (tabs.length - 1) / tabs.length}px)`
+            }}
+          />
+          
+          {tabs.map((status) => (
+            <button
+              key={status}
+              className={`${styles.tabButton} ${activeTab === status ? styles.tabButtonActive : ''}`}
+              onClick={() => setActiveTab(status)}
+            >
+              {status}
+              {statusCounts[status] > 0 && (
+                <span className={styles.tabBadge}>
+                  {statusCounts[status]}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
-        {loading ? (
-          <LoadingModal />
-        ) : (
-          <>
-            {/* Active Tab Content */}
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {activeTab} Rentals ({statusCounts[activeTab]})
-              </h3>
+        {/* Active Tab Content */}
+        <div className={styles.tabContentWrapper}>
+          {loading ? (
+            <div className={styles.tableLoadingContainer}>
+              <LoadingModal />
             </div>
-            
-            {renderRentalTable(groupedRentals[activeTab])}
-          </>
-        )}
+          ) : (
+            <div className={styles.tabContent} key={activeTab}>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {activeTab} Rentals ({statusCounts[activeTab]})
+                </h3>
+              </div>
+              
+              {renderRentalTable(groupedRentals[activeTab])}
+            </div>
+          )}
+        </div>
 
         {/* Readiness Modal */}
         {showReadinessModal && selectedRental && (
