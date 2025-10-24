@@ -45,43 +45,50 @@ useEffect(() => {
 
       if (!Array.isArray(res)) throw new Error('Invalid response from server');
 
-      const mappedData: BusRental[] = res.map((r: any) => ({
-        id: r.RentalRequestID ?? '',
-        customerName: r.CustomerName ?? 'N/A',
-        contactNo: r.CustomerContact ?? 'N/A',
-        busType: r.BusType ?? 'N/A',
-        bus: r.PlateNumber ?? 'N/A',
-        rentalDate: r.RentalDate
-          ? new Date(r.RentalDate).toISOString().split('T')[0]
-          : '',
-        duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
-        distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
-        destination: r.DropoffLocation ?? '',
-        pickupLocation: r.PickupLocation ?? '',
-        passengers: Number(r.NumberOfPassengers ?? 0),
-        price: Number(r.RentalPrice ?? 0),
-        note: r.SpecialRequirements ?? '',
-        status: r.Status ?? 'Completed',
-        driver: r.RentalBusAssignment?.RentalDrivers
-          ?.map((d: any) => d.DriverID)
-          .join(', ') ?? '',
-        damageData: r.RentalBusAssignment
-          ? {
-              vehicleCondition: {
-                Battery: r.RentalBusAssignment.Battery ?? false,
-                Lights: r.RentalBusAssignment.Lights ?? false,
-                Oil: r.RentalBusAssignment.Oil ?? false,
-                Water: r.RentalBusAssignment.Water ?? false,
-                Brake: r.RentalBusAssignment.Break ?? false,
-                Air: r.RentalBusAssignment.Air ?? false,
-                Gas: r.RentalBusAssignment.Gas ?? false,
-                Engine: r.RentalBusAssignment.Engine ?? false,
-                "Tire Condition": r.RentalBusAssignment.TireCondition ?? false,
-              },
-              note: r.RentalBusAssignment.Note ?? '',
-            }
-          : undefined,
-      }));
+      const mappedData: BusRental[] = res.map((r: any) => {
+        // Get the most recent damage report if it exists
+        const latestDamageReport = r.DamageReports && r.DamageReports.length > 0
+          ? r.DamageReports[r.DamageReports.length - 1] // Get the last (most recent) damage report
+          : null;
+
+        return {
+          id: r.RentalRequestID ?? '',
+          customerName: r.CustomerName ?? 'N/A',
+          contactNo: r.CustomerContact ?? 'N/A',
+          busType: r.BusType ?? 'N/A',
+          bus: r.PlateNumber ?? 'N/A',
+          rentalDate: r.RentalDate
+            ? new Date(r.RentalDate).toISOString().split('T')[0]
+            : '',
+          duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
+          distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
+          destination: r.DropoffLocation ?? '',
+          pickupLocation: r.PickupLocation ?? '',
+          passengers: Number(r.NumberOfPassengers ?? 0),
+          price: Number(r.RentalPrice ?? 0),
+          note: r.SpecialRequirements ?? '',
+          status: r.Status ?? 'Completed',
+          driver: r.RentalBusAssignment?.RentalDrivers
+            ?.map((d: any) => d.DriverID)
+            .join(', ') ?? '',
+          damageData: latestDamageReport
+            ? {
+                vehicleCondition: {
+                  Battery: latestDamageReport.Battery ?? false,
+                  Lights: latestDamageReport.Lights ?? false,
+                  Oil: latestDamageReport.Oil ?? false,
+                  Water: latestDamageReport.Water ?? false,
+                  Brake: latestDamageReport.Brake ?? false,
+                  Air: latestDamageReport.Air ?? false,
+                  Gas: latestDamageReport.Gas ?? false,
+                  Engine: latestDamageReport.Engine ?? false,
+                  "Tire Condition": latestDamageReport.TireCondition ?? false,
+                },
+                note: latestDamageReport.Note ?? '',
+              }
+            : undefined,
+        };
+      });
 
       setRentals(mappedData);
     } catch (err: any) {

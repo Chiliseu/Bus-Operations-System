@@ -23,6 +23,7 @@ interface Driver {
 
 interface BusRental {
   id: string;
+  rentalBusAssignmentId?: string;
   customerName: string;
   contactNo: string;
   busType: string;
@@ -86,6 +87,7 @@ const ApprovedNotReadyPage: React.FC = () => {
 
         return {
           id: r.RentalRequestID ?? '',
+          rentalBusAssignmentId: r.RentalBusAssignmentID ?? undefined,
           customerName: r.CustomerName ?? 'N/A',
           contactNo: r.CustomerContact ?? 'N/A',
           busType: r.BusType ?? 'N/A',
@@ -658,35 +660,39 @@ const ApprovedNotReadyPage: React.FC = () => {
                   throw new Error('Authentication failed');
                 }
 
-                // Update the rental request with damage check info - rental is now fully processed
+                // Validate that we have the required RentalBusAssignmentID
+                if (!selectedRental.rentalBusAssignmentId) {
+                  throw new Error('RentalBusAssignmentID is missing. Cannot save damage report.');
+                }
+
+                // Save the damage report for completed rental
                 await updateRentalRequest(token, selectedRental.id, {
-                  command: 'updateStatus',
-                  busAssignmentUpdates: {
-                    Status: 'Completed'
-                  },
                   rentalRequestUpdates: {
                     damageReport: {
                       vehicleCondition: data.vehicleCondition,
                       note: data.note,
                       checkDate: new Date().toISOString()
-                    },
-                    isFullyCompleted: true // Flag to indicate damage check is done
+                    }
                   }
                 });
 
-                // Update local state - remove from list since rental is fully completed
+                // Update local state - mark damage check as done
                 setRentals((prev) =>
-                  prev.filter((r) => r.id !== selectedRental.id)
+                  prev.map((r) =>
+                    r.id === selectedRental.id
+                      ? { ...r, damageCheckDone: true }
+                      : r
+                  )
                 );
                 
                 setLoading(false);
                 setShowDamageCheckModal(false);
-                await Swal.fire('Success', 'Damage check completed. Rental has been fully processed and completed.', 'success');
+                await Swal.fire('Success', 'Damage check saved successfully!', 'success');
                 return true;
               } catch (error: any) {
-                console.error('Error completing damage check:', error);
+                console.error('Error saving damage check:', error);
                 setLoading(false);
-                await Swal.fire('Error', error.message || 'Failed to complete damage check.', 'error');
+                await Swal.fire('Error', error.message || 'Failed to save damage check.', 'error');
                 return false;
               }
             }}
