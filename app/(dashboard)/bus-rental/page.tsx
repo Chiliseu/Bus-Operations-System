@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, Calculator, Bus, User, Info, Receipt, Calendar, MapPin, Clock } from "lucide-react";
 import styles from "./bus-rental.module.css";
 import { getBackendBaseURL, fetchBackendToken } from "@/lib/backend";
+import AddStopModal from "@/components/modal/Add-Stop/AddStopModal"; // <-- imported
 
 /* ---- Types ---- */
 type BusType = "Aircon" | "Non-Aircon";
@@ -38,6 +39,15 @@ export default function BusRentalPage() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [note, setNote] = useState(""); // new note field
 
+  // coordinates for selected locations (optional)
+  const [pickupLat, setPickupLat] = useState("");
+  const [pickupLng, setPickupLng] = useState("");
+  const [destLat, setDestLat] = useState("");
+  const [destLng, setDestLng] = useState("");
+
+  // AddStopModal toggles
+  const [showPickupModal, setShowPickupModal] = useState(false);
+  const [showDestinationModal, setShowDestinationModal] = useState(false);
 
   // local buses (simulate backend)
   const [buses, setBuses] = useState<Bus[]>(INITIAL_BUSES);
@@ -169,26 +179,25 @@ export default function BusRentalPage() {
   };
 
   const isFormReady = useMemo(() => {
-  return (
-    customerName.trim() &&
-    contact.trim() &&
-    /^\d{7,15}$/.test(contact) &&
-    busType &&
-    selectedBusId &&
-    rentalDate &&
-    rentalDate >= today &&
-    parseInt(duration || "0", 10) >= 1 &&
-    destination.trim() &&
-    pickupLocation.trim() &&
-    parseInt(distance || "0", 10) > 0 &&
-    parseInt(passengers || "0", 10) > 0 &&
-    price > 0 // Backend requires calculated price
-  );
-}, [
-  customerName, contact, busType, selectedBusId, rentalDate,
-  duration, destination, pickupLocation, distance, passengers, today, price
-]);
-
+    return (
+      customerName.trim() &&
+      contact.trim() &&
+      /^\d{7,15}$/.test(contact) &&
+      busType &&
+      selectedBusId &&
+      rentalDate &&
+      rentalDate >= today &&
+      parseInt(duration || "0", 10) >= 1 &&
+      destination.trim() &&
+      pickupLocation.trim() &&
+      parseInt(distance || "0", 10) > 0 &&
+      parseInt(passengers || "0", 10) > 0 &&
+      price > 0 // Backend requires calculated price
+    );
+  }, [
+    customerName, contact, busType, selectedBusId, rentalDate,
+    duration, destination, pickupLocation, distance, passengers, today, price
+  ]);
 
   // validation
   const validateForm = () => {
@@ -219,36 +228,49 @@ export default function BusRentalPage() {
     } else if (parseInt(passengers, 10) <= 0) {
       newErrors.passengers = "Passengers must be greated than 0.";
     }
-    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const getMissingFields = () => {
-  const missing: string[] = [];
+    const missing: string[] = [];
 
-  if (!customerName.trim()) missing.push("Customer Name is required.");
-  if (!contact.trim()) missing.push("Contact Number is required.");
-  else if (!/^\d{7,15}$/.test(contact)) missing.push("Contact Number must be 7–15 digits.");
-  if (!busType) missing.push("Bus Type must be selected.");
-  if (!selectedBusId) missing.push("Available Bus must be selected.");
-  else {
-    const bus = buses.find((b) => b.id === selectedBusId);
-    if (!bus || !bus.available) missing.push("Selected Bus is not available.");
-  }
-  if (!rentalDate) missing.push("Rental Date is required.");
-  else if (rentalDate < today) missing.push("Rental Date must be today or in the future.");
-  if (!duration || parseInt(duration || "0", 10) < 1) missing.push("Duration must be at least 1 day.");
-  if (!distance || parseInt(distance || "0", 10) <= 0) missing.push("Distance must be greater than 0 km.");
-  if (!passengers || parseInt(passengers || "0", 10) <= 0) missing.push("Passengers must be greater than 0.");
-  if (!destination.trim()) missing.push("Destination is required.");
-  if (!pickupLocation.trim()) missing.push("Pickup Location is required.");
-  if (!price || price <= 0) missing.push("Price must be calculated. Fill all fields and wait for calculation.");
+    if (!customerName.trim()) missing.push("Customer Name is required.");
+    if (!contact.trim()) missing.push("Contact Number is required.");
+    else if (!/^\d{7,15}$/.test(contact)) missing.push("Contact Number must be 7–15 digits.");
+    if (!busType) missing.push("Bus Type must be selected.");
+    if (!selectedBusId) missing.push("Available Bus must be selected.");
+    else {
+      const bus = buses.find((b) => b.id === selectedBusId);
+      if (!bus || !bus.available) missing.push("Selected Bus is not available.");
+    }
+    if (!rentalDate) missing.push("Rental Date is required.");
+    else if (rentalDate < today) missing.push("Rental Date must be today or in the future.");
+    if (!duration || parseInt(duration || "0", 10) < 1) missing.push("Duration must be at least 1 day.");
+    if (!distance || parseInt(distance || "0", 10) <= 0) missing.push("Distance must be greater than 0 km.");
+    if (!passengers || parseInt(passengers || "0", 10) <= 0) missing.push("Passengers must be greater than 0.");
+    if (!destination.trim()) missing.push("Destination is required.");
+    if (!pickupLocation.trim()) missing.push("Pickup Location is required.");
+    if (!price || price <= 0) missing.push("Price must be calculated. Fill all fields and wait for calculation.");
 
-  return missing;
-};
+    return missing;
+  };
 
+  // Handlers to use AddStopModal as a location picker
+  const handlePickupCreate = async (stop: { name: string; latitude: string; longitude: string }) => {
+    setPickupLocation(stop.name || `${stop.latitude}, ${stop.longitude}`);
+    setPickupLat(stop.latitude || "");
+    setPickupLng(stop.longitude || "");
+    return true; // informs AddStopModal that create succeeded (it will close)
+  };
+
+  const handleDestinationCreate = async (stop: { name: string; latitude: string; longitude: string }) => {
+    setDestination(stop.name || `${stop.latitude}, ${stop.longitude}`);
+    setDestLat(stop.latitude || "");
+    setDestLng(stop.longitude || "");
+    return true;
+  };
 
   // submit (make API call to backend)
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -293,6 +315,11 @@ export default function BusRentalPage() {
         RentalPrice: price,
         BusID: selectedBusId,
         SpecialRequirements: `Bus Type: ${busType}, Note: ${note}`,
+        // optionally include coords if available
+        PickupLatitude: pickupLat || null,
+        PickupLongitude: pickupLng || null,
+        DropoffLatitude: destLat || null,
+        DropoffLongitude: destLng || null,
       };
 
       // Make API call
@@ -333,6 +360,10 @@ export default function BusRentalPage() {
       setPassengers("");
       setDestination("");
       setPickupLocation("");
+      setPickupLat("");
+      setPickupLng("");
+      setDestLat("");
+      setDestLng("");
       setPriceBreakdown({ baseRate: 0, durationFee: 0, distanceFee: 0, extraFees: 0, total: 0 });
       
     } catch (err) {
@@ -535,14 +566,15 @@ export default function BusRentalPage() {
                   )}
                 </div>
 
-                {/* Destination */}
+                {/* Destination — now opens AddStopModal on click */}
                 <div className={styles.inputGroup}>
                   <label className={styles.inputLabel}>Destination</label>
                   <input
                     className={`${styles.inputField} ${errors.destination ? styles.inputFieldError : ""}`}
                     value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    placeholder="Where are you going?"
+                    readOnly
+                    onClick={() => setShowDestinationModal(true)}
+                    placeholder="Click to pick destination"
                   />
                   {errors.destination && (
                     <p className={styles.errorMessage}>
@@ -551,14 +583,15 @@ export default function BusRentalPage() {
                   )}
                 </div>
 
-                {/* Pickup Location */}
+                {/* Pickup Location — now opens AddStopModal on click */}
                 <div className={styles.inputGroup}>
                   <label className={styles.inputLabel}>Pickup Location</label>
                   <input
                     className={`${styles.inputField} ${errors.pickupLocation ? styles.inputFieldError : ""}`}
                     value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    placeholder="Where should we pick you up?"
+                    readOnly
+                    onClick={() => setShowPickupModal(true)}
+                    placeholder="Click to pick pickup location"
                   />
                   {errors.pickupLocation && (
                     <p className={styles.errorMessage}>
@@ -775,8 +808,8 @@ export default function BusRentalPage() {
                   <span className={styles.previewValue}>
                     {note || "Not specified"}
                   </span>
+                </div>
               </div>
-            </div>
 
               {/* Status indicator - now as button when ready */}
               <div className={styles.previewStatus}>
@@ -811,6 +844,30 @@ export default function BusRentalPage() {
             </div>
           </div>
         </div>
+
+        {/* AddStopModal used as location picker for Pickup */}
+        <AddStopModal
+          show={showPickupModal}
+          onClose={() => setShowPickupModal(false)}
+          onCreate={handlePickupCreate}
+          title="Add Pickup Location"
+          selectButtonText="Set Pickup Location"
+          initialName={pickupLocation}
+          initialLat={pickupLat}
+          initialLng={pickupLng}
+        />
+
+        {/* AddStopModal used as location picker for Destination */}
+        <AddStopModal
+          show={showDestinationModal}
+          onClose={() => setShowDestinationModal(false)}
+          onCreate={handleDestinationCreate}
+          title="Add Destination"
+          selectButtonText="Set Destination"
+          initialName={destination}
+          initialLat={destLat}
+          initialLng={destLng}
+        />
       </div>
     </div>
   );
