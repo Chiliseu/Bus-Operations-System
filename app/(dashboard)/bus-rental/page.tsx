@@ -17,13 +17,6 @@ interface Bus {
   available: boolean;
 }
 
-/* ---- Initial (mock) bus list ---- */
-const INITIAL_BUSES: Bus[] = [
-  { id: "B101", name: "Bus 101", type: "Aircon", capacity: 45, available: true },
-  { id: "B202", name: "Bus 202", type: "Non-Aircon", capacity: 40, available: true },
-  { id: "B303", name: "Bus 303", type: "Aircon", capacity: 50, available: false }, // unavailable example
-];
-
 export default function BusRentalPage() {
   // form state
   const [customerName, setCustomerName] = useState("");
@@ -49,8 +42,8 @@ export default function BusRentalPage() {
   const [showPickupModal, setShowPickupModal] = useState(false);
   const [showDestinationModal, setShowDestinationModal] = useState(false);
 
-  // local buses (simulate backend)
-  const [buses, setBuses] = useState<Bus[]>(INITIAL_BUSES);
+  // local buses - starts empty, will be populated from API
+  const [buses, setBuses] = useState<Bus[]>([]);
 
   // UI state
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -60,6 +53,43 @@ export default function BusRentalPage() {
 
   // min date (today) to prevent picking the past
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // Fetch real buses from backend API
+  useEffect(() => {
+    const fetchBusesFromAPI = async () => {
+      try {
+        const baseURL = getBackendBaseURL();
+        const response = await fetch(`${baseURL}/api/external/buses/full`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch buses');
+        }
+        
+        const result = await response.json();
+        
+        // Map API response to Bus interface
+        const mappedBuses: Bus[] = (result.data || []).map((bus: any) => ({
+          id: bus.busId || bus.id,
+          name: bus.license_plate || `Bus ${bus.busId}`,
+          type: bus.type as BusType,
+          capacity: bus.capacity,
+          available: true // All fetched buses are considered available for rental
+        }));
+        
+        if (mappedBuses.length > 0) {
+          setBuses(mappedBuses);
+        }
+      } catch (error) {
+        console.error('Error fetching buses:', error);
+        // Keep using INITIAL_BUSES as fallback
+        console.log('Using initial buses as fallback');
+      }
+    };
+
+    fetchBusesFromAPI();
+  }, []); // Run once on component mount
 
   // sanitize numeric-only inputs (contact, duration, distance, passengers)
   const handleNumericChange = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
