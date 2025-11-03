@@ -211,33 +211,44 @@ const DamageReportsPage: React.FC = () => {
   const handleReject = async (damageReportId: string) => {
     const result = await Swal.fire({
       title: 'Reject Damage Report?',
-      text: 'Are you sure you want to reject this damage report?',
+      text: 'This will permanently delete the damage report. This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, Reject',
+      confirmButtonText: 'Yes, Delete',
       cancelButtonText: 'Cancel'
     });
 
     if (result.isConfirmed) {
       try {
-        // TODO: Implement reject API endpoint
+        const response = await fetch(`${DAMAGE_REPORTS_URL}?damageReportId=${damageReportId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete damage report');
+        }
+
         await Swal.fire({
           icon: 'success',
-          title: 'Rejected',
-          text: 'Damage report has been rejected.',
+          title: 'Deleted',
+          text: 'Damage report has been deleted.',
           timer: 2000,
           showConfirmButton: false
         });
-        // Refresh data after rejection
-        // You may want to refetch the data here
+
+        // Refresh the data by removing the deleted report from state
+        setDamageReports(prevReports => 
+          prevReports.filter(report => report.DamageReportID !== damageReportId)
+        );
       } catch (error) {
-        console.error('Error rejecting damage report:', error);
+        console.error('Error deleting damage report:', error);
         await Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Failed to reject damage report. Please try again.',
+          text: 'Failed to delete damage report. Please try again.',
         });
       }
     }
