@@ -15,7 +15,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
 const MAINTENANCE_WORK_URL = `${BASE_URL}/api/maintenance-work`;
 
 interface MaintenanceRecord {
-  id: number;
+  id: string; // Changed to string to match MaintenanceWorkID
   work_no?: string;
   work_title?: string;
   bus_no: string;
@@ -109,66 +109,66 @@ const MaintenancePage: React.FC = () => {
     }
   ];
   
+  // Fetch maintenance works function (moved outside useEffect for reusability)
+  const fetchMaintenanceWorks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(MAINTENANCE_WORK_URL, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch maintenance works');
+      }
+
+      const data = await response.json();
+
+      // Transform API data to match frontend interface
+      const transformedData: MaintenanceRecord[] = data.map((item: any, index: number) => ({
+        id: item.MaintenanceWorkID, // Use actual ID instead of index
+        work_no: item.MaintenanceWorkID,
+        work_title: item.WorkTitle || '', // New field from schema
+        bus_no: item.BusID,
+        priority: item.Priority,
+        start_date: item.ScheduledDate || item.CreatedAt,
+        due_date: item.DueDate || '', // New field from schema
+        status: item.Status,
+        damageReport: {
+          damageReportId: item.DamageReport.DamageReportID,
+          battery: item.DamageReport.Battery,
+          lights: item.DamageReport.Lights,
+          oil: item.DamageReport.Oil,
+          water: item.DamageReport.Water,
+          brake: item.DamageReport.Brake,
+          air: item.DamageReport.Air,
+          gas: item.DamageReport.Gas,
+          engine: item.DamageReport.Engine,
+          tireCondition: item.DamageReport.TireCondition,
+          notes: item.DamageReport.Note || '',
+          checkDate: item.DamageReport.CheckDate,
+          reportedBy: item.DamageReport.CreatedBy || 'System'
+        },
+        reportedBy: item.DamageReport.CreatedBy || 'System',
+        workRemarks: item.WorkNotes || '',
+        assignedTo: item.AssignedTo || '',
+        estimatedCost: item.EstimatedCost,
+        actualCost: item.ActualCost
+      }));
+
+      setMaintenanceData(transformedData);
+    } catch (error) {
+      console.error('Error fetching maintenance works:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load maintenance works. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMaintenanceWorks = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(MAINTENANCE_WORK_URL, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch maintenance works');
-        }
-
-        const data = await response.json();
-
-        // Transform API data to match frontend interface
-        const transformedData: MaintenanceRecord[] = data.map((item: any, index: number) => ({
-          id: index + 1,
-          work_no: item.MaintenanceWorkID,
-          work_title: '', // Can be derived from damage items or left empty
-          bus_no: item.BusID,
-          priority: item.Priority,
-          start_date: item.ScheduledDate || item.CreatedAt,
-          due_date: item.ScheduledDate || '',
-          status: item.Status,
-          damageReport: {
-            damageReportId: item.DamageReport.DamageReportID,
-            battery: item.DamageReport.Battery,
-            lights: item.DamageReport.Lights,
-            oil: item.DamageReport.Oil,
-            water: item.DamageReport.Water,
-            brake: item.DamageReport.Brake,
-            air: item.DamageReport.Air,
-            gas: item.DamageReport.Gas,
-            engine: item.DamageReport.Engine,
-            tireCondition: item.DamageReport.TireCondition,
-            notes: item.DamageReport.Note || '',
-            checkDate: item.DamageReport.CheckDate,
-            reportedBy: item.DamageReport.CreatedBy || 'System'
-          },
-          reportedBy: item.DamageReport.CreatedBy || 'System',
-          workRemarks: item.WorkNotes || '',
-          assignedTo: item.AssignedTo || '',
-          estimatedCost: item.EstimatedCost,
-          actualCost: item.ActualCost
-        }));
-
-        setMaintenanceData(transformedData);
-      } catch (error) {
-        console.error('Error fetching maintenance works:', error);
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to load maintenance works. Please try again.',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMaintenanceWorks();
   }, []);
 
@@ -277,34 +277,44 @@ const MaintenancePage: React.FC = () => {
     try {
       setLoadingModal(true);
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!selectedRecord) {
+        throw new Error('No record selected');
+      }
 
-      // Update the record with new work details
-      const updatedData = maintenanceData.map(record => {
-        if (record.id === selectedRecord?.id) {
-          return {
-            ...record,
-            work_no: data.workNo,
-            work_title: data.workTitle,
-            workRemarks: data.workRemarks,
+      // Call the backend API to update maintenance work
+      const response = await fetch(
+        `${MAINTENANCE_WORK_URL}?maintenanceWorkId=${selectedRecord.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Use cookies for authentication
+          body: JSON.stringify({
+            workTitle: data.workTitle,
             priority: data.priority,
-            reportedBy: data.reportedBy,
-            start_date: data.startDate,
-            due_date: data.dueDate,
-            status: record.status === 'Completed' ? 'Completed' : 'Pending'
-          };
+            scheduledDate: data.startDate,
+            dueDate: data.dueDate,
+            workNotes: data.workRemarks,
+            status: 'InProgress', // Update status when work details are added
+          }),
         }
-        return record;
-      });
+      );
 
-      setMaintenanceData(updatedData);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save work details');
+      }
+
+      // Refresh the data from the backend
+      await fetchMaintenanceWorks();
+
       setLoadingModal(false);
 
       await Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: isUpdateMode ? 'Work order updated successfully!' : 'Work order created successfully!',
+        text: isUpdateMode ? 'Work order updated successfully!' : 'Work details added successfully!',
       });
 
       setShowAddWorkModal(false);
@@ -315,7 +325,7 @@ const MaintenancePage: React.FC = () => {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to save work details. Please try again.',
+        text: error instanceof Error ? error.message : 'Failed to save work details. Please try again.',
       });
     }
   };
