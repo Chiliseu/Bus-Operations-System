@@ -1,0 +1,389 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cooper+Hewitt&display=swap');
+
+/* === Main Container Width Control === */
+.wideCard {
+  width: 100%;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardBody {
+  width: 100%;
+}
+
+/* === Page Title Styling === */
+.stopTitle {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+/* === Toolbar === */
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.searchWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.searchWrapper i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 18px;
+  color: #aaa;
+}
+
+.searchInput {
+  padding-left: 30px !important;
+  height: 35px;
+  width: 290px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  background-color: white;
+  font-family: 'Cooper Hewitt', sans-serif;
+}
+
+.searchInput:focus {
+  border-color: #961c1e;
+  box-shadow: 0 0 0 3px rgba(150, 28, 30, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #aaa;
+}
+
+/* === Description === */
+.description {
+  font-family: 'Cooper Hewitt', sans-serif;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* === Main Table Styling === */
+.styledTableWrapper {
+  overflow-x: auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
+}
+
+.styledTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: white;
+  border-radius: 4px;
+  font-family: 'Open Sans', sans-serif;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+/* === Table Header Row Styling === */
+.styledTable thead {
+  background-color: #D8D8D8;
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 1px solid #999;
+}
+
+.styledTable thead th {
+  padding: 12px;
+  border-bottom: 1px solid #999;
+  text-align: left;
+}
+
+/* Rounded corners on first and last header cells */
+.styledTable th:first-child {
+  border-top-left-radius: 5px;
+}
+
+.styledTable th:last-child {
+  border-top-right-radius: 5px;
+}
+
+/* === Table Body Styling === */
+.styledTable tbody td {
+  padding: 12px;
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #999;
+  text-align: left;
+}
+
+/* Rounded corners on bottom row's first and last cells */
+.styledTable tr:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+.styledTable tr:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}
+
+/* === Table Row Hover Effect === */
+.styledTable tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.styledTable tbody tr:hover {
+  background-color: #ECECEC;
+}
+
+/* === Zebra Striping for Rows === */
+.styledTable tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.centeredColumn {
+  text-align: center !important;
+}
+
+.noRecords {
+  text-align: center;
+  padding: 48px 16px;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* === Priority Badges (Soft Hollow Style) === */
+.priorityHigh,
+.priorityMedium,
+.priorityLow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  min-width: 85px;
+  border: 1.8px solid;
+}
+
+/* Priority colors */
+.priorityHigh {
+  color: #dc2626;
+  border-color: #dc2626;
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.priorityMedium {
+  color: #f59e0b;
+  border-color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.priorityLow {
+  color: #10b981;
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* === Status Badges (Soft Hollow Style) === */
+.statusCompleted,
+.statusInProgress,
+.statusPending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+  min-width: 105px;
+  border: 1.8px solid;
+}
+
+/* Status colors */
+.statusCompleted {
+  color: #10b981;
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.statusInProgress {
+  color: #0ea5e9;
+  border-color: #0ea5e9;
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+.statusPending {
+  color: #6b7280;
+  border-color: #6b7280;
+  background-color: rgba(107, 114, 128, 0.1);
+}
+
+
+/* === Action Buttons Container === */
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* === Action Button Base Styling === */
+.actionBtn {
+  background-color: #2D8EFF;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* === Add Work Details Button (Red) === */
+.addBtn {
+  background-color: #961c1e;
+}
+
+.addBtn:hover {
+  background-color: #b91c1c;
+}
+
+/* === Update Work Details Button (Blue) === */
+.updateBtn {
+  background-color: #2D8EFF;
+}
+
+.updateBtn:hover {
+  background-color: #267BDB;
+}
+
+/* === View Details Button (Green) === */
+.viewBtn {
+  background-color: #12B75C;
+}
+
+.viewBtn:hover {
+  background-color: #14863e;
+}
+
+.actionBtn:active {
+  transform: translateY(0);
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .wideCard {
+    padding: 1rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .stopTitle {
+    font-size: 20px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+
+  .styledTableWrapper {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .styledTable {
+    min-width: 900px;
+  }
+
+  .styledTable thead th,
+  .styledTable tbody td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .actionBtn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stopTitle {
+    font-size: 18px;
+  }
+
+  .styledTable {
+    min-width: 800px;
+  }
+
+  .priorityHigh,
+  .priorityMedium,
+  .priorityLow,
+  .statusCompleted,
+  .statusInProgress,
+  .statusPending {
+    padding: 4px 10px;
+    font-size: 11px;
+    min-width: 75px;
+  }
+}
+
+/* === Scrollbar Styling === */
+.styledTableWrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

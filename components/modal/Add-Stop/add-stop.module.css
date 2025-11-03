@@ -133,11 +133,17 @@
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
   padding: 16px 20px;
   background: #f8f9fa;
   border-radius: 0 0 8px 8px;
+}
+
+.currentTime {
+  font-size: 0.875rem;
+  color: #6c757d;
 }
 
 .cancelBtn,

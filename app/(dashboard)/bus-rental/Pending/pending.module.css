@@ -45,6 +45,12 @@
   background-color: #267BDB;
 }
 
+.editBtn img {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 /* === Delete Button Specific Styles === */
 
 .btn-delete {
@@ -89,7 +95,7 @@
 /* === Assignment Title Styling === */
 
 .stopTitle {
-  font-family: 'Open Sans';
+  font-family: 'Open Sans', sans-serif;
   color: #000000;           /* Black text */
   font-size: 24px;          /* Set font size */
   font-weight: 800;         /* Bold */
@@ -113,45 +119,98 @@
 /* === Table Wrapper Styling === */
 
 .styledTableWrapper {
-  border-radius: 5px;                    /* Rounded corners */
-  overflow: hidden;                      /* Hide overflow (for border radius on table) */
-  border: 2px solid #d1d5db;             /* Light gray border (Tailwind gray-300) */
-  margin-top: 10px;                      /* Small spacing above */
+  overflow-x: auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 10px;
 }
 
-/* === Table Styling === */
+/* === Main Table Styling === */
 
 .styledTable {
-  width: 100%;                /* Full width */
-  border-collapse: collapse;  /* Remove double borders */
-  font-size: 14px;            /* Readable font size */
+  width: 100%;                    /* Full width */
+  border-collapse: separate;      /* Separate borders for rounded corners */
+  border-spacing: 0;              /* No spacing between cells */
+  background-color: white;         /* White background */
+  border-radius: 4px;            /* Rounded corners on entire table */
+  font-family: 'Open Sans', sans-serif; /* Font */
+  color: #1f2937;                 /* Text color */
+  font-size: 14px;                /* Font size */
 }
 
-/* Table header background color */
+/* === Table Header Row Styling === */
+
 .styledTable thead {
-  background-color: #D8D8D8;  /* Light gray background for header */
+  background-color: #D8D8D8;       /* Light grey background */
+  font-weight: bold;               /* Bold text */
+  text-align: left;                /* Left aligned text */
+  border-bottom: 1px solid #999;  /* Dark bottom border */
 }
 
-/* Table row hover effect */
+.styledTable thead th {
+  padding: 12px;                  /* Padding inside cells */
+  border-bottom: 1px solid #999;  /* Darker horizontal line */
+  text-align: left;               /* Left aligned text */
+}
+
+/* Rounded corners on first and last header cells */
+.styledTable th:first-child {
+  border-top-left-radius: 5px;   /* Round top-left corner */
+}
+.styledTable th:last-child {
+  border-top-right-radius: 5px;  /* Round top-right corner */
+}
+
+/* === Table Body Styling === */
+
+.styledTable tbody td {
+  padding: 12px;                  /* Padding inside cells */
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #999;  /* Darker and thicker horizontal lines */
+  text-align: left;
+}
+
+/* Rounded corners on bottom row's first and last cells */
+.styledTable tr:last-child td:first-child {
+  border-bottom-left-radius: 5px; /* Round bottom-left corner */
+}
+.styledTable tr:last-child td:last-child {
+  border-bottom-right-radius: 5px; /* Round bottom-right corner */
+}
+
+/* === Table Row Hover Effect === */
+
+.styledTable tbody tr {
+  transition: background-color 0.3s ease; /* smooth transition over 0.3 seconds */
+}
+
 .styledTable tbody tr:hover {
-  background-color: #ECECEC;  /* Slightly darker gray on hover */
+  background-color: #ECECEC;
 }
 
-/* Table cells styling */
-.styledTable th,
-.styledTable td {
-  padding: 12px;                     /* Padding inside cells */
-  border-bottom: 1px solid #e5e7eb; /* Light bottom border */
-  text-align: left;                 /* Left align text */
-  border-bottom: 1px solid #999;   /* Darker and thicker horizontal lines */
+/* === Zebra Striping for Rows === */
+
+.styledTable tbody tr:nth-child(even) {
+  background-color: #fafafa;       /* Very light background on even rows */
 }
+
+/* === Actions Container for Buttons === */
+
+.actions {
+  display: flex;                   /* Flex container */
+  justify-content: center;         /* Center buttons */
+  gap: 0.5rem;                    /* Space between buttons */
+}
+
+/* === Toolbar === */
 
 .toolbar {
   display: flex;
   flex-direction: row;
   align-items: baseline; /* align all items to baseline instead of center */
   gap: 1rem;
-  margin-bottom: 0.10rem;
+  margin-bottom: 1rem;
 }
 
 .searchWrapper {
@@ -162,12 +221,11 @@
 .searchWrapper i {
   position: absolute;
   left: 10px;
-  top: 60%;
+  top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
   font-size: 18px;
   color: #aaa;
-  
 }
 
 .searchInput {
@@ -179,13 +237,28 @@
   border-radius: 8px;
   outline: none;
   background-color: white;
+  font-family: 'Cooper Hewitt', sans-serif;
+}
+
+.searchInput:focus {
+  border-color: #961c1e;
+  box-shadow: 0 0 0 3px rgba(150, 28, 30, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #aaa;
+}
+
+.description {
+  font-family: 'Cooper Hewitt', sans-serif;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
   margin-top: 10px;
 }
 
-.description{
-  margin-top: 10px;
-}
-
+/* === Loading State === */
 
 .loadingWrapper {
   display: flex;
@@ -199,8 +272,8 @@
   height: 90px;
 }
 
+/* === Sort Dropdown === */
 
-/* Dropdown style */
 .sortSelect {
   height: 35px;
   border-radius: 8px;
@@ -209,6 +282,12 @@
   padding: 0 8px;
   background-color: white;
   cursor: pointer;
+  font-family: 'Cooper Hewitt', sans-serif;
+}
+
+.sortSelect:focus {
+  border-color: #961c1e;
+  outline: none;
 }
 
 /* === ACTION BUTTONS (Approve / Reject / Notes) === */
@@ -271,3 +350,93 @@
   white-space: nowrap;
 }
 
+/* === Responsive Design === */
+
+@media (max-width: 768px) {
+  .wideCard {
+    padding: 1rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .stopTitle {
+    font-size: 20px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+
+  .styledTableWrapper {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .styledTable {
+    min-width: 700px;
+  }
+
+  .styledTable thead th,
+  .styledTable tbody td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .editBtn {
+    padding: 2px 5px;
+    font-size: 11px;
+  }
+
+  .editBtn img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .noteBtn,
+  .approveBtn,
+  .rejectBtn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stopTitle {
+    font-size: 18px;
+  }
+
+  .styledTable {
+    min-width: 600px;
+  }
+}
+
+/* === Scrollbar Styling === */
+
+.styledTableWrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.styledTableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

@@ -32,6 +32,11 @@ const Sidebar: React.FC = () => {
     '/bus-rental/Pending': 'rental-pending',
     '/bus-rental/Approved': 'rental-approved',
     '/bus-rental/Ongoing': 'rental-ongoing',
+    '/bus-rental/Completed': 'rental-completed',
+
+    // Maintenance
+    '/maintenance/Add-Work-Details': 'add-work-details',
+    '/maintenance/Task-Management': 'task-management',
   };
 
   const routeManagementSubItems = [
@@ -50,6 +55,12 @@ const Sidebar: React.FC = () => {
     '/bus-rental/Pending',
     '/bus-rental/Approved',
     '/bus-rental/Ongoing',
+    '/bus-rental/Completed',
+  ];
+
+  const maintenanceSubItems = [
+    '/maintenance/Add-Work-Details',
+    '/maintenance/Task-Management',
   ];
 
   // Set activeItem based on pathname
@@ -65,6 +76,8 @@ const Sidebar: React.FC = () => {
       setOpenSubMenu('bus-operation-submenu');
     } else if (busRentalSubItems.includes(pathname)) {
       setOpenSubMenu('bus-rental-submenu');
+    } else if (maintenanceSubItems.includes(pathname)) {
+      setOpenSubMenu('maintenance-submenu');
     } else {
       setOpenSubMenu(null);
     }
@@ -82,6 +95,7 @@ const Sidebar: React.FC = () => {
   const isRouteManagementActive = routeManagementSubItems.includes(pathname);
   const isBusOperationActive = busOperationSubItems.includes(pathname);
   const isBusRentalActive = busRentalSubItems.includes(pathname);
+  const isMaintenanceActive = maintenanceSubItems.includes(pathname);
 
   return (
     <div className="sidebar shadow-lg" id="sidebar">
@@ -251,10 +265,49 @@ const Sidebar: React.FC = () => {
               </Link>
               <Link
                 href="/bus-rental/Completed"
-                className={`sub-item ${activeItem === 'rental-ongoing' ? 'active' : ''}`}
-                onClick={() => setActiveItem('rental-ongoing')}
+                className={`sub-item ${activeItem === 'rental-completed' ? 'active' : ''}`}
+                onClick={() => setActiveItem('rental-completed')}
               >
                 Completed
+              </Link>
+            </div>
+          )}
+
+          {/* === MAINTENANCE === */}
+          <div
+            className={`nav-item module ${isMaintenanceActive ? 'active' : ''}`}
+            onClick={() => toggleSubMenu('maintenance-submenu')}
+          >
+            <Image
+              src="/assets/images/maintenance.png"
+              alt="Maintenance"
+              className="nav-icon"
+              width={24}
+              height={24}
+            />
+            <span>Maintenance</span>
+            <i
+              className={`dropdown-arrow ri-arrow-down-s-line ${
+                openSubMenu === 'maintenance-submenu' ? 'rotate' : ''
+              }`}
+            />
+          </div>
+
+          {openSubMenu === 'maintenance-submenu' && (
+            <div className="sub-menu active">
+              <Link
+                href="/maintenance/Add-Work-Details"
+                className={`sub-item ${activeItem === 'add-work-details' ? 'active' : ''}`}
+                onClick={() => setActiveItem('add-work-details')}
+              >
+                Add Work Details
+              </Link>
+              <Link
+                href="/maintenance/Task-Management"
+                className={`sub-item ${activeItem === 'task-management' ? 'active' : ''}`}
+                onClick={() => setActiveItem('task-management')}
+              >
+                Task Management
               </Link>
             </div>
           )}
