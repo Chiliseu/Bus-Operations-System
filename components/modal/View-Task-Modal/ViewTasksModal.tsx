@@ -265,8 +265,8 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                   ) : (
                     <tr>
                       <td colSpan={5} className={styles.noTasks}>
-                        No tasks added yet. Click "Add Task" to create one.
-                      </td>
+                        No tasks added yet. Click &quot;Add Task&quot; to create one.
+                        </td>
                     </tr>
                   )}
                 </tbody>
