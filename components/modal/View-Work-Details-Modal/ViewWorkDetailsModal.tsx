@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './view-work-modal.module.css';
 
 interface MaintenanceRecord {
-  id: number;
+  id: string; // Changed to string to match MaintenanceWorkID
   work_no?: string;
   work_title?: string;
   bus_no: string;

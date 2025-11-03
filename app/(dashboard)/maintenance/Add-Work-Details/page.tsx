@@ -11,8 +11,11 @@ import ViewWorkDetailsModal from '@/components/modal/View-Work-Details-Modal/Vie
 import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
+const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
+const MAINTENANCE_WORK_URL = `${BASE_URL}/api/maintenance-work`;
+
 interface MaintenanceRecord {
-  id: number;
+  id: string; // Changed to string to match MaintenanceWorkID
   work_no?: string;
   work_title?: string;
   bus_no: string;
@@ -21,6 +24,7 @@ interface MaintenanceRecord {
   due_date?: string;
   status?: string;
   damageReport?: {
+    damageReportId: string;
     battery: boolean;
     lights: boolean;
     oil: boolean;
@@ -31,9 +35,14 @@ interface MaintenanceRecord {
     engine: boolean;
     tireCondition: boolean;
     notes: string;
+    checkDate: string;
+    reportedBy: string;
   };
   reportedBy?: string;
   workRemarks?: string;
+  assignedTo?: string;
+  estimatedCost?: number;
+  actualCost?: number;
 }
 
 const MaintenancePage: React.FC = () => {
@@ -100,124 +109,67 @@ const MaintenancePage: React.FC = () => {
     }
   ];
   
+  // Fetch maintenance works function (moved outside useEffect for reusability)
+  const fetchMaintenanceWorks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(MAINTENANCE_WORK_URL, {
+        credentials: 'include',
+      });
 
-  // Hardcoded sample data with damage reports
-  const sampleData: MaintenanceRecord[] = [
-    {
-      id: 1,
-      work_no: 'WRK-001',
-      work_title: 'Engine Oil Change',
-      bus_no: 'BUS-101',
-      priority: 'High',
-      start_date: '2024-11-01',
-      due_date: '2024-11-05',
-      status: 'Completed',
-      damageReport: {
-        battery: true,
-        lights: true,
-        oil: false,
-        water: true,
-        brake: true,
-        air: true,
-        gas: true,
-        engine: false,
-        tireCondition: true,
-        notes: 'Engine oil level low, needs immediate change'
-      },
-      reportedBy: 'John Doe',
-      workRemarks: 'Regular maintenance checkup'
-    },
-    {
-      id: 2,
-      work_no: 'WRK-002',
-      work_title: 'Brake Inspection',
-      bus_no: 'BUS-102',
-      priority: 'High',
-      start_date: '2024-11-02',
-      due_date: '2024-11-06',
-      status: 'In Progress',
-      damageReport: {
-        battery: true,
-        lights: true,
-        oil: true,
-        water: true,
-        brake: false,
-        air: true,
-        gas: true,
-        engine: true,
-        tireCondition: true,
-        notes: 'Brake pads worn out, squeaking noise when braking'
-      },
-      reportedBy: 'Jane Smith',
-      workRemarks: 'Replace brake pads and inspect brake system'
-    },
-    {
-      id: 3,
-      bus_no: 'BUS-103',
-      status: 'Pending',
-      damageReport: {
-        battery: true,
-        lights: true,
-        oil: true,
-        water: true,
-        brake: false,
-        air: true,
-        gas: true,
-        engine: false,
-        tireCondition: false,
-        notes: 'Engine making knocking noise; tire worn out'
+      if (!response.ok) {
+        throw new Error('Failed to fetch maintenance works');
       }
-    },
-    {
-      id: 4,
-      bus_no: 'BUS-104',
-      status: 'Pending',
-      damageReport: {
-        battery: false,
-        lights: true,
-        oil: true,
-        water: true,
-        brake: true,
-        air: false,
-        gas: true,
-        engine: true,
-        tireCondition: true,
-        notes: 'Battery dead, AC not working properly'
-      }
-    },
-    {
-      id: 5,
-      work_no: 'WRK-005',
-      work_title: 'Battery Replacement',
-      bus_no: 'BUS-105',
-      priority: 'High',
-      start_date: '2024-11-05',
-      due_date: '2024-11-08',
-      status: 'In Progress',
-      damageReport: {
-        battery: false,
-        lights: true,
-        oil: true,
-        water: true,
-        brake: true,
-        air: true,
-        gas: true,
-        engine: true,
-        tireCondition: true,
-        notes: 'Battery not holding charge, needs replacement'
-      },
-      reportedBy: 'Mike Johnson',
-      workRemarks: 'Replace battery and check alternator'
+
+      const data = await response.json();
+
+      // Transform API data to match frontend interface
+      const transformedData: MaintenanceRecord[] = data.map((item: any, index: number) => ({
+        id: item.MaintenanceWorkID, // Use actual ID instead of index
+        work_no: item.MaintenanceWorkID,
+        work_title: item.WorkTitle || '', // New field from schema
+        bus_no: item.BusID,
+        priority: item.Priority,
+        start_date: item.ScheduledDate || item.CreatedAt,
+        due_date: item.DueDate || '', // New field from schema
+        status: item.Status,
+        damageReport: {
+          damageReportId: item.DamageReport.DamageReportID,
+          battery: item.DamageReport.Battery,
+          lights: item.DamageReport.Lights,
+          oil: item.DamageReport.Oil,
+          water: item.DamageReport.Water,
+          brake: item.DamageReport.Brake,
+          air: item.DamageReport.Air,
+          gas: item.DamageReport.Gas,
+          engine: item.DamageReport.Engine,
+          tireCondition: item.DamageReport.TireCondition,
+          notes: item.DamageReport.Note || '',
+          checkDate: item.DamageReport.CheckDate,
+          reportedBy: item.DamageReport.CreatedBy || 'System'
+        },
+        reportedBy: item.DamageReport.CreatedBy || 'System',
+        workRemarks: item.WorkNotes || '',
+        assignedTo: item.AssignedTo || '',
+        estimatedCost: item.EstimatedCost,
+        actualCost: item.ActualCost
+      }));
+
+      setMaintenanceData(transformedData);
+    } catch (error) {
+      console.error('Error fetching maintenance works:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load maintenance works. Please try again.',
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setMaintenanceData(sampleData);
-      setLoading(false);
-    }, 500);
+    fetchMaintenanceWorks();
   }, []);
 
   const handleApplyFilters = (filterValues: Record<string, any>) => {
@@ -325,34 +277,44 @@ const MaintenancePage: React.FC = () => {
     try {
       setLoadingModal(true);
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!selectedRecord) {
+        throw new Error('No record selected');
+      }
 
-      // Update the record with new work details
-      const updatedData = maintenanceData.map(record => {
-        if (record.id === selectedRecord?.id) {
-          return {
-            ...record,
-            work_no: data.workNo,
-            work_title: data.workTitle,
-            workRemarks: data.workRemarks,
+      // Call the backend API to update maintenance work
+      const response = await fetch(
+        `${MAINTENANCE_WORK_URL}?maintenanceWorkId=${selectedRecord.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Use cookies for authentication
+          body: JSON.stringify({
+            workTitle: data.workTitle,
             priority: data.priority,
-            reportedBy: data.reportedBy,
-            start_date: data.startDate,
-            due_date: data.dueDate,
-            status: record.status === 'Completed' ? 'Completed' : 'Pending'
-          };
+            scheduledDate: data.startDate,
+            dueDate: data.dueDate,
+            workNotes: data.workRemarks,
+            status: 'InProgress', // Update status when work details are added
+          }),
         }
-        return record;
-      });
+      );
 
-      setMaintenanceData(updatedData);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save work details');
+      }
+
+      // Refresh the data from the backend
+      await fetchMaintenanceWorks();
+
       setLoadingModal(false);
 
       await Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: isUpdateMode ? 'Work order updated successfully!' : 'Work order created successfully!',
+        text: isUpdateMode ? 'Work order updated successfully!' : 'Work details added successfully!',
       });
 
       setShowAddWorkModal(false);
@@ -363,7 +325,7 @@ const MaintenancePage: React.FC = () => {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to save work details. Please try again.',
+        text: error instanceof Error ? error.message : 'Failed to save work details. Please try again.',
       });
     }
   };

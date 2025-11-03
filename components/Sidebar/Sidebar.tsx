@@ -35,6 +35,7 @@ const Sidebar: React.FC = () => {
     '/bus-rental/Completed': 'rental-completed',
 
     // Maintenance
+    '/maintenance/Damage-Reports': 'damage-reports',
     '/maintenance/Add-Work-Details': 'add-work-details',
     '/maintenance/Task-Management': 'task-management',
   };
@@ -59,6 +60,7 @@ const Sidebar: React.FC = () => {
   ];
 
   const maintenanceSubItems = [
+    '/maintenance/Damage-Reports',
     '/maintenance/Add-Work-Details',
     '/maintenance/Task-Management',
   ];
@@ -295,6 +297,13 @@ const Sidebar: React.FC = () => {
 
           {openSubMenu === 'maintenance-submenu' && (
             <div className="sub-menu active">
+              <Link
+                href="/maintenance/Damage-Reports"
+                className={`sub-item ${activeItem === 'damage-reports' ? 'active' : ''}`}
+                onClick={() => setActiveItem('damage-reports')}
+              >
+                Damage Reports
+              </Link>
               <Link
                 href="/maintenance/Add-Work-Details"
                 className={`sub-item ${activeItem === 'add-work-details' ? 'active' : ''}`}
