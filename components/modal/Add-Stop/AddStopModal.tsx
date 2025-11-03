@@ -29,6 +29,9 @@ const AddStopModal: React.FC<AddStopModalProps> = ({
   const [name, setName] = useState(initialName);
   const [latitude, setLatitude] = useState(initialLat);
   const [longitude, setLongitude] = useState(initialLng);
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleString('en-US', { hour12: true })
+  );
 
   useEffect(() => {
     if (!show) return;
@@ -36,6 +39,14 @@ const AddStopModal: React.FC<AddStopModalProps> = ({
     setLatitude(initialLat);
     setLongitude(initialLng);
   }, [show, initialName, initialLat, initialLng]);
+
+  useEffect(() => {
+    if (!show) return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString('en-US', { hour12: true }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [show]);
 
   const handleCreate = async () => {
     if (!name && !latitude && !longitude) {
@@ -79,7 +90,7 @@ const AddStopModal: React.FC<AddStopModalProps> = ({
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2 className={styles.title}>{title}</h2>
-          <button className={styles.creaBtn} onClick={onClose} aria-label="Close">
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
             ×
           </button>
         </div>
@@ -124,6 +135,7 @@ const AddStopModal: React.FC<AddStopModalProps> = ({
         </div>
 
         <div className={styles.footer}>
+          <small className={styles.currentTime}>{currentTime}</small>
           <button className={styles.createStopBtn} onClick={handleCreate} type="button">
             {selectButtonText}
           </button>
