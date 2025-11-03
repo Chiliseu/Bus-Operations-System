@@ -1,0 +1,128 @@
+.wideCard {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  margin: 0 auto;
+}
+
+.cardBody {
+  width: 100%;
+}
+
+.stopTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.searchWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchWrapper i {
+  position: absolute;
+  left: 12px;
+  color: #666;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.styledTableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 24px;
+}
+
+.styledTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.styledTable thead {
+  background-color: #f8f9fa;
+}
+
+.styledTable thead th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.styledTable tbody td {
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+}
+
+.styledTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.styledTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.noRecords {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.noDamage {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hasDamage {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
