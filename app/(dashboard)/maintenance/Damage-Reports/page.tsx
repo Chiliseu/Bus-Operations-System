@@ -11,6 +11,7 @@ import type { FilterSection } from '@/shared/imports';
 
 const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
 const DAMAGE_REPORTS_URL = `${BASE_URL}/api/damage-report`;
+const MAINTENANCE_WORK_URL = `${BASE_URL}/api/maintenance-work`;
 
 interface DamageReport {
   id: number;
@@ -28,6 +29,7 @@ interface DamageReport {
   tireCondition: boolean;
   notes: string;
   createdBy: string;
+  status: 'Pending' | 'Accepted' | 'Rejected';
 }
 
 const DamageReportsPage: React.FC = () => {
@@ -91,6 +93,7 @@ const DamageReportsPage: React.FC = () => {
           tireCondition: item.TireCondition,
           notes: item.Note || '',
           createdBy: item.CreatedBy || 'System',
+          status: item.Status || 'Pending',
         }));
 
         setDamageReports(transformedData);
@@ -173,10 +176,21 @@ const DamageReportsPage: React.FC = () => {
     return damaged.length > 0 ? damaged.join(', ') : 'No damage reported';
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Accepted':
+        return <span className={styles.statusAccepted}>Accepted</span>;
+      case 'Rejected':
+        return <span className={styles.statusRejected}>Rejected</span>;
+      case 'Pending':
+      default:
+        return <span className={styles.statusPending}>Pending</span>;
+    }
+  };
   const handleAccept = async (damageReportId: string) => {
     const result = await Swal.fire({
       title: 'Accept Damage Report?',
-      text: 'Are you sure you want to accept this damage report?',
+      text: 'This will create a maintenance work order for this damage report.',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#28a745',
@@ -187,16 +201,53 @@ const DamageReportsPage: React.FC = () => {
 
     if (result.isConfirmed) {
       try {
-        // TODO: Implement accept API endpoint
+        // Step 1: Update damage report status to Accepted
+        const statusResponse = await fetch(`${DAMAGE_REPORTS_URL}?damageReportId=${damageReportId}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: 'Accepted' }),
+        });
+
+        if (!statusResponse.ok) {
+          throw new Error('Failed to update damage report status');
+        }
+
+        // Step 2: Create maintenance work
+        const maintenanceResponse = await fetch(MAINTENANCE_WORK_URL, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            damageReportId: damageReportId,
+            priority: 'Medium',
+          }),
+        });
+
+        if (!maintenanceResponse.ok) {
+          throw new Error('Failed to create maintenance work');
+        }
+
         await Swal.fire({
           icon: 'success',
           title: 'Accepted',
-          text: 'Damage report has been accepted.',
+          text: 'Damage report accepted and maintenance work created.',
           timer: 2000,
           showConfirmButton: false
         });
-        // Refresh data after acceptance
-        // You may want to refetch the data here
+
+        // Update the status in the local state
+        setDamageReports(prevReports =>
+          prevReports.map(report =>
+            report.DamageReportID === damageReportId
+              ? { ...report, status: 'Accepted' }
+              : report
+          )
+        );
       } catch (error) {
         console.error('Error accepting damage report:', error);
         await Swal.fire({
@@ -296,6 +347,7 @@ const DamageReportsPage: React.FC = () => {
                   <th>Damaged Items</th>
                   <th>Notes</th>
                   <th>Reported By</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -313,12 +365,14 @@ const DamageReportsPage: React.FC = () => {
                       </td>
                       <td>{record.notes || '—'}</td>
                       <td>{record.createdBy}</td>
+                      <td>{getStatusBadge(record.status)}</td>
                       <td>
                         <div className={styles.actionButtons}>
                           <button 
                             className={styles.acceptBtn}
                             onClick={() => handleAccept(record.DamageReportID)}
                             title="Accept Report"
+                            disabled={record.status !== 'Pending'}
                           >
                             Accept
                           </button>
@@ -326,6 +380,7 @@ const DamageReportsPage: React.FC = () => {
                             className={styles.rejectBtn}
                             onClick={() => handleReject(record.DamageReportID)}
                             title="Reject Report"
+                            disabled={record.status !== 'Pending'}
                           >
                             Reject
                           </button>
@@ -335,7 +390,7 @@ const DamageReportsPage: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className={styles.noRecords}>
+                    <td colSpan={8} className={styles.noRecords}>
                       No damage reports found.
                     </td>
                   </tr>

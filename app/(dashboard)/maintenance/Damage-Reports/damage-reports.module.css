@@ -127,6 +127,36 @@
   font-weight: 500;
 }
 
+.statusPending {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #fff3cd;
+  color: #856404;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.statusAccepted {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.statusRejected {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .actionButtons {
   display: flex;
   gap: 8px;
@@ -149,10 +179,16 @@
   color: white;
 }
 
-.acceptBtn:hover {
+.acceptBtn:hover:not(:disabled) {
   background-color: #218838;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.acceptBtn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .rejectBtn {
@@ -160,10 +196,16 @@
   color: white;
 }
 
-.rejectBtn:hover {
+.rejectBtn:hover:not(:disabled) {
   background-color: #c82333;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.rejectBtn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .acceptBtn:active,
