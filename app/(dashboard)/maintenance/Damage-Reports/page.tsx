@@ -78,7 +78,7 @@ const DamageReportsPage: React.FC = () => {
         const transformedData: DamageReport[] = data.map((item: any, index: number) => ({
           id: index + 1,
           DamageReportID: item.DamageReportID,
-          bus_no: item.BusID || 'N/A',
+          bus_no: item.RentalBusAssignment?.BusAssignment?.BusID || 'N/A',
           check_date: item.CheckDate,
           battery: item.Battery,
           lights: item.Lights,
@@ -173,6 +173,76 @@ const DamageReportsPage: React.FC = () => {
     return damaged.length > 0 ? damaged.join(', ') : 'No damage reported';
   };
 
+  const handleAccept = async (damageReportId: string) => {
+    const result = await Swal.fire({
+      title: 'Accept Damage Report?',
+      text: 'Are you sure you want to accept this damage report?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Accept',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // TODO: Implement accept API endpoint
+        await Swal.fire({
+          icon: 'success',
+          title: 'Accepted',
+          text: 'Damage report has been accepted.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        // Refresh data after acceptance
+        // You may want to refetch the data here
+      } catch (error) {
+        console.error('Error accepting damage report:', error);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to accept damage report. Please try again.',
+        });
+      }
+    }
+  };
+
+  const handleReject = async (damageReportId: string) => {
+    const result = await Swal.fire({
+      title: 'Reject Damage Report?',
+      text: 'Are you sure you want to reject this damage report?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Reject',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // TODO: Implement reject API endpoint
+        await Swal.fire({
+          icon: 'success',
+          title: 'Rejected',
+          text: 'Damage report has been rejected.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        // Refresh data after rejection
+        // You may want to refetch the data here
+      } catch (error) {
+        console.error('Error rejecting damage report:', error);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to reject damage report. Please try again.',
+        });
+      }
+    }
+  };
+
   return (
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
@@ -215,6 +285,7 @@ const DamageReportsPage: React.FC = () => {
                   <th>Damaged Items</th>
                   <th>Notes</th>
                   <th>Reported By</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,11 +302,29 @@ const DamageReportsPage: React.FC = () => {
                       </td>
                       <td>{record.notes || '—'}</td>
                       <td>{record.createdBy}</td>
+                      <td>
+                        <div className={styles.actionButtons}>
+                          <button 
+                            className={styles.acceptBtn}
+                            onClick={() => handleAccept(record.DamageReportID)}
+                            title="Accept Report"
+                          >
+                            Accept
+                          </button>
+                          <button 
+                            className={styles.rejectBtn}
+                            onClick={() => handleReject(record.DamageReportID)}
+                            title="Reject Report"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className={styles.noRecords}>
+                    <td colSpan={7} className={styles.noRecords}>
                       No damage reports found.
                     </td>
                   </tr>

@@ -126,3 +126,47 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.acceptBtn,
+.rejectBtn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.acceptBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+.acceptBtn:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.rejectBtn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.rejectBtn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.acceptBtn:active,
+.rejectBtn:active {
+  transform: translateY(0);
+}
