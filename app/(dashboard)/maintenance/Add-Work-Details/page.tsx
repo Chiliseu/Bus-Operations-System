@@ -272,6 +272,7 @@ const MaintenancePage: React.FC = () => {
     priority: string;
     startDate: string;
     dueDate: string;
+    assignedTo: string;
   }) => {
     try {
       setLoadingModal(true);
@@ -295,6 +296,7 @@ const MaintenancePage: React.FC = () => {
             scheduledDate: data.startDate,
             dueDate: data.dueDate,
             workNotes: data.workRemarks,
+            assignedTo: data.assignedTo,
             status: 'InProgress', // Update status when work details are added
           }),
         }
@@ -499,7 +501,8 @@ const MaintenancePage: React.FC = () => {
               workRemarks: selectedRecord.workRemarks || '',
               priority: selectedRecord.priority || 'Medium',
               startDate: selectedRecord.start_date || '',
-              dueDate: selectedRecord.due_date || ''
+              dueDate: selectedRecord.due_date || '',
+              assignedTo: selectedRecord.assignedTo || ''
             } : undefined}
           />
         )}

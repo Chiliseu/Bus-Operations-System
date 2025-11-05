@@ -27,6 +27,7 @@ interface AddWorkDetailsModalProps {
     priority: string;
     startDate: string;
     dueDate: string;
+    assignedTo: string;
   }) => Promise<void>;
   isUpdateMode?: boolean;
   existingData?: {
@@ -36,6 +37,7 @@ interface AddWorkDetailsModalProps {
     priority: string;
     startDate: string;
     dueDate: string;
+    assignedTo: string;
   };
 }
 
@@ -52,6 +54,7 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
   const [workTitle, setWorkTitle] = useState('');
   const [workRemarks, setWorkRemarks] = useState('');
   const [priority, setPriority] = useState('Medium');
+  const [assignedTo, setAssignedTo] = useState('');
   const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [saving, setSaving] = useState(false);
@@ -67,6 +70,7 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         setWorkTitle(existingData.workTitle);
         setWorkRemarks(existingData.workRemarks);
         setPriority(existingData.priority);
+        setAssignedTo(existingData.assignedTo || '');
         
         // Convert dates to YYYY-MM-DD format for date inputs
         const formattedStartDate = existingData.startDate 
@@ -89,6 +93,7 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         setWorkTitle('');
         setWorkRemarks('');
         setPriority('Medium');
+        setAssignedTo('');
         setDueDate('');
       }
     }
@@ -127,6 +132,7 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         priority,
         startDate,
         dueDate,
+        assignedTo,
       });
     } catch (err) {
       console.error('Failed to save work details', err);
@@ -223,6 +229,18 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
                   <option value="Emergency">Emergency</option>
                 </select>
               </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Assigned To</label>
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="e.g., John Mechanic"
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                disabled={saving}
+              />
             </div>
 
             <div className={styles.formGroup}>
