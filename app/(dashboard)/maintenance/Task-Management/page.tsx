@@ -326,17 +326,33 @@ const TaskManagementPage: React.FC = () => {
           }}
         />
 
-        {/* View Tasks Modal - Placeholder for now */}
-        {/* {selectedRecord && (
+        {/* View Tasks Modal - Basic view for now */}
+        {selectedRecord && (
           <ViewTasksModal
             show={showViewTasksModal}
             onClose={() => {
               setShowViewTasksModal(false);
               setSelectedRecord(null);
             }}
-            record={selectedRecord}
+            workOrder={{
+              id: parseInt(selectedRecord.id) || 0,
+              work_no: selectedRecord.work_no || '',
+              work_title: selectedRecord.work_title || '',
+              bus_no: selectedRecord.bus_no,
+              priority: selectedRecord.priority || 'Medium',
+              overall_status: selectedRecord.status === 'InProgress' ? 'In Progress' : (selectedRecord.status === 'Completed' ? 'Done' : 'Pending'),
+              tasks: []
+            }}
+            onUpdateTasks={async () => {
+              // Placeholder - to be implemented later
+              console.log('Update tasks - to be implemented');
+            }}
+            onAddTask={async () => {
+              // Placeholder - to be implemented later
+              console.log('Add task - to be implemented');
+            }}
           />
-        )} */}
+        )}
 
         {loadingModal && <LoadingModal />}
       </div>
