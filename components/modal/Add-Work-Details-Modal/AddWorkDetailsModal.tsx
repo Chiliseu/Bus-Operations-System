@@ -17,6 +17,7 @@ interface AddWorkDetailsModalProps {
     engine: boolean;
     tireCondition: boolean;
     notes: string;
+    reportedBy: string;
   };
   busNo: string;
   onSave: (data: {
@@ -24,7 +25,6 @@ interface AddWorkDetailsModalProps {
     workTitle: string;
     workRemarks: string;
     priority: string;
-    reportedBy: string;
     startDate: string;
     dueDate: string;
   }) => Promise<void>;
@@ -34,7 +34,6 @@ interface AddWorkDetailsModalProps {
     workTitle: string;
     workRemarks: string;
     priority: string;
-    reportedBy: string;
     startDate: string;
     dueDate: string;
   };
@@ -53,7 +52,6 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
   const [workTitle, setWorkTitle] = useState('');
   const [workRemarks, setWorkRemarks] = useState('');
   const [priority, setPriority] = useState('Medium');
-  const [reportedBy, setReportedBy] = useState('');
   const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [saving, setSaving] = useState(false);
@@ -69,9 +67,17 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         setWorkTitle(existingData.workTitle);
         setWorkRemarks(existingData.workRemarks);
         setPriority(existingData.priority);
-        setReportedBy(existingData.reportedBy);
-        setStartDate(existingData.startDate);
-        setDueDate(existingData.dueDate);
+        
+        // Convert dates to YYYY-MM-DD format for date inputs
+        const formattedStartDate = existingData.startDate 
+          ? new Date(existingData.startDate).toISOString().split('T')[0]
+          : '';
+        const formattedDueDate = existingData.dueDate 
+          ? new Date(existingData.dueDate).toISOString().split('T')[0]
+          : '';
+        
+        setStartDate(formattedStartDate);
+        setDueDate(formattedDueDate);
       } else {
         // Add mode - generate new work number
         const randomNum = Math.floor(Math.random() * 10000);
@@ -83,7 +89,6 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         setWorkTitle('');
         setWorkRemarks('');
         setPriority('Medium');
-        setReportedBy('');
         setDueDate('');
       }
     }
@@ -100,11 +105,6 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
   const handleSave = async () => {
     if (!workTitle.trim()) {
       alert('Please enter a work title');
-      return;
-    }
-
-    if (!reportedBy.trim()) {
-      alert('Please enter reporter name');
       return;
     }
 
@@ -125,7 +125,6 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
         workTitle,
         workRemarks,
         priority,
-        reportedBy,
         startDate,
         dueDate,
       });
@@ -185,6 +184,12 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
                 <p className={styles.notesText}>{damageReport.notes}</p>
               </div>
             )}
+            
+            <div className={styles.reportedBySection} style={{ marginTop: '12px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+              <p style={{ margin: 0, fontSize: '0.9em', color: '#666' }}>
+                <strong>Reported By:</strong> {damageReport.reportedBy}
+              </p>
+            </div>
           </div>
 
           <hr className={styles.divider} />
@@ -240,18 +245,6 @@ const AddWorkDetailsModal: React.FC<AddWorkDetailsModalProps> = ({
                 value={workRemarks}
                 onChange={(e) => setWorkRemarks(e.target.value)}
                 rows={4}
-                disabled={saving}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Reported By <span className={styles.required}>*</span></label>
-              <input
-                type="text"
-                className={styles.input}
-                placeholder="Enter staff name"
-                value={reportedBy}
-                onChange={(e) => setReportedBy(e.target.value)}
                 disabled={saving}
               />
             </div>

@@ -270,7 +270,6 @@ const MaintenancePage: React.FC = () => {
     workTitle: string;
     workRemarks: string;
     priority: string;
-    reportedBy: string;
     startDate: string;
     dueDate: string;
   }) => {
@@ -499,7 +498,6 @@ const MaintenancePage: React.FC = () => {
               workTitle: selectedRecord.work_title || '',
               workRemarks: selectedRecord.workRemarks || '',
               priority: selectedRecord.priority || 'Medium',
-              reportedBy: selectedRecord.reportedBy || '',
               startDate: selectedRecord.start_date || '',
               dueDate: selectedRecord.due_date || ''
             } : undefined}
