@@ -40,6 +40,7 @@ const DamageReportsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'Pending' | 'Accepted' | 'Rejected'>('Pending');
 
   const filterSections: FilterSection[] = [
     {
@@ -54,26 +55,12 @@ const DamageReportsPage: React.FC = () => {
       ],
       defaultValue: 'date_newest'
     },
-    {
-      id: 'statusFilter',
-      title: 'Filter by Status',
-      type: 'radio',
-      options: [
-        { id: 'all', label: 'All Statuses' },
-        { id: 'Pending', label: 'Pending Review' },
-        { id: 'Accepted', label: 'Accepted' },
-        { id: 'Rejected', label: 'Rejected' },
-      ],
-      defaultValue: 'all'
-    },
   ];
 
   const [activeFilters, setActiveFilters] = useState<{
     sortBy: string;
-    statusFilter?: string;
   }>({
     sortBy: 'date_newest',
-    statusFilter: 'all'
   });
 
   useEffect(() => {
@@ -129,12 +116,14 @@ const DamageReportsPage: React.FC = () => {
   const handleApplyFilters = (filterValues: Record<string, any>) => {
     setActiveFilters({
       sortBy: filterValues.sortBy || 'date_newest',
-      statusFilter: filterValues.statusFilter || 'all',
     });
   };
 
   useEffect(() => {
     let filtered = [...damageReports];
+
+    // Tab filter (status)
+    filtered = filtered.filter(record => record.status === activeTab);
 
     // Search filter
     if (searchQuery) {
@@ -146,10 +135,10 @@ const DamageReportsPage: React.FC = () => {
       );
     }
 
-    // Status filter
-    if (activeFilters.statusFilter && activeFilters.statusFilter !== 'all') {
-      filtered = filtered.filter(record => record.status === activeFilters.statusFilter);
-    }
+    // Status filter (removed since we're using tabs now)
+    // if (activeFilters.statusFilter && activeFilters.statusFilter !== 'all') {
+    //   filtered = filtered.filter(record => record.status === activeFilters.statusFilter);
+    // }
 
     // Sorting
     switch (activeFilters.sortBy) {
@@ -173,7 +162,7 @@ const DamageReportsPage: React.FC = () => {
     const endIndex = startIndex + pageSize;
     setDisplayedData(filtered.slice(startIndex, endIndex));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [damageReports, searchQuery, activeFilters, currentPage, pageSize]);
+  }, [damageReports, searchQuery, activeFilters, currentPage, pageSize, activeTab]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -331,6 +320,46 @@ const DamageReportsPage: React.FC = () => {
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Damage Reports</h2>
+
+        {/* Tab Navigation */}
+        <div className={styles.tabContainer}>
+          <button
+            className={`${styles.tab} ${activeTab === 'Pending' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Pending');
+              setCurrentPage(1);
+            }}
+          >
+            Pending
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Pending').length}
+            </span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'Accepted' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Accepted');
+              setCurrentPage(1);
+            }}
+          >
+            Accepted
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Accepted').length}
+            </span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'Rejected' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Rejected');
+              setCurrentPage(1);
+            }}
+          >
+            Rejected
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Rejected').length}
+            </span>
+          </button>
+        </div>
 
         <div className={styles.toolbar}>
           <div className={styles.searchWrapper}>
