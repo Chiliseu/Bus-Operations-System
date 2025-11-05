@@ -60,7 +60,6 @@ const DamageReportsPage: React.FC = () => {
       type: 'radio',
       options: [
         { id: 'all', label: 'All Statuses' },
-        { id: 'NA', label: 'N/A (No Damage)' },
         { id: 'Pending', label: 'Pending Review' },
         { id: 'Accepted', label: 'Accepted' },
         { id: 'Rejected', label: 'Rejected' },
