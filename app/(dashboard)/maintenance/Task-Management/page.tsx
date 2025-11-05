@@ -105,7 +105,7 @@ const TaskManagementPage: React.FC = () => {
       // Transform API data to match frontend interface
       const transformedData: MaintenanceRecord[] = data.map((item: any) => ({
         id: item.MaintenanceWorkID,
-        work_no: item.MaintenanceWorkID,
+        work_no: item.WorkNo,
         work_title: item.WorkTitle || '',
         bus_no: item.BusID,
         priority: item.Priority,

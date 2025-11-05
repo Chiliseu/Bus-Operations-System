@@ -126,7 +126,7 @@ const MaintenancePage: React.FC = () => {
       // Transform API data to match frontend interface
       const transformedData: MaintenanceRecord[] = data.map((item: any, index: number) => ({
         id: item.MaintenanceWorkID, // Use actual ID instead of index
-        work_no: item.MaintenanceWorkID,
+        work_no: item.WorkNo,
         work_title: item.WorkTitle || '', // New field from schema
         bus_no: item.BusID,
         priority: item.Priority,
