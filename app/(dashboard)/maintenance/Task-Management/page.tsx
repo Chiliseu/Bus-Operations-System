@@ -12,6 +12,7 @@ import type { FilterSection } from '@/shared/imports';
 
 const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
 const MAINTENANCE_WORK_URL = `${BASE_URL}/api/maintenance-work`;
+const TASKS_URL = `${BASE_URL}/api/tasks`;
 
 interface MaintenanceRecord {
   id: string;
@@ -204,9 +205,117 @@ const TaskManagementPage: React.FC = () => {
     }
   };
 
-  const handleViewTasks = (record: MaintenanceRecord) => {
+  const handleViewTasks = async (record: MaintenanceRecord) => {
     setSelectedRecord(record);
     setShowViewTasksModal(true);
+  };
+
+  const handleUpdateTasks = async (tasks: any[]) => {
+    if (!selectedRecord) return;
+
+    try {
+      setLoadingModal(true);
+
+      // Separate new tasks from existing tasks
+      const newTasks = tasks.filter(task => task.isNew);
+      const existingTasks = tasks.filter(task => !task.isNew && task.id);
+
+      console.log('Selected Record ID:', selectedRecord.id);
+      console.log('New tasks to create:', newTasks);
+      console.log('Existing tasks to update:', existingTasks);
+
+      // Create new tasks in batch
+      if (newTasks.length > 0) {
+        const tasksToCreate = newTasks.map(task => ({
+          taskName: task.task_name,
+          taskType: task.task_type,
+          taskDescription: task.task_description,
+          assignee: task.assignee,
+          status: task.status,
+          priority: task.priority,
+          estimatedHours: task.estimated_hours
+        }));
+
+        console.log('Creating tasks with payload:', {
+          maintenanceWorkId: selectedRecord.id,
+          tasks: tasksToCreate
+        });
+
+        const createResponse = await fetch(TASKS_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            maintenanceWorkId: selectedRecord.id,
+            tasks: tasksToCreate
+          }),
+        });
+
+        console.log('Create response status:', createResponse.status);
+        
+        if (!createResponse.ok) {
+          const errorData = await createResponse.json();
+          console.error('Create error response:', errorData);
+          throw new Error(errorData.error || 'Failed to create tasks');
+        }
+
+        const createResult = await createResponse.json();
+        console.log('Tasks created successfully:', createResult);
+      }
+
+      // Update existing tasks
+      for (const task of existingTasks) {
+        const updateResponse = await fetch(`${TASKS_URL}?taskId=${task.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            taskName: task.task_name,
+            taskType: task.task_type,
+            taskDescription: task.task_description,
+            assignedTo: task.assignee,
+            status: task.status,
+            priority: task.priority,
+            estimatedHours: task.estimated_hours
+          }),
+        });
+
+        if (!updateResponse.ok) {
+          throw new Error(`Failed to update task ${task.id}`);
+        }
+      }
+
+      // Refresh maintenance data
+      await fetchMaintenanceWorks();
+
+      setLoadingModal(false);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Tasks saved successfully!',
+      });
+
+      setShowViewTasksModal(false);
+      setSelectedRecord(null);
+    } catch (error) {
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Failed to save tasks. Please try again.',
+      });
+    }
+  };
+
+  const handleAddTask = async (task: any) => {
+    // This is called when adding a single task immediately
+    // For now, we'll just return as we're using batch save
+    console.log('Add task called:', task);
   };
 
   return (
@@ -326,7 +435,7 @@ const TaskManagementPage: React.FC = () => {
           }}
         />
 
-        {/* View Tasks Modal - Basic view for now */}
+        {/* View Tasks Modal - Fully functional */}
         {selectedRecord && (
           <ViewTasksModal
             show={showViewTasksModal}
@@ -341,16 +450,11 @@ const TaskManagementPage: React.FC = () => {
               bus_no: selectedRecord.bus_no,
               priority: selectedRecord.priority || 'Medium',
               overall_status: selectedRecord.status === 'InProgress' ? 'In Progress' : (selectedRecord.status === 'Completed' ? 'Done' : 'Pending'),
-              tasks: []
+              tasks: [], // Tasks will be fetched in the modal
+              maintenanceWorkId: selectedRecord.id // Pass the actual ID
             }}
-            onUpdateTasks={async () => {
-              // Placeholder - to be implemented later
-              console.log('Update tasks - to be implemented');
-            }}
-            onAddTask={async () => {
-              // Placeholder - to be implemented later
-              console.log('Add task - to be implemented');
-            }}
+            onUpdateTasks={handleUpdateTasks}
+            onAddTask={handleAddTask}
           />
         )}
 
