@@ -3,13 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import styles from './view-task-modal.module.css';
 
+const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
+const TASKS_URL = `${BASE_URL}/api/tasks`;
+
 interface Task {
-  id: number;
-  task_no: string;
+  id?: string; // Optional because new tasks don't have IDs yet
+  task_no?: string;
   task_name: string;
-  task_type: 'General' | 'Repair';
+  task_type: string;
+  task_description?: string;
   assignee: string;
-  status: 'Pending' | 'In Progress' | 'Done';
+  status: 'Pending' | 'InProgress' | 'Completed';
+  priority?: string;
+  estimated_hours?: number;
+  isNew?: boolean; // Flag for newly added tasks not yet saved
 }
 
 interface WorkOrder {
@@ -20,6 +27,7 @@ interface WorkOrder {
   priority: string;
   overall_status: 'Pending' | 'In Progress' | 'Done';
   tasks: Task[];
+  maintenanceWorkId?: string; // Add this to pass the actual ID
 }
 
 interface ViewTasksModalProps {
@@ -41,24 +49,73 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);
   const [newTask, setNewTask] = useState({
     task_name: '',
-    task_type: 'General' as 'General' | 'Repair',
+    task_type: 'General',
+    task_description: '',
     assignee: '',
-    status: 'Pending' as 'Pending' | 'In Progress' | 'Done'
+    status: 'Pending' as 'Pending' | 'InProgress' | 'Completed',
+    priority: '',
+    estimated_hours: undefined as number | undefined
   });
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState<string>(
     new Date().toLocaleString('en-US', { hour12: true })
   );
 
+  // Fetch tasks when modal opens
+  const fetchTasks = async () => {
+    // Use maintenanceWorkId if provided, otherwise use work_no
+    const maintenanceWorkId = workOrder.maintenanceWorkId || workOrder.work_no;
+    
+    if (!maintenanceWorkId) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${TASKS_URL}?maintenanceWorkId=${maintenanceWorkId}`, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const data = await response.json();
+
+      // Transform API data to match frontend interface
+      const transformedTasks: Task[] = data.map((task: any) => ({
+        id: task.TaskID,
+        task_no: task.TaskNumber,
+        task_name: task.TaskName,
+        task_type: task.TaskType || 'General',
+        task_description: task.TaskDescription,
+        assignee: task.AssignedTo || '',
+        status: task.Status,
+        priority: task.Priority,
+        estimated_hours: task.EstimatedHours,
+        isNew: false // Existing tasks from DB
+      }));
+
+      setTasks(transformedTasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      // Don't show error, just log it - user can still add tasks
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (show) {
-      setTasks([...workOrder.tasks]);
+      fetchTasks(); // Fetch tasks from API
       setShowAddTaskForm(false);
       setNewTask({
         task_name: '',
         task_type: 'General',
+        task_description: '',
         assignee: '',
-        status: 'Pending'
+        status: 'Pending',
+        priority: workOrder.priority || '', // Inherit from work order
+        estimated_hours: undefined
       });
     }
   }, [show, workOrder]);
@@ -71,10 +128,15 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
     return () => clearInterval(interval);
   }, [show]);
 
-  const handleTaskStatusChange = (taskId: number, newStatus: 'Pending' | 'In Progress' | 'Done') => {
-    const updatedTasks = tasks.map(task =>
-      task.id === taskId ? { ...task, status: newStatus } : task
+  const handleTaskStatusChange = (taskIndex: number, newStatus: 'Pending' | 'InProgress' | 'Completed') => {
+    const updatedTasks = tasks.map((task, index) =>
+      index === taskIndex ? { ...task, status: newStatus } : task
     );
+    setTasks(updatedTasks);
+  };
+
+  const handleDeleteTask = (taskIndex: number) => {
+    const updatedTasks = tasks.filter((_, index) => index !== taskIndex);
     setTasks(updatedTasks);
   };
 
@@ -87,25 +149,41 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
     }
   };
 
-  const handleAddNewTask = async () => {
+  const handleAddNewTask = () => {
     if (!newTask.task_name.trim() || !newTask.assignee.trim()) {
-      alert('Please fill in all required fields');
+      alert('Please fill in Task Name and Assignee');
       return;
     }
 
-    setSaving(true);
-    try {
-      await onAddTask(newTask);
-      setShowAddTaskForm(false);
-      setNewTask({
-        task_name: '',
-        task_type: 'General',
-        assignee: '',
-        status: 'Pending'
-      });
-    } finally {
-      setSaving(false);
-    }
+    // Generate temporary task number for display
+    const taskNumber = `${workOrder.work_no}-T-${String(tasks.length + 1).padStart(3, '0')}`;
+
+    const taskToAdd: Task = {
+      task_no: taskNumber,
+      task_name: newTask.task_name,
+      task_type: newTask.task_type,
+      task_description: newTask.task_description || undefined,
+      assignee: newTask.assignee,
+      status: newTask.status,
+      priority: newTask.priority || undefined,
+      estimated_hours: newTask.estimated_hours,
+      isNew: true // Flag to indicate this task hasn't been saved to DB yet
+    };
+
+    setTasks([...tasks, taskToAdd]);
+    
+    // Reset form
+    setNewTask({
+      task_name: '',
+      task_type: 'General',
+      task_description: '',
+      assignee: '',
+      status: 'Pending',
+      priority: workOrder.priority || '',
+      estimated_hours: undefined
+    });
+    
+    setShowAddTaskForm(false);
   };
 
   if (!show) return null;
@@ -165,7 +243,7 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                     <input
                       type="text"
                       className={styles.input}
-                      placeholder="e.g., Replace tire"
+                      placeholder="e.g., Replace brake pads"
                       value={newTask.task_name}
                       onChange={(e) => setNewTask({ ...newTask, task_name: e.target.value })}
                       disabled={saving}
@@ -177,11 +255,14 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                     <select
                       className={styles.select}
                       value={newTask.task_type}
-                      onChange={(e) => setNewTask({ ...newTask, task_type: e.target.value as 'General' | 'Repair' })}
+                      onChange={(e) => setNewTask({ ...newTask, task_type: e.target.value })}
                       disabled={saving}
                     >
                       <option value="General">General</option>
                       <option value="Repair">Repair</option>
+                      <option value="Inspection">Inspection</option>
+                      <option value="Replacement">Replacement</option>
+                      <option value="Testing">Testing</option>
                     </select>
                   </div>
                 </div>
@@ -200,18 +281,62 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.label}>Status <span className={styles.required}>*</span></label>
+                    <label className={styles.label}>Priority</label>
+                    <select
+                      className={styles.select}
+                      value={newTask.priority}
+                      onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                      disabled={saving}
+                    >
+                      <option value="">Same as work order</option>
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                      <option value="Critical">Critical</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Status</label>
                     <select
                       className={styles.select}
                       value={newTask.status}
-                      onChange={(e) => setNewTask({ ...newTask, status: e.target.value as 'Pending' | 'In Progress' | 'Done' })}
+                      onChange={(e) => setNewTask({ ...newTask, status: e.target.value as 'Pending' | 'InProgress' | 'Completed' })}
                       disabled={saving}
                     >
                       <option value="Pending">Pending</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Done">Done</option>
+                      <option value="InProgress">In Progress</option>
+                      <option value="Completed">Completed</option>
                     </select>
                   </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Estimated Hours</label>
+                    <input
+                      type="number"
+                      className={styles.input}
+                      placeholder="e.g., 2.5"
+                      step="0.5"
+                      min="0"
+                      value={newTask.estimated_hours || ''}
+                      onChange={(e) => setNewTask({ ...newTask, estimated_hours: e.target.value ? parseFloat(e.target.value) : undefined })}
+                      disabled={saving}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Task Description</label>
+                  <textarea
+                    className={styles.textarea}
+                    placeholder="Additional details about this task..."
+                    value={newTask.task_description}
+                    onChange={(e) => setNewTask({ ...newTask, task_description: e.target.value })}
+                    rows={3}
+                    disabled={saving}
+                  />
                 </div>
 
                 <button
@@ -219,7 +344,7 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                   onClick={handleAddNewTask}
                   disabled={saving}
                 >
-                  {saving ? 'Adding...' : 'Add Task'}
+                  Add Task to List
                 </button>
               </div>
             )}
@@ -234,14 +359,18 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                     <th>Type</th>
                     <th>Assignee</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tasks.length > 0 ? (
-                    tasks.map((task) => (
-                      <tr key={task.id}>
-                        <td>{task.task_no}</td>
-                        <td>{task.task_name}</td>
+                    tasks.map((task, index) => (
+                      <tr key={index} className={task.isNew ? styles.newTaskRow : ''}>
+                        <td>{task.task_no || '—'}</td>
+                        <td>
+                          {task.task_name}
+                          {task.isNew && <span className={styles.newBadge}>New</span>}
+                        </td>
                         <td>
                           <span className={task.task_type === 'Repair' ? styles.typeRepair : styles.typeGeneral}>
                             {task.task_type}
@@ -252,21 +381,31 @@ const ViewTasksModal: React.FC<ViewTasksModalProps> = ({
                           <select
                             className={styles.statusSelect}
                             value={task.status}
-                            onChange={(e) => handleTaskStatusChange(task.id, e.target.value as 'Pending' | 'In Progress' | 'Done')}
+                            onChange={(e) => handleTaskStatusChange(index, e.target.value as 'Pending' | 'InProgress' | 'Completed')}
                             disabled={saving}
                           >
                             <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Done">Done</option>
+                            <option value="InProgress">In Progress</option>
+                            <option value="Completed">Completed</option>
                           </select>
+                        </td>
+                        <td>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDeleteTask(index)}
+                            disabled={saving}
+                            title="Delete task"
+                          >
+                            ✕
+                          </button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className={styles.noTasks}>
+                      <td colSpan={6} className={styles.noTasks}>
                         No tasks added yet. Click &quot;Add Task&quot; to create one.
-                        </td>
+                      </td>
                     </tr>
                   )}
                 </tbody>

@@ -29,7 +29,7 @@ interface DamageReport {
   tireCondition: boolean;
   notes: string;
   createdBy: string;
-  status: 'Pending' | 'Accepted' | 'Rejected';
+  status: 'NA' | 'Pending' | 'Accepted' | 'Rejected';
 }
 
 const DamageReportsPage: React.FC = () => {
@@ -40,6 +40,7 @@ const DamageReportsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'Pending' | 'Accepted' | 'Rejected'>('Pending');
 
   const filterSections: FilterSection[] = [
     {
@@ -59,7 +60,7 @@ const DamageReportsPage: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<{
     sortBy: string;
   }>({
-    sortBy: 'date_newest'
+    sortBy: 'date_newest',
   });
 
   useEffect(() => {
@@ -121,6 +122,9 @@ const DamageReportsPage: React.FC = () => {
   useEffect(() => {
     let filtered = [...damageReports];
 
+    // Tab filter (status)
+    filtered = filtered.filter(record => record.status === activeTab);
+
     // Search filter
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
@@ -130,6 +134,11 @@ const DamageReportsPage: React.FC = () => {
         record.DamageReportID.toLowerCase().includes(lower)
       );
     }
+
+    // Status filter (removed since we're using tabs now)
+    // if (activeFilters.statusFilter && activeFilters.statusFilter !== 'all') {
+    //   filtered = filtered.filter(record => record.status === activeFilters.statusFilter);
+    // }
 
     // Sorting
     switch (activeFilters.sortBy) {
@@ -153,7 +162,7 @@ const DamageReportsPage: React.FC = () => {
     const endIndex = startIndex + pageSize;
     setDisplayedData(filtered.slice(startIndex, endIndex));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [damageReports, searchQuery, activeFilters, currentPage, pageSize]);
+  }, [damageReports, searchQuery, activeFilters, currentPage, pageSize, activeTab]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -178,6 +187,8 @@ const DamageReportsPage: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'NA':
+        return <span className={styles.statusNA}>N/A</span>;
       case 'Accepted':
         return <span className={styles.statusAccepted}>Accepted</span>;
       case 'Rejected':
@@ -310,6 +321,46 @@ const DamageReportsPage: React.FC = () => {
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Damage Reports</h2>
 
+        {/* Tab Navigation */}
+        <div className={styles.tabContainer}>
+          <button
+            className={`${styles.tab} ${activeTab === 'Pending' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Pending');
+              setCurrentPage(1);
+            }}
+          >
+            Pending
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Pending').length}
+            </span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'Accepted' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Accepted');
+              setCurrentPage(1);
+            }}
+          >
+            Accepted
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Accepted').length}
+            </span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'Rejected' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('Rejected');
+              setCurrentPage(1);
+            }}
+          >
+            Rejected
+            <span className={styles.tabBadge}>
+              {damageReports.filter(r => r.status === 'Rejected').length}
+            </span>
+          </button>
+        </div>
+
         <div className={styles.toolbar}>
           <div className={styles.searchWrapper}>
             <i className="ri-search-2-line"></i>
@@ -368,22 +419,28 @@ const DamageReportsPage: React.FC = () => {
                       <td>{getStatusBadge(record.status)}</td>
                       <td>
                         <div className={styles.actionButtons}>
-                          <button 
-                            className={styles.acceptBtn}
-                            onClick={() => handleAccept(record.DamageReportID)}
-                            title="Accept Report"
-                            disabled={record.status !== 'Pending'}
-                          >
-                            Accept
-                          </button>
-                          <button 
-                            className={styles.rejectBtn}
-                            onClick={() => handleReject(record.DamageReportID)}
-                            title="Reject Report"
-                            disabled={record.status !== 'Pending'}
-                          >
-                            Reject
-                          </button>
+                          {record.status === 'NA' ? (
+                            <span className={styles.noActionNeeded}>No Action Needed</span>
+                          ) : (
+                            <>
+                              <button 
+                                className={styles.acceptBtn}
+                                onClick={() => handleAccept(record.DamageReportID)}
+                                title="Accept Report"
+                                disabled={record.status !== 'Pending'}
+                              >
+                                Accept
+                              </button>
+                              <button 
+                                className={styles.rejectBtn}
+                                onClick={() => handleReject(record.DamageReportID)}
+                                title="Reject Report"
+                                disabled={record.status !== 'Pending'}
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

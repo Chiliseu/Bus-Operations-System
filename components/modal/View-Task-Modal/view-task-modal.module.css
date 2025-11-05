@@ -583,3 +583,66 @@
 .tasksTableWrapper::-webkit-scrollbar-thumb:hover {
   background: #7a1517;
 }
+
+/* === New Task Styles === */
+.newTaskRow {
+  background-color: #fff9e6;
+}
+
+.newBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background-color: #ffc107;
+  color: #000;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.deleteBtn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.deleteBtn:hover {
+  background-color: #c82333;
+}
+
+.deleteBtn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #961c1e;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: #666;
+  font-size: 14px;
+}
