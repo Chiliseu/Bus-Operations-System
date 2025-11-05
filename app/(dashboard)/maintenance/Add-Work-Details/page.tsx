@@ -54,6 +54,7 @@ const MaintenancePage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'with-details' | 'without-details'>('without-details');
   const [activeFilters, setActiveFilters] = useState<{
     sortBy: string;
     priorityFilter?: string;
@@ -180,8 +181,21 @@ const MaintenancePage: React.FC = () => {
     });
   };
 
+  // Calculate counts for each tab
+  const workWithDetailsCount = maintenanceData.filter(record => record.work_title && record.due_date).length;
+  const workWithoutDetailsCount = maintenanceData.filter(record => !record.work_title || !record.due_date).length;
+
   useEffect(() => {
     let filtered = [...maintenanceData];
+
+    // Tab filter - separate records by whether they have user-defined details
+    if (activeTab === 'with-details') {
+      // Work that has user-defined details (work_title and due_date)
+      filtered = filtered.filter(record => record.work_title && record.due_date);
+    } else {
+      // Work that doesn't have user-defined details yet
+      filtered = filtered.filter(record => !record.work_title || !record.due_date);
+    }
 
     // Search filter
     if (searchQuery) {
@@ -239,7 +253,7 @@ const MaintenancePage: React.FC = () => {
     const endIndex = startIndex + pageSize;
     setDisplayedData(filtered.slice(startIndex, endIndex));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [maintenanceData, searchQuery, activeFilters, currentPage, pageSize]);
+  }, [maintenanceData, searchQuery, activeFilters, activeTab, currentPage, pageSize]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -335,6 +349,30 @@ const MaintenancePage: React.FC = () => {
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Maintenance Work Details</h2>
+
+        {/* Tab Navigation */}
+        <div className={styles.tabContainer}>
+          <button
+            className={`${styles.tab} ${activeTab === 'without-details' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('without-details');
+              setCurrentPage(1);
+            }}
+          >
+            Work without Details
+            <span className={styles.tabBadge}>{workWithoutDetailsCount}</span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'with-details' ? styles.activeTab : ''}`}
+            onClick={() => {
+              setActiveTab('with-details');
+              setCurrentPage(1);
+            }}
+          >
+            Work with Details
+            <span className={styles.tabBadge}>{workWithDetailsCount}</span>
+          </button>
+        </div>
 
         <div className={styles.toolbar}>
           <div className={styles.searchWrapper}>
