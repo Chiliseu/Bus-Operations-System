@@ -495,7 +495,7 @@ const MaintenancePage: React.FC = () => {
             busNo={selectedRecord.bus_no}
             onSave={handleSaveWorkDetails}
             isUpdateMode={isUpdateMode}
-            existingData={isUpdateMode ? {
+            existingData={{
               workNo: selectedRecord.work_no || '',
               workTitle: selectedRecord.work_title || '',
               workRemarks: selectedRecord.workRemarks || '',
@@ -503,7 +503,7 @@ const MaintenancePage: React.FC = () => {
               startDate: selectedRecord.start_date || '',
               dueDate: selectedRecord.due_date || '',
               assignedTo: selectedRecord.assignedTo || ''
-            } : undefined}
+            }}
           />
         )}
 
