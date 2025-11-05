@@ -10,29 +10,28 @@ import ViewTasksModal from '@/components/modal/View-Task-Modal/ViewTasksModal';
 import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
-interface Task {
-  id: number;
-  task_no: string;
-  task_name: string;
-  task_type: 'General' | 'Repair';
-  assignee: string;
-  status: 'Pending' | 'In Progress' | 'Done';
-}
+const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
+const MAINTENANCE_WORK_URL = `${BASE_URL}/api/maintenance-work`;
 
-interface WorkOrder {
-  id: number;
-  work_no: string;
-  work_title: string;
+interface MaintenanceRecord {
+  id: string;
+  work_no?: string;
+  work_title?: string;
   bus_no: string;
-  priority: string;
-  overall_status: 'Pending' | 'In Progress' | 'Done';
-  tasks: Task[];
+  priority?: string;
+  start_date?: string;
+  due_date?: string;
+  status?: string;
+  assignedTo?: string;
+  workRemarks?: string;
+  estimatedCost?: number;
+  actualCost?: number;
 }
 
 const TaskManagementPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [workOrderData, setWorkOrderData] = useState<WorkOrder[]>([]);
-  const [displayedData, setDisplayedData] = useState<WorkOrder[]>([]);
+  const [maintenanceData, setMaintenanceData] = useState<MaintenanceRecord[]>([]);
+  const [displayedData, setDisplayedData] = useState<MaintenanceRecord[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [pageSize, setPageSize] = useState(10);
@@ -48,7 +47,7 @@ const TaskManagementPage: React.FC = () => {
 
   // Modal states
   const [showViewTasksModal, setShowViewTasksModal] = useState(false);
-  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<MaintenanceRecord | null>(null);
 
   const filterSections: FilterSection[] = [
     {
@@ -88,119 +87,51 @@ const TaskManagementPage: React.FC = () => {
     }
   ];
 
-  // Sample data with work orders and tasks
-  const sampleData: WorkOrder[] = [
-    {
-      id: 1,
-      work_no: 'WRK-001',
-      work_title: 'Engine Oil Change',
-      bus_no: 'BUS-101',
-      priority: 'High',
-      overall_status: 'Done',
-      tasks: [
-        {
-          id: 1,
-          task_no: 'TSK-001-1',
-          task_name: 'Drain old engine oil',
-          task_type: 'General',
-          assignee: 'John Mechanic',
-          status: 'Done'
-        },
-        {
-          id: 2,
-          task_no: 'TSK-001-2',
-          task_name: 'Replace oil filter',
-          task_type: 'Repair',
-          assignee: 'John Mechanic',
-          status: 'Done'
-        },
-        {
-          id: 3,
-          task_no: 'TSK-001-3',
-          task_name: 'Add new engine oil',
-          task_type: 'General',
-          assignee: 'John Mechanic',
-          status: 'Done'
-        }
-      ]
-    },
-    {
-      id: 2,
-      work_no: 'WRK-002',
-      work_title: 'Brake Inspection',
-      bus_no: 'BUS-102',
-      priority: 'High',
-      overall_status: 'In Progress',
-      tasks: [
-        {
-          id: 4,
-          task_no: 'TSK-002-1',
-          task_name: 'Inspect brake pads',
-          task_type: 'General',
-          assignee: 'Jane Smith',
-          status: 'Done'
-        },
-        {
-          id: 5,
-          task_no: 'TSK-002-2',
-          task_name: 'Replace worn brake pads',
-          task_type: 'Repair',
-          assignee: 'Jane Smith',
-          status: 'In Progress'
-        },
-        {
-          id: 6,
-          task_no: 'TSK-002-3',
-          task_name: 'Test brake system',
-          task_type: 'General',
-          assignee: 'Jane Smith',
-          status: 'Pending'
-        }
-      ]
-    },
-    {
-      id: 3,
-      work_no: 'WRK-005',
-      work_title: 'Battery Replacement',
-      bus_no: 'BUS-105',
-      priority: 'High',
-      overall_status: 'In Progress',
-      tasks: [
-        {
-          id: 7,
-          task_no: 'TSK-005-1',
-          task_name: 'Remove old battery',
-          task_type: 'General',
-          assignee: 'Mike Johnson',
-          status: 'Done'
-        },
-        {
-          id: 8,
-          task_no: 'TSK-005-2',
-          task_name: 'Install new battery',
-          task_type: 'Repair',
-          assignee: 'Mike Johnson',
-          status: 'In Progress'
-        },
-        {
-          id: 9,
-          task_no: 'TSK-005-3',
-          task_name: 'Check alternator',
-          task_type: 'General',
-          assignee: 'Mike Johnson',
-          status: 'Pending'
-        }
-      ]
+  // Fetch maintenance works function
+  const fetchMaintenanceWorks = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(MAINTENANCE_WORK_URL, {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch maintenance works');
+      }
+
+      const data = await response.json();
+
+      // Transform API data to match frontend interface
+      const transformedData: MaintenanceRecord[] = data.map((item: any) => ({
+        id: item.MaintenanceWorkID,
+        work_no: item.MaintenanceWorkID,
+        work_title: item.WorkTitle || '',
+        bus_no: item.BusID,
+        priority: item.Priority,
+        start_date: item.ScheduledDate || item.CreatedAt,
+        due_date: item.DueDate || '',
+        status: item.Status,
+        assignedTo: item.AssignedTo || '',
+        workRemarks: item.WorkNotes || '',
+        estimatedCost: item.EstimatedCost,
+        actualCost: item.ActualCost
+      }));
+
+      setMaintenanceData(transformedData);
+    } catch (error) {
+      console.error('Error fetching maintenance works:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load maintenance works. Please try again.',
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setWorkOrderData(sampleData);
-      setLoading(false);
-    }, 500);
+    fetchMaintenanceWorks();
   }, []);
 
   const handleApplyFilters = (filterValues: Record<string, any>) => {
@@ -212,43 +143,44 @@ const TaskManagementPage: React.FC = () => {
   };
 
   useEffect(() => {
-    let filtered = [...workOrderData];
+    let filtered = [...maintenanceData];
 
     // Search filter
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.work_no.toLowerCase().includes(lower) ||
-        order.work_title.toLowerCase().includes(lower) ||
-        order.bus_no.toLowerCase().includes(lower) ||
-        order.priority.toLowerCase().includes(lower) ||
-        order.overall_status.toLowerCase().includes(lower)
+      filtered = filtered.filter(record =>
+        record.work_no?.toLowerCase().includes(lower) ||
+        record.work_title?.toLowerCase().includes(lower) ||
+        record.bus_no.toLowerCase().includes(lower) ||
+        record.priority?.toLowerCase().includes(lower) ||
+        record.status?.toLowerCase().includes(lower) ||
+        record.assignedTo?.toLowerCase().includes(lower)
       );
     }
 
     // Priority filter
     if (activeFilters.priorityFilter) {
-      filtered = filtered.filter(order => order.priority === activeFilters.priorityFilter);
+      filtered = filtered.filter(record => record.priority === activeFilters.priorityFilter);
     }
 
     // Status filter
     if (activeFilters.statusFilter) {
-      filtered = filtered.filter(order => order.overall_status === activeFilters.statusFilter);
+      filtered = filtered.filter(record => record.status === activeFilters.statusFilter);
     }
 
     // Sorting
     switch (activeFilters.sortBy) {
       case 'work_no_asc':
-        filtered.sort((a, b) => a.work_no.localeCompare(b.work_no));
+        filtered.sort((a, b) => (a.work_no || '').localeCompare(b.work_no || ''));
         break;
       case 'work_no_desc':
-        filtered.sort((a, b) => b.work_no.localeCompare(a.work_no));
+        filtered.sort((a, b) => (b.work_no || '').localeCompare(a.work_no || ''));
         break;
       case 'work_title_asc':
-        filtered.sort((a, b) => a.work_title.localeCompare(b.work_title));
+        filtered.sort((a, b) => (a.work_title || '').localeCompare(b.work_title || ''));
         break;
       case 'work_title_desc':
-        filtered.sort((a, b) => b.work_title.localeCompare(a.work_title));
+        filtered.sort((a, b) => (b.work_title || '').localeCompare(a.work_title || ''));
         break;
       case 'bus_no_asc':
         filtered.sort((a, b) => a.bus_no.localeCompare(b.bus_no));
@@ -264,7 +196,7 @@ const TaskManagementPage: React.FC = () => {
     const endIndex = startIndex + pageSize;
     setDisplayedData(filtered.slice(startIndex, endIndex));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [workOrderData, searchQuery, activeFilters, currentPage, pageSize]);
+  }, [maintenanceData, searchQuery, activeFilters, currentPage, pageSize]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -272,123 +204,9 @@ const TaskManagementPage: React.FC = () => {
     }
   };
 
-  const handleViewTasks = (workOrder: WorkOrder) => {
-    setSelectedWorkOrder(workOrder);
+  const handleViewTasks = (record: MaintenanceRecord) => {
+    setSelectedRecord(record);
     setShowViewTasksModal(true);
-  };
-
-  const handleUpdateTasks = async (updatedTasks: Task[]) => {
-    try {
-      setLoadingModal(true);
-
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Check if all tasks are done
-      const allTasksDone = updatedTasks.every(task => task.status === 'Done');
-      const newOverallStatus: 'Pending' | 'In Progress' | 'Done' = allTasksDone 
-        ? 'Done' 
-        : updatedTasks.some(task => task.status === 'In Progress') 
-        ? 'In Progress' 
-        : 'Pending';
-
-      // Update work order with new tasks and status
-      const updatedData = workOrderData.map(order => {
-        if (order.id === selectedWorkOrder?.id) {
-          return {
-            ...order,
-            tasks: updatedTasks,
-            overall_status: newOverallStatus
-          };
-        }
-        return order;
-      });
-
-      setWorkOrderData(updatedData);
-      setLoadingModal(false);
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: allTasksDone 
-          ? 'All tasks completed! Work order marked as Done.' 
-          : 'Tasks updated successfully!',
-      });
-
-      setShowViewTasksModal(false);
-      setSelectedWorkOrder(null);
-    } catch (error) {
-      setLoadingModal(false);
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update tasks. Please try again.',
-      });
-    }
-  };
-
-  const handleAddTask = async (newTask: Omit<Task, 'id' | 'task_no'>) => {
-    if (!selectedWorkOrder) return;
-
-    try {
-      setLoadingModal(true);
-
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Generate new task number
-      const taskCount = selectedWorkOrder.tasks.length + 1;
-      const newTaskNo = `${selectedWorkOrder.work_no.replace('WRK', 'TSK')}-${taskCount}`;
-
-      const taskToAdd: Task = {
-        id: Date.now(), // Temporary ID generation
-        task_no: newTaskNo,
-        ...newTask
-      };
-
-      // Update work order with new task
-      const updatedTasks = [...selectedWorkOrder.tasks, taskToAdd];
-      
-      // Update overall status based on new tasks
-      const allTasksDone = updatedTasks.every(task => task.status === 'Done');
-      const newOverallStatus: 'Pending' | 'In Progress' | 'Done' = allTasksDone 
-        ? 'Done' 
-        : updatedTasks.some(task => task.status === 'In Progress') 
-        ? 'In Progress' 
-        : 'Pending';
-
-      const updatedData = workOrderData.map(order => {
-        if (order.id === selectedWorkOrder.id) {
-          return {
-            ...order,
-            tasks: updatedTasks,
-            overall_status: newOverallStatus
-          };
-        }
-        return order;
-      });
-
-      setWorkOrderData(updatedData);
-      setSelectedWorkOrder({
-        ...selectedWorkOrder,
-        tasks: updatedTasks,
-        overall_status: newOverallStatus
-      });
-      setLoadingModal(false);
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Task added successfully!',
-      });
-    } catch (error) {
-      setLoadingModal(false);
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to add task. Please try again.',
-      });
-    }
   };
 
   return (
@@ -431,47 +249,53 @@ const TaskManagementPage: React.FC = () => {
                   <th>Work Title</th>
                   <th>Bus No.</th>
                   <th>Priority</th>
-                  <th>Overall Status</th>
+                  <th>Assigned To</th>
+                  <th>Status</th>
                   <th className={styles.centeredColumn}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {displayedData.length > 0 ? (
-                  displayedData.map((order) => (
-                    <tr key={order.id}>
-                      <td>{order.work_no}</td>
-                      <td>{order.work_title}</td>
-                      <td>{order.bus_no}</td>
+                  displayedData.map((record) => (
+                    <tr key={record.id}>
+                      <td>{record.work_no || '—'}</td>
+                      <td>{record.work_title || '—'}</td>
+                      <td>{record.bus_no}</td>
                       <td>
-                        <span
-                          className={
-                            order.priority === 'High' || order.priority === 'Emergency'
-                              ? styles.priorityHigh
-                              : order.priority === 'Medium'
-                              ? styles.priorityMedium
-                              : styles.priorityLow
-                          }
-                        >
-                          {order.priority}
-                        </span>
+                        {record.priority ? (
+                          <span
+                            className={
+                              record.priority === 'High' || record.priority === 'Critical'
+                                ? styles.priorityHigh
+                                : record.priority === 'Medium'
+                                ? styles.priorityMedium
+                                : styles.priorityLow
+                            }
+                          >
+                            {record.priority}
+                          </span>
+                        ) : (
+                          '—'
+                        )}
                       </td>
+                      <td>{record.assignedTo || '—'}</td>
                       <td>
                         <span
                           className={
-                            order.overall_status === 'Done'
+                            record.status === 'Completed'
                               ? styles.statusDone
-                              : order.overall_status === 'In Progress'
+                              : record.status === 'InProgress'
                               ? styles.statusInProgress
                               : styles.statusPending
                           }
                         >
-                          {order.overall_status}
+                          {record.status === 'InProgress' ? 'In Progress' : record.status || 'Pending'}
                         </span>
                       </td>
                       <td className={styles.centeredColumn}>
                         <button
                           className={`${styles.actionBtn} ${styles.viewTasksBtn}`}
-                          onClick={() => handleViewTasks(order)}
+                          onClick={() => handleViewTasks(record)}
                           title="View Tasks"
                         >
                           View Tasks
@@ -502,19 +326,17 @@ const TaskManagementPage: React.FC = () => {
           }}
         />
 
-        {/* View Tasks Modal */}
-        {selectedWorkOrder && (
+        {/* View Tasks Modal - Placeholder for now */}
+        {/* {selectedRecord && (
           <ViewTasksModal
             show={showViewTasksModal}
             onClose={() => {
               setShowViewTasksModal(false);
-              setSelectedWorkOrder(null);
+              setSelectedRecord(null);
             }}
-            workOrder={selectedWorkOrder}
-            onUpdateTasks={handleUpdateTasks}
-            onAddTask={handleAddTask}
+            record={selectedRecord}
           />
-        )}
+        )} */}
 
         {loadingModal && <LoadingModal />}
       </div>
