@@ -29,7 +29,7 @@ interface DamageReport {
   tireCondition: boolean;
   notes: string;
   createdBy: string;
-  status: 'Pending' | 'Accepted' | 'Rejected';
+  status: 'NA' | 'Pending' | 'Accepted' | 'Rejected';
 }
 
 const DamageReportsPage: React.FC = () => {
@@ -54,12 +54,27 @@ const DamageReportsPage: React.FC = () => {
       ],
       defaultValue: 'date_newest'
     },
+    {
+      id: 'statusFilter',
+      title: 'Filter by Status',
+      type: 'radio',
+      options: [
+        { id: 'all', label: 'All Statuses' },
+        { id: 'NA', label: 'N/A (No Damage)' },
+        { id: 'Pending', label: 'Pending Review' },
+        { id: 'Accepted', label: 'Accepted' },
+        { id: 'Rejected', label: 'Rejected' },
+      ],
+      defaultValue: 'all'
+    },
   ];
 
   const [activeFilters, setActiveFilters] = useState<{
     sortBy: string;
+    statusFilter?: string;
   }>({
-    sortBy: 'date_newest'
+    sortBy: 'date_newest',
+    statusFilter: 'all'
   });
 
   useEffect(() => {
@@ -115,6 +130,7 @@ const DamageReportsPage: React.FC = () => {
   const handleApplyFilters = (filterValues: Record<string, any>) => {
     setActiveFilters({
       sortBy: filterValues.sortBy || 'date_newest',
+      statusFilter: filterValues.statusFilter || 'all',
     });
   };
 
@@ -129,6 +145,11 @@ const DamageReportsPage: React.FC = () => {
         record.notes.toLowerCase().includes(lower) ||
         record.DamageReportID.toLowerCase().includes(lower)
       );
+    }
+
+    // Status filter
+    if (activeFilters.statusFilter && activeFilters.statusFilter !== 'all') {
+      filtered = filtered.filter(record => record.status === activeFilters.statusFilter);
     }
 
     // Sorting
@@ -178,6 +199,8 @@ const DamageReportsPage: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'NA':
+        return <span className={styles.statusNA}>N/A</span>;
       case 'Accepted':
         return <span className={styles.statusAccepted}>Accepted</span>;
       case 'Rejected':
@@ -368,22 +391,28 @@ const DamageReportsPage: React.FC = () => {
                       <td>{getStatusBadge(record.status)}</td>
                       <td>
                         <div className={styles.actionButtons}>
-                          <button 
-                            className={styles.acceptBtn}
-                            onClick={() => handleAccept(record.DamageReportID)}
-                            title="Accept Report"
-                            disabled={record.status !== 'Pending'}
-                          >
-                            Accept
-                          </button>
-                          <button 
-                            className={styles.rejectBtn}
-                            onClick={() => handleReject(record.DamageReportID)}
-                            title="Reject Report"
-                            disabled={record.status !== 'Pending'}
-                          >
-                            Reject
-                          </button>
+                          {record.status === 'NA' ? (
+                            <span className={styles.noActionNeeded}>No Action Needed</span>
+                          ) : (
+                            <>
+                              <button 
+                                className={styles.acceptBtn}
+                                onClick={() => handleAccept(record.DamageReportID)}
+                                title="Accept Report"
+                                disabled={record.status !== 'Pending'}
+                              >
+                                Accept
+                              </button>
+                              <button 
+                                className={styles.rejectBtn}
+                                onClick={() => handleReject(record.DamageReportID)}
+                                title="Reject Report"
+                                disabled={record.status !== 'Pending'}
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
