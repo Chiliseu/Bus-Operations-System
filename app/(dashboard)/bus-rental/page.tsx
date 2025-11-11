@@ -342,14 +342,10 @@ export default function BusRentalPage() {
         RentalDate: new Date(rentalDate).toISOString(),
         Duration: parseInt(duration, 10),
         DistanceKM: parseInt(distance, 10),
-        RentalPrice: price,
+        TotalRentalAmount: price,
         BusID: selectedBusId,
-        SpecialRequirements: `Bus Type: ${busType}, Note: ${note}`,
-        // optionally include coords if available
-        PickupLatitude: pickupLat || null,
-        PickupLongitude: pickupLng || null,
-        DropoffLatitude: destLat || null,
-        DropoffLongitude: destLng || null,
+        RouteName: `${pickupLocation} to ${destination}`,
+        SpecialRequirements: note || `Bus Type: ${busType}`,
       };
 
       // Make API call
