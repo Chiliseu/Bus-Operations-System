@@ -1,5 +1,25 @@
 import { RENTAL_REQUESTS_URL } from '@/lib/urls';
 
+// ✅ Fetch all rental requests
+export const fetchAllRentalRequests = async () => {
+  try {
+    const res = await fetch(RENTAL_REQUESTS_URL, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to fetch rental requests');
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching rental requests:', error);
+    throw error;
+  }
+};
+
 // ✅ Fetch rental requests filtered by status
 export const fetchRentalRequestsByStatus = async (status: string) => {
   try {
