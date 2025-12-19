@@ -322,3 +322,182 @@
 .swal-popup {
   z-index: 2000 !important; /* above modal z-index (1050) */
 }
+
+/* Selected driver card styling */
+.driverCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+/* Selected as Main Driver - Red accent */
+.selectedMainDriver {
+  background-color: #fff5f5;
+  border-left: 4px solid #961c1e;
+  box-shadow: 0 2px 8px rgba(150, 28, 30, 0.15);
+}
+
+.selectedMainDriver:hover {
+  background-color: #ffe8e8;
+}
+
+/* Selected as Assistant Driver - Gray accent */
+.selectedAssistantDriver {
+  background-color: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
+}
+
+.selectedAssistantDriver:hover {
+  background-color: #e9ecef;
+}
+
+/* Green button styling for selected driver buttons */
+.selectedDriverButton {
+  background-color: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+.selectedDriverButton:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
+.selectedDriverButton:active {
+  background-color: #099d73 !important;
+  border-color: #047857 !important;
+}
+
+/* Confirmation Modal Styles */
+.confirmationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1080; /* Higher than parent modal */
+  animation: fadeIn 0.3s ease-out;
+}
+
+.confirmationModal {
+  background: white;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 85vh;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.confirmationHeader {
+  background: #961c1e;
+  color: white;
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  text-align: center;
+}
+
+.confirmationTitle {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.confirmationBody {
+  padding: 24px;
+  background: white;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.confirmationQuestion {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #212529;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.confirmationSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.driverConfirmCard {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.driverConfirmCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mainDriverCard {
+  border-left: 4px solid #961c1e;
+}
+
+.assistantDriverCard {
+  border-left: 4px solid #6c757d;
+}
+
+.confirmCardHeader {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dee2e6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mainDriverCard .confirmCardHeader {
+  color: #961c1e;
+}
+
+.assistantDriverCard .confirmCardHeader {
+  color: #6c757d;
+}
+
+.confirmationFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Ensure confirmation modal buttons use the same styling */
+.confirmationFooter button:first-child {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.confirmationFooter button:first-child:hover {
+  background-color: #5a6268 !important;
+  border-color: #5a6268 !important;
+}
+
+.confirmationFooter button:last-child {
+  background-color: #961c1e !important;
+  border-color: #961c1e !important;
+}

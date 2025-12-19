@@ -80,14 +80,22 @@ const RouteManagementPage: React.FC = () => {
       );
       break;
     case "updated_newest":
-      sortedStops.sort((a, b) =>
-        new Date(b.UpdatedAt || 0).getTime() - new Date(a.UpdatedAt || 0).getTime()
-      );
+      sortedStops.sort((a, b) => {
+        // Handle null/undefined UpdatedAt: push to end for newest first
+        if (!a.UpdatedAt && !b.UpdatedAt) return 0;
+        if (!a.UpdatedAt) return 1; // a goes to end
+        if (!b.UpdatedAt) return -1; // b goes to end
+        return new Date(b.UpdatedAt).getTime() - new Date(a.UpdatedAt).getTime();
+      });
       break;
     case "updated_oldest":
-      sortedStops.sort((a, b) =>
-        new Date(a.UpdatedAt || 0).getTime() - new Date(b.UpdatedAt || 0).getTime()
-      );
+      sortedStops.sort((a, b) => {
+        // Handle null/undefined UpdatedAt: push to end for oldest first
+        if (!a.UpdatedAt && !b.UpdatedAt) return 0;
+        if (!a.UpdatedAt) return 1; // a goes to end
+        if (!b.UpdatedAt) return -1; // b goes to end
+        return new Date(a.UpdatedAt).getTime() - new Date(b.UpdatedAt).getTime();
+      });
       break;
     default:
       sortedStops.sort((a, b) => {
