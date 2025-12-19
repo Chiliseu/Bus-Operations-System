@@ -63,7 +63,13 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
         text: 'This driver is already assigned as Assistant Driver. Please choose a different driver.',
         confirmButtonColor: '#961c1e',
         customClass: {
-          container: 'swal-high-z-index'
+          popup: styles['swal-popup']
+        },
+        didOpen: () => {
+          const container = document.querySelector('.swal2-container');
+          if (container) {
+            (container as HTMLElement).style.zIndex = '10000';
+          }
         }
       });
       return;
@@ -76,7 +82,13 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
         text: 'This driver is already assigned as Main Driver. Please choose a different driver.',
         confirmButtonColor: '#961c1e',
         customClass: {
-          container: 'swal-high-z-index'
+          popup: styles['swal-popup']
+        },
+        didOpen: () => {
+          const container = document.querySelector('.swal2-container');
+          if (container) {
+            (container as HTMLElement).style.zIndex = '10000';
+          }
         }
       });
       return;
@@ -94,7 +106,13 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
         text: 'Please select both a main driver and an assistant driver before saving.',
         confirmButtonColor: '#961c1e',
         customClass: {
-          container: 'swal-high-z-index'
+          popup: styles['swal-popup']
+        },
+        didOpen: () => {
+          const container = document.querySelector('.swal2-container');
+          if (container) {
+            (container as HTMLElement).style.zIndex = '10000';
+          }
         }
       });
       return;
@@ -115,6 +133,15 @@ const AssignRentalDriverModal: React.FC<AssignRentalDriverModalProps> = ({
       title: 'Drivers Assigned Successfully!',
       text: `Main Driver: ${mainDriver!.name}\nAssistant Driver: ${assistantDriver!.name}`,
       confirmButtonColor: '#961c1e',
+      customClass: {
+        popup: styles['swal-popup']
+      },
+      didOpen: () => {
+        const container = document.querySelector('.swal2-container');
+        if (container) {
+          (container as HTMLElement).style.zIndex = '10000';
+        }
+      }
     });
     onClose();
   };

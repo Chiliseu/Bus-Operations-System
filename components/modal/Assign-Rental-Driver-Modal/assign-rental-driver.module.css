@@ -323,15 +323,6 @@
   z-index: 2000 !important; /* above modal z-index (1050) */
 }
 
-/* Global SweetAlert override for this modal */
-:global(.swal2-container) {
-  z-index: 10000 !important;
-}
-
-:global(.swal-high-z-index) {
-  z-index: 10000 !important;
-}
-
 /* Selected driver card styling */
 .driverCard {
   display: flex;
