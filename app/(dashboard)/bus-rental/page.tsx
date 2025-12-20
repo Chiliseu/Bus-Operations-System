@@ -258,11 +258,12 @@ export default function BusRentalPage() {
         
         console.log('All rental requests:', result);
         
-        // Filter by selected bus and get active bookings (Pending or Approved)
+        // Filter by selected bus and get APPROVED bookings only (Pending requests don't block availability)
         const busRentals = (result.data || result || []).filter((rental: any) => {
           const status = rental.Status || rental.status;
-          const busId = rental.BusID || rental.busID || rental.busId;
-          const isMatch = busId === selectedBusId && (status === 'Pending' || status === 'Approved');
+          // Extract BusID from nested structure: RentalRequest → RentalBusAssignment → BusAssignment → BusID
+          const busId = rental.RentalBusAssignment?.BusAssignment?.BusID;
+          const isMatch = busId === selectedBusId && status === 'Approved';
           if (busId === selectedBusId) {
             console.log('Checking rental:', rental, 'Status:', status, 'Match:', isMatch);
           }
@@ -978,20 +979,29 @@ export default function BusRentalPage() {
                 <div className={styles.inputGroup}>
                   <label className={styles.inputLabel}>
                     <MapPin size={16} style={{ display: 'inline-block', marginRight: '6px', verticalAlign: 'middle' }} />
-                    Distance (km)
+                    Distance (km) <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 400 }}>(Auto-calculated)</span>
                   </label>
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
+                    readOnly
                     className={`${styles.inputField} ${errors.distance ? styles.inputFieldError : ""}`}
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
-                    placeholder={pickupLocation && destination ? "Auto-calculated" : "Select locations first"}
-                    style={{ backgroundColor: distance && pickupLat && destLat ? '#f0fdf4' : 'white' }}
+                    value={distance ? `${distance} km` : ''}
+                    placeholder={pickupLocation && destination ? "Calculating..." : "Select pickup and destination first"}
+                    style={{ 
+                      backgroundColor: distance && pickupLat && destLat ? '#f0fdf4' : '#f9fafb',
+                      cursor: 'not-allowed',
+                      color: distance ? '#059669' : '#6b7280'
+                    }}
+                    title="Distance is automatically calculated when you select pickup and destination locations"
                   />
                   {distance && pickupLat && destLat && (
-                    <p style={{ fontSize: '0.75rem', color: '#059669', marginTop: '0.25rem' }}>
-                      ✓ Auto-calculated from selected locations
+                    <p style={{ fontSize: '0.75rem', color: '#059669', marginTop: '0.25rem', fontWeight: 500 }}>
+                      ✓ Calculated using coordinates from selected locations
+                    </p>
+                  )}
+                  {!distance && pickupLocation && destination && (
+                    <p style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.25rem', fontStyle: 'italic' }}>
+                      ℹ️ Select locations with map coordinates for auto-calculation
                     </p>
                   )}
                   {errors.distance && (

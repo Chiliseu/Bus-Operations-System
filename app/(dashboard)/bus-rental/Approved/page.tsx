@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import ApprovedBusReadinessModal from '@/components/modal/Approved-Bus-Readiness-Modal/ApprovedBusReadinessModal';
 import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Modal/AssignRentalDriverModal';
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
+import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
 import LoadingModal from "@/components/modal/LoadingModal";
 
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
@@ -33,6 +34,10 @@ interface BusRental {
   distance: string;
   destination: string;
   pickupLocation: string;
+  pickupLat?: number;
+  pickupLng?: number;
+  dropoffLat?: number;
+  dropoffLng?: number;
   passengers: number;
   price: number;
   note: string;
@@ -50,6 +55,7 @@ const ApprovedNotReadyPage: React.FC = () => {
   const [showReadinessModal, setShowReadinessModal] = useState(false);
   const [showAssignDriversModal, setShowAssignDriversModal] = useState(false);
   const [showDamageCheckModal, setShowDamageCheckModal] = useState(false);
+  const [showRouteMapModal, setShowRouteMapModal] = useState(false);
   const [activeTab, setActiveTab] = useState<BusRental['status']>('Not Ready');
   const tabs: BusRental['status'][] = ['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'];
   const activeTabIndex = tabs.indexOf(activeTab);
@@ -63,7 +69,7 @@ const ApprovedNotReadyPage: React.FC = () => {
 
       if (!Array.isArray(res)) throw new Error('Invalid API response');
 
-      const mappedData: BusRental[] = res.map((r: any) => {
+      const mappedData: BusRental[] = await Promise.all(res.map(async (r: any) => {
         // Map first two drivers as mainDriver & assistantDriver
         const drivers = r.RentalBusAssignment?.RentalDrivers ?? [];
         const mainDriver = drivers[0]
@@ -85,6 +91,45 @@ const ApprovedNotReadyPage: React.FC = () => {
             }
           : null;
 
+        // Parse coordinates and fetch city name using reverse geocoding
+        const parseLocation = async (locationStr: string) => {
+          if (!locationStr) return { name: 'N/A', lat: undefined, lng: undefined };
+          
+          const coordPattern = /^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/;
+          const match = locationStr.trim().match(coordPattern);
+          
+          if (match) {
+            const lat = parseFloat(match[1]);
+            const lng = parseFloat(match[2]);
+            
+            try {
+              // Use Nominatim reverse geocoding API to get city/municipality name
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+                { headers: { 'User-Agent': 'BOMS-App' } }
+              );
+              
+              if (response.ok) {
+                const data = await response.json();
+                const address = data.address;
+                // Get city, municipality, or town name
+                const locationName = address.city || address.municipality || address.town || address.village || address.county || 'Unknown Location';
+                return { name: locationName, lat, lng };
+              }
+            } catch (error) {
+              console.error('Reverse geocoding error:', error);
+            }
+            
+            // Fallback if geocoding fails
+            return { name: 'Custom Location', lat, lng };
+          }
+          
+          return { name: locationStr, lat: undefined, lng: undefined };
+        };
+
+        const pickupData = await parseLocation(r.PickupLocation ?? '');
+        const dropoffData = await parseLocation(r.DropoffLocation ?? '');
+
         return {
           id: r.RentalRequestID ?? '',
           rentalBusAssignmentId: r.RentalBusAssignmentID ?? undefined,
@@ -95,8 +140,12 @@ const ApprovedNotReadyPage: React.FC = () => {
           rentalDate: r.RentalDate ? new Date(r.RentalDate).toISOString().split('T')[0] : '',
           duration: r.Duration ? `${r.Duration} day${r.Duration > 1 ? 's' : ''}` : '',
           distance: r.DistanceKM ? `${r.DistanceKM} km` : '',
-          destination: r.DropoffLocation ?? '',
-          pickupLocation: r.PickupLocation ?? '',
+          destination: dropoffData.name,
+          pickupLocation: pickupData.name,
+          pickupLat: pickupData.lat,
+          pickupLng: pickupData.lng,
+          dropoffLat: dropoffData.lat,
+          dropoffLng: dropoffData.lng,
           passengers: Number(r.NumberOfPassengers ?? 0),
           price: Number(r.RentalPrice ?? 0),
           note: r.SpecialRequirements ?? '',
@@ -164,7 +213,7 @@ const ApprovedNotReadyPage: React.FC = () => {
               }
             : undefined,
         };
-      });
+      }));
 
       setRentals(mappedData);
     } catch (err: any) {
@@ -184,6 +233,19 @@ const ApprovedNotReadyPage: React.FC = () => {
       text: note || 'No note provided.',
       icon: 'info',
     });
+  };
+
+  const handleViewRoute = (rental: BusRental) => {
+    if (!rental.pickupLat || !rental.pickupLng || !rental.dropoffLat || !rental.dropoffLng) {
+      Swal.fire({
+        title: 'No Route Data',
+        text: 'Coordinate information is not available for this rental.',
+        icon: 'warning',
+      });
+      return;
+    }
+    setSelectedRental(rental);
+    setShowRouteMapModal(true);
   };
 
   const handleReadinessCheck = (rental?: BusRental) => {
@@ -345,8 +407,38 @@ const ApprovedNotReadyPage: React.FC = () => {
                 <td>{rental.rentalDate || 'N/A'}</td>
                 <td>{rental.duration || 'N/A'}</td>
                 <td>{rental.distance || 'N/A'}</td>
-                <td>{rental.destination || 'N/A'}</td>
-                <td>{rental.pickupLocation || 'N/A'}</td>
+                <td>
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px',
+                      cursor: rental.pickupLat && rental.dropoffLat ? 'pointer' : 'default',
+                      color: rental.pickupLat && rental.dropoffLat ? '#3b82f6' : 'inherit'
+                    }}
+                    onClick={() => rental.pickupLat && rental.dropoffLat && handleViewRoute(rental)}
+                    title={rental.pickupLat && rental.dropoffLat ? 'Click to view route on map' : ''}
+                  >
+                    {rental.destination || 'N/A'}
+                    {rental.pickupLat && rental.dropoffLat && ' 🗺️'}
+                  </div>
+                </td>
+                <td>
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px',
+                      cursor: rental.pickupLat && rental.dropoffLat ? 'pointer' : 'default',
+                      color: rental.pickupLat && rental.dropoffLat ? '#3b82f6' : 'inherit'
+                    }}
+                    onClick={() => rental.pickupLat && rental.dropoffLat && handleViewRoute(rental)}
+                    title={rental.pickupLat && rental.dropoffLat ? 'Click to view route on map' : ''}
+                  >
+                    {rental.pickupLocation || 'N/A'}
+                    {rental.pickupLat && rental.dropoffLat && ' 🗺️'}
+                  </div>
+                </td>
                 <td>{rental.passengers ?? 'N/A'}</td>
                 <td>₱{rental.price?.toLocaleString() ?? '0'}</td>
                 <td>{renderStatusBadge(rental.status)}</td>
@@ -695,6 +787,23 @@ const ApprovedNotReadyPage: React.FC = () => {
                 await Swal.fire('Error', error.message || 'Failed to save damage check.', 'error');
                 return false;
               }
+            }}
+          />
+        )}
+
+        {/* Route Map Modal */}
+        {showRouteMapModal && selectedRental && selectedRental.pickupLat && selectedRental.pickupLng && selectedRental.dropoffLat && selectedRental.dropoffLng && (
+          <RouteMapModal
+            show={showRouteMapModal}
+            onClose={() => setShowRouteMapModal(false)}
+            routeData={{
+              pickupLocation: selectedRental.pickupLocation,
+              pickupLat: selectedRental.pickupLat,
+              pickupLng: selectedRental.pickupLng,
+              dropoffLocation: selectedRental.destination,
+              dropoffLat: selectedRental.dropoffLat,
+              dropoffLng: selectedRental.dropoffLng,
+              distance: selectedRental.distance
             }}
           />
         )}
