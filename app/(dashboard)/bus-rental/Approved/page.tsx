@@ -13,6 +13,51 @@ import LoadingModal from "@/components/modal/LoadingModal";
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
 import { fetchBackendToken } from '@/lib/backend';
 
+// Geocoding cache for performance optimization
+const GEOCODING_CACHE_KEY = 'geocoding_cache_v1';
+const CACHE_EXPIRY_DAYS = 30;
+
+interface GeocodeCache {
+  [coordinates: string]: {
+    name: string;
+    timestamp: number;
+  };
+}
+
+const loadGeocodeCache = (): GeocodeCache => {
+  try {
+    const cached = localStorage.getItem(GEOCODING_CACHE_KEY);
+    if (cached) {
+      const cache: GeocodeCache = JSON.parse(cached);
+      const now = Date.now();
+      const expiryTime = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+      
+      // Filter out expired entries
+      const validCache: GeocodeCache = {};
+      Object.entries(cache).forEach(([coords, data]) => {
+        if (now - data.timestamp < expiryTime) {
+          validCache[coords] = data;
+        }
+      });
+      
+      return validCache;
+    }
+  } catch (error) {
+    console.error('Failed to load geocode cache:', error);
+  }
+  return {};
+};
+
+const saveGeocodeCache = (cache: GeocodeCache) => {
+  try {
+    localStorage.setItem(GEOCODING_CACHE_KEY, JSON.stringify(cache));
+  } catch (error) {
+    console.error('Failed to save geocode cache:', error);
+  }
+};
+
+const geocodeCache: GeocodeCache = loadGeocodeCache();
+
 interface Driver {
   id: string;
   name: string;
@@ -91,7 +136,7 @@ const ApprovedNotReadyPage: React.FC = () => {
             }
           : null;
 
-        // Parse coordinates and fetch city name using reverse geocoding
+        // Parse coordinates and fetch city name using reverse geocoding with caching
         const parseLocation = async (locationStr: string) => {
           if (!locationStr) return { name: 'N/A', lat: undefined, lng: undefined };
           
@@ -101,6 +146,12 @@ const ApprovedNotReadyPage: React.FC = () => {
           if (match) {
             const lat = parseFloat(match[1]);
             const lng = parseFloat(match[2]);
+            const cacheKey = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+            
+            // Check cache first
+            if (geocodeCache[cacheKey]) {
+              return { name: geocodeCache[cacheKey].name, lat, lng };
+            }
             
             try {
               // Use Nominatim reverse geocoding API to get city/municipality name
@@ -114,6 +165,14 @@ const ApprovedNotReadyPage: React.FC = () => {
                 const address = data.address;
                 // Get city, municipality, or town name
                 const locationName = address.city || address.municipality || address.town || address.village || address.county || 'Unknown Location';
+                
+                // Save to cache
+                geocodeCache[cacheKey] = {
+                  name: locationName,
+                  timestamp: Date.now()
+                };
+                saveGeocodeCache(geocodeCache);
+                
                 return { name: locationName, lat, lng };
               }
             } catch (error) {
