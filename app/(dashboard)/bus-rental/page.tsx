@@ -258,11 +258,12 @@ export default function BusRentalPage() {
         
         console.log('All rental requests:', result);
         
-        // Filter by selected bus and get active bookings (Pending or Approved)
+        // Filter by selected bus and get APPROVED bookings only (Pending requests don't block availability)
         const busRentals = (result.data || result || []).filter((rental: any) => {
           const status = rental.Status || rental.status;
-          const busId = rental.BusID || rental.busID || rental.busId;
-          const isMatch = busId === selectedBusId && (status === 'Pending' || status === 'Approved');
+          // Extract BusID from nested structure: RentalRequest → RentalBusAssignment → BusAssignment → BusID
+          const busId = rental.RentalBusAssignment?.BusAssignment?.BusID;
+          const isMatch = busId === selectedBusId && status === 'Approved';
           if (busId === selectedBusId) {
             console.log('Checking rental:', rental, 'Status:', status, 'Match:', isMatch);
           }
