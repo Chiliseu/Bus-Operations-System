@@ -108,6 +108,28 @@ const DamageCheckModal: React.FC<DamageCheckModalProps> = ({
           <div className={styles.rightCol}>
             <div className={styles.section}>
               <h4 className={styles.sectionTitle}>Vehicle Damage Check</h4>
+              <div className={styles.instructionBox} style={{
+                padding: '14px 16px',
+                marginBottom: '16px',
+                background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)',
+                border: '1.5px solid #38bdf8',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                color: '#0c4a6e',
+                boxShadow: '0 2px 4px rgba(14, 165, 233, 0.1)'
+              }}>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 600, fontSize: '0.9rem', color: '#0369a1' }}>
+                  ℹ️ How to use this form:
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: '1.6' }}>
+                  <li style={{ marginBottom: '6px' }}>
+                    <span style={{ color: '#16a34a', fontWeight: 600 }}>✅ Check the box</span> if the part is in good condition
+                  </li>
+                  <li>
+                    <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ Leave unchecked</span> if the part has damage — it will automatically be sent to maintenance for repair
+                  </li>
+                </ul>
+              </div>
               <div className={styles.vehicleGrid}>
                 {gridRows.map((row, rowIdx) => (
                   <React.Fragment key={rowIdx}>
