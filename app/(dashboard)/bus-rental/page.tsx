@@ -7,6 +7,7 @@ import { getBackendBaseURL, fetchBackendToken } from "@/lib/backend";
 import { fetchAllRentalRequests } from "@/lib/apiCalls/rental-request";
 import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
 import SuccessPageModal from "@/components/modal/Success-Page-Modal/SuccessPageModal";
+import ValidIdModal from "@/components/modal/Valid-ID-Modal/ValidIdModal";
 
 /* ---- Types ---- */
 type BusType = "Aircon" | "Non-Aircon";
@@ -23,6 +24,11 @@ interface RentalSummary {
   requestId: string;
   customerName: string;
   contact: string;
+  email: string;
+  homeAddress: string;
+  validIdType: string;
+  validIdNumber: string;
+  validIdImage: string | null;
   busType: string;
   busName: string;
   rentalDate: string;
@@ -40,6 +46,12 @@ export default function BusRentalPage() {
   const [customerName, setCustomerName] = useState("");
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [contact, setContact] = useState(""); // numeric-only
+  const [email, setEmail] = useState("");
+  const [homeAddress, setHomeAddress] = useState("");
+  const [validIdType, setValidIdType] = useState("");
+  const [validIdNumber, setValidIdNumber] = useState("");
+  const [validIdImage, setValidIdImage] = useState<string | null>(null);
+  const [showValidIdModal, setShowValidIdModal] = useState(false);
   const [busType, setBusType] = useState<BusType | "">("");
   const [selectedBusId, setSelectedBusId] = useState("");
   const [rentalDate, setRentalDate] = useState("");
@@ -476,6 +488,12 @@ export default function BusRentalPage() {
     if (!customerName.trim()) newErrors.customerName = "Customer name is required.";
     if (!contact.trim()) newErrors.contact = "Contact number is required.";
     else if (!/^\d{7,15}$/.test(contact)) newErrors.contact = "Contact must be digits (7–15).";
+    if (!email.trim()) newErrors.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Please enter a valid email address.";
+    if (!homeAddress.trim()) newErrors.homeAddress = "Home address is required.";
+    if (!validIdType.trim()) newErrors.validIdType = "Valid ID type is required.";
+    if (!validIdNumber.trim()) newErrors.validIdNumber = "Valid ID number is required.";
+    if (!validIdImage) newErrors.validIdImage = "Valid ID image is required.";
     if (!busType) newErrors.busType = "Please select a bus type.";
     if (!selectedBusId) newErrors.selectedBusId = "Please select an available bus.";
     if (!rentalDate) newErrors.rentalDate = "Rental date is required.";
@@ -525,6 +543,12 @@ export default function BusRentalPage() {
     if (!customerName.trim()) missing.push("Customer Name is required.");
     if (!contact.trim()) missing.push("Contact Number is required.");
     else if (!/^\d{7,15}$/.test(contact)) missing.push("Contact Number must be 7–15 digits.");
+    if (!email.trim()) missing.push("Email is required.");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) missing.push("Email must be valid.");
+    if (!homeAddress.trim()) missing.push("Home Address is required.");
+    if (!validIdType.trim()) missing.push("Valid ID Type is required.");
+    if (!validIdNumber.trim()) missing.push("Valid ID Number is required.");
+    if (!validIdImage) missing.push("Valid ID Image is required.");
     if (!busType) missing.push("Bus Type must be selected.");
     if (!selectedBusId) missing.push("Available Bus must be selected.");
     if (!rentalDate) missing.push("Rental Date is required.");
@@ -565,6 +589,11 @@ export default function BusRentalPage() {
   const resetForm = () => {
     setCustomerName("");
     setContact("");
+    setEmail("");
+    setHomeAddress("");
+    setValidIdType("");
+    setValidIdNumber("");
+    setValidIdImage(null);
     setBusType("");
     setSelectedBusId("");
     setRentalDate("");
@@ -629,6 +658,11 @@ export default function BusRentalPage() {
       const rentalData = {
         CustomerName: customerName.trim(),
         CustomerContact: contact.trim(),
+        CustomerEmail: email.trim(),
+        CustomerAddress: homeAddress.trim(),
+        ValidIDType: validIdType.trim(),
+        ValidIDNumber: validIdNumber.trim(),
+        ValidIDImage: validIdImage,
         PickupLocation: pickupLocation.trim(),
         DropoffLocation: destination.trim(),
         NumberOfPassengers: parseInt(passengers, 10),
@@ -670,6 +704,11 @@ export default function BusRentalPage() {
         requestId: createdRequest.RentalRequestID || 'N/A',
         customerName,
         contact,
+        email,
+        homeAddress,
+        validIdType,
+        validIdNumber,
+        validIdImage,
         busType,
         busName: selectedBusData?.name || 'N/A',
         rentalDate,
@@ -735,6 +774,14 @@ export default function BusRentalPage() {
           </div>
         )}
 
+        {/* Valid ID Modal */}
+        <ValidIdModal
+          show={showValidIdModal}
+          onClose={() => setShowValidIdModal(false)}
+          validIdType={validIdType}
+          setValidIdType={setValidIdType}
+        />
+
         <h2 className={styles.stopTitle}>Bus Rental Request</h2>
         <p className={styles.description}>Fill out the form below to create a rental request.</p>
 
@@ -778,6 +825,170 @@ export default function BusRentalPage() {
                   {errors.contact && (
                     <p className={styles.errorMessage}>
                       <AlertCircle className={styles.errorIcon} /> {errors.contact}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Email</label>
+                  <input
+                    type="email"
+                    className={`${styles.inputField} ${errors.email ? styles.inputFieldError : ""}`}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                  />
+                  {errors.email && (
+                    <p className={styles.errorMessage}>
+                      <AlertCircle className={styles.errorIcon} /> {errors.email}
+                    </p>
+                  )}
+                </div>
+
+                {/* Valid ID */}
+                <div className={styles.inputGroup}>
+                  <label className={styles.inputLabel}>Valid ID</label>
+                  <div
+                    className={`${styles.inputField} ${errors.validIdType ? styles.inputFieldError : ""}`}
+                    onClick={() => setShowValidIdModal(true)}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#f9fafb'
+                    }}
+                  >
+                    <span style={{ color: validIdType ? '#374151' : '#9ca3af' }}>
+                      {validIdType || 'Click to select ID type'}
+                    </span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 9l3 3 3-3" />
+                    </svg>
+                  </div>
+                  {errors.validIdType && (
+                    <p className={styles.errorMessage}>
+                      <AlertCircle className={styles.errorIcon} /> {errors.validIdType}
+                    </p>
+                  )}
+                </div>
+
+                {/* Valid ID Number - shown only when ID type is selected */}
+                {validIdType && (
+                  <>
+                    <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                      <label className={styles.inputLabel}>ID Number</label>
+                      <input
+                        className={`${styles.inputField} ${errors.validIdNumber ? styles.inputFieldError : ""}`}
+                        value={validIdNumber}
+                        onChange={(e) => setValidIdNumber(e.target.value)}
+                        placeholder="Enter ID number"
+                      />
+                      {errors.validIdNumber && (
+                        <p className={styles.errorMessage}>
+                          <AlertCircle className={styles.errorIcon} /> {errors.validIdNumber}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Valid ID Image Upload */}
+                    <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                      <label className={styles.inputLabel}>Upload ID Picture</label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // Validate file size (max 5MB)
+                              if (file.size > 5 * 1024 * 1024) {
+                                setErrors({ ...errors, validIdImage: 'Image size must be less than 5MB' });
+                                return;
+                              }
+                              // Validate file type
+                              if (!file.type.startsWith('image/')) {
+                                setErrors({ ...errors, validIdImage: 'Please upload a valid image file' });
+                                return;
+                              }
+                              // Convert to base64
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setValidIdImage(reader.result as string);
+                                const newErrors = { ...errors };
+                                delete newErrors.validIdImage;
+                                setErrors(newErrors);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className={styles.inputField}
+                          style={{ padding: '0.5rem', cursor: 'pointer' }}
+                        />
+                        {errors.validIdImage && (
+                          <p className={styles.errorMessage}>
+                            <AlertCircle className={styles.errorIcon} /> {errors.validIdImage}
+                          </p>
+                        )}
+                        {validIdImage && (
+                          <div style={{ 
+                            position: 'relative', 
+                            marginTop: '0.5rem',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '8px',
+                            padding: '0.75rem',
+                            backgroundColor: '#f9fafb'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                              <span style={{ fontSize: '0.875rem', fontWeight: 500, color: '#059669' }}>✓ Image Uploaded</span>
+                              <button
+                                type="button"
+                                onClick={() => setValidIdImage(null)}
+                                style={{
+                                  padding: '0.25rem 0.75rem',
+                                  fontSize: '0.75rem',
+                                  backgroundColor: '#ef4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontWeight: 500
+                                }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                            <img
+                              src={validIdImage}
+                              alt="Valid ID Preview"
+                              style={{
+                                width: '100%',
+                                maxHeight: '300px',
+                                objectFit: 'contain',
+                                borderRadius: '4px',
+                                backgroundColor: 'white'
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Home Address */}
+                <div className={styles.inputGroup} style={{ gridColumn: 'span 2' }}>
+                  <label className={styles.inputLabel}>Home Address</label>
+                  <input
+                    className={`${styles.inputField} ${errors.homeAddress ? styles.inputFieldError : ""}`}
+                    value={homeAddress}
+                    onChange={(e) => setHomeAddress(e.target.value)}
+                    placeholder="Full home address"
+                  />
+                  {errors.homeAddress && (
+                    <p className={styles.errorMessage}>
+                      <AlertCircle className={styles.errorIcon} /> {errors.homeAddress}
                     </p>
                   )}
                 </div>
@@ -1205,6 +1416,46 @@ export default function BusRentalPage() {
                     {contact || "Not specified"}
                   </span>
                 </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Email</span>
+                  <span className={styles.previewValue}>
+                    {email || "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Home Address</span>
+                  <span className={styles.previewValue}>
+                    {homeAddress || "Not specified"}
+                  </span>
+                </div>
+
+                <div className={styles.previewRow}>
+                  <span className={styles.previewLabel}>Valid ID</span>
+                  <span className={styles.previewValue}>
+                    {validIdType ? `${validIdType}${validIdNumber ? ` - ${validIdNumber}` : ''}` : "Not specified"}
+                  </span>
+                </div>
+
+                {validIdImage && (
+                  <div className={styles.previewRow} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <span className={styles.previewLabel} style={{ marginBottom: '0.5rem' }}>ID Image</span>
+                    <img
+                      src={validIdImage}
+                      alt="Valid ID"
+                      style={{
+                        width: '100%',
+                        maxHeight: '200px',
+                        objectFit: 'contain',
+                        borderRadius: '4px',
+                        border: '1px solid #e5e7eb',
+                        backgroundColor: 'white',
+                        padding: '0.5rem'
+                      }}
+                    />
+                  </div>
+                )}
 
                 <div className={styles.previewRow}>
                   <span className={styles.previewLabel}>Bus Type</span>
