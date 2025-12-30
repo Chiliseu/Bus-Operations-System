@@ -9,6 +9,11 @@ interface RentalSummary {
   requestId: string;
   customerName: string;
   contact: string;
+  email: string;
+  homeAddress: string;
+  validIdType: string;
+  validIdNumber: string;
+  validIdImage: string | null;
   busType: string;
   busName: string;
   rentalDate: string;
@@ -100,7 +105,41 @@ export default function SuccessPageModal({ show, onClose, summary }: SuccessPage
                     </span>
                     <span className={styles.summaryValue}>{summary.contact}</span>
                   </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Email</span>
+                    <span className={styles.summaryValue}>{summary.email}</span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Home Address</span>
+                    <span className={styles.summaryValue}>{summary.homeAddress}</span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>Valid ID Type</span>
+                    <span className={styles.summaryValue}>{summary.validIdType}</span>
+                  </div>
+                  <div className={styles.summaryItem}>
+                    <span className={styles.summaryLabel}>ID Number</span>
+                    <span className={styles.summaryValue}>{summary.validIdNumber}</span>
+                  </div>
                 </div>
+                {summary.validIdImage && (
+                  <div style={{ marginTop: '1rem' }}>
+                    <span className={styles.summaryLabel} style={{ marginBottom: '0.5rem', display: 'block' }}>Valid ID Image</span>
+                    <img
+                      src={summary.validIdImage}
+                      alt="Valid ID"
+                      style={{
+                        width: '100%',
+                        maxHeight: '300px',
+                        objectFit: 'contain',
+                        borderRadius: '8px',
+                        border: '2px solid #e5e7eb',
+                        backgroundColor: 'white',
+                        padding: '0.5rem'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Rental Details */}
