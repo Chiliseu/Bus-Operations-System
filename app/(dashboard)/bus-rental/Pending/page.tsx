@@ -9,6 +9,7 @@ import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown'; /
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
 import { fetchBackendToken } from '@/lib/backend';
 import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
+import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
 
 // Geocoding cache for performance optimization
 const GEOCODING_CACHE_KEY = 'geocoding_cache_v1';
@@ -60,6 +61,11 @@ interface BusRental {
   id: string;
   customerName: string;
   contactNo: string;
+  email: string;
+  homeAddress: string;
+  validIdType: string;
+  validIdNumber: string;
+  validIdImage: string | null;
   busType: string;
   bus: string;
   rentalDate: string;
@@ -82,6 +88,8 @@ const PendingRentalPage: React.FC = () => {
   const [displayedRentals, setDisplayedRentals] = useState<BusRental[]>([]);
   const [selectedRental, setSelectedRental] = useState<BusRental | null>(null);
   const [showRouteMapModal, setShowRouteMapModal] = useState(false);
+  const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,6 +168,11 @@ useEffect(() => {
           id: r.RentalRequestID ?? '',
           customerName: r.CustomerName ?? 'N/A',
           contactNo: r.CustomerContact ?? 'N/A',
+          email: r.CustomerEmail ?? 'N/A',
+          homeAddress: r.CustomerAddress ?? 'N/A',
+          validIdType: r.ValidIDType ?? 'N/A',
+          validIdNumber: r.ValidIDNumber ?? 'N/A',
+          validIdImage: r.ValidIDImage ?? null,
           busType: r.BusType ?? 'N/A',
           bus: r.PlateNumber ?? 'N/A',
           rentalDate: r.RentalDate ? new Date(r.RentalDate).toISOString().split('T')[0] : '',
@@ -355,6 +368,12 @@ useEffect(() => {
     setShowRouteMapModal(true);
   };
 
+  // --- View Customer Info Handler ---
+  const handleViewCustomerInfo = (rental: BusRental) => {
+    setSelectedCustomer(rental);
+    setShowCustomerInfoModal(true);
+  };
+
   // --- Render UI ---
   return (
     <div className={styles.wideCard}>
@@ -397,7 +416,7 @@ useEffect(() => {
                   <th>Pickup Location</th>
                   <th>Passengers</th>
                   <th>Price</th>
-                  <th>Note</th>
+                  <th className={styles.centeredColumn}>Customer Info</th>
                   <th className={styles.centeredColumn}>Action</th>
                 </tr>
               </thead>
@@ -446,12 +465,12 @@ useEffect(() => {
                       </td>
                       <td>{rental.passengers ?? 'N/A'}</td>
                       <td>₱{rental.price?.toLocaleString() ?? '0'}</td>
-                      <td>
+                      <td className={styles.centeredColumn}>
                         <button
                           className={styles.noteBtn}
-                          onClick={() => handleViewNote(rental.note)}
+                          onClick={() => handleViewCustomerInfo(rental)}
                         >
-                          View Notes
+                          View Details
                         </button>
                       </td>
                       <td className={styles.centeredColumn}>
@@ -507,6 +526,24 @@ useEffect(() => {
             dropoffLat: selectedRental.dropoffLat,
             dropoffLng: selectedRental.dropoffLng,
             distance: selectedRental.distance
+          }}
+        />
+      )}
+
+      {/* Customer Info Modal */}
+      {showCustomerInfoModal && selectedCustomer && (
+        <CustomerInfoModal
+          show={showCustomerInfoModal}
+          onClose={() => setShowCustomerInfoModal(false)}
+          customerInfo={{
+            customerName: selectedCustomer.customerName,
+            email: selectedCustomer.email,
+            contact: selectedCustomer.contactNo,
+            homeAddress: selectedCustomer.homeAddress,
+            validIdType: selectedCustomer.validIdType,
+            validIdNumber: selectedCustomer.validIdNumber,
+            validIdImage: selectedCustomer.validIdImage,
+            note: selectedCustomer.note
           }}
         />
       )}

@@ -5,6 +5,7 @@ import styles from './completed.module.css';
 import '../../../../styles/globals.css';
 import { Loading, Swal } from '@/shared/imports';
 import ViewDamageModal from '@/components/modal/View-Damage-Modal/ViewDamageModal'; // import new modal
+import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
 import { RiEyeLine } from 'react-icons/ri'; // eye icon
 import { fetchRentalRequestsByStatus } from '@/lib/apiCalls/rental-request';
 
@@ -12,6 +13,11 @@ interface BusRental {
   id: string;
   customerName: string;
   contactNo: string;
+  email: string;
+  homeAddress: string;
+  validIdType: string;
+  validIdNumber: string;
+  validIdImage: string | null;
   busType: string;
   bus: string;
   rentalDate: string;
@@ -35,6 +41,8 @@ const CompletedRentalPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedRental, setSelectedRental] = useState<BusRental | null>(null);
   const [showDamageModal, setShowDamageModal] = useState(false);
+  const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
 
 
 useEffect(() => {
@@ -55,6 +63,11 @@ useEffect(() => {
           id: r.RentalRequestID ?? '',
           customerName: r.CustomerName ?? 'N/A',
           contactNo: r.CustomerContact ?? 'N/A',
+          email: r.CustomerEmail ?? 'N/A',
+          homeAddress: r.CustomerAddress ?? 'N/A',
+          validIdType: r.ValidIDType ?? 'N/A',
+          validIdNumber: r.ValidIDNumber ?? 'N/A',
+          validIdImage: r.ValidIDImage ?? null,
           busType: r.BusType ?? 'N/A',
           bus: r.PlateNumber ?? 'N/A',
           rentalDate: r.RentalDate
@@ -106,6 +119,11 @@ useEffect(() => {
     Swal.fire({ title: 'Rental Note', text: note || 'No note provided.', icon: 'info' });
   };
 
+  const handleViewCustomerInfo = (rental: BusRental) => {
+    setSelectedCustomer(rental);
+    setShowCustomerInfoModal(true);
+  };
+
   const handleViewDamage = (rental: BusRental) => {
     setSelectedRental(rental);
     setShowDamageModal(true);
@@ -131,7 +149,7 @@ useEffect(() => {
                   <th>Rental Date</th>
                   <th>Passengers</th>
                   <th>Price</th>
-                  <th>Note</th>
+                  <th>Customer Info</th>
                   <th>Damage</th>
                   <th>Status</th>
                 </tr>
@@ -146,8 +164,8 @@ useEffect(() => {
                       <td>{rental.passengers}</td>
                       <td>₱{rental.price.toLocaleString()}</td>
                       <td>
-                        <button className={styles.noteBtn} onClick={() => handleViewNote(rental.note)}>
-                          View Note
+                        <button className={styles.noteBtn} onClick={() => handleViewCustomerInfo(rental)}>
+                          View Details
                         </button>
                       </td>
                       <td>
@@ -174,6 +192,23 @@ useEffect(() => {
             onClose={() => setShowDamageModal(false)}
             busInfo={{ rentalId: selectedRental.id, busNumber: selectedRental.bus, driver: selectedRental.driver }}
             damageData={selectedRental.damageData}
+          />
+        )}
+
+        {showCustomerInfoModal && selectedCustomer && (
+          <CustomerInfoModal
+            show={showCustomerInfoModal}
+            onClose={() => setShowCustomerInfoModal(false)}
+            customerInfo={{
+              customerName: selectedCustomer.customerName,
+              email: selectedCustomer.email,
+              contact: selectedCustomer.contactNo,
+              homeAddress: selectedCustomer.homeAddress,
+              validIdType: selectedCustomer.validIdType,
+              validIdNumber: selectedCustomer.validIdNumber,
+              validIdImage: selectedCustomer.validIdImage,
+              note: selectedCustomer.note
+            }}
           />
         )}
       </div>
