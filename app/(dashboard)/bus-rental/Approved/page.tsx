@@ -8,6 +8,7 @@ import ApprovedBusReadinessModal from '@/components/modal/Approved-Bus-Readiness
 import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Modal/AssignRentalDriverModal';
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
 import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
+import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
 import LoadingModal from "@/components/modal/LoadingModal";
 
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
