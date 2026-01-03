@@ -8,6 +8,7 @@ import ApprovedBusReadinessModal from '@/components/modal/Approved-Bus-Readiness
 import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Modal/AssignRentalDriverModal';
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
 import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
+import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
 import LoadingModal from "@/components/modal/LoadingModal";
 
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
@@ -72,6 +73,11 @@ interface BusRental {
   rentalBusAssignmentId?: string;
   customerName: string;
   contactNo: string;
+  email: string;
+  homeAddress: string;
+  validIdType: string;
+  validIdNumber: string;
+  validIdImage: string | null;
   busType: string;
   bus: string;
   rentalDate: string;
@@ -101,6 +107,8 @@ const ApprovedNotReadyPage: React.FC = () => {
   const [showAssignDriversModal, setShowAssignDriversModal] = useState(false);
   const [showDamageCheckModal, setShowDamageCheckModal] = useState(false);
   const [showRouteMapModal, setShowRouteMapModal] = useState(false);
+  const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
   const [activeTab, setActiveTab] = useState<BusRental['status']>('Not Ready');
   const tabs: BusRental['status'][] = ['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'];
   const activeTabIndex = tabs.indexOf(activeTab);
@@ -194,6 +202,11 @@ const ApprovedNotReadyPage: React.FC = () => {
           rentalBusAssignmentId: r.RentalBusAssignmentID ?? undefined,
           customerName: r.CustomerName ?? 'N/A',
           contactNo: r.CustomerContact ?? 'N/A',
+          email: r.CustomerEmail ?? 'N/A',
+          homeAddress: r.CustomerAddress ?? 'N/A',
+          validIdType: r.ValidIDType ?? 'N/A',
+          validIdNumber: r.ValidIDNumber ?? 'N/A',
+          validIdImage: r.ValidIDImage ?? null,
           busType: r.BusType ?? 'N/A',
           bus: r.PlateNumber ?? 'N/A',
           rentalDate: r.RentalDate ? new Date(r.RentalDate).toISOString().split('T')[0] : '',
@@ -292,6 +305,11 @@ const ApprovedNotReadyPage: React.FC = () => {
       text: note || 'No note provided.',
       icon: 'info',
     });
+  };
+
+  const handleViewCustomerInfo = (rental: BusRental) => {
+    setSelectedCustomer(rental);
+    setShowCustomerInfoModal(true);
   };
 
   const handleViewRoute = (rental: BusRental) => {
@@ -451,7 +469,7 @@ const ApprovedNotReadyPage: React.FC = () => {
             <th>Price</th>
             <th>Status</th>
             <th>Drivers</th>
-            <th>Note</th>
+            <th>Customer Info</th>
             <th className={styles.centeredColumn}>Action</th>
           </tr>
         </thead>
@@ -509,9 +527,9 @@ const ApprovedNotReadyPage: React.FC = () => {
                 <td>
                   <button
                     className={styles.noteBtn}
-                    onClick={() => handleViewNote(rental.note)}
+                    onClick={() => handleViewCustomerInfo(rental)}
                   >
-                    View Notes
+                    View Details
                   </button>
                 </td>
                 <td className={styles.centeredColumn}>
@@ -863,6 +881,24 @@ const ApprovedNotReadyPage: React.FC = () => {
               dropoffLat: selectedRental.dropoffLat,
               dropoffLng: selectedRental.dropoffLng,
               distance: selectedRental.distance
+            }}
+          />
+        )}
+
+        {/* Customer Info Modal */}
+        {showCustomerInfoModal && selectedCustomer && (
+          <CustomerInfoModal
+            show={showCustomerInfoModal}
+            onClose={() => setShowCustomerInfoModal(false)}
+            customerInfo={{
+              customerName: selectedCustomer.customerName,
+              email: selectedCustomer.email,
+              contact: selectedCustomer.contactNo,
+              homeAddress: selectedCustomer.homeAddress,
+              validIdType: selectedCustomer.validIdType,
+              validIdNumber: selectedCustomer.validIdNumber,
+              validIdImage: selectedCustomer.validIdImage,
+              note: selectedCustomer.note
             }}
           />
         )}
