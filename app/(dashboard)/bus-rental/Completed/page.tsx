@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import styles from './completed.module.css';
 import '../../../../styles/globals.css';
-import { Loading, Swal } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal } from '@/shared/imports';
+import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown';
 import ViewDamageModal from '@/components/modal/View-Damage-Modal/ViewDamageModal'; // import new modal
 import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
 import { RiEyeLine } from 'react-icons/ri'; // eye icon
@@ -38,11 +39,19 @@ interface BusRental {
 
 const CompletedRentalPage: React.FC = () => {
   const [rentals, setRentals] = useState<BusRental[]>([]);
+  const [displayedRentals, setDisplayedRentals] = useState<BusRental[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRental, setSelectedRental] = useState<BusRental | null>(null);
   const [showDamageModal, setShowDamageModal] = useState(false);
   const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeFilters, setActiveFilters] = useState<{ sortBy: string }>({
+    sortBy: 'created_newest',
+  });
 
 
 useEffect(() => {
@@ -115,6 +124,65 @@ useEffect(() => {
   fetchData();
 }, []);
 
+  // --- FilterDropdown configuration ---
+  const filterSections: FilterSection[] = [
+    {
+      id: 'sortBy',
+      title: 'Sort By',
+      type: 'radio',
+      options: [
+        { id: 'name_az', label: 'Customer Name A-Z' },
+        { id: 'name_za', label: 'Customer Name Z-A' },
+        { id: 'created_newest', label: 'Created (Newest)' },
+        { id: 'created_oldest', label: 'Created (Oldest)' },
+      ],
+      defaultValue: 'created_newest',
+    },
+  ];
+
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setActiveFilters({
+      sortBy: filterValues.sortBy || 'created_newest',
+    });
+    setCurrentPage(1);
+  };
+
+  // --- Handle search & filtering logic ---
+  useEffect(() => {
+    try {
+      let filtered = [...rentals];
+
+      // Apply search query
+      if (searchQuery) {
+        const lower = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (r) => r.customerName?.toLowerCase().includes(lower)
+        );
+      }
+
+      // Apply sorting
+      switch (activeFilters.sortBy) {
+        case 'name_az':
+          filtered.sort((a, b) => a.customerName.localeCompare(b.customerName));
+          break;
+        case 'name_za':
+          filtered.sort((a, b) => b.customerName.localeCompare(a.customerName));
+          break;
+        default:
+          break;
+      }
+
+      // Apply pagination
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      setDisplayedRentals(filtered.slice(start, end));
+      setTotalPages(Math.max(Math.ceil(filtered.length / pageSize), 1));
+    } catch (err: any) {
+      console.error('Error filtering rentals:', err);
+      Swal.fire('Error', 'Failed to filter rentals.', 'error');
+    }
+  }, [rentals, searchQuery, activeFilters, currentPage, pageSize]);
+
   const handleViewNote = (note: string) => {
     Swal.fire({ title: 'Rental Note', text: note || 'No note provided.', icon: 'info' });
   };
@@ -133,6 +201,21 @@ useEffect(() => {
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Completed Bus Rentals</h2>
+        
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search customer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <FilterDropdown sections={filterSections} onApply={handleApplyFilters} />
+        </div>
+
         <p className={styles.description}>
           View all completed bus rentals and damage reports.
         </p>
@@ -155,8 +238,8 @@ useEffect(() => {
                 </tr>
               </thead>
               <tbody>
-                {rentals.length > 0 ? (
-                  rentals.map((rental) => (
+                {displayedRentals.length > 0 ? (
+                  displayedRentals.map((rental) => (
                     <tr key={rental.id}>
                       <td>{rental.customerName}</td>
                       <td>{rental.bus}</td>
@@ -185,6 +268,17 @@ useEffect(() => {
             </table>
           </div>
         )}
+
+        <PaginationComponent
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size: number) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
 
         {showDamageModal && selectedRental && (
           <ViewDamageModal

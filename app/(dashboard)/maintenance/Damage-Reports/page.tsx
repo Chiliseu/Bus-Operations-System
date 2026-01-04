@@ -41,6 +41,8 @@ const DamageReportsPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'Pending' | 'Accepted' | 'Rejected'>('Pending');
+  const tabs: ('Pending' | 'Accepted' | 'Rejected')[] = ['Pending', 'Accepted', 'Rejected'];
+  const activeTabIndex = tabs.indexOf(activeTab);
 
   const filterSections: FilterSection[] = [
     {
@@ -323,6 +325,15 @@ const DamageReportsPage: React.FC = () => {
 
         {/* Tab Navigation */}
         <div className={styles.tabContainer}>
+          {/* Sliding indicator background */}
+          <div 
+            className={styles.tabIndicator}
+            style={{
+              transform: `translateX(calc(${activeTabIndex * 100}% + ${activeTabIndex * 4}px))`,
+              width: `calc(${100 / tabs.length}% - ${4 * (tabs.length - 1) / tabs.length}px)`
+            }}
+          />
+          
           <button
             className={`${styles.tab} ${activeTab === 'Pending' ? styles.activeTab : ''}`}
             onClick={() => {

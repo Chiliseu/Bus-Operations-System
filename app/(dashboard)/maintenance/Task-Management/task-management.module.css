@@ -240,7 +240,7 @@
 /* === Action Button === */
 .actionBtn {
   background-color: #2D8EFF;
-  padding: 8px 12px;
+  padding: 3px 6px;
   font-size: 14px;
   border-radius: 4px;
   color: #FFFFFF;
@@ -253,6 +253,12 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+}
+
+.actionBtn img {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
 }
 
 .viewTasksBtn {

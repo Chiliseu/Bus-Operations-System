@@ -11,6 +11,7 @@ import EditRouteModal from '@/components/modal/Edit-Route/EditRouteModal';
 import { Stop, Route } from '@/app/interface'; //Importing the Stop interface
 import { fetchRoutesWithToken, createRouteWithToken, deleteRouteWithToken, updateRouteWithToken } from '@/lib/apiCalls/route';
 import ViewRouteModal from "@/components/modal/View-Route/ViewRouteModal"
+import DeleteConfirmationModal from '@/components/modal/Delete-Confirmation-Modal/DeleteConfirmationModal';
 
 // --- Shared imports ---
 import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal } from '@/shared/imports';
@@ -45,6 +46,11 @@ const CreateRoutePage: React.FC = () => {
   const [editSelectedStartStop, setEditSelectedStartStop] = useState<Stop | null>(null);
   const [editSelectedEndStop, setEditSelectedEndStop] = useState<Stop | null>(null);
   const [routeToView, setRouteToView] = useState<Route | null>(null);
+  
+  // Delete modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteRouteId, setDeleteRouteId] = useState<string>('');
+  const [deleteRouteName, setDeleteRouteName] = useState<string>('');
   
   // Current record
   const [selectedStartStop, setSelectedStartStop] = useState<Stop | null>(null);
@@ -255,28 +261,18 @@ const CreateRoutePage: React.FC = () => {
     }
   };
 
-  const handleDeleteRoute = async (routeID: string) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'Are you sure you want to delete this route?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-    });
+  const handleDeleteRoute = (routeID: string, routeName: string) => {
+    setDeleteRouteId(routeID);
+    setDeleteRouteName(routeName);
+    setShowDeleteModal(true);
+  };
 
-  if (!result.isConfirmed) return;
-
+  const confirmDeleteRoute = async () => {
     try {
       setModalLoading(true);
-      await deleteRouteWithToken(routeID);
+      await deleteRouteWithToken(deleteRouteId);
       setModalLoading(false);
-      await Swal.fire({
-        icon: 'success',
-        title: 'Deleted!',
-        text: 'Route deleted successfully!',
-      });
+      setShowDeleteModal(false);
       fetchRoutes(); // Refresh the route list
     } catch (error) {
       setModalLoading(false);
@@ -452,7 +448,7 @@ const CreateRoutePage: React.FC = () => {
                         </button>
                         <button
                           className={styles.deleteBtn}
-                          onClick={() => handleDeleteRoute(route.RouteID)}
+                          onClick={() => handleDeleteRoute(route.RouteID, route.RouteName)}
                         >
                           <Image
                             src="/assets/images/delete-white.png"
@@ -576,7 +572,19 @@ const CreateRoutePage: React.FC = () => {
           route={routeToView}
         />
 
-        {modalLoading && <LoadingModal />}
+        {showDeleteModal && (
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDeleteRoute}
+            title="Delete Route"
+            message="Are you sure you want to delete this route?"
+            itemName={deleteRouteName}
+            isDeleting={modalLoading}
+          />
+        )}
+
+        {modalLoading && !showDeleteModal && <LoadingModal />}
       </div>
     </div>
   );

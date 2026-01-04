@@ -7,7 +7,7 @@ import '../../../../styles/globals.css';
 import ViewTasksModal from '@/components/modal/View-Task-Modal/ViewTasksModal';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal, Image } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
 const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
@@ -407,7 +407,7 @@ const TaskManagementPage: React.FC = () => {
                           onClick={() => handleViewTasks(record)}
                           title="View Tasks"
                         >
-                          View Tasks
+                          <Image src="/assets/images/eye-line.png" alt="View Tasks" width={20} height={20} />
                         </button>
                       </td>
                     </tr>

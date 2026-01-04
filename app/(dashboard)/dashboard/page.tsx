@@ -33,7 +33,17 @@ const DashboardPage: React.FC = () => {
         data: number[];
       };
     };
-    busStatus: { NotStarted: number; NotReady: number; InOperation: number };
+    rentalEarnings?: {
+      month: number;
+      year: number;
+      data: number[];
+      previous?: {
+        month: number;
+        year: number;
+        data: number[];
+      };
+    };
+    busStatus: { NotStarted: number; NotReady: number; InOperation: number; InRental?: number };
     topRoutes: { [routeName: string]: number };
   } | null>(null);
 
@@ -50,9 +60,11 @@ const DashboardPage: React.FC = () => {
   };
 
   const earnings = dashboard?.earnings;
+  const rentalEarnings = dashboard?.rentalEarnings;
   const busStatus = dashboard?.busStatus;
   const topRoutes = dashboard?.topRoutes;
   const previous = earnings?.previous;
+  const rentalPrevious = rentalEarnings?.previous;
 
   const todayDay = new Date().getDate();
   const todayIndex = todayDay - 1;
@@ -92,6 +104,39 @@ const DashboardPage: React.FC = () => {
       ? ((thisMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
       : 0;
 
+  // Rental earnings calculations
+  const todayRentalEarnings = rentalEarnings ? rentalEarnings.data[todayIndex] || 0 : 0;
+  const yesterdayRentalEarnings = rentalEarnings ? rentalEarnings.data[yesterdayIndex] || 0 : 0;
+
+  const rentalYesterdayChange = yesterdayRentalEarnings > 0
+    ? ((todayRentalEarnings - yesterdayRentalEarnings) / yesterdayRentalEarnings) * 100
+    : 0;
+
+  const thisWeekRentalEarnings = rentalEarnings
+    ? rentalEarnings.data.slice(Math.max(todayIndex - 6, 0), todayIndex + 1).reduce((acc, num) => acc + num, 0)
+    : 0;
+
+  const lastWeekRentalEarnings = rentalEarnings
+    ? rentalEarnings.data.slice(lastWeekStart, lastWeekEnd + 1).reduce((acc, num) => acc + num, 0)
+    : 0;
+
+  const rentalWeeklyTrend = lastWeekRentalEarnings > 0
+    ? ((thisWeekRentalEarnings - lastWeekRentalEarnings) / lastWeekRentalEarnings) * 100
+    : 0;
+
+  const thisMonthRentalTotal = rentalEarnings
+    ? rentalEarnings.data.reduce((acc, num) => acc + num, 0)
+    : 0;
+
+  const previousMonthRentalTotal = rentalPrevious
+    ? rentalPrevious.data.reduce((acc, num) => acc + num, 0)
+    : 0;
+
+  const rentalMonthlyTrend =
+    previousMonthRentalTotal > 0
+      ? ((thisMonthRentalTotal - previousMonthRentalTotal) / previousMonthRentalTotal) * 100
+      : 0;
+
   return (
     <div className={styles.wideCard}>
       {/* Segmented Control with Sliding Indicator */}
@@ -122,7 +167,7 @@ const DashboardPage: React.FC = () => {
       <div className={styles.contentWrapper}>
         {selectedTab === "Bus Earnings" && (
           <>
-            <div className={styles.heading}>Bus Total Earnings</div>
+            <div className={styles.heading}>Bus Operations Total Earning</div>
             
             {isLoading ? (
               <div className={styles.loadingContainer}>
@@ -178,6 +223,64 @@ const DashboardPage: React.FC = () => {
                 <p>No earnings data available</p>
               </div>
             )}
+
+            {/* Bus Rentals Section */}
+            <div className={styles.heading} style={{ marginTop: '48px' }}>Bus Rentals Total Earning</div>
+            
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingModal />
+              </div>
+            ) : rentalEarnings ? (
+              <div className={styles.tabContent}>
+                <div className={styles.statsGrid}>
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}>
+                       Today ({monthString(rentalEarnings.month)} {todayDay})
+                    </p>
+                    <h3 className={styles.amount}>₱ {todayRentalEarnings.toLocaleString()}</h3>
+                    <p className={`${styles.trend} ${todayRentalEarnings >= yesterdayRentalEarnings ? styles.trendUp : styles.trendDown}`}>
+                      {todayRentalEarnings >= yesterdayRentalEarnings ? "+" : "−"}
+                      {Math.abs(rentalYesterdayChange).toFixed(2)}% from yesterday
+                    </p>
+                  </div>
+
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}> This week</p>
+                    <h3 className={styles.amount}>₱ {thisWeekRentalEarnings.toLocaleString()}</h3>
+                    <p className={`${styles.trend} ${rentalWeeklyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                      {rentalWeeklyTrend >= 0 ? "+" : "−"}
+                      {Math.abs(rentalWeeklyTrend).toFixed(2)}% from last week
+                    </p>
+                  </div>
+
+                  <div className={styles.reportCard}>
+                    <p className={styles.cardTitle}>
+                       This month ({monthString(rentalEarnings.month)})
+                    </p>
+                    <h3 className={styles.amount}>
+                      ₱ {thisMonthRentalTotal.toLocaleString()}
+                    </h3>
+                    <p className={`${styles.trend} ${rentalMonthlyTrend >= 0 ? styles.trendUp : styles.trendDown}`}>
+                      {rentalMonthlyTrend >= 0 ? "+" : "−"}
+                      {Math.abs(rentalMonthlyTrend).toFixed(2)}% {rentalMonthlyTrend >= 0 ? "higher" : "lower"} than last month
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.chartContainer}>
+                  <ThisMonthGraph
+                    earnings={{ ...rentalEarnings, day: todayDay }}
+                    previousMonthTotal={previousMonthRentalTotal}
+                    thisMonthTotal={thisMonthRentalTotal}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className={styles.reportCard}>
+                <p>No rental earnings data available</p>
+              </div>
+            )}
           </>
         )}
 
@@ -223,18 +326,28 @@ const DashboardPage: React.FC = () => {
                         {busStatus.NotStarted ?? 0}
                       </h3>
                     </div>
+                    
+                    <div className={styles.reportCard}>
+                      <p className={styles.cardTitle}>
+                        <span className={`${styles.statusIcon}`} style={{ background: '#3b82f6', boxShadow: '0 0 8px rgba(59, 130, 246, 0.4)' }}></span>
+                        In Rental
+                      </p>
+                      <h3 className={styles.amount} style={{ color: '#3b82f6' }}>
+                        {busStatus.InRental ?? 0}
+                      </h3>
+                    </div>
                   </div>
 
                   {/* Pie Chart */}
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <PieChart
-                      colors={["#961C1E", "#FEB71F", "#888"]}
                       series={[
                         {
                           data: [
                             { id: 0, value: busStatus.NotReady ?? 0, label: "Not Ready", color: "#961C1E" },
                             { id: 1, value: busStatus.InOperation ?? 0, label: "In Operation", color: "#0a8969" },
                             { id: 2, value: busStatus.NotStarted ?? 0, label: "Not Started", color: "#888" },
+                            { id: 3, value: busStatus.InRental ?? 0, label: "In Rental", color: "#3b82f6" },
                           ],
                         },
                       ]}

@@ -8,7 +8,7 @@ import AddWorkDetailsModal from '@/components/modal/Add-Work-Details-Modal/AddWo
 import ViewWorkDetailsModal from '@/components/modal/View-Work-Details-Modal/ViewWorkDetailsModal';
 
 // --- Shared imports ---
-import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal } from '@/shared/imports';
+import { Loading, FilterDropdown, PaginationComponent, Swal, LoadingModal, Image } from '@/shared/imports';
 import type { FilterSection } from '@/shared/imports';
 
 const BASE_URL = process.env.NEXT_PUBLIC_Backend_BaseURL?.replace(/['"]/g, "");
@@ -55,6 +55,8 @@ const MaintenancePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'with-details' | 'without-details'>('without-details');
+  const tabs: ('with-details' | 'without-details')[] = ['without-details', 'with-details'];
+  const activeTabIndex = tabs.indexOf(activeTab);
   const [activeFilters, setActiveFilters] = useState<{
     sortBy: string;
     priorityFilter?: string;
@@ -352,6 +354,15 @@ const MaintenancePage: React.FC = () => {
 
         {/* Tab Navigation */}
         <div className={styles.tabContainer}>
+          {/* Sliding indicator background */}
+          <div 
+            className={styles.tabIndicator}
+            style={{
+              transform: `translateX(calc(${activeTabIndex * 100}% + ${activeTabIndex * 4}px))`,
+              width: `calc(${100 / tabs.length}% - ${4 * (tabs.length - 1) / tabs.length}px)`
+            }}
+          />
+          
           <button
             className={`${styles.tab} ${activeTab === 'without-details' ? styles.activeTab : ''}`}
             onClick={() => {
@@ -463,7 +474,7 @@ const MaintenancePage: React.FC = () => {
                               onClick={() => handleAddWorkDetails(record)}
                               title="Add Work Details"
                             >
-                              Add Work Details
+                              <Image src="/assets/images/add-line.png" alt="Add" width={20} height={20} />
                             </button>
                           ) : record.status === 'Completed' ? (
                             // Completed - only show View button
@@ -472,7 +483,7 @@ const MaintenancePage: React.FC = () => {
                               onClick={() => handleViewDetails(record)}
                               title="View Details"
                             >
-                              View Details
+                              <Image src="/assets/images/eye-line.png" alt="View" width={20} height={20} />
                             </button>
                           ) : (
                             // Pending or In Progress - show Update and View buttons
@@ -482,14 +493,14 @@ const MaintenancePage: React.FC = () => {
                                 onClick={() => handleUpdateWorkDetails(record)}
                                 title="Update Work Details"
                               >
-                                Update Work Details
+                                <Image src="/assets/images/edit-white.png" alt="Edit" width={20} height={20} />
                               </button>
                               <button
                                 className={`${styles.actionBtn} ${styles.viewBtn}`}
                                 onClick={() => handleViewDetails(record)}
                                 title="View Details"
                               >
-                                View Details
+                                <Image src="/assets/images/eye-line.png" alt="View" width={20} height={20} />
                               </button>
                             </>
                           )}
