@@ -10,6 +10,7 @@ import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
 import EditStopModal from '@/components/modal/Edit-Stop/EditStopModal';
 import { fetchStopsWithToken, createStopWithToken, updateStopWithToken, softDeleteStopWithToken } from '@/lib/apiCalls/stops';
 import ViewStopModal from "@/components/modal/View-Stop/ViewStopModal";
+import DeleteConfirmationModal from '@/components/modal/Delete-Confirmation-Modal/DeleteConfirmationModal';
 
 
 // --- Shared imports ---
@@ -31,6 +32,11 @@ const RouteManagementPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedStop, setSelectedStop] = useState<Stop | null>(null);
+
+  // Delete modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStopId, setDeleteStopId] = useState<string>('');
+  const [deleteStopName, setDeleteStopName] = useState<string>('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -213,29 +219,18 @@ const RouteManagementPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (stopID: string) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'Are you sure you want to delete this stop?',
-    icon: 'warning',
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it',
-    cancelButtonText: 'Cancel',
-  });
-  if (!result.isConfirmed) return;
+  const handleDelete = (stopID: string, stopName: string) => {
+    setDeleteStopId(stopID);
+    setDeleteStopName(stopName);
+    setShowDeleteModal(true);
+  };
 
+  const confirmDeleteStop = async () => {
     try {
       setModalLoading(true);
-      await softDeleteStopWithToken(stopID);
+      await softDeleteStopWithToken(deleteStopId);
       setModalLoading(false);
-
-      await Swal.fire({
-          icon: 'success',
-          title: 'Deleted',
-          text: 'Stop deleted successfully!',
-        });
+      setShowDeleteModal(false);
       fetchStops();
     } catch (error) {
       setModalLoading(false);
@@ -349,7 +344,7 @@ const RouteManagementPage: React.FC = () => {
 
                             <button
                               className={styles.deleteBtn}
-                              onClick={() => handleDelete(stop.StopID)}
+                              onClick={() => handleDelete(stop.StopID, stop.StopName)}
                             >
                               <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
                             </button>
@@ -401,7 +396,19 @@ const RouteManagementPage: React.FC = () => {
           stop={selectedStop}
         />
 
-        {modalLoading && <LoadingModal />}
+        {showDeleteModal && (
+          <DeleteConfirmationModal
+            show={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDeleteStop}
+            title="Delete Stop"
+            message="Are you sure you want to delete this stop?"
+            itemName={deleteStopName}
+            isDeleting={modalLoading}
+          />
+        )}
+
+        {modalLoading && !showDeleteModal && <LoadingModal />}
       </div>
     </div>
   );

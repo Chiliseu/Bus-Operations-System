@@ -19,6 +19,7 @@ import AssignRouteModal from '@/components/modal/Assign-Route/AssignRouteModal';
 import AddRegularBusAssignmentModal from '@/components/modal/Add-Regular-Bus-Assignment/AddRegularBusAssignmentModal';
 import EditRegularBusAssignmentModal from "@/components/modal/Edit-Regular-Bus-Assignment/EditRegularBusAssignmentModal";
 import ViewAssignmentModal from '@/components/modal/View-Assignment-Modal/ViewAssignmentModal';
+import DeleteConfirmationModal from '@/components/modal/Delete-Confirmation-Modal/DeleteConfirmationModal';
 
 // API calls Imports
 import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
@@ -79,6 +80,9 @@ const BusAssignmentPage: React.FC = () => {
 
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewAssignment, setViewAssignment] = useState<any>(null); // Replace 'any' with your assignment type if you have one
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteAssignmentId, setDeleteAssignmentId] = useState<string>('');
+  const [deleteAssignmentName, setDeleteAssignmentName] = useState<string>('');
 
   // changes by Y 6/17/2025
   const filterSections: FilterSection[] = [
@@ -389,31 +393,24 @@ const BusAssignmentPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (BusAssignmentID: string, IsDeleted: boolean) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-    });
+  const handleDelete = (BusAssignmentID: string, assignmentName: string) => {
+    setDeleteAssignmentId(BusAssignmentID);
+    setDeleteAssignmentName(assignmentName);
+    setShowDeleteModal(true);
+  };
 
-    if (!result.isConfirmed) return;
-
+  const confirmDelete = async () => {
     try {
       setModalLoading(true);
-      await sofDeleteBusAssignment(BusAssignmentID, true);
+      await sofDeleteBusAssignment(deleteAssignmentId, true);
       setModalLoading(false);
-      
-      await Swal.fire('Deleted!', 'Assignment deleted successfully!', 'success'); // ✅ Await this
+      setShowDeleteModal(false);
       
       fetchAssignments();
     } catch (error) {
       setModalLoading(false);
       console.error('Error deleting assignment:', error);
-      await Swal.fire('Error', 'Failed to delete assignment. Please try again.', 'error'); // ✅ Replace alert with Swal
+      await Swal.fire('Error', 'Failed to delete assignment. Please try again.', 'error');
     }
   };
 
@@ -582,7 +579,7 @@ const BusAssignmentPage: React.FC = () => {
                           <button className={styles.deleteBtn} onClick={() =>
                             handleDelete(
                               assignment.RegularBusAssignmentID,
-                              assignment.BusAssignment?.IsDeleted
+                              `${assignment.busLicensePlate || 'Bus'} - ${assignment.driverName || 'Driver'} - ${assignment.BusAssignment?.Route?.RouteName || 'Route'}`
                             )
                           }>
                             <Image src="/assets/images/delete-white.png" alt="Delete" width={25} height={25} />
@@ -705,7 +702,18 @@ const BusAssignmentPage: React.FC = () => {
         />
       )}
 
-      {modalLoading && <LoadingModal/>}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          show={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={confirmDelete}
+          message="Are you sure you want to delete this bus assignment?"
+          itemName={deleteAssignmentName}
+          isDeleting={modalLoading}
+        />
+      )}
+
+      {modalLoading && !showDeleteModal && <LoadingModal/>}
     </div>
   );
 

@@ -9,7 +9,8 @@ import AssignRentalDriverModal from '@/components/modal/Assign-Rental-Driver-Mod
 import DamageCheckModal from '@/components/modal/Damage-Check-Modal/DamageCheckModal';
 import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
 import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
-import LoadingModal from "@/components/modal/LoadingModal";
+import { Loading, FilterDropdown, PaginationComponent } from '@/shared/imports';
+import { FilterSection } from '@/components/ui/FilterDropDown/FilterDropdown';
 
 import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls/rental-request';
 import { fetchBackendToken } from '@/lib/backend';
@@ -101,6 +102,7 @@ interface BusRental {
 
 const ApprovedNotReadyPage: React.FC = () => {
   const [rentals, setRentals] = useState<BusRental[]>([]);
+  const [displayedRentals, setDisplayedRentals] = useState<BusRental[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRental, setSelectedRental] = useState<BusRental | null>(null);
   const [showReadinessModal, setShowReadinessModal] = useState(false);
@@ -109,6 +111,13 @@ const ApprovedNotReadyPage: React.FC = () => {
   const [showRouteMapModal, setShowRouteMapModal] = useState(false);
   const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeFilters, setActiveFilters] = useState<{ sortBy: string }>({
+    sortBy: 'created_newest',
+  });
   const [activeTab, setActiveTab] = useState<BusRental['status']>('Not Ready');
   const tabs: BusRental['status'][] = ['Not Ready', 'Ready', 'Not Started', 'Ongoing', 'Completed'];
   const activeTabIndex = tabs.indexOf(activeTab);
@@ -298,6 +307,66 @@ const ApprovedNotReadyPage: React.FC = () => {
 
   fetchData();
 }, []);
+
+  // --- FilterDropdown configuration ---
+  const filterSections: FilterSection[] = [
+    {
+      id: 'sortBy',
+      title: 'Sort By',
+      type: 'radio',
+      options: [
+        { id: 'name_az', label: 'Customer Name A-Z' },
+        { id: 'name_za', label: 'Customer Name Z-A' },
+        { id: 'created_newest', label: 'Created (Newest)' },
+        { id: 'created_oldest', label: 'Created (Oldest)' },
+      ],
+      defaultValue: 'created_newest',
+    },
+  ];
+
+  const handleApplyFilters = (filterValues: Record<string, any>) => {
+    setActiveFilters({
+      sortBy: filterValues.sortBy || 'created_newest',
+    });
+    setCurrentPage(1);
+  };
+
+  // --- Handle search & filtering logic ---
+  useEffect(() => {
+    try {
+      // Filter by current active tab first
+      let filtered = rentals.filter(r => r.status === activeTab);
+
+      // Apply search query
+      if (searchQuery) {
+        const lower = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (r) => r.customerName?.toLowerCase().includes(lower)
+        );
+      }
+
+      // Apply sorting
+      switch (activeFilters.sortBy) {
+        case 'name_az':
+          filtered.sort((a, b) => a.customerName.localeCompare(b.customerName));
+          break;
+        case 'name_za':
+          filtered.sort((a, b) => b.customerName.localeCompare(a.customerName));
+          break;
+        default:
+          break;
+      }
+
+      // Apply pagination
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      setDisplayedRentals(filtered.slice(start, end));
+      setTotalPages(Math.max(Math.ceil(filtered.length / pageSize), 1));
+    } catch (err: any) {
+      console.error('Error filtering rentals:', err);
+      Swal.fire('Error', 'Failed to filter rentals.', 'error');
+    }
+  }, [rentals, searchQuery, activeFilters, currentPage, pageSize, activeTab]);
 
   const handleViewNote = (note?: string) => {
     Swal.fire({
@@ -622,6 +691,21 @@ const ApprovedNotReadyPage: React.FC = () => {
     <div className={styles.wideCard}>
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Approved Bus Rentals</h2>
+        
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search customer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <FilterDropdown sections={filterSections} onApply={handleApplyFilters} />
+        </div>
+
         <p className={styles.description}>
           Manage rentals that are approved but in different readiness stages.
         </p>
@@ -656,18 +740,27 @@ const ApprovedNotReadyPage: React.FC = () => {
         {/* Active Tab Content */}
         <div className={styles.tabContentWrapper}>
           {loading ? (
-            <div className={styles.tableLoadingContainer}>
-              <LoadingModal />
-            </div>
+            <Loading />
           ) : (
             <div className={styles.tabContent} key={activeTab}>
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {activeTab} Rentals ({statusCounts[activeTab]})
+                  {activeTab} Rentals ({displayedRentals.length})
                 </h3>
               </div>
               
-              {renderRentalTable(groupedRentals[activeTab])}
+              {renderRentalTable(displayedRentals)}
+
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={(page) => setCurrentPage(page)}
+                onPageSizeChange={(size: number) => {
+                  setPageSize(size);
+                  setCurrentPage(1);
+                }}
+              />
             </div>
           )}
         </div>
