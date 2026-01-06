@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, Calculator, Bus, User, Info, Receipt, Calendar, MapPin, Clock } from "lucide-react";
+import Swal from "sweetalert2";
 import styles from "./bus-rental.module.css";
 import { getBackendBaseURL, fetchBackendToken } from "@/lib/backend";
 import { fetchAllRentalRequests } from "@/lib/apiCalls/rental-request";
