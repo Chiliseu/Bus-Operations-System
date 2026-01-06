@@ -2,12 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, Calculator, Bus, User, Info, Receipt, Calendar, MapPin, Clock } from "lucide-react";
+import Swal from "sweetalert2";
 import styles from "./bus-rental.module.css";
 import { getBackendBaseURL, fetchBackendToken } from "@/lib/backend";
 import { fetchAllRentalRequests } from "@/lib/apiCalls/rental-request";
-import AddStopModal from "@/components/modal/Add-Stop/AddStopModal";
+import LocationPickerModal from "@/components/modal/Location-Picker/LocationPickerModal";
 import SuccessPageModal from "@/components/modal/Success-Page-Modal/SuccessPageModal";
 import ValidIdModal from "@/components/modal/Valid-ID-Modal/ValidIdModal";
+import { validateRequestLocations } from "@/lib/apiCalls/vicinity-validator";
 
 /* ---- Types ---- */
 type BusType = "Aircon" | "Non-Aircon";
@@ -631,6 +633,91 @@ export default function BusRentalPage() {
         message: 'Please fix the errors before submitting. Check for date conflicts.'
       });
       return;
+    }
+
+    // Validate vicinity if coordinates are available
+    if (pickupLat && pickupLng && destLat && destLng) {
+      const lat1 = parseFloat(pickupLat);
+      const lon1 = parseFloat(pickupLng);
+      const lat2 = parseFloat(destLat);
+      const lon2 = parseFloat(destLng);
+      
+      if (!isNaN(lat1) && !isNaN(lon1) && !isNaN(lat2) && !isNaN(lon2)) {
+        setLoading(true);
+        setNotification({
+          type: 'error',
+          message: 'Validating service area...'
+        });
+        
+        try {
+          const vicinityValidation = await validateRequestLocations(lat1, lon1, lat2, lon2);
+          
+          if (!vicinityValidation.isValid) {
+            setLoading(false);
+            
+            // Show rejection reason to user
+            await Swal.fire({
+              icon: 'error',
+              title: 'Request Cannot Be Processed',
+              html: `
+                <p style="text-align: left; margin-bottom: 1rem;">Your rental request has been <strong>automatically rejected</strong> because:</p>
+                <ul style="text-align: left; color: #dc2626; padding-left: 1.5rem;">
+                  ${vicinityValidation.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                </ul>
+                <p style="text-align: left; margin-top: 1rem; font-size: 0.875rem; color: #6b7280;">
+                  Please select locations from our predefined service areas or contact support for assistance.
+                </p>
+              `,
+              confirmButtonText: 'Understood',
+              confirmButtonColor: '#dc2626'
+            });
+            
+            // Still save to database with auto-rejected status
+            const token = await fetchBackendToken();
+            if (token) {
+              const rentalData = {
+                CustomerName: customerName.trim(),
+                CustomerContact: contact.trim(),
+                CustomerEmail: email.trim(),
+                CustomerAddress: homeAddress.trim(),
+                ValidIDType: validIdType.trim(),
+                ValidIDNumber: validIdNumber.trim(),
+                ValidIDImage: validIdImage,
+                PickupLocation: pickupLocation.trim(),
+                DropoffLocation: destination.trim(),
+                NumberOfPassengers: parseInt(passengers, 10),
+                RentalDate: new Date(rentalDate).toISOString(),
+                Duration: parseInt(duration, 10),
+                DistanceKM: parseInt(distance, 10),
+                RentalPrice: price,
+                BusID: selectedBusId,
+                SpecialRequirements: `Bus Type: ${busType}, Note: ${note}. AUTO-REJECTED: ${vicinityValidation.reasons.join('; ')}`,
+                PickupLatitude: pickupLat || null,
+                PickupLongitude: pickupLng || null,
+                DropoffLatitude: destLat || null,
+                DropoffLongitude: destLng || null,
+                Status: 'Rejected',
+                RejectionReason: `Auto-Rejected (Outside Vicinity): ${vicinityValidation.reasons.join('; ')}`
+              };
+
+              const baseURL = getBackendBaseURL();
+              await fetch(`${baseURL}/api/rental-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(rentalData)
+              });
+            }
+            
+            return;
+          }
+        } catch (error) {
+          console.error('Vicinity validation error:', error);
+          // Continue with submission if validation fails (allow manual review)
+        } finally {
+          setLoading(false);
+        }
+      }
     }
 
     // recompute price server-side-style to prevent tampered price submission
@@ -1552,8 +1639,8 @@ export default function BusRentalPage() {
           </div>
         </div>
 
-        {/* AddStopModal for Pickup Location */}
-        <AddStopModal
+        {/* LocationPickerModal for Pickup Location */}
+        <LocationPickerModal
           show={showPickupModal}
           onClose={() => setShowPickupModal(false)}
           onCreate={handlePickupCreate}
@@ -1562,10 +1649,11 @@ export default function BusRentalPage() {
           initialName={pickupLocation}
           initialLat={pickupLat}
           initialLng={pickupLng}
+          locationType="pickup"
         />
 
-        {/* AddStopModal for Destination */}
-        <AddStopModal
+        {/* LocationPickerModal for Destination */}
+        <LocationPickerModal
           show={showDestinationModal}
           onClose={() => setShowDestinationModal(false)}
           onCreate={handleDestinationCreate}
@@ -1574,6 +1662,7 @@ export default function BusRentalPage() {
           initialName={destination}
           initialLat={destLat}
           initialLng={destLng}
+          locationType="destination"
         />
 
         {/* Success Modal */}

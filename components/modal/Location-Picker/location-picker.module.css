@@ -1,0 +1,292 @@
+/* Landscape-oriented location picker modal */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  max-width: 900px;
+  max-height: 85vh;
+  width: 95%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  background: #961c1e;
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px 8px 0 0;
+  flex-shrink: 0;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.closeBtn:hover {
+  opacity: 1;
+}
+
+.body {
+  padding: 20px;
+  background: white;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.input:hover {
+  border-color: #961c1e;
+}
+
+.input:focus {
+  border-color: #961c1e;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(150, 28, 30, 0.25);
+}
+
+.inputHint {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 4px;
+  display: block;
+}
+
+.coords {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* CRUD Buttons */
+.crudButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.crudBtn {
+  background: #961c1e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crudBtn:hover {
+  background: #7a1619;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(150, 28, 30, 0.3);
+}
+
+.crudBtnDelete {
+  background: #dc2626;
+}
+
+.crudBtnDelete:hover {
+  background: #b91c1c;
+}
+
+/* Toggle Map Section Button */
+.toggleMapBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: #f8f9fa;
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  color: #495057;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleMapBtn:hover {
+  background: #e9ecef;
+  border-color: #961c1e;
+  color: #961c1e;
+}
+
+/* Map Section */
+.mapSection {
+  animation: expandDown 0.3s ease-out;
+}
+
+@keyframes expandDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+  flex-shrink: 0;
+}
+
+.currentTime {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.setLocationBtn {
+  width: 160px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  background-color: #961C1E;
+  color: #FFFFFF;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border: none;
+}
+
+.setLocationBtn:hover {
+  background-color: #7e191b;
+}
+
+/* CRUD Modal Styles - Higher z-index */
+.crudOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1051;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.crudModal {
+  background: white;
+  border-radius: 8px;
+  max-width: 600px;
+  max-height: 80vh;
+  width: 90%;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
