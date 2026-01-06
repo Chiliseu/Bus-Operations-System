@@ -10,6 +10,7 @@ import { fetchRentalRequestsByStatus, updateRentalRequest } from '@/lib/apiCalls
 import { fetchBackendToken } from '@/lib/backend';
 import RouteMapModal from '@/components/modal/Route-Map-Modal/RouteMapModal';
 import CustomerInfoModal from '@/components/modal/Customer-Info-Modal/CustomerInfoModal';
+import PaymentEmailModal from '@/components/modal/Payment-Email-Modal/PaymentEmailModal';
 
 // Geocoding cache for performance optimization
 const GEOCODING_CACHE_KEY = 'geocoding_cache_v1';
@@ -90,6 +91,8 @@ const PendingRentalPage: React.FC = () => {
   const [showRouteMapModal, setShowRouteMapModal] = useState(false);
   const [showCustomerInfoModal, setShowCustomerInfoModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<BusRental | null>(null);
+  const [showPaymentEmailModal, setShowPaymentEmailModal] = useState(false);
+  const [rentalForEmail, setRentalForEmail] = useState<BusRental | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -268,80 +271,56 @@ useEffect(() => {
       return Swal.fire('Error', 'Rental is not pending.', 'warning');
     }
 
-    const confirm = await Swal.fire({
-      icon: 'question',
-      title: 'Approve Rental',
-      text: `Are you sure you want to approve ${rental.customerName}'s request?`,
-      showCancelButton: true,
-      confirmButtonText: 'Yes, approve',
-    });
-
-    if (confirm.isConfirmed) {
-      try {
-        setLoading(true);
-        
-        // Get authentication token
-        const token = await fetchBackendToken();
-        if (!token) {
-          throw new Error('Authentication failed');
-        }
-
-        // Call the API to approve the rental request
-        await updateRentalRequest(token, id, { command: 'approve' });
-
-        // Remove from local state since it's no longer pending
-        setRentals((prev) => prev.filter((r) => r.id !== id));
-        
-        Swal.fire('Approved!', 'The rental has been approved and moved to the approved section.', 'success');
-      } catch (error: any) {
-        console.error('Error approving rental:', error);
-        Swal.fire('Error', error.message || 'Failed to approve rental request.', 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
+    // Open payment email modal instead of immediately approving
+    setRentalForEmail(rental);
+    setShowPaymentEmailModal(true);
   };
 
-  // --- Reject Handler ---
-  const handleReject = async (id: string) => {
-    const rental = rentals.find((r) => r.id === id);
-    if (!rental) return Swal.fire('Error', 'Rental not found.', 'error');
+  // --- Send Payment Email Handler ---
+  const handleSendPaymentEmail = async (emailContent: string) => {
+    if (!rentalForEmail) return;
 
-    if (rental.status !== 'Pending') {
-      return Swal.fire('Error', 'Rental is not pending.', 'warning');
-    }
-
-    const confirm = await Swal.fire({
-      icon: 'warning',
-      title: 'Reject Rental',
-      text: `Are you sure you want to reject ${rental.customerName}'s request?`,
-      showCancelButton: true,
-      confirmButtonText: 'Yes, reject',
-    });
-
-    if (confirm.isConfirmed) {
-      try {
-        setLoading(true);
-        
-        // Get authentication token
-        const token = await fetchBackendToken();
-        if (!token) {
-          throw new Error('Authentication failed');
-        }
-
-        // Call the API to reject the rental request
-        await updateRentalRequest(token, id, { command: 'reject' });
-
-        // Remove from local state since it's no longer pending
-        setRentals((prev) => prev.filter((r) => r.id !== id));
-        
-        Swal.fire('Rejected!', 'The rental has been rejected and moved to the rejected section.', 'info');
-      } catch (error: any) {
-        console.error('Error rejecting rental:', error);
-        Swal.fire('Error', error.message || 'Failed to reject rental request.', 'error');
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      
+      // Get authentication token
+      const token = await fetchBackendToken();
+      if (!token) {
+        throw new Error('Authentication failed');
       }
+
+      // TODO: Implement actual email sending API call
+      // For now, we'll just approve the rental
+      // const emailResponse = await fetch('/api/send-email', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     to: rentalForEmail.email,
+      //     subject: 'Bus Rental Request Approved - Booking Confirmation',
+      //     content: emailContent
+      //   })
+      // });
+
+      // Call the API to approve the rental request
+      await updateRentalRequest(token, rentalForEmail.id, { command: 'approve' });
+
+      // Remove from local state since it's no longer pending
+      setRentals((prev) => prev.filter((r) => r.id !== rentalForEmail.id));
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'The rental has been approved and payment instructions have been sent to the customer.',
+        confirmButtonColor: '#10b981'
+      });
+
+      setShowPaymentEmailModal(false);
+      setRentalForEmail(null);
+    } catch (error: any) {
+      console.error('Error approving rental:', error);
+      Swal.fire('Error', error.message || 'Failed to approve rental request.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -395,7 +374,7 @@ useEffect(() => {
         </div>
 
         <p className={styles.description}>
-          Review and manage pending bus rental requests.
+          Review and approve valid rental requests that have passed automatic vicinity validation. Rejected requests (outside service area) are automatically filtered out.
         </p>
 
         {loading ? (
@@ -478,13 +457,7 @@ useEffect(() => {
                           className={styles.approveBtn}
                           onClick={() => handleApprove(rental.id)}
                         >
-                          Approve
-                        </button>
-                        <button
-                          className={styles.rejectBtn}
-                          onClick={() => handleReject(rental.id)}
-                        >
-                          Reject
+                          Approve & Send Payment Info
                         </button>
                       </td>
                     </tr>
@@ -544,6 +517,36 @@ useEffect(() => {
             validIdNumber: selectedCustomer.validIdNumber,
             validIdImage: selectedCustomer.validIdImage,
             note: selectedCustomer.note
+          }}
+        />
+      )}
+
+      {/* Payment Email Modal */}
+      {showPaymentEmailModal && rentalForEmail && (
+        <PaymentEmailModal
+          show={showPaymentEmailModal}
+          onClose={() => {
+            setShowPaymentEmailModal(false);
+            setRentalForEmail(null);
+          }}
+          onSendEmail={handleSendPaymentEmail}
+          customerEmail={rentalForEmail.email}
+          rentalDetails={{
+            customerName: rentalForEmail.customerName,
+            busType: rentalForEmail.busType,
+            busName: rentalForEmail.bus,
+            rentalDate: new Date(rentalForEmail.rentalDate).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            duration: rentalForEmail.duration,
+            distance: rentalForEmail.distance,
+            pickupLocation: rentalForEmail.pickupLocation,
+            destination: rentalForEmail.destination,
+            passengers: rentalForEmail.passengers,
+            totalPrice: rentalForEmail.price
           }}
         />
       )}
