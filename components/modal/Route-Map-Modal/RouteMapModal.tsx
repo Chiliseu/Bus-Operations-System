@@ -138,7 +138,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ show, onClose, routeData 
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2 className={styles.title}>🗺️ Route Map</h2>
+          <h2 className={styles.title}>Route Map</h2>
           <button className={styles.closeBtn} onClick={onClose}>
             ×
           </button>

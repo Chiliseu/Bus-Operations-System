@@ -323,6 +323,24 @@ const DamageReportsPage: React.FC = () => {
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Damage Reports</h2>
 
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrapper}>
+            <i className="ri-search-2-line"></i>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search damage reports..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <FilterDropdown
+            sections={filterSections}
+            onApply={handleApplyFilters}
+          />
+        </div>
+
         {/* Tab Navigation */}
         <div className={styles.tabContainer}>
           {/* Sliding indicator background */}
@@ -370,24 +388,6 @@ const DamageReportsPage: React.FC = () => {
               {damageReports.filter(r => r.status === 'Rejected').length}
             </span>
           </button>
-        </div>
-
-        <div className={styles.toolbar}>
-          <div className={styles.searchWrapper}>
-            <i className="ri-search-2-line"></i>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search damage reports..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <FilterDropdown
-            sections={filterSections}
-            onApply={handleApplyFilters}
-          />
         </div>
 
         <p className={styles.description}>

@@ -229,10 +229,10 @@ export default function SuccessPageModal({ show, onClose, summary }: SuccessPage
               <div className={styles.infoBox}>
                 <h3 className={styles.infoTitle}>What happens next?</h3>
                 <ol className={styles.infoList}>
-                  <li>The rental request will be reviewed by our team</li>
-                  <li>Customer will be notified once the request is approved or requires changes</li>
-                  <li>Check the &quot;Pending Requests&quot; page to track the status of your request</li>
-                  <li>Once approved, you&apos;ll receive confirmation and payment instructions</li>
+                  <li>Review the rental request submitted by the customer</li>
+                  <li>Notify the customer once the request is approved or if changes are required</li>
+                  <li>Monitor and update the request status on the "Pending Requests" page</li>
+                  <li>Send confirmation and payment instructions to the customer after approval</li>
                 </ol>
               </div>
             </div>
