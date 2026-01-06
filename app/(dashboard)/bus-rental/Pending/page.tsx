@@ -444,7 +444,7 @@ useEffect(() => {
                           title={rental.pickupLat && rental.dropoffLat ? 'Click to view route on map' : ''}
                         >
                           {rental.destination || 'N/A'}
-                          {rental.pickupLat && rental.dropoffLat && ' 🗺️'}
+                          {rental.pickupLat && rental.dropoffLat && ' '}
                         </div>
                       </td>
                       <td>
@@ -460,7 +460,7 @@ useEffect(() => {
                           title={rental.pickupLat && rental.dropoffLat ? 'Click to view route on map' : ''}
                         >
                           {rental.pickupLocation || 'N/A'}
-                          {rental.pickupLat && rental.dropoffLat && ' 🗺️'}
+                          {rental.pickupLat && rental.dropoffLat && ' '}
                         </div>
                       </td>
                       <td>{rental.passengers ?? 'N/A'}</td>
