@@ -68,7 +68,7 @@ const AssignBusModal = ({
     {
       name: 'Alphabetical',
       action: () => {
-        const sorted = [...filteredBuses].sort((a, b) => a.busId.localeCompare(b.busId));
+        const sorted = [...filteredBuses].sort((a, b) => a.license_plate.localeCompare(b.license_plate));
         setFilteredBuses(sorted);
       },
     },
@@ -110,7 +110,7 @@ const AssignBusModal = ({
                   const text = e.target.value;
                   setSearchTerm(text);
                   const filtered = buses.filter((bus) =>
-                    bus.busId.toLowerCase().includes(text.toLowerCase()) ||
+                    bus.license_plate.toLowerCase().includes(text.toLowerCase()) ||
                     bus.type.toLowerCase().includes(text.toLowerCase())
                   );
                   setFilteredBuses(filtered);
@@ -151,7 +151,7 @@ const AssignBusModal = ({
                         />
                       </div>
                       <div className={styles.busDetails}>
-                        <div className={styles.busId}>{bus.busId}</div>
+                        <div className={styles.busId}>{bus.license_plate}</div>
                         <div className={styles.busType}>{bus.type}</div>
                         <div className={styles.busCapacity}>{`${bus.capacity} seats`}</div>
                       </div>

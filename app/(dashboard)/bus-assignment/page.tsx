@@ -547,7 +547,7 @@ const BusAssignmentPage: React.FC = () => {
             <table className={styles.table}>
               <thead>
                 <tr className={styles.tableHeadRow}>
-                  <th>Bus</th>
+                  <th>Bus Plate No.</th>
                   <th>Bus Type</th> {/* changes by Y 6/17/2025*/}
                   <th>Driver</th>
                   <th>Conductor</th>
@@ -559,7 +559,16 @@ const BusAssignmentPage: React.FC = () => {
                 <tbody>
                   {paginatedAssignments.length > 0 ? (
                     paginatedAssignments.map((assignment) => (
-                      <tr key={assignment.RegularBusAssignmentID} className={styles.tableRow}>
+                      <tr 
+                        key={assignment.RegularBusAssignmentID} 
+                        className={styles.tableRow}
+                        onClick={() => {
+                          console.log(assignment);
+                          setViewAssignment(assignment);
+                          setShowViewModal(true);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <td>{assignment.busLicensePlate || "-"}</td>
                         <td>{renderBusTypeLabel(assignment.busType)}</td>
                         <td>{assignment.driverName || "-"}</td>
@@ -577,7 +586,7 @@ const BusAssignmentPage: React.FC = () => {
                             );
                           })()}
                         </td>
-                        <td>
+                        <td onClick={(e) => e.stopPropagation()}>
                           <button
                             className={styles.viewBtn}
                             onClick={() => {
