@@ -36,6 +36,35 @@ import type { FilterSection } from '@/shared/imports';
 // ====================================
 
 const BusAssignmentPage: React.FC = () => {
+  // Local helper: relative "time ago" label using Intl.RelativeTimeFormat
+  const formatTimeAgo = (dateInput?: string | Date | null) => {
+    if (!dateInput) return "-";
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return "-";
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    const diffSec = Math.round(diffMs / 1000);
+
+    const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+    const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+      ['year', 60 * 60 * 24 * 365],
+      ['month', 60 * 60 * 24 * 30],
+      ['week', 60 * 60 * 24 * 7],
+      ['day', 60 * 60 * 24],
+      ['hour', 60 * 60],
+      ['minute', 60],
+      ['second', 1],
+    ];
+
+    const absSec = Math.abs(diffSec);
+    for (const [unit, secInUnit] of units) {
+      if (absSec >= secInUnit || unit === 'second') {
+        const value = Math.round(diffSec / secInUnit);
+        return rtf.format(value as number, unit);
+      }
+    }
+    return "-";
+  };
 
   // Flags for modal
   const [busAssignments, setAssignments] = useState<(RegularBusAssignment & {
@@ -99,10 +128,8 @@ const BusAssignmentPage: React.FC = () => {
         { id: "conductor_za", label: "Conductor Z-A" },
         { id: "route_az", label: "Route A-Z" },
         { id: "route_za", label: "Route Z-A" },
-        { id: "created_newest", label: "Created At (Newest First)" },
-        { id: "created_oldest", label: "Created At (Oldest First)" },
-        { id: "updated_newest", label: "Updated At (Newest First)" },
-        { id: "updated_oldest", label: "Updated At (Oldest First)" },
+        { id: "created_newest", label: "Newest First" },
+        { id: "created_oldest", label: "Oldest First" },
       ],
       //defaultValue: "bus_az"
       //(Newly added and Updated Assignments should always be at the top, not sorted by default)
@@ -176,18 +203,6 @@ const BusAssignmentPage: React.FC = () => {
         sortedAssignments.sort((a, b) =>
           new Date(a.BusAssignment?.CreatedAt || 0).getTime() -
           new Date(b.BusAssignment?.CreatedAt || 0).getTime()
-        );
-        break;
-      case "updated_newest":
-        sortedAssignments.sort((a, b) =>
-          new Date(b.BusAssignment?.UpdatedAt || 0).getTime() -
-          new Date(a.BusAssignment?.UpdatedAt || 0).getTime()
-        );
-        break;
-      case "updated_oldest":
-        sortedAssignments.sort((a, b) =>
-          new Date(a.BusAssignment?.UpdatedAt || 0).getTime() -
-          new Date(b.BusAssignment?.UpdatedAt || 0).getTime()
         );
         break;
       default:
@@ -537,8 +552,7 @@ const BusAssignmentPage: React.FC = () => {
                   <th>Driver</th>
                   <th>Conductor</th>
                   <th>Route</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
+                  <th>Last Updated</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -552,14 +566,16 @@ const BusAssignmentPage: React.FC = () => {
                         <td>{assignment.conductorName || "-"}</td>
                         <td>{assignment.BusAssignment?.Route?.RouteName || "No Route"}</td>
                         <td>
-                          {assignment.BusAssignment?.CreatedAt
-                            ? new Date(assignment.BusAssignment.CreatedAt).toLocaleString()
-                            : "N/A"}
-                        </td>
-                        <td>
-                          {assignment.BusAssignment?.UpdatedAt
-                            ? new Date(assignment.BusAssignment.UpdatedAt).toLocaleString()
-                            : "No updates"}
+                          {(() => {
+                            const lastUpdated = assignment.BusAssignment?.UpdatedAt || assignment.BusAssignment?.CreatedAt;
+                            const title = lastUpdated ? new Date(lastUpdated).toLocaleString() : "N/A";
+                            const label = formatTimeAgo(lastUpdated);
+                            return (
+                              <span className={styles.lastUpdatedBadge} title={title}>
+                                {label}
+                              </span>
+                            );
+                          })()}
                         </td>
                         <td>
                           <button
@@ -589,7 +605,7 @@ const BusAssignmentPage: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className={styles.noRecords}>
+                      <td colSpan={7} className={styles.noRecords}>
                         No records found.
                       </td>
                     </tr>
