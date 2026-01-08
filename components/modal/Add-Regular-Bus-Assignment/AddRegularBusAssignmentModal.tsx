@@ -46,8 +46,14 @@ interface AddRegularBusAssignmentModalProps {
   }) => Promise<any>;
 }
 
-const YEAR_START = "2025-01-01";
-const YEAR_END = "2025-12-31";
+// Get current year dynamically
+const getCurrentYearRange = () => {
+  const currentYear = new Date().getFullYear();
+  return {
+    start: `${currentYear}-01-01`,
+    end: `${currentYear}-12-31`
+  };
+};
 
 const dateToISO = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -64,6 +70,7 @@ const daysBetween = (start: string, end: string): number => {
 };
 
 const recalcQuotaDateRanges = (count: number): QuotaPolicy[] => {
+  const { start: YEAR_START, end: YEAR_END } = getCurrentYearRange();
   const totalDays = daysBetween(YEAR_START, YEAR_END);
   const baseDays = Math.floor(totalDays / count);
   const remainder = totalDays % count;
@@ -86,12 +93,6 @@ const recalcQuotaDateRanges = (count: number): QuotaPolicy[] => {
   }
 
   return policies;
-};
-
-const clampDate = (dateStr: string) => {
-  if (dateStr < YEAR_START) return YEAR_START;
-  if (dateStr > YEAR_END) return YEAR_END;
-  return dateStr;
 };
 
 const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> = ({
@@ -180,7 +181,6 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
     value: string
   ) => {
     let updated = [...quotaPolicies];
-    value = clampDate(value);
 
     if (field === "startDate") {
       // startDate can't be after current endDate
@@ -203,11 +203,6 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
         }
         updated[index - 1] = prev;
       }
-
-      // Also ensure current startDate >= YEAR_START
-      if (updated[index].startDate < YEAR_START) {
-        updated[index].startDate = YEAR_START;
-      }
     } else if (field === "endDate") {
       // endDate can't be before current startDate
       if (value < updated[index].startDate) {
@@ -228,19 +223,7 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
         }
         updated[index + 1] = next;
       }
-
-      // Ensure current endDate <= YEAR_END
-      if (updated[index].endDate > YEAR_END) {
-        updated[index].endDate = YEAR_END;
-      }
     }
-
-    // Finally clamp all dates within YEAR_START to YEAR_END
-    updated = updated.map((p) => ({
-      ...p,
-      startDate: clampDate(p.startDate),
-      endDate: clampDate(p.endDate),
-    }));
 
     setQuotaPolicies(updated);
   };
@@ -407,8 +390,6 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                       onChange={(e) =>
                         handleDateChange(index, "startDate", e.target.value)
                       }
-                      min={YEAR_START}
-                      max={policy.endDate}
                     />
                   </div>
                   <div className="col-md-3">
@@ -421,7 +402,6 @@ const AddRegularBusAssignmentModal: React.FC<AddRegularBusAssignmentModalProps> 
                         handleDateChange(index, "endDate", e.target.value)
                       }
                       min={policy.startDate}
-                      max={YEAR_END}
                     />
                   </div>
                   <div className="col-md-3">

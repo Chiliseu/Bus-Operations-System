@@ -252,6 +252,18 @@
   vertical-align: middle; /* align nicely with text */
 }
 
+/* Last Updated badge */
+.lastUpdatedBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background-color: #f3f4f6; /* gray-100 */
+  color: #374151; /* gray-700 */
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px solid #e5e7eb; /* gray-200 */
+}
+
 
 /* === Button Row Container === */
 .buttonRow {

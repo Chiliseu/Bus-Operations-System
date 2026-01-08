@@ -28,8 +28,14 @@ interface EditRegularBusAssignmentModalProps {
   }) => void;
 }
 
-const YEAR_START = "2025-01-01";
-const YEAR_END = "2025-12-31";
+// Get current year dynamically
+const getCurrentYearRange = () => {
+  const currentYear = new Date().getFullYear();
+  return {
+    start: `${currentYear}-01-01`,
+    end: `${currentYear}-12-31`
+  };
+};
 
 const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps> = ({
   show,
@@ -49,16 +55,17 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
   setSelectedRoute,
   onSave,
 }) => {
-  const [quotaPolicies, setQuotaPolicies] = useState<any[]>(
-    quotaPolicy || [
+  const [quotaPolicies, setQuotaPolicies] = useState<any[]>(() => {
+    const { start, end } = getCurrentYearRange();
+    return quotaPolicy || [
       {
-        StartDate: YEAR_START,
-        EndDate: YEAR_END,
+        StartDate: start,
+        EndDate: end,
         quotaType: "Fixed",
         quotaValue: 0,
       },
-    ]
-  );
+    ];
+  });
 
   // TIME CHECK
   const [currentTime, setCurrentTime] = useState<string>(
@@ -67,6 +74,7 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
   
   useEffect(() => {
     if (quotaPolicy && quotaPolicy.length > 0) {
+      const { start, end } = getCurrentYearRange();
       const mapped = quotaPolicy.map((policy) => {
         const startDate = new Date(policy.StartDate);
         const endDate = new Date(policy.EndDate);
@@ -75,11 +83,11 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
 
         const formattedStartDate = isValidDate(startDate)
           ? startDate.toISOString().split("T")[0]
-          : YEAR_START;
+          : start;
 
         const formattedEndDate = isValidDate(endDate)
           ? endDate.toISOString().split("T")[0]
-          : YEAR_END;
+          : end;
 
         const quotaType = policy.Fixed ? "Fixed" : "Percentage";
         const quotaValue = policy.Fixed?.Quota ?? policy.Percentage?.Percentage ?? 0;
@@ -195,11 +203,12 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
   };
 
   const addQuotaPolicy = () => {
+    const { start, end } = getCurrentYearRange();
     setQuotaPolicies([
       ...quotaPolicies,
       {
-        StartDate: YEAR_START,
-        EndDate: YEAR_END,
+        StartDate: start,
+        EndDate: end,
         quotaType: "Fixed",
         quotaValue: 0,
       },
@@ -307,8 +316,6 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                       onChange={(e) =>
                         handleDateChange(index, "StartDate", e.target.value)
                       }
-                      min={YEAR_START}
-                      max={policy.EndDate}
                     />
                   </div>
                   <div className="col-md-3">
@@ -321,7 +328,6 @@ const EditRegularBusAssignmentModal: React.FC<EditRegularBusAssignmentModalProps
                         handleDateChange(index, "EndDate", e.target.value)
                       }
                       min={policy.StartDate}
-                      max={YEAR_END}
                     />
                   </div>
                   <div className="col-md-3">
