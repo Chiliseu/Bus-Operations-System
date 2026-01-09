@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { BarChart, PieChart } from "@mui/x-charts";
 import styles from "./dashboard.module.css";
 import ThisMonthGraph from "./ThisMonthGraph";
 import { fetchDashboardSummary } from "@/lib/apiCalls/dashboard";
+import { fetchTripHistory, TripHistoryItem, TripHistoryResponse } from "@/lib/apiCalls/bus-operation";
 import LoadingModal from "@/components/modal/LoadingModal";
 
 function monthString(month: number): string {
@@ -18,8 +20,12 @@ function monthString(month: number): string {
 const DashboardPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Bus Earnings");
   const [isLoading, setIsLoading] = useState(true);
+  const [tripHistoryLoading, setTripHistoryLoading] = useState(false);
+  const [tripHistory, setTripHistory] = useState<TripHistoryResponse | null>(null);
+  const [tripHistoryPage, setTripHistoryPage] = useState(1);
+  const [selectedTrip, setSelectedTrip] = useState<TripHistoryItem | null>(null);
 
-  const tabs = ["Bus Earnings", "Bus Status", "Top Performing Routes"];
+  const tabs = ["Bus Earnings", "Trip History", "Bus Status", "Top Performing Routes"];
   const activeTabIndex = tabs.indexOf(selectedTab);
 
   const [dashboard, setDashboard] = useState<{
@@ -54,6 +60,29 @@ const DashboardPage: React.FC = () => {
       .catch(console.error)
       .finally(() => setIsLoading(false));
   }, []);
+
+  // Fetch trip history when tab is selected or page changes
+  useEffect(() => {
+    if (selectedTab === "Trip History") {
+      setTripHistoryLoading(true);
+      fetchTripHistory(tripHistoryPage, 15)
+        .then(setTripHistory)
+        .catch(console.error)
+        .finally(() => setTripHistoryLoading(false));
+    }
+  }, [selectedTab, tripHistoryPage]);
+
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (selectedTrip) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedTrip]);
 
   const handleSegmentChange = (value: string) => {
     setSelectedTab(value);
@@ -373,21 +402,80 @@ const DashboardPage: React.FC = () => {
               <div className={styles.loadingContainer}>
                 <LoadingModal />
               </div>
-            ) : topRoutes ? (
+            ) : topRoutes && Object.keys(topRoutes).length > 0 ? (
               <div className={styles.tabContent} key={selectedTab}>
-                <div className={styles.chartContainer}>
-                  <BarChart
-                    xAxis={[
-                      {
-                        data: Object.keys(topRoutes),
-                      },
-                    ]}
-                    series={[{ 
-                      data: Object.values(topRoutes),
-                      color: '#961c1e'
-                    }]}
-                    height={300}
-                  />
+                {/* Top 3 Podium */}
+                <div className={styles.topThreeContainer}>
+                  {Object.entries(topRoutes)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 3)
+                    .map(([routeName, earnings], index) => (
+                      <div 
+                        key={routeName} 
+                        className={`${styles.podiumCard} ${styles[`rank${index + 1}`]}`}
+                      >
+                        <div className={styles.podiumRank}>
+                          {index === 0 && <i className="ri-trophy-fill"></i>}
+                          {index === 1 && <i className="ri-medal-fill"></i>}
+                          {index === 2 && <i className="ri-award-fill"></i>}
+                        </div>
+                        <div className={styles.podiumPosition}>#{index + 1}</div>
+                        <div className={styles.podiumRouteName}>{routeName}</div>
+                        <div className={styles.podiumEarnings}>
+                          ₱{earnings.toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Other Routes List */}
+                {Object.entries(topRoutes).length > 3 && (
+                  <div className={styles.otherRoutesSection}>
+                    <h4 className={styles.otherRoutesTitle}>Other Routes</h4>
+                    <div className={styles.otherRoutesList}>
+                      {Object.entries(topRoutes)
+                        .sort(([, a], [, b]) => b - a)
+                        .slice(3)
+                        .map(([routeName, earnings], index) => (
+                          <div key={routeName} className={styles.otherRouteItem}>
+                            <span className={styles.otherRouteRank}>#{index + 4}</span>
+                            <span className={styles.otherRouteName}>{routeName}</span>
+                            <span className={styles.otherRouteEarnings}>
+                              ₱{earnings.toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bar Chart */}
+                <div className={styles.chartCard}>
+                  <h4 className={styles.chartTitle}>
+                    <i className="ri-bar-chart-2-fill"></i>
+                    Earnings Comparison
+                  </h4>
+                  <div className={styles.chartContainer}>
+                    <BarChart
+                      xAxis={[
+                        {
+                          data: Object.keys(topRoutes),
+                          scaleType: 'band',
+                        },
+                      ]}
+                      series={[{ 
+                        data: Object.values(topRoutes),
+                        color: '#961c1e',
+                      }]}
+                      height={320}
+                      margin={{ top: 20, bottom: 60, left: 80, right: 20 }}
+                      sx={{
+                        '.MuiChartsAxis-tickLabel': {
+                          fontSize: '12px !important',
+                        },
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             ) : (
@@ -397,7 +485,242 @@ const DashboardPage: React.FC = () => {
             )}
           </>
         )}
+
+        {selectedTab === "Trip History" && (
+          <>
+            <div className={styles.heading}>Completed Bus Trips History</div>
+            
+            {tripHistoryLoading ? (
+              <div className={styles.loadingContainer}>
+                <LoadingModal />
+              </div>
+            ) : tripHistory && tripHistory.trips.length > 0 ? (
+              <div className={styles.tabContent} key={selectedTab}>
+                <div className={styles.tripCardsGrid}>
+                  {tripHistory.trips.map((trip) => {
+                    const completedDate = trip.CompletedAt ? new Date(trip.CompletedAt) : null;
+                    const dispatchedDate = trip.DispatchedAt ? new Date(trip.DispatchedAt) : null;
+                    
+                    return (
+                      <div 
+                        key={trip.BusTripID} 
+                        className={styles.tripCard}
+                        onClick={() => setSelectedTrip(trip)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className={styles.tripCardHeader}>
+                          <div className={styles.tripBusInfo}>
+                            <span className={styles.tripBusNumber}>
+                              {trip.busLicensePlate || '-'}
+                            </span>
+                            <span className={styles.tripRoute}>
+                              {trip.regularBusAssignment?.BusAssignment?.Route?.RouteName || '-'}
+                            </span>
+                          </div>
+                          <div className={styles.tripDateTime}>
+                            {completedDate 
+                              ? completedDate.toLocaleDateString('en-US', { 
+                                  month: 'short', day: 'numeric', year: 'numeric'
+                                }) 
+                              : '-'}
+                          </div>
+                        </div>
+                        
+                        <div className={styles.tripSalesHighlight}>
+                          <span className={styles.tripSalesLabel}>Sales</span>
+                          <span className={styles.tripSalesValue}>
+                            ₱{trip.Sales?.toLocaleString() || '0'}
+                          </span>
+                        </div>
+                        
+                        <div className={styles.tripCardFooter}>
+                          <div className={styles.tripCrewInfo}>
+                            <i className="ri-user-line"></i>
+                            <span>{trip.driverName || 'Unknown Driver'}</span>
+                          </div>
+                          <div className={styles.tripTimeInfo}>
+                            {completedDate && (
+                              <span className={styles.tripDuration}>
+                                {(() => {
+                                  const now = new Date();
+                                  const diffMs = now.getTime() - completedDate.getTime();
+                                  const diffMins = Math.floor(diffMs / (1000 * 60));
+                                  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                                  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                  
+                                  if (diffMins < 60) return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+                                  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+                                  if (diffDays === 1) return 'Yesterday';
+                                  return `${diffDays} days ago`;
+                                })()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Pagination */}
+                {tripHistory.pagination.totalPages > 1 && (
+                  <div className={styles.tripHistoryPagination}>
+                    <button 
+                      onClick={() => setTripHistoryPage(p => Math.max(1, p - 1))}
+                      disabled={tripHistoryPage === 1}
+                      className={styles.paginationBtn}
+                    >
+                      Previous
+                    </button>
+                    <span className={styles.paginationInfo}>
+                      Page {tripHistory.pagination.page} of {tripHistory.pagination.totalPages}
+                    </span>
+                    <button 
+                      onClick={() => setTripHistoryPage(p => Math.min(tripHistory.pagination.totalPages, p + 1))}
+                      disabled={tripHistoryPage === tripHistory.pagination.totalPages}
+                      className={styles.paginationBtn}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={styles.reportCard}>
+                <p>No completed trips found</p>
+              </div>
+            )}
+          </>
+        )}
       </div>
+
+      {/* Trip Detail Modal */}
+      {selectedTrip && createPortal(
+        <div className={styles.modalOverlay} onClick={() => setSelectedTrip(null)}>
+          <div className={styles.tripDetailModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>Trip Details</h3>
+              <button className={styles.modalCloseBtn} onClick={() => setSelectedTrip(null)}>
+                <i className="ri-close-line"></i>
+              </button>
+            </div>
+            
+            <div className={styles.modalBody}>
+              <div className={styles.detailSection}>
+                <h4>Bus & Route</h4>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Bus</span>
+                    <span className={styles.detailValue}>{selectedTrip.busLicensePlate || '-'}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Route</span>
+                    <span className={styles.detailValue}>
+                      {selectedTrip.regularBusAssignment?.BusAssignment?.Route?.RouteName || '-'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.detailSection}>
+                <h4>Crew</h4>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Driver</span>
+                    <span className={styles.detailValue}>{selectedTrip.driverName || '-'}</span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Conductor</span>
+                    <span className={styles.detailValue}>{selectedTrip.conductorName || '-'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.detailSection}>
+                <h4>Timing</h4>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Dispatched</span>
+                    <span className={styles.detailValue}>
+                      {selectedTrip.DispatchedAt 
+                        ? new Date(selectedTrip.DispatchedAt).toLocaleString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          }) 
+                        : '-'}
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Completed</span>
+                    <span className={styles.detailValue}>
+                      {selectedTrip.CompletedAt 
+                        ? new Date(selectedTrip.CompletedAt).toLocaleString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          }) 
+                        : '-'}
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Duration</span>
+                    <span className={styles.detailValue}>
+                      {selectedTrip.DispatchedAt && selectedTrip.CompletedAt
+                        ? `${Math.round((new Date(selectedTrip.CompletedAt).getTime() - new Date(selectedTrip.DispatchedAt).getTime()) / (1000 * 60 * 60))} hours`
+                        : '-'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.detailSection}>
+                <h4>Financials</h4>
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Sales</span>
+                    <span className={`${styles.detailValue} ${styles.salesHighlight}`}>
+                      ₱{selectedTrip.Sales?.toLocaleString() || '0'}
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Trip Expense</span>
+                    <span className={styles.detailValue}>
+                      ₱{selectedTrip.TripExpense?.toLocaleString() || '0'}
+                    </span>
+                  </div>
+                  <div className={styles.detailItem}>
+                    <span className={styles.detailLabel}>Payment Method</span>
+                    <span className={styles.detailValue}>{selectedTrip.PaymentMethod || '-'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {selectedTrip.Remarks && (
+                <div className={styles.detailSection}>
+                  <h4>Remarks</h4>
+                  <p className={styles.remarksText}>{selectedTrip.Remarks}</p>
+                </div>
+              )}
+
+              {selectedTrip.DamageReports && selectedTrip.DamageReports.length > 0 && (
+                <div className={styles.detailSection}>
+                  <h4>Damage Reports</h4>
+                  <div className={styles.damageReportsList}>
+                    {selectedTrip.DamageReports.map((report, idx) => (
+                      <div key={idx} className={styles.damageReportItem}>
+                        <span className={styles.damageDescription}>{report.Description}</span>
+                        <span className={`${styles.damageStatus} ${styles[`status${report.Status}`]}`}>
+                          {report.Status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
