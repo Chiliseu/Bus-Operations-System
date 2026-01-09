@@ -110,6 +110,6 @@ export const config = {
     '/bus-assignment',
     //'/dashboard',
     '/route-management/:path*',
-    '/bus-operation/:path*',
+    //'/bus-operation/:path*',
   ],
 };
