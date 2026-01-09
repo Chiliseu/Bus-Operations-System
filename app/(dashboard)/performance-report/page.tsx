@@ -77,42 +77,320 @@ const PerformanceDashboard = () => {
 
   // === PDF EXPORT FUNCTION ===
   const handleExport = async () => {
-    const element = document.getElementById("performance-dashboard");
-    if (!element) return;
+    try {
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPosition = margin;
 
-    // Temporarily adjust scale and background to improve text rendering
-    const originalBackground = element.style.backgroundColor;
-    element.style.backgroundColor = "#ffffff";
+      // Helper function to check if we need a new page
+      const checkPageBreak = (requiredHeight: number) => {
+        if (yPosition + requiredHeight > pageHeight - margin - 10) {
+          pdf.addPage();
+          yPosition = margin;
+          return true;
+        }
+        return false;
+      };
 
-    const canvas = await html2canvas(element, {
-      scale: 3, // increase resolution
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      scrollX: 0,
-      scrollY: -window.scrollY,
+      // === HEADER (Red background like modal) ===
+      pdf.setFillColor(150, 28, 30); // #961c1e
+      pdf.rect(0, 0, pageWidth, 35, 'F');
+      
+      // Logo in the center
+      const logoSize = 40;
+      const logoX = pageWidth / 2;
+      const logoY = 17.5;
+      
+      // Load and add logo image
+      try {
+        const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = '/assets/images/agilalogoforpdf.png';
+        });
+        pdf.addImage(logoImg, 'PNG', logoX - logoSize / 2, logoY - logoSize / 2, logoSize, logoSize);
+      } catch (error) {
+        console.log('Logo could not be loaded, continuing without it');
+      }
+      
+      // Title on the left
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Performance Report', margin, 14);
+      
+      // Generated and Period info on the left, stacked
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Generated: ${new Date().toLocaleDateString()}`, margin, 22);
+      pdf.text(`Period: ${dateRange.replace(/_/g, ' ').toUpperCase()}`, margin, 28);
+      
+      yPosition = 45;
+
+    // === OVERVIEW SECTION ===
+    pdf.setFillColor(248, 249, 250); // Light gray background like modal sections
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 35, 'F');
+    pdf.setDrawColor(233, 236, 239);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 35, 'S');
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(73, 80, 87);
+    pdf.text('Overview', margin + 3, yPosition + 6);
+    
+    // Stats in simple boxes
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(73, 80, 87);
+    
+    const stats = [
+      ['Total Trips', '1,133', '+12.5%'],
+      ['Total Revenue', '₱680,000', '+9.7%'],
+      ['Avg Punctuality', '92%', '+3%'],
+      ['Active Routes', '12', 'All operational']
+    ];
+
+    stats.forEach((stat, idx) => {
+      const xPos = margin + 5 + (idx % 2) * 85;
+      const yPos = yPosition + 12 + Math.floor(idx / 2) * 10;
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${stat[0]}:`, xPos, yPos);
+      pdf.setFont('helvetica', 'normal');
+      const displayValue = stat[1].replace('₱', 'PHP ');
+      pdf.text(displayValue, xPos + 35, yPos);
+      pdf.setTextColor(5, 150, 105);
+      pdf.text(stat[2], xPos + 60, yPos);
+      pdf.setTextColor(73, 80, 87);
     });
 
-    const imgData = canvas.toDataURL("image/png", 1.0);
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    yPosition += 40;
 
-    // If dashboard is taller than one page, split into multiple pages
-    let position = 0;
-    let heightLeft = pdfHeight;
+    // === TOP PERFORMING DRIVERS ===
+    checkPageBreak(65);
+    
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'F');
+    pdf.setDrawColor(233, 236, 239);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'S');
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(73, 80, 87);
+    pdf.text('Top Performing Drivers', margin + 3, yPosition + 6);
+    
+    yPosition += 12;
+    
+    // Table header (Red background like modal)
+    pdf.setFillColor(150, 28, 30);
+    pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 8, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Name', margin + 6, yPosition + 5.5);
+    pdf.text('Trips', margin + 70, yPosition + 5.5);
+    pdf.text('Revenue', margin + 100, yPosition + 5.5);
+    pdf.text('Punctuality', margin + 150, yPosition + 5.5);
+    
+    yPosition += 8;
+    
+    // Table rows
+    pdf.setFontSize(8);
+    topDrivers.forEach((driver, idx) => {
+      if (idx % 2 === 0) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 7, 'F');
+      }
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(73, 80, 87);
+      pdf.text(driver.name, margin + 6, yPosition + 5);
+      pdf.text(driver.trips.toString(), margin + 70, yPosition + 5);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(150, 28, 30);
+      pdf.text(`PHP ${driver.revenue.toLocaleString()}`, margin + 100, yPosition + 5);
+      
+      pdf.setTextColor(5, 150, 105);
+      pdf.text(`${driver.punctuality}%`, margin + 150, yPosition + 5);
+      
+      yPosition += 7;
+    });
 
-    while (heightLeft > 0) {
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pdf.internal.pageSize.getHeight();
-      if (heightLeft > 0) pdf.addPage();
-      position = -pdf.internal.pageSize.getHeight();
+    yPosition += 10;
+
+    // === TOP PERFORMING CONDUCTORS ===
+    checkPageBreak(65);
+    
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'F');
+    pdf.setDrawColor(233, 236, 239);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'S');
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(73, 80, 87);
+    pdf.text('Top Performing Conductors', margin + 3, yPosition + 6);
+    
+    yPosition += 12;
+    
+    pdf.setFillColor(150, 28, 30);
+    pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 8, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Name', margin + 6, yPosition + 5.5);
+    pdf.text('Trips', margin + 70, yPosition + 5.5);
+    pdf.text('Revenue', margin + 100, yPosition + 5.5);
+    pdf.text('Punctuality', margin + 150, yPosition + 5.5);
+    
+    yPosition += 8;
+    
+    pdf.setFontSize(8);
+    topConductors.forEach((conductor, idx) => {
+      if (idx % 2 === 0) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 7, 'F');
+      }
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(73, 80, 87);
+      pdf.text(conductor.name, margin + 6, yPosition + 5);
+      pdf.text(conductor.trips.toString(), margin + 70, yPosition + 5);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(150, 28, 30);
+      pdf.text(`PHP ${conductor.revenue.toLocaleString()}`, margin + 100, yPosition + 5);
+      
+      pdf.setTextColor(5, 150, 105);
+      pdf.text(`${conductor.punctuality}%`, margin + 150, yPosition + 5);
+      
+      yPosition += 7;
+    });
+
+    yPosition += 10;
+
+    // === TOP PERFORMING ROUTES ===
+    checkPageBreak(65);
+    
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'F');
+    pdf.setDrawColor(233, 236, 239);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 60, 'S');
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(73, 80, 87);
+    pdf.text('Top Performing Routes', margin + 3, yPosition + 6);
+    
+    yPosition += 12;
+    
+    pdf.setFillColor(150, 28, 30);
+    pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 8, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Route', margin + 6, yPosition + 5.5);
+    pdf.text('Trips', margin + 110, yPosition + 5.5);
+    pdf.text('Revenue', margin + 145, yPosition + 5.5);
+    
+    yPosition += 8;
+    
+    pdf.setFontSize(8);
+    topRoutes.forEach((route, idx) => {
+      if (idx % 2 === 0) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 7, 'F');
+      }
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(73, 80, 87);
+      pdf.text(route.name, margin + 6, yPosition + 5);
+      pdf.text(route.trips.toString(), margin + 110, yPosition + 5);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(150, 28, 30);
+      pdf.text(`PHP ${route.revenue.toLocaleString()}`, margin + 145, yPosition + 5);
+      
+      yPosition += 7;
+    });
+
+    yPosition += 10;
+
+    // === ML INSIGHTS ===
+    checkPageBreak(65);
+    
+    pdf.setFillColor(248, 249, 250);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 50, 'F');
+    pdf.setDrawColor(233, 236, 239);
+    pdf.rect(margin, yPosition, pageWidth - 2 * margin, 50, 'S');
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(73, 80, 87);
+    pdf.text('ML Insights - Top Driver-Conductor Pairs', margin + 3, yPosition + 6);
+    
+    yPosition += 12;
+    
+    pdf.setFillColor(150, 28, 30);
+    pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 8, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Driver', margin + 6, yPosition + 5.5);
+    pdf.text('Conductor', margin + 60, yPosition + 5.5);
+    pdf.text('Team Trips', margin + 115, yPosition + 5.5);
+    pdf.text('Team Revenue', margin + 145, yPosition + 5.5);
+    
+    yPosition += 8;
+    
+    pdf.setFontSize(8);
+    mlTopPairs.forEach((pair, idx) => {
+      if (idx % 2 === 0) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.rect(margin + 3, yPosition, pageWidth - 2 * margin - 6, 7, 'F');
+      }
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(73, 80, 87);
+      pdf.text(pair.driver, margin + 6, yPosition + 5);
+      pdf.text(pair.conductor, margin + 60, yPosition + 5);
+      pdf.text(pair.tripsAsTeam.toString(), margin + 115, yPosition + 5);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(150, 28, 30);
+      pdf.text(`PHP ${pair.revenueAsTeam.toLocaleString()}`, margin + 145, yPosition + 5);
+      
+      yPosition += 7;
+    });
+
+      // === FOOTER ===
+      pdf.setFillColor(248, 249, 250);
+      pdf.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(108, 117, 125);
+      pdf.text(
+        `Generated on ${new Date().toLocaleString()}`,
+        pageWidth / 2,
+        pageHeight - 5,
+        { align: 'center' }
+      );
+
+      pdf.save(`Performance_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
     }
-
-    pdf.save(`Performance_Report_${new Date().toISOString().split("T")[0]}.pdf`);
-
-    // Restore background color after export
-    element.style.backgroundColor = originalBackground;
   };
 
 
