@@ -10,6 +10,10 @@
 // ============================================
 
 import { apiFetch, apiGet, apiPost } from '@/lib/api-fetch';
+import { useAuth, useIsAuthenticated } from '@/lib/auth/use-auth';
+import { logout } from '@/lib/auth-utils';
+import { authStore } from '@/lib/auth/auth-store';
+import { useEffect, useState } from 'react';
 
 // Basic fetch with auto-refresh
 async function fetchUsers() {
@@ -39,8 +43,8 @@ async function createUser(userData: any) {
 
 'use client';
 
-import { useAuth, useIsAuthenticated } from '@/lib/auth/use-auth';
-import { logout } from '@/lib/auth-utils';
+// import { useAuth, useIsAuthenticated } from '@/lib/auth/use-auth'; // Already imported at top
+// import { logout } from '@/lib/auth-utils'; // Already imported at top
 
 function ProfileComponent() {
   const { accessToken } = useAuth();
@@ -69,9 +73,9 @@ function ProfileComponent() {
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useIsAuthenticated } from '@/lib/auth/use-auth';
-import { apiGet } from '@/lib/api-fetch';
+// import { useEffect, useState } from 'react';
+// import { useIsAuthenticated } from '@/lib/auth/use-auth'; // Already imported at top
+// import { apiGet } from '@/lib/api-fetch'; // Already imported at top
 
 function DashboardPage() {
   const isAuthenticated = useIsAuthenticated();
@@ -102,7 +106,7 @@ function DashboardPage() {
 // EXAMPLE 4: Manual token access
 // ============================================
 
-import { authStore } from '@/lib/auth/auth-store';
+// import { authStore } from '@/lib/auth/auth-store';
 
 function manualTokenUsage() {
   // Get current token
@@ -122,20 +126,20 @@ function manualTokenUsage() {
 // ============================================
 
 // app/api/users/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+// import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: any) {
   // The accessToken is NOT available in server-side routes
   // Use the refreshToken cookie to validate on backend
   
   const refreshToken = request.cookies.get('refreshToken')?.value;
   
   if (!refreshToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return { error: 'Unauthorized', status: 401 }; // Return plain object for example
   }
   
   // Your logic here...
-  return NextResponse.json({ users: [] });
+  return { users: [] }; // Return plain object for example
 }
 
 // ============================================
@@ -152,7 +156,7 @@ async function fetchDashboardOld() {
 }
 
 // AFTER (new way with auto-refresh)
-import { apiFetch } from '@/lib/api-fetch';
+// import { apiFetch } from '@/lib/api-fetch'; // Already imported at top
 
 async function fetchDashboardNew() {
   const response = await apiFetch('/api/dashboard', {
@@ -162,7 +166,7 @@ async function fetchDashboardNew() {
 }
 
 // Or even simpler:
-import { apiGet } from '@/lib/api-fetch';
+// import { apiGet } from '@/lib/api-fetch'; // Already imported at top
 
 async function fetchDashboardSimple() {
   return apiGet('/api/dashboard');
@@ -174,7 +178,7 @@ async function fetchDashboardSimple() {
 
 'use client';
 
-import { logout } from '@/lib/auth-utils';
+// import { logout } from '@/lib/auth-utils'; // Already imported at top
 
 export function LogoutButton() {
   const handleLogout = async () => {
@@ -199,7 +203,7 @@ export function LogoutButton() {
 
 'use client';
 
-import { useIsAuthenticated } from '@/lib/auth/use-auth';
+// import { useIsAuthenticated } from '@/lib/auth/use-auth'; // Already imported at top
 
 export function ConditionalComponent() {
   const isAuthenticated = useIsAuthenticated();
@@ -219,7 +223,7 @@ export function ConditionalComponent() {
 // EXAMPLE 9: Error handling with auto-refresh
 // ============================================
 
-import { apiFetch } from '@/lib/api-fetch';
+// import { apiFetch } from '@/lib/api-fetch'; // Already imported at top
 
 async function fetchDataWithErrorHandling() {
   try {
@@ -245,8 +249,8 @@ async function fetchDataWithErrorHandling() {
 
 'use client';
 
-import { useState } from 'react';
-import { apiPost } from '@/lib/api-fetch';
+// import { useState } from 'react';
+// import { apiPost } from '@/lib/api-fetch'; // Already imported at top
 
 export function CreateUserForm() {
   const [name, setName] = useState('');
