@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LOGIN_URL } from '@/lib/urls';
+
+// --- Auth Configuration ---
+const AUTH_LOGIN_URL = 'https://auth.agilabuscorp.me/authentication/login';
+const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
 
 // --- Role and Page Access Definitions ---
 export const ROLES = {
@@ -10,6 +13,8 @@ export const ROLES = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
+// Define which roles can access specific routes (optional - for fine-grained control)
+// If a route is not listed here, all authenticated users can access it
 export const PAGE_ACCESS: Record<string, Role[]> = {
   //'/dashboard': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER],
   '/bus-assignment': [ROLES.ADMIN, ROLES.OPERATIONAL_MANAGER, ROLES.DISPATCHER],
@@ -32,83 +37,77 @@ export const getAllowedRolesForPage = (pathname: string): Role[] | undefined => 
   return dynamicMatch?.[1];
 };
 
-function extractTokenFromCookie(cookie: string | undefined): string | null {
+/**
+ * Extract refreshToken from cookies.
+ * The refreshToken should be an httpOnly cookie set by the backend.
+ */
+function extractRefreshTokenFromCookie(cookie: string | undefined): string | null {
   if (!cookie) return null;
-  const jwtMatch = cookie.match(/(?:^|;\s*)jwt=([^;]+)/);
-  const tokenMatch = cookie.match(/(?:^|;\s*)token=([^;]+)/);
-  return jwtMatch?.[1] || tokenMatch?.[1] || null;
+  
+  const refreshTokenMatch = cookie.match(
+    new RegExp(`(?:^|;\\s*)${REFRESH_TOKEN_COOKIE_NAME}=([^;]+)`)
+  );
+  
+  return refreshTokenMatch?.[1] || null;
 }
 
 // --- Middleware ---
+/**
+ * Middleware for route protection.
+ * 
+ * Security Model:
+ * - ALL routes matched by config.matcher require authentication
+ * - Checks for refreshToken httpOnly cookie
+ * - Does NOT validate the token (delegated to API routes)
+ * - Redirects to auth page if no refreshToken found
+ * 
+ * Flow:
+ * 1. If route matches config.matcher, it requires authentication
+ * 2. Check for refreshToken cookie
+ * 3. If no cookie, redirect to auth.agilbuscorp.me
+ * 4. If cookie exists, allow request (token validation happens in API calls)
+ * 
+ * Note: PAGE_ACCESS is optional for role-based restrictions (future use)
+ */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const loginUrl = 'https://auth.agilabuscorp.me/authentication/login';
   
   console.log(`[middleware] Incoming request for "${pathname}"`);
 
-  const allowedRoles = getAllowedRolesForPage(pathname);
-  if (!allowedRoles) {
-    console.log(`[middleware] Route "${pathname}" is public or not protected.`);
-    return NextResponse.next();
-  }
-
+  // Since this middleware only runs on matched routes (see config.matcher below),
+  // ALL requests here require authentication
+  
+  // Check for refreshToken in cookies
   const cookie = request.headers.get('cookie');
-  const token = extractTokenFromCookie(cookie || '');
-  if (!token) {
-    console.warn(`[middleware] No token found. Redirecting to login.`);
-    //return NextResponse.redirect(loginUrl);
-    return new NextResponse('[middleware] No token found. Redirecting to login.', { status: 404 });
+  const refreshToken = extractRefreshTokenFromCookie(cookie || '');
+  
+  if (!refreshToken) {
+    console.warn(`[middleware] No refreshToken found for "${pathname}". Redirecting to auth login.`);
+    return NextResponse.redirect(AUTH_LOGIN_URL);
   }
 
-  const verifyUrl = `${process.env.NEXT_PUBLIC_Backend_BaseURL}/api/VerifyToken`;
-  let res;
-  try {
-    res = await fetch(verifyUrl, {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-  } catch (err) {
-    console.error(`[middleware] Error calling verify endpoint:`, err);
-    return NextResponse.redirect(loginUrl);
-    //return new NextResponse('[middleware] Error calling verify endpoint:', { status: 404 });
-  }
-
-  if (!res.ok) {
-    console.warn(`[middleware] Verify endpoint error. Redirecting to login.`);
-    return NextResponse.redirect(loginUrl);
-    //return new NextResponse('[middleware] Verify endpoint error. Redirecting to login.', { status: 404 });
-  }
-
-  let data;
-  try {
-    data = await res.json();
-  } catch (err) {
-    console.error(`[middleware] Error parsing verify response. Redirecting to login.`);
-    return NextResponse.redirect(loginUrl);
-    //return new NextResponse('[middleware] Error parsing verify response. Redirecting to login.', { status: 404 });
-  }
-
-  if (!data.valid) {
-    console.warn(`[middleware] Invalid token. Redirecting to login.`);
-    return NextResponse.redirect(loginUrl);
-    //return new NextResponse('[middleware] Invalid token. Redirecting to login.', { status: 404 });
-  }
-
-  // const userRole = data.user?.role;
-  // if (!allowedRoles.includes(userRole)) {
-  //   console.warn(`[middleware] Role "${userRole}" not allowed for "${pathname}". Redirecting to login.`);
-  //   return NextResponse.redirect(loginUrl);
-  //   //return new NextResponse('[middleware] Role not Allowed', { status: 404 });
+  // RefreshToken exists - allow access
+  // Token validation will happen in API calls via apiFetch wrapper
+  console.log(`[middleware] RefreshToken found. Access granted to "${pathname}".`);
+  
+  // Optional: Check role-based access (future implementation)
+  // const allowedRoles = getAllowedRolesForPage(pathname);
+  // if (allowedRoles) {
+  //   // Validate user role here
   // }
-
-  // console.log(`[middleware] Access granted to "${pathname}" for role "${userRole}".`);
+  
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    '/bus-assignment',
-    //'/dashboard',
+    // Dashboard routes
+    '/dashboard/:path*',
+    '/bus-assignment/:path*',
+    '/bus-rental/:path*',
+    '/maintenance/:path*',
+    '/performance-report/:path*',
+    '/qouta-assignment/:path*',
     '/route-management/:path*',
     '/bus-operation/:path*',
   ],

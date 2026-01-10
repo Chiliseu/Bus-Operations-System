@@ -1,5 +1,6 @@
 import { fetchDriversFullWithToken, fetchConductorsFullWithToken, fetchBusesFullWithToken } from '@/lib/apiCalls/external';
 import { BUS_ASSIGNMENT_URL } from '@/lib/urls';
+import { apiFetch, apiPost, apiPut } from '@/lib/api-fetch';
 
 const Backend_BaseURL = process.env.NEXT_PUBLIC_Backend_BaseURL;
 
@@ -13,7 +14,7 @@ export async function fetchAssignmentDetails(): Promise<any[]> {
 
   // Fetch all in parallel
   const [assignmentsRes, drivers, conductors, buses] = await Promise.all([
-    fetch(BUS_ASSIGNMENT_URL, { credentials: 'include' }),
+    apiFetch(BUS_ASSIGNMENT_URL, { method: 'GET' }),
     fetchDriversFullWithToken(),
     fetchConductorsFullWithToken(),
     fetchBusesFullWithToken(),
@@ -38,25 +39,7 @@ export async function fetchAssignmentDetails(): Promise<any[]> {
 }
 
 export async function createBusAssignment(data: any): Promise<any> {
-  const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
-
-  const response = await fetch(BUS_ASSIGNMENT_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include', // Send cookies (including token)
-    body: JSON.stringify(data),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.error || 'Failed to create BusAssignment');
-  }
-
+  const result = await apiPost(BUS_ASSIGNMENT_URL, data);
   return result;
 }
 
@@ -79,26 +62,9 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
 
   if (!response.ok) {
     throw new Error(result.error || 'Failed to update BusAssignment');
-  }
-
-  return result;
-}
-
-export async function sofDeleteBusAssignment(
-  BusAssignmentID: string,
-  IsDeleted: boolean
-): Promise<{ IsDeleted: boolean }> {
-  const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
-  if (typeof IsDeleted !== 'boolean') throw new Error("IsDeleted must be a boolean.");
-
-  const response = await fetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  
+  const result = await apiPut(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, data);    },
     credentials: 'include', // Send cookies (including token)
     body: JSON.stringify({ IsDeleted }),
   });
@@ -110,4 +76,8 @@ export async function sofDeleteBusAssignment(
   }
 
   return result;
-}
+}if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
+  if (typeof IsDeleted !== 'boolean') throw new Error("IsDeleted must be a boolean.");
+
+  const response = await apiFetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
+    method: 'PATCH',

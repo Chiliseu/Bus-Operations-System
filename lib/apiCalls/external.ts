@@ -1,4 +1,5 @@
 import { DRIVERS_FULL_URL, CONDUCTORS_FULL_URL, DRIVERS_URL, CONDUCTORS_URL, DRIVERS_RENT_URL, BUSES_RENT_URL } from '@/lib/urls';
+import { apiFetch } from '@/lib/api-fetch';
 
 export async function fetchDriversWithToken(): Promise<any[]> {
   const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
@@ -7,9 +8,7 @@ export async function fetchDriversWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(DRIVERS_URL, {
-    credentials: 'include',
-  });
+  const response = await apiFetch(DRIVERS_URL, { method: 'GET' });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch drivers: ${response.statusText}`);
@@ -26,9 +25,7 @@ export async function fetchConductorsWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(CONDUCTORS_URL, {
-    credentials: 'include',
-  });
+  const response = await apiFetch(CONDUCTORS_URL, { method: 'GET' });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch conductors: ${response.statusText}`);
@@ -47,9 +44,7 @@ export async function fetchBusesWithToken(): Promise<any[]> {
 
   const response = await fetch(`${baseUrl}/api/external/buses`, {
     credentials: 'include',
-  });
-
-  if (!response.ok) {
+  });apiFetch(`${baseUrl}/api/external/buses`, { method: 'GET' if (!response.ok) {
     throw new Error(`Failed to fetch buses: ${response.statusText}`);
   }
 
@@ -66,9 +61,7 @@ export async function fetchDriversFullWithToken(): Promise<any[]> {
 
   const response = await fetch(DRIVERS_FULL_URL, {
     credentials: 'include',
-  });
-
-  if (!response.ok) {
+  });apiFetch(DRIVERS_FULL_URL, { method: 'GET' if (!response.ok) {
     throw new Error(`Failed to fetch drivers: ${response.statusText}`);
   }
 
@@ -87,9 +80,7 @@ export async function fetchConductorsFullWithToken(): Promise<any[]> {
     credentials: 'include',
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch conductors: ${response.statusText}`);
-  }
+  if (!response.ok) {apiFetch(CONDUCTORS_FULL_URL, { method: 'GET' }
 
   const json = await response.json();
   return json.data;
@@ -106,9 +97,7 @@ export async function fetchBusesFullWithToken(): Promise<any[]> {
     credentials: 'include',
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch buses: ${response.statusText}`);
-  }
+  if (!response.ok) {apiFetch(`${baseUrl}/api/external/buses/full`, { method: 'GET' }
 
   const json = await response.json();
   return json.data;
@@ -130,12 +119,9 @@ export async function fetchRentDriversWithToken(token: string, startDate?: strin
     },
     credentials: 'include', // <-- include cookies/session credentials
     cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error || 'Failed to fetch available rental drivers');
-  }
+  });apiFetch(`${baseUrl}/api/external/drivers/rent?${query.toString()}`, {
+    method: 'GET',
+    cache: 'no-store' as RequestCache
 
   const json = await response.json();
   return json.data;
@@ -166,10 +152,7 @@ export async function fetchRentBusesWithToken(
   });
 
   if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error || 'Failed to fetch available rental buses');
-  }
-
-  const json = await response.json();
-  return json.data;
+    const err = await resapiFetch(`${baseUrl}/api/external/buses/rent?${query.toString()}`, {
+    method: 'GET',
+    cache: 'no-store' as RequestCache
 }

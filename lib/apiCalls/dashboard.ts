@@ -1,19 +1,21 @@
 import { DASHBOARD_URL } from '@/lib/urls';
+import { apiFetch } from '@/lib/api-fetch';
 
+/**
+ * Fetch dashboard summary with automatic token refresh.
+ * 
+ * Uses apiFetch which:
+ * - Automatically adds Authorization header with accessToken
+ * - Refreshes token on 401 errors
+ * - Includes credentials for refreshToken cookie
+ */
 export async function fetchDashboardSummary(): Promise<{
   earnings: { month: number; year: number; data: number[] };
   busStatus: { NotStarted: number; NotReady: number; InOperation: number };
   topRoutes: { [routeName: string]: number };
 }> {
-  const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
-  if (!baseUrl) {
-    throw new Error("Base URL is not defined in environment variables.");
-  }
-
-  const response = await fetch(DASHBOARD_URL, {
+  const response = await apiFetch(DASHBOARD_URL, {
     method: "GET",
-    credentials: "include",
   });
 
   if (!response.ok) {
