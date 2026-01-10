@@ -46,3 +46,6 @@ export const DRIVERS_RENT_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_DriversRen
 
 export const BUSES_RENT_URL = `${BASE_URL}${process.env.NEXT_PUBLIC_BusesRent_Endpoint}`;
 
+// Damage Reports
+export const DAMAGE_REPORT_URL = `${BASE_URL}/api/damage-report`;
+

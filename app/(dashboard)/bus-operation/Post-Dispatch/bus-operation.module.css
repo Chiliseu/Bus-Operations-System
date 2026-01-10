@@ -373,3 +373,44 @@
 .styledTableWrapper::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* === Tab Navigation Styles === */
+
+.tabContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.tabButton {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Open Sans', sans-serif;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  margin-bottom: -2px;
+}
+
+.tabButton:hover {
+  color: #2D8EFF;
+  background-color: #f3f4f6;
+}
+
+.tabButton.tabActive {
+  color: #2D8EFF;
+  border-bottom-color: #2D8EFF;
+  background-color: transparent;
+}
+
+.tabButton i {
+  font-size: 16px;
+}

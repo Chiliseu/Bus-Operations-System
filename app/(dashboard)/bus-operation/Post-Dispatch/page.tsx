@@ -5,8 +5,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
 import PostDispatchModal from '@/components/modal/Post-Dispatch-Modal/PostDispatchModal';
+import VehicleCheckModal from '@/components/modal/Vehicle-Check-Modal/VehicleCheckModal';
 import { fetchBusAssignmentsWithStatus } from '@/lib/apiCalls/bus-operation';
-import { updateBusAssignmentData } from '@/lib/apiCalls/bus-operation';
+import { updateBusAssignmentData, createVehicleCheckDamageReport } from '@/lib/apiCalls/bus-operation';
 
 
 // --- Shared imports ---
@@ -14,13 +15,17 @@ import { Loading, FilterDropdown, PaginationComponent, Swal, Image, LoadingModal
 import type { FilterSection } from '@/shared/imports';
 import { BusAssignment } from '@/app/interface/bus-assignment';
 
+type TabType = 'vehicle-check' | 'sales-entry';
+
 const BusOperationPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('vehicle-check');
   const [currentPage, setCurrentPage] = useState(1);
   const [assignments, setAssignments] = useState<(BusAssignment & {
     driverName?: string;
     conductorName?: string;
     busLicensePlate?: string;
     busType?: string;
+    hasVehicleCheck?: boolean; // Track if vehicle check is completed
   })[]>([]);
   const [displayedAssignments, setDisplayedAssignments] = useState<typeof assignments>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -35,6 +40,7 @@ const BusOperationPage: React.FC = () => {
     sortBy: 'created_newest'
   });
   const [showPostDispatchModal, setShowPostDispatchModal] = useState(false);
+  const [showVehicleCheckModal, setShowVehicleCheckModal] = useState(false);
   const [selectedBusInfo, setSelectedBusInfo] = useState<any | null>(null);
 
   const filterSections: FilterSection[] = [
@@ -105,6 +111,13 @@ const BusOperationPage: React.FC = () => {
   useEffect(() => {
     let filtered = [...assignments];
 
+    // Filter by tab: Vehicle Check shows buses WITHOUT vehicle check, Sales Entry shows WITH
+    if (activeTab === 'vehicle-check') {
+      filtered = filtered.filter(a => !a.hasVehicleCheck);
+    } else {
+      filtered = filtered.filter(a => a.hasVehicleCheck);
+    }
+
     // Search filter
     if (searchQuery) {
       const lower = searchQuery.toLowerCase();
@@ -170,7 +183,7 @@ const BusOperationPage: React.FC = () => {
     const endIndex = startIndex + pageSize;
     setDisplayedAssignments(filtered.slice(startIndex, endIndex));
     setTotalPages(Math.ceil(filtered.length / pageSize));
-  }, [assignments, searchQuery, activeFilters, currentPage, pageSize]);
+  }, [assignments, searchQuery, activeFilters, currentPage, pageSize, activeTab]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -190,9 +203,46 @@ const BusOperationPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (assignment: any) => {
-    setSelectedBusInfo(assignment); // Pass the whole assignment object
+  const handleVehicleCheckEdit = (assignment: any) => {
+    setSelectedBusInfo(assignment);
+    setShowVehicleCheckModal(true);
+  };
+
+  const handleSalesEntryEdit = (assignment: any) => {
+    setSelectedBusInfo(assignment);
     setShowPostDispatchModal(true);
+  };
+
+  const handleSaveVehicleCheck = async (formData: {
+    busAssignmentID: string;
+    busTripID: string;
+    vehicleCondition: Record<string, boolean>;
+    note: string;
+  }) => {
+    try {
+      setLoadingModal(true);
+
+      // Call API to create damage report for vehicle check
+      await createVehicleCheckDamageReport(formData);
+
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Vehicle Check Completed',
+        text: 'Vehicle condition has been recorded. You can now proceed to Sales Entry.',
+      });
+
+      fetchAssignments();
+      setShowVehicleCheckModal(false);
+      setSelectedBusInfo(null);
+    } catch (error: any) {
+      setLoadingModal(false);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Vehicle Check Failed',
+        text: 'Failed to save vehicle check. Please try again.',
+      });
+    }
   };
 
   const handleSavePostDispatch = async (formData: {
@@ -252,6 +302,30 @@ const BusOperationPage: React.FC = () => {
       <div className={styles.cardBody}>
         <h2 className={styles.stopTitle}>Post-Dispatch Bus Operation</h2>
 
+        {/* Tab Navigation */}
+        <div className={styles.tabContainer}>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'vehicle-check' ? styles.tabActive : ''}`}
+            onClick={() => {
+              setActiveTab('vehicle-check');
+              setCurrentPage(1);
+            }}
+          >
+            <i className="ri-bus-line" style={{ marginRight: '6px' }}></i>
+            Vehicle Check
+          </button>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'sales-entry' ? styles.tabActive : ''}`}
+            onClick={() => {
+              setActiveTab('sales-entry');
+              setCurrentPage(1);
+            }}
+          >
+            <i className="ri-money-dollar-circle-line" style={{ marginRight: '6px' }}></i>
+            Sales Entry
+          </button>
+        </div>
+
         <div className={styles.toolbar}>
           <div className={styles.searchWrapper}>
             <i className="ri-search-2-line"></i>
@@ -271,7 +345,9 @@ const BusOperationPage: React.FC = () => {
         </div>
 
         <p className={styles.description}>
-          Review and update regular bus assignments after dispatch.
+          {activeTab === 'vehicle-check' 
+            ? 'Conduct post-trip vehicle condition check before recording sales.'
+            : 'Record bus sales and trip expenses after vehicle check is completed.'}
         </p>
 
         {loading ? (
@@ -303,8 +379,24 @@ const BusOperationPage: React.FC = () => {
                       <td>{assignment.CreatedAt ? new Date(assignment.CreatedAt).toLocaleString() : 'N/A'}</td>
                       <td>{assignment.UpdatedAt ? new Date(assignment.UpdatedAt).toLocaleString() : 'No updates'}</td>
                       <td className={styles.centeredColumn}>
-                        <button className={styles.editBtn} onClick={() => handleEdit(assignment)}>
-                          <img src="/assets/images/edit-white.png" alt="Edit" width={25} height={25} />
+                        <button 
+                          className={styles.editBtn} 
+                          onClick={() => activeTab === 'vehicle-check' 
+                            ? handleVehicleCheckEdit(assignment) 
+                            : handleSalesEntryEdit(assignment)
+                          }
+                          title={activeTab === 'vehicle-check' ? 'Vehicle Check' : 'Sales Entry'}
+                        >
+                          {activeTab === 'vehicle-check' ? (
+                            <i className="ri-file-list-3-line" style={{ fontSize: '20px', color: 'white' }}></i>
+                          ) : (
+                            <img 
+                              src="/assets/images/edit-white.png" 
+                              alt="Edit" 
+                              width={25} 
+                              height={25} 
+                            />
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -332,7 +424,7 @@ const BusOperationPage: React.FC = () => {
           }}
         />
 
-        {selectedBusInfo && (
+        {selectedBusInfo && showPostDispatchModal && (
           <PostDispatchModal
             show={showPostDispatchModal}
             onClose={() => {
@@ -341,6 +433,25 @@ const BusOperationPage: React.FC = () => {
             }}
             busInfo={selectedBusInfo}
             onSave={handleSavePostDispatch} // <-- pass the handler as a prop
+          />
+        )}
+
+        {selectedBusInfo && showVehicleCheckModal && (
+          <VehicleCheckModal
+            show={showVehicleCheckModal}
+            onClose={() => {
+              setShowVehicleCheckModal(false);
+              setSelectedBusInfo(null);
+            }}
+            busInfo={{
+              busAssignmentID: selectedBusInfo.BusAssignmentID,
+              busTripID: selectedBusInfo.RegularBusAssignment?.LatestBusTrip?.BusTripID ?? '',
+              busNumber: selectedBusInfo.busLicensePlate ?? '',
+              driver: selectedBusInfo.driverName ?? '',
+              conductor: selectedBusInfo.conductorName ?? '',
+              route: selectedBusInfo.Route?.RouteName ?? 'No Route',
+            }}
+            onSave={handleSaveVehicleCheck}
           />
         )}
 

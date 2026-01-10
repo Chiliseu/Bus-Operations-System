@@ -6,7 +6,8 @@
 //  IMPORTS START
 // ====================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 // Style Imports
 import styles from './bus-assignment.module.css';
@@ -35,7 +36,10 @@ import type { FilterSection } from '@/shared/imports';
 //  IMPORTS END
 // ====================================
 
-const BusAssignmentPage: React.FC = () => {
+const BusAssignmentPageContent: React.FC = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
   // Local helper: relative "time ago" label using Intl.RelativeTimeFormat
   const formatTimeAgo = (dateInput?: string | Date | null) => {
     if (!dateInput) return "-";
@@ -275,6 +279,24 @@ const BusAssignmentPage: React.FC = () => {
   useEffect(() => {
     fetchAssignments();
   }, []);
+
+  // **Handle edit query parameter from URL**
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (editId && busAssignments.length > 0) {
+      // Find the assignment with matching BusAssignmentID
+      const assignmentToEdit = busAssignments.find(
+        (a) => a.BusAssignment?.BusAssignmentID === editId
+      );
+      
+      if (assignmentToEdit) {
+        // Trigger edit modal for this assignment
+        handleEdit(assignmentToEdit);
+        // Clear the query parameter from URL
+        router.replace('/bus-assignment', { scroll: false });
+      }
+    }
+  }, [searchParams, busAssignments]);
 
   // Filter
   const handleApplyFilters = (filterValues: Record<string, any>) => {
@@ -741,7 +763,14 @@ const BusAssignmentPage: React.FC = () => {
       {modalLoading && !showDeleteModal && <LoadingModal/>}
     </div>
   );
+};
 
+const BusAssignmentPage: React.FC = () => {
+  return (
+    <Suspense fallback={<LoadingModal />}>
+      <BusAssignmentPageContent />
+    </Suspense>
+  );
 };
 
 export default BusAssignmentPage;

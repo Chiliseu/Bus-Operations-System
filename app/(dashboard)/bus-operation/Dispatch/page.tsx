@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './bus-operation.module.css';
 import '../../../../styles/globals.css';
@@ -12,6 +13,7 @@ import type { FilterSection } from '@/shared/imports';
 import { BusAssignment } from '@/app/interface/bus-assignment';
 
 const BusOperationPage: React.FC = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [assignments, setAssignments] = useState<(BusAssignment & {
     driverName?: string;
@@ -201,11 +203,35 @@ const BusOperationPage: React.FC = () => {
         fetchAssignments();
       } catch (error: any) {
         setLoadingModal(false);
-        await Swal.fire({
-          icon: 'error',
-          title: 'Dispatch Failed',
-          text: 'Failed to dispatch.',
-        });
+        
+        // Check for specific error messages
+        const errorMessage = error?.message || '';
+        
+        if (errorMessage.includes('No active QuotaPolicy')) {
+          const editResult = await Swal.fire({
+            icon: 'error',
+            title: 'No Active Quota Policy',
+            html: `
+              <p>Cannot dispatch: The bus assignment does not have an active Quota Policy that covers today's date.</p>
+              <p style="margin-top: 10px; color: #666;">Please update the Quota Policy date range to include today.</p>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Edit Quota Policy',
+            cancelButtonText: 'Close',
+            confirmButtonColor: '#2D8EFF',
+          });
+          
+          if (editResult.isConfirmed) {
+            // Navigate to bus assignment page with edit parameter
+            router.push(`/bus-assignment?edit=${BusAssignmentID}`);
+          }
+        } else {
+          await Swal.fire({
+            icon: 'error',
+            title: 'Dispatch Failed',
+            text: errorMessage || 'Failed to dispatch.',
+          });
+        }
       }
     }
   };
