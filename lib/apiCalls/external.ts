@@ -42,8 +42,8 @@ export async function fetchBusesWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/buses`, {
-    credentials: 'include',
+  const response = await apiFetch(`${baseUrl}/api/external/buses`, {
+    method: 'GET',
   });
 
   if (!response.ok) {
@@ -61,8 +61,8 @@ export async function fetchDriversFullWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(DRIVERS_FULL_URL, {
-    credentials: 'include',
+  const response = await apiFetch(DRIVERS_FULL_URL, {
+    method: 'GET',
   });
 
   if (!response.ok) {
@@ -80,8 +80,8 @@ export async function fetchConductorsFullWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(CONDUCTORS_FULL_URL, {
-    credentials: 'include',
+  const response = await apiFetch(CONDUCTORS_FULL_URL, {
+    method: 'GET',
   });
 
   if (!response.ok) {
@@ -99,8 +99,8 @@ export async function fetchBusesFullWithToken(): Promise<any[]> {
     throw new Error("Base URL is not defined in environment variables.");
   }
 
-  const response = await fetch(`${baseUrl}/api/external/buses/full`, {
-    credentials: 'include',
+  const response = await apiFetch(`${baseUrl}/api/external/buses/full`, {
+    method: 'GET',
   });
 
   if (!response.ok) {
@@ -121,12 +121,9 @@ export async function fetchRentDriversWithToken(token: string, startDate?: strin
     query.append('duration', String(duration));
   }
 
-  const response = await fetch(`${baseUrl}/api/external/drivers/rent?${query.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: 'include', // <-- include cookies/session credentials
-    cache: 'no-store',
+  const response = await apiFetch(`${baseUrl}/api/external/drivers/rent?${query.toString()}`, {
+    method: 'GET',
+    cache: 'no-store' as RequestCache,
   });
 
   if (!response.ok) {
@@ -153,12 +150,9 @@ export async function fetchRentBusesWithToken(
     query.append('duration', String(duration));
   }
 
-  const response = await fetch(`${baseUrl}/api/external/buses/rent?${query.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: 'include', // <-- include cookies/session credentials
-    cache: 'no-store',
+  const response = await apiFetch(`${baseUrl}/api/external/buses/rent?${query.toString()}`, {
+    method: 'GET',
+    cache: 'no-store' as RequestCache,
   });
 
   if (!response.ok) {

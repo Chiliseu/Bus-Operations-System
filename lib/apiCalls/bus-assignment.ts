@@ -44,26 +44,9 @@ export async function createBusAssignment(data: any): Promise<any> {
 }
 
 export async function updateBusAssignment(BusAssignmentID: string, data: any): Promise<any> {
-  const baseUrl = process.env.NEXT_PUBLIC_Backend_BaseURL;
-
-  if (!baseUrl) throw new Error("Base URL is not defined in environment variables.");
   if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
-
-  const response = await fetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include', // Send cookies (including token)
-    body: JSON.stringify(data),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.error || 'Failed to update BusAssignment');
-  }
-
+  
+  const result = await apiPut(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, data);
   return result;
 }
 
