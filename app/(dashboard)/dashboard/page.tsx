@@ -689,7 +689,7 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}>Payment Method</span>
-                    <span className={styles.detailValue}>{selectedTrip.PaymentMethod || '-'}</span>
+                    <span className={styles.detailValue}>{selectedTrip.Payment_Method || '-'}</span>
                   </div>
                 </div>
               </div>
