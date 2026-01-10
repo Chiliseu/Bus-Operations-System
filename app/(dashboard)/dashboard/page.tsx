@@ -703,11 +703,11 @@ const DashboardPage: React.FC = () => {
 
               {selectedTrip.DamageReports && selectedTrip.DamageReports.length > 0 && (
                 <div className={styles.detailSection}>
-                  <h4>Damage Reports</h4>
+                  <h4>Vehicle Check</h4>
                   <div className={styles.damageReportsList}>
                     {selectedTrip.DamageReports.map((report, idx) => (
                       <div key={idx} className={styles.damageReportItem}>
-                        <span className={styles.damageDescription}>{report.Description}</span>
+                        <span className={styles.damageDescription}>Report #{idx + 1}</span>
                         <span className={`${styles.damageStatus} ${styles[`status${report.Status}`]}`}>
                           {report.Status}
                         </span>
