@@ -22,7 +22,7 @@ import ViewAssignmentModal from '@/components/modal/View-Assignment-Modal/ViewAs
 import DeleteConfirmationModal from '@/components/modal/Delete-Confirmation-Modal/DeleteConfirmationModal';
 
 // API calls Imports
-import { fetchAssignmentDetails, createBusAssignment, sofDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
+import { fetchAssignmentDetails, createBusAssignment, softDeleteBusAssignment, updateBusAssignment } from '@/lib/apiCalls/bus-assignment';
 
 // Interface Imports
 import { Bus, Driver, Conductor, Route, RegularBusAssignment, Quota_Policy } from '@/app/interface';
@@ -417,7 +417,7 @@ const BusAssignmentPage: React.FC = () => {
   const confirmDelete = async () => {
     try {
       setModalLoading(true);
-      await sofDeleteBusAssignment(deleteAssignmentId, true);
+      await softDeleteBusAssignment(deleteAssignmentId, true);
       setModalLoading(false);
       setShowDeleteModal(false);
       

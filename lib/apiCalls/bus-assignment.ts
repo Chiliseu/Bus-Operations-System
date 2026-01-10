@@ -66,3 +66,24 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
 
   return result;
 }
+
+export async function softDeleteBusAssignment(BusAssignmentID: string, IsDeleted: boolean): Promise<any> {
+  if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
+  if (typeof IsDeleted !== 'boolean') throw new Error("IsDeleted must be a boolean.");
+
+  const response = await apiFetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ IsDeleted }),
+  });
+
+  if (!response.ok) {
+    const result = await response.json();
+    throw new Error(result.error || 'Failed to update IsDeleted status');
+  }
+
+  const result = await response.json();
+  return result;
+}
