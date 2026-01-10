@@ -6,7 +6,7 @@
 //  IMPORTS START
 // ====================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 // Style Imports
@@ -36,7 +36,7 @@ import type { FilterSection } from '@/shared/imports';
 //  IMPORTS END
 // ====================================
 
-const BusAssignmentPage: React.FC = () => {
+const BusAssignmentPageContent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -763,7 +763,14 @@ const BusAssignmentPage: React.FC = () => {
       {modalLoading && !showDeleteModal && <LoadingModal/>}
     </div>
   );
+};
 
+const BusAssignmentPage: React.FC = () => {
+  return (
+    <Suspense fallback={<LoadingModal />}>
+      <BusAssignmentPageContent />
+    </Suspense>
+  );
 };
 
 export default BusAssignmentPage;
