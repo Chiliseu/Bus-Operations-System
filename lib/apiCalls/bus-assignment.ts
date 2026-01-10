@@ -62,22 +62,7 @@ export async function updateBusAssignment(BusAssignmentID: string, data: any): P
 
   if (!response.ok) {
     throw new Error(result.error || 'Failed to update BusAssignment');
-  if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
-  
-  const result = await apiPut(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, data);    },
-    credentials: 'include', // Send cookies (including token)
-    body: JSON.stringify({ IsDeleted }),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.error || 'Failed to update IsDeleted status');
   }
 
   return result;
-}if (!BusAssignmentID) throw new Error("BusAssignmentID is required.");
-  if (typeof IsDeleted !== 'boolean') throw new Error("IsDeleted must be a boolean.");
-
-  const response = await apiFetch(`${BUS_ASSIGNMENT_URL}/${BusAssignmentID}`, {
-    method: 'PATCH',
+}

@@ -44,7 +44,9 @@ export async function fetchBusesWithToken(): Promise<any[]> {
 
   const response = await fetch(`${baseUrl}/api/external/buses`, {
     credentials: 'include',
-  });apiFetch(`${baseUrl}/api/external/buses`, { method: 'GET' if (!response.ok) {
+  });
+
+  if (!response.ok) {
     throw new Error(`Failed to fetch buses: ${response.statusText}`);
   }
 
@@ -61,7 +63,9 @@ export async function fetchDriversFullWithToken(): Promise<any[]> {
 
   const response = await fetch(DRIVERS_FULL_URL, {
     credentials: 'include',
-  });apiFetch(DRIVERS_FULL_URL, { method: 'GET' if (!response.ok) {
+  });
+
+  if (!response.ok) {
     throw new Error(`Failed to fetch drivers: ${response.statusText}`);
   }
 
@@ -80,7 +84,9 @@ export async function fetchConductorsFullWithToken(): Promise<any[]> {
     credentials: 'include',
   });
 
-  if (!response.ok) {apiFetch(CONDUCTORS_FULL_URL, { method: 'GET' }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch conductors: ${response.statusText}`);
+  }
 
   const json = await response.json();
   return json.data;
@@ -97,7 +103,9 @@ export async function fetchBusesFullWithToken(): Promise<any[]> {
     credentials: 'include',
   });
 
-  if (!response.ok) {apiFetch(`${baseUrl}/api/external/buses/full`, { method: 'GET' }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch buses: ${response.statusText}`);
+  }
 
   const json = await response.json();
   return json.data;
@@ -119,9 +127,11 @@ export async function fetchRentDriversWithToken(token: string, startDate?: strin
     },
     credentials: 'include', // <-- include cookies/session credentials
     cache: 'no-store',
-  });apiFetch(`${baseUrl}/api/external/drivers/rent?${query.toString()}`, {
-    method: 'GET',
-    cache: 'no-store' as RequestCache
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch rent drivers: ${response.statusText}`);
+  }
 
   const json = await response.json();
   return json.data;
@@ -152,7 +162,10 @@ export async function fetchRentBusesWithToken(
   });
 
   if (!response.ok) {
-    const err = await resapiFetch(`${baseUrl}/api/external/buses/rent?${query.toString()}`, {
-    method: 'GET',
-    cache: 'no-store' as RequestCache
+    const err = await response.json();
+    throw new Error(err.error || `Failed to fetch rent buses: ${response.statusText}`);
+  }
+
+  const json = await response.json();
+  return json.data;
 }
